@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import json
+import argparse
+
+
+def get_template(project_path):
+    return {
+        "folders": [
+            {
+                "file_exclude_patterns": [
+                    "*.iml",
+                    "ajcore.*.txt",
+                    "log.roo"
+                ],
+                "folder_exclude_patterns": [
+                    "target",
+                    ".idea",
+                    "logs",
+                    "node_modules"
+                ],
+                "path": project_path
+            }
+        ]
+    }
+
+
+def write_project(args, project):
+    project_path = os.path.realpath(project)
+    destination = os.path.realpath(os.path.join(args.destination, os.path.basename(project_path) + '.sublime-project'))
+    project_config = json.dumps(get_template(project_path))
+
+    if (args.create):
+        try:
+            os.makedirs(args.destination)
+        except OSError:
+            pass
+
+        with open(destination, 'w') as fp:
+            fp.write(project_config)
+            print('"{}" for "{}"'.format(destination, project_path))
+    else:
+        print('"{}" to "{}"'.format(destination, project_path))
+        verbose_print(args, '{}'.format(project_config))
+
+
+def verbose_print(args, text):
+    if args.verbose:
+        print(text)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="""creates project""")
+    parser.add_argument('--destination', help='destination where projects are saved.', default='projects')
+    parser.add_argument('--source', help='source where projects are.', default='.')
+    parser.add_argument('--create', help='create the actual projects', action='store_true')
+    parser.add_argument('--verbose', help='verbose output', action='store_true')
+    args = parser.parse_args()
+
+    _, projects, _ = os.walk(args.source).next()
+    [write_project(args, project) for project in projects]
+

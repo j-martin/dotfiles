@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import requests
+
+if __name__ == '__main__':
+    url = 'https://api.pushbullet.com/v2/pushes'
+    data = {"type": "note",
+            "email": os.getenv('PUSHBULLET_EMAIL'),
+            "body": '\r'.join(sys.stdin.readlines()[-5:]),
+            "title": "Terminal",
+            }
+    auth = (os.getenv('PUSHBULLET_TOKEN'), '')
+    print(requests.post(url, auth=auth, data=data))

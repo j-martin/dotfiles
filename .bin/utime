@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# utime as in Unix Time.
+# Converts unix timestamp to "human time".
+
+TIME=$(pbpaste)
+
+# Date expects seconds not milliseconds. Unlike Node/Moment
+if [ "${#TIME}" -gt 10 ]; then
+	TIME=$(expr $TIME / 1000)
+fi
+
+date -r$TIME -u +"%Y-%m-%dT%H:%M:%SZ"

@@ -1,0 +1,281 @@
+#!/bin/bash
+
+# Paths
+WORK="$HOME/Work"
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export CDPATH=".:$HOME:$WORK"
+
+source "$HOME/.private/.profile"
+source "$HOME/.functions"
+
+export GOPATH="$HOME/.go"
+export PATH="$PATH:$GOPATH/bin"
+export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
+export NODE_PATH="$NODE_PATH:/usr/local/lib/node_modules"
+export EDITOR='/usr/local/bin/nvim'
+export PAGER='less -SRi'
+export HOSTNAME="$HOST"
+export FZF_DEFAULT_COMMAND='ag -g ""'
+alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
+unset SSL_CERT_FILE
+
+CIRCLE_URL="https://circleci.com/gh"
+GITHUB_URL='https://github.com'
+WAFFLE_URL="https://waffle.io"
+
+# Aliases Helpers
+alias sp='source $HOME/.profile'
+alias alia='ec $HOME/.profile && sp'
+alias aliap='ec $HOME/.private/.profile && sp'
+alias ali='sp && alias | grep '
+
+# Editor
+alias vi='nvim'
+alias v='nvim'
+alias nv='nvim'
+alias vf='_with_fzf nvim'
+alias sf='_with_fzf subl'
+alias et='emacsclient --tty'
+alias e='_with_fzf "ec"'
+alias etf='_with_fzf "emacsclient --tty"'
+
+# Quick edit
+alias eco='_with_fzf "ec" ".conf$" '
+alias esc='_with_fzf "ec" ".scala$" '
+alias ej='_with_fzf "ec" ".java$" '
+alias esb='_with_fzf "ec" ".sbt$" '
+alias epy='_with_fzf "ec" ".py$" '
+alias esh='_with_fzf "ec" ".sh$" '
+alias ejs='_with_fzf "ec" ".js$" '
+alias ejo='_with_fzf "ec" ".json$" '
+alias exm='_with_fzf "ec" ".xml$" '
+
+# Sublime
+alias st='subl'
+alias stt='subl ./' # Depends on the 'st' command in the ~/.bin dir.
+alias sproj="cd $WORK && sublime-project"
+alias spp='EDITOR=subl fpp'
+alias se='EDITOR=subl'
+
+# Convenience
+agl () { ag --color --after=4 "$@" | less -SRi; }
+ags () { ag --color --after=4 --smart-case "$@" | less -SRi; }
+uu () { ag --color --before=2 --after=4 --literal "$@" | less -SRi; }
+agm () { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
+alias agt='ag -QSA10 --color "//todo-jma"'
+alias agtp='ag -QSA10 --color "# todo-jma"'
+alias bupgrade='brew update && brew unlink moreutils && brew upgrade && brew link moreutils'
+alias ca='cal -y'
+alias clf='clf -c'
+alias dk='docker'
+alias dkp='docker ps'
+dki () { docker images | awk '{print $1 ":" $2}' | sort -u ;}
+alias dc='docker-compose'
+alias dm='docker-machine'
+dbuild () {
+    local name=$(basename $(pwd))
+    local image="$(_docker_pick_images ${name:0:5} || _docker_pick_images)"
+    docker build -t "$image" . && docker run -it "$image"
+}
+dlog () { docker logs -f "$(_docker_pick_container $1)" ;}
+drun () { docker run -it "$(_docker_pick_images $1)" bash ;}
+drunb () { docker run --entrypoint='/bin/bash' -it "$(_docker_pick_images $1)" ;}
+dbash () { docker exec -it "$(_docker_pick_container $1)" bash ;}
+dsh () { docker exec -it "$(_docker_pick_container $1)" sh ;}
+dkill () { docker kill "$(_docker_pick_container $1)" ;}
+alias dkillall='docker ps -q | xargs -r docker kill'
+alias drmiall='docker images -q | xargs -r docker rmi -f'
+alias dtest='docker build -t $(basename $(pwd)) . && docker run -it $(basename $(pwd))'
+alias epoch='date +%s000'
+alias ep='pbpaste | $HOME/.bin/ep.py'
+alias gist='gist -p'
+alias goo='google ' # Depends on ZSH google plugin.
+alias hey="growlnotify 'Command Done!' -m 'Yes!'"
+alias hi='history | grep '
+alias hosts='sudo vi /etc/hosts'
+alias jql='jq -C . | less -SRi'
+jqx () { jq . -C "$@" | less -SRi; }
+alias jqc='pbpaste | jq .'
+alias jqcl='pbpaste | jq -C . | less -SRi'
+alias ip='ifconfig | grep "inet 1"'
+idiff () { icdiff "$1" "$2" | less -SRi ; }
+idif () { icdiff "$(_with_fzf $1)" "$(_with_fzf $2)" | less -SRi ; }
+lc () { pygmentize $@ | less -SRi; }
+alias le='less -SRi'
+alias lf='_with_fzf cat | less -SRi'
+alias ler='less README.md'
+alias vir="$EDITOR README.md"
+vme() { $EDITOR "$1" & vmd "$1"; }
+alias vms='EDITOR=subl vme'
+alias vmr='EDITOR=subl vme README.md'
+alias emr='EDITOR=ec vme README.md'
+alias lo='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
+alias ls3='s3cmd ls'
+alias no='e ~/.org/MAIN.org'
+alias m='make'
+alias ml='make -f Makefile.docker'
+alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
+alias op='open $"(pbpaste)"'
+alias opd='open $(basename("$(pbpaste)"))'
+alias pwdc='pwd | pbcopy'
+alias pbclean='pbpaste | pbcopy'
+alias rmq='rabbitmq-server'
+alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
+alias redis-flush='redis-cli flushall'
+s () { ssh "$@"  -t 'command; tmux attach -t jma || tmux new -s jma' ;}
+ss () { ssh "$@"  -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
+alias mtmp='cd $(mktemp -d -t 3)'
+alias tailf='tail -F'
+alias tf='tree -afC'
+alias tfl='tree -afC | less -SRI'
+alias tfs='tree -afC "src"'
+alias treef='tree -fa | grep -i'
+alias updatedb='sudo /usr/libexec/locate.updatedb'
+alias vg='vagrant'
+alias vgs='vagrant global-status'
+vghalt () { vagrant global-status | awk '{ if ((length($1) == 7) && ($4 == "running"))  print $1 }' | xargs vagrant halt ;}
+vgdestroyc () {  vagrant global-status | awk '{ if ((length($1) == 7) && ($5 ~ /chef-repo/))  print $1 }' | xargs vagrant destroy -f ;}
+vgdestroyall () { vagrant global-status | awk '{ if (length($1) == 7)  print $1 }' | xargs vagrant destroy -f ;}
+alias vimrc='vi $HOME/.vimrc'
+alias zshrc='vi $HOME/.zshrc'
+alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
+
+# AWS
+alias ash='aws-shell'
+alias s3='aws s3'
+alias s3uw='aws s3 --region us-west-2'
+alias s3ue='aws s3 --region us-east-1'
+alias s3ew='aws s3 --region eu-west-1'
+
+## Git
+alias gbclean='git branch | grep -v "^*" | vipe | xargs git branch -D'
+alias gcml='git checkout master && git pull'
+alias gca='git commit --amend'
+alias gcaa='git commit . --amend'
+alias gclon='git clone "$(_github_pick_repo)"'
+alias gcane='git commit --amend --no-edit'
+alias gwab='git worktree add "$(pwd)-bugfix" "origin/master"'
+alias gwaf='$(git worktree list | fzf | _pick_first_col)'
+alias gcof='git checkout "$(_git_pick_branch_no_origin)"'
+alias gsp='git show "$(_git_pick_branch):$(fzf)"'
+alias gdp='git diff "$(_git_pick_branch)" -- "$(fzf)"'
+alias gdcf='git diff "$(_git_pick_commit)" -- "$(fzf)"'
+alias gshowf='git show "$(_git_pick_commit):$(fzf)" | pygmentize | less -SRi'
+gshow () { git show "$1:$2" | vi - ;}
+gshowm () { git show "origin/master:$1" | vi - ;}
+alias gwip='(git log --oneline master..HEAD | grep -ei wip) || echo "ok"'
+alias groot='cd "$(git rev-parse --show-toplevel)"'
+alias gcp='git add -p && git commit' # Commiting part of a file.
+alias gpp='git push --set-upstream origin $(git symbolic-ref --short -q HEAD)'
+alias ghbp='gpp && sleep 1 && hbp'
+alias gpick='git cherry-pick'
+alias gcv='git commit -v' # Commit all with a Diff view.
+alias gds='git diff --stat'
+alias gdo='git diff origin/master'
+alias gdc='git diff --cached'
+alias gdos='git diff origin/master --stat'
+gk () { gitk $@; }
+alias gkap='gitk --all --date-order $(git log -g --pretty=%H)'
+alias gll='git log -p'
+alias glf='git log -p -- "$(_fzf)"'
+alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gplush='git pull && git push'
+gms() {git commit -m "$(_git_current_issue_number) $1" ${@:2} ;}
+alias gma='git merge --abort'
+alias gmt='git read-tree -u -m' # merge/squash changes without a commit
+alias gnew='_git_new_branch "$(pbpaste)"'
+alias gnewf='_git_new_branch "$(_github_repo_issues | fzf)"'
+alias gnewi='_git_new_branch "$(_github_issues | fzf)"'
+
+
+alias gnewm='git checkout master && git pull && gnew'
+gnewh() { ghi open "$1" --claim &&  git checkout master && git pull && _git_new_branch "$1" ;}
+gnewc() { _git_new_branch "$1" && git commit -m "$1" $2 $3 $4 ;}
+alias gra='git rebase --abort'
+alias grc='git rebase --continue'
+alias greset='git fetch origin && git reset --hard origin/master'
+alias gri='git rebase -i'
+alias gro='git rebase -i master'
+alias gmom='git fetch origin && git merge origin/master'
+alias grom='git rebase -i origin/master'
+alias gs='git status'
+alias gsa='git stash apply'
+alias gsl='git stash list'
+alias gss='git stash save'
+gvbump () { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
+
+# Github
+hh () { open $(_github_repos | jq -r '.[].html_url' | _fzf "$1" ); }
+alias ha='open "$GITHUB_URL"'
+alias hia='open "$GITHUB_URL/issues?utf8=✓&q=is%3Aopen+j-martin+"'
+alias hia2='open "$GITHUB_URL/issues/assigned"'
+alias hpa='open "$GITHUB_URL/pulls?utf8=✓&q=is%3Aopen+j-martin+"'
+alias hp='open "$GITHUB_URL/$(_git_repo)/pulls"'
+alias hc='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
+alias ht='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
+alias hbp='open "$GITHUB_URL/$(_git_repo)/compare/master...$(_git_current_branch_url)"'
+alias hb='open "$GITHUB_URL/$(_git_repo)/branches"'
+alias his='open "$GITHUB_URL/$(_git_repo)/issues"'
+alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
+alias hr='open "$GITHUB_URL/$(_git_repo)"'
+alias waf='open "$WAFFLE_URL/$(_git_repo)"'
+
+# CicleCI
+alias cim='open "$CIRCLE_URL/$(_git_repo)"'
+alias cir='open "$CIRCLE_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
+
+# ghi
+alias ghe='ghi edit'
+alias ghs='ghi show'
+alias ghw='ghi show --web'
+ghf () { (cd "$(ls -d -1 $WORK/* | _fzf \'$1)" && ghi | cat) ;}
+ghsf () { (cd "$(ls -d -1 $WORK/* | _fzf \'$1)" && ghi show $2 | cat) ;}
+alias ghtodo='ghi list --global --mine'
+alias ghpull='ghi list --global --pulls'
+alias ghwork='ghi list --global --no-assignee --no-pulls'
+alias ghbulk='pbpaste | xargs -d'\n' -n1 ghi open'
+
+# MR
+alias mrs='mr status'
+alias mru='mr update' #Updates all repos
+alias mrus='mr update && mr status' # Syncs all repo
+alias mr-clear='mr run git stash clear'
+alias mr-clean='mr run git clean -fd'
+
+# General
+fn() { find . -iname "*$@*" ;}
+fne() { find . -iname "*.$@" ;}
+alias cb='cd $(dirname "$(pbpaste)")'
+alias psa='ps aux | grep -i'
+alias which='where'
+alias da='date && date -u'
+alias qrc='pbpaste | qr'
+alias pgcli='echo $PGHOST && pgcli'
+alias hdiff='home diff'
+alias hpush='read && home commit --amend --no-edit "$HOME" && home push --force'
+alias hstatus='home status'
+
+# scala
+alias scal='scala -Dscala.color'
+agsbt() { agq "$@" -a --depth 2 ./*.{sbt,scala} ;}
+
+# AWS
+alias ec2d='aws ec2 describe-instances | jq -C . | less -SRi'
+ec2ip() { jq ".Reservations[].Instances[] | select((.PrivateIpAddress == \"$1\" or .PublicIpAddress == \"$1\"))" ;}
+alias r53="aws route53 list-hosted-zones | jq '.HostedZones[].Id' | xargs -n1 -P0 aws route53 list-resource-record-sets --hosted-zone-id | grep -n10"
+
+# Python Aliases
+alias ipy='ipython3'
+alias ipyn='ipython3 notebook'
+alias py='python3'
+
+# Websites
+alias o='open $(pbpaste)'
+alias c='open /Applications/Google\ Chrome.app'
+alias c2='open "https://console.aws.amazon.com/ec2/"'
+
+pb() {
+  curl -u """$PUSHBULLET_TOKEN"":" -d type="note" -d email="$PUSHBULLET_EMAIL" -d body="$1" -d title="Terminal" 'https://api.pushbullet.com/v2/pushes' >/dev/null 2>&1
+  echo "Notification sent.";
+}

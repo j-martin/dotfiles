@@ -1,0 +1,23 @@
+<toolSet name="External Tools">
+  <tool name="Sublime" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="false" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="/usr/local/bin/subl" />
+      <option name="PARAMETERS" value="&quot;$FileDir$/$FileName$:$LineNumber$:$ColumnNumber$&quot;" />
+      <option name="WORKING_DIRECTORY" value="$FileDir$" />
+    </exec>
+  </tool>
+  <tool name="Emacs" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="false" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="/Users/jma/.bin/e" />
+      <option name="PARAMETERS" value="+$LineNumber$:$ColumnNumber$ &quot;$FileDir$/$FileName$&quot;" />
+      <option name="WORKING_DIRECTORY" value="$FileDir$" />
+    </exec>
+  </tool>
+  <tool name="NVim" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="false" showConsoleOnStdOut="false" showConsoleOnStdErr="false" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim" />
+      <option name="PARAMETERS" value="+$LineNumber$ &quot;$FileName$&quot;" />
+      <option name="WORKING_DIRECTORY" value="$FileDir$" />
+    </exec>
+  </tool>
+</toolSet>

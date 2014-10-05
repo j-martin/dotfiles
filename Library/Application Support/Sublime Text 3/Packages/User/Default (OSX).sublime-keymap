@@ -1,0 +1,16 @@
+[
+  { "keys": ["super+b"], "command": "goto_definition" },
+  { "keys": ["super+shift+y"], "command": "reveal_in_side_bar"},
+  { "keys": ["j", "j"], "command": "_enter_normal_mode", "args": {"mode": "mode_insert"}, "context": [{"key": "vi_insert_mode_aware"} ] },
+  { "keys": ["k", "k"], "command": "_enter_normal_mode", "args": {"mode": "mode_insert"}, "context": [{"key": "vi_insert_mode_aware"} ] },
+  { "keys": ["k", "j"], "command": "_enter_normal_mode", "args": {"mode": "mode_insert"}, "context": [{"key": "vi_insert_mode_aware"} ] },
+  { "keys": ["j", "k"], "command": "_enter_normal_mode", "args": {"mode": "mode_insert"}, "context": [{"key": "vi_insert_mode_aware"} ] },
+  { "keys": ["super+o"], "command": "show_overlay", "args": {"overlay": "goto", "show_files": true } },
+  { "keys": ["super+shift+o"], "command": "show_overlay", "args": {"overlay": "command_palette"} },
+  { "keys": ["super+shift+r"], "command": "goto_symbol_in_project" },
+  { "keys": ["super+shift+t"], "command": "close_workspace" },
+  { "keys": ["ctrl+alt+super+shift+-"], "command": "open_with", "args": {"name": "IntelliJ IDEA"}},
+  // { "keys": ["ctrl+alt+super+shift+d"], "command": "open_with", "args": {"name": "vmd"}}
+    { "keys": ["ctrl+alt+super+shift+d"], "command": "open_with", "args": { "name": "NeoVim"} }
+
+]

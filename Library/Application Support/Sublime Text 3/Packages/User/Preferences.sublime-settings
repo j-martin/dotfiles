@@ -1,0 +1,110 @@
+{
+	"anaconda_linting": true,
+	"anaconda_linting_behaviour": "always",
+	"color_scheme": "Packages/Material Theme/schemes/Material-Theme.tmTheme",
+	"draw_white_space": "all",
+	"ensure_newline_at_eof_on_save": true,
+	"font_face": "Source Code Pro for Powerline",
+	"font_options":
+	[
+		"light"
+	],
+	"font_size": 12,
+	"highlight_line": true,
+	"highlight_modified_tabs": true,
+	"hot_exit": false,
+	"ignored_packages":
+	[
+		"nginx",
+		"Theme - Flatland",
+		"Vintage"
+	],
+	"index_exclude_patterns":
+	[
+		"/Users/benchemployee/Work/milkman/target*",
+		"*.log",
+		"/Users/benchemployee/Work/ui-test/.idea*"
+	],
+	"itg_small_tabs": true,
+	"open_files_in_new_windows": false,
+	"open_with":
+	[
+		{
+			"command":
+			[
+				"/usr/local/bin/idea",
+				"{filename}:{line}"
+			],
+			"name": "IntelliJ IDEA"
+		},
+		{
+			"command":
+			[
+				"open",
+				"{directory}"
+			],
+			"name": "Finder"
+		},
+		{
+			"command":
+			[
+				"/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim",
+				"{filename}",
+				"+{line}"
+			],
+			"name": "NeoVim"
+		},
+		{
+			"command":
+			[
+				"/usr/local/bin/emacsclient",
+				"+{line}:{column}",
+				"{filename}",
+				"--no-wait"
+			],
+			"name": "Emacs"
+		},
+		{
+			"command":
+			[
+				"open",
+				"-a",
+				"Mou",
+				"{filename}"
+			],
+			"name": "Mou"
+		},
+		{
+			"command":
+			[
+				"/usr/local/bin/vmd",
+				"{filename}"
+			],
+			"name": "VMD"
+		}
+	],
+	"pep257": false,
+	"pep8_ignore":
+	[
+		"E501",
+		"W391"
+	],
+	"pep8_max_line_length": 180,
+	"remember_open_files": false,
+	"rulers":
+	[
+		120
+	],
+	"save_on_focus_lost": true,
+	"scroll_past_end": true,
+	"tabs_small": true,
+	"test_command": "nose2",
+	"theme": "Material-Theme.sublime-theme",
+	"translate_tabs_to_spaces": false,
+	"trim_trailing_white_space_on_save": true,
+	"use_pylint": false,
+	"validate_imports": true,
+	"vintage_start_in_command_mode": true,
+	"vintageous_use_ctrl_keys": true,
+	"word_wrap": true
+}

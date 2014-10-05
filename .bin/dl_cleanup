@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+
+readonly SOURCE="$HOME/Downloads"
+readonly DESTINATION="$SOURCE/$(date +'%Y-%m-%d')"
+
+mkdir "$DESTINATION" || true
+find "$SOURCE" -maxdepth 1 -iname '*.*' -exec mv {} "$DESTINATION/" \;

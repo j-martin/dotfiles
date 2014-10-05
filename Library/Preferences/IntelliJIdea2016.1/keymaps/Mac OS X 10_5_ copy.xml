@@ -1,0 +1,40 @@
+<keymap version="1" name="Mac OS X 10.5+ copy" parent="Mac OS X 10.5+">
+  <action id="CloseProject">
+    <keyboard-shortcut first-keystroke="ctrl meta q" />
+  </action>
+  <action id="GotoAction">
+    <keyboard-shortcut first-keystroke="shift meta a" />
+    <keyboard-shortcut first-keystroke="meta alt space" />
+  </action>
+  <action id="ManageRecentProjects">
+    <keyboard-shortcut first-keystroke="ctrl meta p" />
+  </action>
+  <action id="SwitchApply">
+    <keyboard-shortcut first-keystroke="ctrl alt enter" />
+  </action>
+  <action id="SwitchDown">
+    <keyboard-shortcut first-keystroke="ctrl alt down" />
+  </action>
+  <action id="SwitchLeft">
+    <keyboard-shortcut first-keystroke="ctrl alt left" />
+  </action>
+  <action id="SwitchRight">
+    <keyboard-shortcut first-keystroke="ctrl alt right" />
+  </action>
+  <action id="SwitchUp">
+    <keyboard-shortcut first-keystroke="ctrl alt up" />
+  </action>
+  <action id="TogglePowerSave">
+    <keyboard-shortcut first-keystroke="ctrl meta alt p" />
+  </action>
+  <action id="Tool_External Tools_Emacs">
+    <keyboard-shortcut first-keystroke="shift ctrl meta alt minus" second-keystroke="e" />
+  </action>
+  <action id="Tool_External Tools_NVim">
+    <keyboard-shortcut first-keystroke="shift ctrl meta alt minus" second-keystroke="n" />
+  </action>
+  <action id="Tool_External Tools_Sublime">
+    <keyboard-shortcut first-keystroke="shift ctrl meta alt minus" second-keystroke="s" />
+    <keyboard-shortcut first-keystroke="shift ctrl meta alt minus" second-keystroke="p" />
+  </action>
+</keymap>
