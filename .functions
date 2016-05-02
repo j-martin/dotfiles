@@ -81,6 +81,10 @@ _github_issues_search() {
 }
 
 _github_format_issues () {
+  jq -r '.[] | ["#" + (.number | tostring), .title] | join("-")' \
+}
+
+_github_format_search_issues () {
   jq -r '.items[] | [(.repository_url | sub(".*/"; "")) + "#" + (.number | tostring),
     .title, .state, ([.labels[].name] | join(", ")), .assignee.login] | join("¡")' \
       | column -s '¡' -t

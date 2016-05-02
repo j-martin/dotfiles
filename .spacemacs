@@ -1,7 +1,6 @@
 ;; -*- mode: emacs-lisp -*-
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
-
 (defun dotspacemacs/layers ()
   "Configuration Layers declaration.
 You should not put any user code in this function besides modifying the variable
@@ -56,10 +55,11 @@ values."
        spotify
        sql
        syntax-checking
-       themes-megapack
+       ;; themes-megapack
        vagrant
        version-control
        yaml
+       unimpaired
        )
     ;; List of additional packages that will be installed without being
     ;; wrapped in a layer. If you need some configuration for these
@@ -104,18 +104,18 @@ values."
     ;; unchanged. (default 'vim)
     dotspacemacs-editing-style 'vim
     ;; If non nil output loading progress in `*Messages*' buffer. (default nil)
-    dotspacemacs-verbose-loading nil
+    dotspacemacs-verbose-loading t
     ;; Specify the startup banner. Default value is `official', it displays
     ;; the official spacemacs logo. An integer value is the index of text
     ;; banner, `random' chooses a random text banner in `core/banners'
     ;; directory. A string value must be a path to an image format supported
     ;; by your Emacs build.
     ;; If the value is nil then no banner is displayed. (default 'official)
-    dotspacemacs-startup-banner 'official
+    dotspacemacs-startup-banner nil
     ;; List of items to show in the startup buffer. If nil it is disabled.
     ;; Possible values are: `recents' `bookmarks' `projects'.
     ;; (default '(recents projects))
-    dotspacemacs-startup-lists '(recents projects)
+    dotspacemacs-startup-lists '(recents bookmarks projects)
     ;; Number of recent files to show in the startup buffer. Ignored if
     ;; `dotspacemacs-startup-lists' doesn't include `recents'. (default 5)
     dotspacemacs-startup-recent-list-size 5
@@ -126,9 +126,9 @@ values."
     ;; with 2 themes variants, one dark and one light)
     dotspacemacs-themes
     '(
+       spacemacs-dark
        flatland
        zenburn
-       spacemacs-dark
        spacemacs-light
        solarized-light
        solarized-dark
@@ -215,7 +215,7 @@ values."
     dotspacemacs-fullscreen-at-startup nil
     ;; If non nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
     ;; Use to disable fullscreen animations in OSX. (default nil)
-    dotspacemacs-fullscreen-use-non-native nil
+    dotspacemacs-fullscreen-use-non-native t
     ;; If non nil the frame is maximized when Emacs starts up.
     ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
     ;; (default nil) (Emacs 24.4+ only)
@@ -260,7 +260,7 @@ values."
     ;; `trailing' to delete only the whitespace at end of lines, `changed'to
     ;; delete only whitespace for changed lines or `nil' to disable cleanup.
     ;; (default nil)
-    dotspacemacs-whitespace-cleanup t
+    dotspacemacs-whitespace-cleanup 'all
     ))
 
 (defun dotspacemacs/user-init ()
@@ -268,95 +268,10 @@ values."
 It is called immediately after `dotspacemacs/init'.  You are free to put almost
 any user code here.  The exception is org related code, which should be placed
 in `dotspacemacs/user-config'."
-  (setq edit-server-url-major-mode-alist
-    '(("github\\.com" . org-mode)))
-
-  (defun insert-github-tasks ()
-    (interactive)
-    (insert (shell-command-to-string "$HOME/.bin/org_todo.sh")))
-
-  (defun insert-today ()
-    (interactive)
-    (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
-
-  (defun get-column ()
-    (number-to-string (+ (current-column) 1)))
-
-  (defun get-line-number ()
-    (number-to-string (line-number-at-pos)))
-
-  (defun open-with-line (app)
-    (when buffer-file-name
-      (save-buffer)
-      (shell-command (concat app " \"" buffer-file-name ":" (get-line-number) "\""))))
-
-  (defun open-with-line-column (app)
-    (when buffer-file-name
-      (save-buffer)
-      (shell-command (concat app " \"" buffer-file-name ":" (get-line-number) ":" (get-column) "\""))))
-
-  (defun open-with-line-column-vim (app)
-    (when buffer-file-name
-      (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (get-line-number) "G" (get-column) "|\""))))
-
-  (defun open-with-reveal (app)
-    (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
-
-  (defun open-with-sublime ()
-    (interactive)
-    (open-with-line-column "/usr/local/bin/subl"))
-
-  (defun open-with-idea ()
-    (interactive)
-    (open-with-reveal "IntelliJ IDEA")
-    (open-with-line "/usr/local/bin/idea"))
-
-  (defun open-with-nvim ()
-    (interactive)
-    (open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
   )
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization after
 layers configuration. You are free to put any user code."
-  (add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  (delete-selection-mode 1)
-  (menu-bar-mode 1)
-  (editorconfig-mode 1)
-  (global-auto-revert-mode t)
-  (global-company-mode)
-  (setq confirm-kill-emacs 'y-or-n-p)
-  (setq mac-emulate-three-button-mouse t)
-  (setq paradox-github-token (getenv "PARADOX_TOKEN"))
-  (setq powerline-default-separator 'utf-8)
-  (setq neo-theme 'arrow)
-  (setq-default evil-escape-delay 0.2)
-  (setq-default evil-escape-key-sequence "jk")
-  (setq make-backup-files nil)
-  (setq org-directory "~/.org/")
-  (spacemacs/toggle-aggressive-indent-globally-on)
-  (spacemacs/toggle-camel-case-motion-globally-on)
-  ;; (spacemacs/toggle-evil-cleverparens-on)
-  (spacemacs/toggle-indent-guide-globally-on)
-  ;; (spacemacs/toggle-smartparens-globally-on)
-  (spacemacs/toggle-syntax-checking-on)
-  (spacemacs/toggle-truncate-lines-on)
-  (spacemacs/toggle-vi-tilde-fringe-off)
-  (ws-butler-global-mode)
-  (set-keyboard-coding-system nil)
-  (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
-  (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
-  (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
-  (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
-
-  (spacemacs/set-leader-keys "op" 'open-with-sublime)
-  (spacemacs/set-leader-keys "oi" 'open-with-idea)
-  (spacemacs/set-leader-keys "on" 'open-with-nvim)
-  (spacemacs/set-leader-keys "ot" 'insert-today)
-  (spacemacs/set-leader-keys "oh" 'insert-github-tasks)
-  )
-
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
+  (org-babel-load-file "~/.spacemacs.d/configuration.org"))

@@ -17,7 +17,6 @@ export EDITOR='/usr/local/bin/nvim'
 export PAGER='less -SRi'
 export HOSTNAME="$HOST"
 export FZF_DEFAULT_COMMAND='ag -g ""'
-alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
 unset SSL_CERT_FILE
 
 CIRCLE_URL="https://circleci.com/gh"
@@ -182,6 +181,8 @@ alias glf='git log -p -- "$(_fzf)"'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gplush='git pull && git push'
 gms() {git commit -m "$(_git_current_issue_number) $1" ${@:2} ;}
+alias gmi='git commit -m "$(_github_issues | fzf)"'
+alias gmf='git commit -m "$(_github_repo_issues | fzf)"'
 alias gma='git merge --abort'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch "$(pbpaste)"'
@@ -203,10 +204,10 @@ alias gs='git status'
 alias gsa='git stash apply'
 alias gsl='git stash list'
 alias gss='git stash save'
+alias gupd='git stash && git pull && git stash apply'
 gvbump () { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
 
 # Github
-hh () { open $(_github_repos | jq -r '.[].html_url' | _fzf "$1" ); }
 alias ha='open "$GITHUB_URL"'
 alias hia='open "$GITHUB_URL/issues?utf8=✓&q=is%3Aopen+j-martin+"'
 alias hia2='open "$GITHUB_URL/issues/assigned"'
@@ -252,9 +253,13 @@ alias which='where'
 alias da='date && date -u'
 alias qrc='pbpaste | qr'
 alias pgcli='echo $PGHOST && pgcli'
-alias hdiff='home diff'
-alias hpush='read && home commit --amend --no-edit "$HOME" && home push --force'
-alias hstatus='home status'
+
+# Home/.files
+alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
+alias hd='home diff'
+alias hadd='home add -f'
+alias hpush='home commit --amend --no-edit "$HOME" && home push --force'
+alias hs='home status'
 
 # scala
 alias scal='scala -Dscala.color'
