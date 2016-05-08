@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-_info () {
-  >&2 echo "[info] $@"
-}
-
-_warn () {
-  >&2 echo "[warn] $@"
-}
-
 _git_repo () {
   git config --get remote.origin.url \
     | cut -d ':' -f2 \
@@ -56,7 +48,8 @@ _github () {
 
 _github_search_issues() {
   local label="$1"
-  _github "search/issues?q=label:$label&per_page=300"}
+  _github "search/issues?q=label:$label&per_page=300"
+}
 
 _github_repos () {
   _github 'user/repos?per_page=200'
@@ -97,73 +90,4 @@ _github_user () {
 _github_repo_assigned_issues () {
   _github "repos/$(_git_repo)/issues?assignee=$(_github_user)" \
     | _github_format_issues
-}
-
-_docker_pick_container () {
-  local tag_prefix="$1"
-  docker ps | _fzf "${tag_prefix}" | _pick_first_col
-}
-
-_docker_pick_images () {
-  docker images | awk '{print $1 ":" $2}' | _fzf $1
-}
-
-_pick_first_col () {
-  cut -d ' ' -f1
-}
-
-_cached () {
-  local cmd="$1"
-  local ttl="${2:-60}"
-  local ts="$(( $(date +'%s') / $ttl ))"
-  local filename="${TMPDIR}${ts}-$(echo "${cmd}" | shasum | cut -d' ' -f1)"
-  if [[ "$NC" == '1' ]] || [[ ! -s "$filename" ]]; then
-    eval "$cmd" | tee "$filename"
-    _info "Cached '$cmd' to '$filename'."
-  else
-    cat "$filename"
-    _warn "Used cached file '$filename'"
-  fi
-}
-
-_with_fzf () {
-  local app="$1"
-  local prefix="$2"
-  local file="$(_fzf "${prefix}" || echo "${prefix}")"
-  if [[ -f "$file" ]]; then
-    eval "$app $file"
-  else
-    echo "[error] '$file' is not a file."
-  fi
-}
-
-_fzf () {
-  fzf -1 -0 -q "$1"
-}
-
-_consul_list_services_dns () {
-  local domain="$1"
-  local node="${2:-consul}"
-  curl --fail --silent "http://$node.service.$domain:8500/v1/catalog/services" \
-    | jq -r 'to_entries[] | .key, ({key, value: .value[]} | .value + "." + .key)' \
-    | sed "s/$/\.service\.$domain/"
-}
-
-_rds_pick_instance () {
-  aws rds describe-db-instances | jq -r '.DBInstances[].DBInstanceIdentifier' | fzf
-}
-
-_production () {
-  printf "\033]Ph501010\033\\"
-}
-
-rds_logs (){
-  local db_identifier="${1:-_rds_pick_instance}"
-  aws rds describe-db-log-files --db-instance-identifier "$db_identifier" \
-    | jq -r '.DescribeDBLogFiles[].LogFileName' \
-    | xargs -n1 -P0 -r aws rds download-db-log-file-portion --db-instance-identifier "$db_identifier"  --log-file-name \
-    | jq -r '.LogFileData' \
-    | grep -v 'LOG:  checkpoint' \
-    | sort \
-    | less -SRi
 }
