@@ -3,8 +3,17 @@
 set -o errexit
 set -o pipefail
 
-readonly now=$(/bin/date "+%Y-%m-%d")
-echo "* ${now}"
-/usr/local/bin/ghi \
-  | /usr/bin/tail -n +2 \
-  | /usr/local/bin/sed -r 's/ +/ /g; s/^/**/g; s/\[.*//g; s/@.*//g'
+source "$HOME/.functions/base"
+source "$HOME/.functions/git"
+
+_format () {
+  jq -r '.[] | "*** TODO "+ .repository.full_name + "#" + (.number | tostring) + "-" + .title,
+":PROPERTIES:",
+":ID: " + (.id | tostring),
+":URL: " + .html_url,
+":END:",
+.body'
+}
+
+echo "** $(/bin/date "+%Y-%m-%d")"
+_cached '_github "issues?assignee=$(_github_user)"' | _format | tr -d '\r'

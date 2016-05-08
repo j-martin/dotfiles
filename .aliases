@@ -6,7 +6,7 @@ WAFFLE_URL="https://waffle.io"
 
 # Aliases Helpers
 alias sp='source $HOME/.profile'
-alias alia='ec $HOME/.profile && sp'
+alias alia='ec $HOME/.aliases && sp'
 alias aliap='ec $HOME/.private/.profile && sp'
 alias ali='sp && alias | grep '
 
@@ -30,6 +30,9 @@ alias esh='_with_fzf "ec" ".sh$" '
 alias ejs='_with_fzf "ec" ".js$" '
 alias ejo='_with_fzf "ec" ".json$" '
 alias exm='_with_fzf "ec" ".xml$" '
+
+# Emacs / Org
+alias eo='ee "(jm/open-org-dir)"'
 
 # Sublime
 alias st='subl'
