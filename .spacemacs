@@ -33,7 +33,7 @@ values."
        dash
        dockerfile
        emacs-lisp
-       ;; evil-cleverparens
+       evil-cleverparens
        evil-commentary
        gtags
        ipython-notebook
@@ -42,9 +42,11 @@ values."
        git
        github
        go
+       lua
        markdown
        (org :variables
          org-enable-github-support t)
+       osx
        python
        restclient
        scala
@@ -55,7 +57,6 @@ values."
        spotify
        sql
        syntax-checking
-       ;; themes-megapack
        vagrant
        version-control
        yaml
@@ -68,6 +69,7 @@ values."
     dotspacemacs-additional-packages
     '(
        editorconfig
+       evil-mc
        ws-butler
        )
     ;; A list of packages and/or extensions that will not be install and loaded.

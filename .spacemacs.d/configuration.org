@@ -1,5 +1,5 @@
 #+TITLE: Emacs Configuration
-#+AUTHOR: Jean-Martin Archer jm@jmartin
+#+AUTHOR: Jean-Martin Archer jm@jmartin.ca
 
 * General
 
@@ -11,22 +11,20 @@
 
 ** Convenience
 #+BEGIN_SRC emacs-lisp
-(add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
-(setq confirm-kill-emacs 'y-or-n-p)
-(setq mac-emulate-three-button-mouse t)
-(setq x-select-enable-clipboard nil)
-(setq make-backup-files nil)
+  (add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
+  (setq confirm-kill-emacs 'y-or-n-p)
+  (setq mac-emulate-three-button-mouse t)
+  (setq x-select-enable-clipboard nil)
+  (setq make-backup-files nil)
+  (spacemacs/toggle-indent-guide-globally-on)
+  ;; (spacemacs/toggle-camel-case-motion-globally-on)
+  ;; (spacemacs/toggle-evil-cleverparens-on)
+  ;; (spacemacs/toggle-smartparens-globally-on)
+  (setq save-interprogram-paste-before-kill t)
+  (setq multi-term-program-switches "--login")
 
-(spacemacs/toggle-aggressive-indent-globally-on)
-(spacemacs/toggle-camel-case-motion-globally-on)
-(spacemacs/toggle-indent-guide-globally-on)
-;; (spacemacs/toggle-evil-cleverparens-on)
-;; (spacemacs/toggle-smartparens-globally-on)
-(setq save-interprogram-paste-before-kill t)
-(setq multi-term-program-switches "--login")
-
-(setq custom-file "~/.spacemacs.d/custom-configuration.el")
-(load custom-file t)
+  (setq custom-file "~/.spacemacs.d/custom-configuration.el")
+  (load custom-file t)
 #+END_SRC
 
 ** Github related
@@ -39,13 +37,16 @@
 (spacemacs/toggle-syntax-checking-on)
 (spacemacs/toggle-truncate-lines-on)
 (spacemacs/toggle-vi-tilde-fringe-off)
-(set-keyboard-coding-system nil)
 (setq powerline-default-separator 'utf-8)
+(set-keyboard-coding-system nil)
 (setq neo-theme 'arrow)
 (global-prettify-symbols-mode 1)
 (golden-ratio-mode 1)
 (menu-bar-mode 1)
 #+END_SRC
+
+#+RESULTS:
+: t
 
 * Modes
 
@@ -57,13 +58,22 @@
 (global-company-mode 1)
 (ws-butler-global-mode 1)
 #+end_src
+
+#+RESULTS:
+: multiple-cursors
+
 ** Autofill
 #+BEGIN_SRC emacs-lisp
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
 (add-hook 'org-mode-hook 'turn-on-auto-fill)
 #+END_SRC
-
+** Aggressive Indent
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+(add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+(add-hook 'shell-script-mode-hook #'aggressive-indent-mode)
+#+end_src
 ** Pretty symbols
 #+begin_src emacs-lisp :tangle yes
 (defun jm/pretty-symbols ()
@@ -79,10 +89,11 @@
 (add-hook 'org-mode-hook 'jm/pretty-symbols)
 (add-hook 'js2-mode-hook 'jm/pretty-symbols)
 (add-hook 'scala-mode-hook 'jm/pretty-symbols)
+(add-hook 'coffee-mode-hook 'jm/pretty-symbols)
 #+end_src
 
 #+RESULTS:
-| jm/pretty-symbols | (lambda nil (setq prettify-symbols-alist (cons (quote (function . 402)) prettify-symbols-alist)) (prettify-symbols-mode)) | tern-mode | spacemacs/js2-refactor-require | js2-imenu-extras-mode | spacemacs/js-doc-require | flycheck-mode | spacemacs//init-company-js2-mode | company-mode |
+| jm/pretty-symbols | flycheck-mode | (lambda nil (setq indent-line-function (quote javascript/coffee-indent) evil-shift-width coffee-tab-width)) |
 ** EVIL
 #+BEGIN_SRC emacs-lisp
 (setq-default evil-escape-delay 0.3)
@@ -94,6 +105,10 @@
 (setq-default js-indent-level 2)
 #+END_SRC
 
+** magit
+#+begin_src emacs-lisp :tangle yes
+  (setq magit-repository-directories '("~/Work/"))
+#+end_src
 ** org
 *** Enabling org-babel
 #+begin_src emacs-lisp :tangle yes
@@ -104,6 +119,9 @@
     '((emacs-lisp . t)))
   )
 #+end_src
+
+#+RESULTS:
+
 *** Basic setup
 #+BEGIN_SRC emacs-lisp
 (setq org-directory "~/.org/")
@@ -122,6 +140,8 @@
        "* TODO %?\n  %i\n %a")
      ("T" "Todo with clipboard" entry (file+headline "~/.org/todo.org" "Tasks")
        "* TODO %?\n  %i\n %c\n %a")
+     ("w" "Article/Page to read" entry (file+headline "~/.org/learning.org" "Article")
+       "* %?\n  %i\n %c\n %a")
      ("j" "Journal" entry (file+datetree "~/.org/journal.org")
        "* %?\nEntered on %U\n  %i\n %a")
      ("J" "Journal with Clipboard" entry (file+datetree "~/.org/journal.org")
@@ -136,27 +156,40 @@
 (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
 (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
 (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
+(global-set-key [f8] 'neotree-projectile-action)
 
+(global-set-key (kbd "s-<left>") 'beginning-of-line)
+(global-set-key (kbd "s-<right>") 'end-of-line)
 (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
 (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
-(spacemacs/set-leader-keys "oo" 'jm/open-org-dir)
+(spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
+(spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
 (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
 (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
 (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
 (spacemacs/set-leader-keys "ot" 'jm/insert-today)
-(spacemacs/set-leader-keys "oh" 'jm/insert-github-tasks)
+(spacemacs/set-leader-keys "og" 'jm/org-github-todo)
 #+END_SRC
 
 #+RESULTS:
 
+** Multiple Cursors
+#+begin_src emacs-lisp :tangle yes
+#+end_src
+#+RESULTS:
+
 * General Functions
 #+BEGIN_SRC emacs-lisp
-  (defun jm/open-org-dir ()
+  (defun jm/helm-org-dir ()
     (interactive)
     (helm-find-files-1 (expand-file-name "~/.org/")))
 
-  (defun jm/insert-github-tasks ()
+  (defun jm/helm-home-dir ()
+    (interactive)
+    (helm-find-files-1 (expand-file-name "~/")))
+
+  (defun jm/org-github-todo ()
     (interactive)
     (insert (shell-command-to-string "$HOME/.bin/org_todo.sh  2> /dev/null")))
 
@@ -200,3 +233,6 @@
     (interactive)
     (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 #+END_SRC
+
+#+RESULTS:
+: jm/open-with-nvim
