@@ -7,7 +7,11 @@ local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 
-require "windows/extensions"
+local ext = require "windows/extensions"
+
+local mod = {}
+
+mod.launchOrCycleFocus = ext.launchOrCycleFocus
 
 -- grid/window settings
 grid.ui.textSize = 15
@@ -28,25 +32,27 @@ local center40 = geometry.unitrect(0.3, 0, 0.4, 1)
 
 local layoutChoices = {
   {
-    text = "Emacs and Chrome",
+    text = "50/50",
     subText = "50/50",
     layout = {
       {"Emacs", layout.left50},
+      {"iTerm2", layout.right50},
       {"Google Chrome", layout.right50},
       {"IntelliJ IDEA", layout.right50},
-      {"iTerm2", layout.right50},
+      {"Sublime Text", layout.right50},
     }
   },
-  { text = "Emacs and Chrome",
+  { text = "70/30",
     subText = "70/30",
     layout = {
       {"Emacs", layout.left70},
-      {"Google Chrome", layout.right30},
       {"IntelliJ IDEA", layout.right70},
+      {"Google Chrome", layout.right30},
       {"iTerm2", layout.right30},
     }
   },
-  { text = "Third Possibility",
+  {
+    text = "30/70",
     subText = "30/70",
     layout = {
       {"Emacs", layout.left30},
@@ -58,10 +64,10 @@ local layoutChoices = {
 }
 
 -- displays layout chooser
-function chooseLayout()
+function mod.pickLayout()
   chooser.new(function(chosenLayout)
       local mainScreen = screen.mainScreen():name()
-      local expandLayout = fnutils.map(chosenLayout.layout, function ( entry )
+      local expandLayout = fnutils.map(chosenLayout.layout, function (entry)
         return {entry[1], nil, mainScreen, entry[2], nil, nil}
       end)
       local fullLayout = fnutils.concat(commonLayout, expandLayout)
@@ -69,8 +75,12 @@ function chooseLayout()
   end):choices(layoutChoices):show()
 end
 
-function center40percent()
+function mod.center40()
   window.focusedWindow():move(center40)
+end
+
+function mod.maximize()
+  window.focusedWindow():maximize()
 end
 
 function centerCursor()
@@ -82,7 +92,7 @@ end
 local previousCycleStartPoint = 0
 
 -- cycles window size
-function windowWidthCycle(startPoint)
+function mod.cycleWidth(startPoint)
   local focusedWindow = hs.window.focusedWindow()
   local mainScreen = screen.mainScreen():currentMode()
 
@@ -104,3 +114,5 @@ function windowWidthCycle(startPoint)
   previousCycleStartPoint = startPoint
   centerCursor()
 end
+
+return mod

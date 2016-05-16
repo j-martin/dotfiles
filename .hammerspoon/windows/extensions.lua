@@ -8,6 +8,8 @@ local indexOf = fnutils.indexOf
 local filter = fnutils.filter
 local geometry = require "hs.geometry"
 
+local mod = {}
+
 ---------------------------------------------------------
 -- functools
 ---------------------------------------------------------
@@ -141,7 +143,7 @@ end
 -- Needed to enable cycling of application windows
 local lastToggledApplication = ''
 
-function launchOrCycleFocus(applicationName)
+function mod.launchOrCycleFocus(applicationName)
   return function()
     local nextWindow = nil
     local targetWindow = nil
@@ -150,7 +152,7 @@ function launchOrCycleFocus(applicationName)
 
     if not focusedWindow then return nil end
 
-    dbgf('last: %s, current: %s', lastToggledApplication, applicationName)
+    logger.df('last: %s, current: %s', lastToggledApplication, applicationName)
 
     if lastToggledApplication == applicationName then
       nextWindow = getNextWindow(applicationName, focusedWindow)
@@ -166,7 +168,7 @@ function launchOrCycleFocus(applicationName)
     end
 
     if not targetWindow then
-      dbgf('failed finding a window for application: %s', applicationName)
+      logger.df('failed finding a window for application: %s', applicationName)
       return nil
     end
 
@@ -176,3 +178,5 @@ function launchOrCycleFocus(applicationName)
     mouseHighlight()
   end
 end
+
+return mod
