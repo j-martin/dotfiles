@@ -24,8 +24,8 @@ window.animationDuration = 0
 local laptopScreen = "Color LCD"
 
 local commonLayout = {
+  {"Inbox",  nil, laptopScreen, layout.left70, nil, nil},
   {"Slack",  nil, laptopScreen, layout.right50, nil, nil},
-  {"Inbox",  nil, laptopScreen, layout.left50, nil, nil},
 }
 
 local center40 = geometry.unitrect(0.3, 0, 0.4, 1)
@@ -66,9 +66,9 @@ local layoutChoices = {
 -- displays layout chooser
 function mod.pickLayout()
   chooser.new(function(chosenLayout)
-      local mainScreen = screen.mainScreen():name()
+      local primaryScreen = screen.primaryScreen():name()
       local expandLayout = fnutils.map(chosenLayout.layout, function (entry)
-        return {entry[1], nil, mainScreen, entry[2], nil, nil}
+        return {entry[1], nil, primaryScreen, entry[2], nil, nil}
       end)
       local fullLayout = fnutils.concat(commonLayout, expandLayout)
       layout.apply(fullLayout)
@@ -83,9 +83,9 @@ function mod.maximize()
   window.focusedWindow():maximize()
 end
 
-function centerCursor()
-  mouse.centerOnRect(window.focusedWindow():frame())
-  mouseHighlight()
+local function centerCursor()
+  ext.centerOnRect(window.focusedWindow():frame())
+  ext.mouseHighlight()
 end
 
 -- required for reseting the previous state.
@@ -93,11 +93,11 @@ local previousCycleStartPoint = 0
 
 -- cycles window size
 function mod.cycleWidth(startPoint)
-  local focusedWindow = hs.window.focusedWindow()
-  local mainScreen = screen.mainScreen():currentMode()
+  local fWindow = window.focusedWindow()
+  local primaryScreen = screen.primaryScreen():currentMode()
 
   local divisor = nil
-  local currentRatio = mainScreen.w / focusedWindow:frame().w
+  local currentRatio = primaryScreen.w / fWindow:frame().w
   if previousCycleStartPoint ~= startPoint then
     divisor = 2
   elseif currentRatio < 1.7 then
@@ -108,9 +108,9 @@ function mod.cycleWidth(startPoint)
     divisor = 2
   end
 
-  local w = mainScreen.w/divisor
-  local x = (mainScreen.w - w) * startPoint
-  focusedWindow:setFrame({x, 0, w, mainScreen.h})
+  local w = primaryScreen.w/divisor
+  local x = (primaryScreen.w - w) * startPoint
+  fWindow:setFrame({x, 0, w, primaryScreen.h})
   previousCycleStartPoint = startPoint
   centerCursor()
 end

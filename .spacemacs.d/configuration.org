@@ -22,7 +22,10 @@
   ;; (spacemacs/toggle-smartparens-globally-on)
   (setq save-interprogram-paste-before-kill t)
   (setq multi-term-program-switches "--login")
+#+END_SRC
 
+*** Custom file
+#+BEGIN_SRC emacs-lisp
   (setq custom-file "~/.spacemacs.d/custom-configuration.el")
   (load custom-file t)
 #+END_SRC
@@ -34,15 +37,15 @@
 #+end_src
 * UI / Visual
 #+BEGIN_SRC emacs-lisp
-(spacemacs/toggle-syntax-checking-on)
-(spacemacs/toggle-truncate-lines-on)
-(spacemacs/toggle-vi-tilde-fringe-off)
-(setq powerline-default-separator 'utf-8)
-(set-keyboard-coding-system nil)
-(setq neo-theme 'arrow)
-(global-prettify-symbols-mode 1)
-(golden-ratio-mode 1)
-(menu-bar-mode 1)
+  (spacemacs/toggle-syntax-checking-on)
+  (spacemacs/toggle-truncate-lines-on)
+  (spacemacs/toggle-vi-tilde-fringe-off)
+  (setq powerline-default-separator 'utf-8)
+  (set-keyboard-coding-system nil)
+  (setq neo-theme 'arrow)
+  (global-prettify-symbols-mode 1)
+  (golden-ratio-mode 1)
+  (menu-bar-mode 1)
 #+END_SRC
 
 #+RESULTS:
@@ -57,10 +60,13 @@
 (global-auto-revert-mode t)
 (global-company-mode 1)
 (ws-butler-global-mode 1)
+(global-evil-mc-mode 1)
+(setq-default abbrev-mode t)
+(setq save-abbrevs 'silently)
 #+end_src
 
 #+RESULTS:
-: multiple-cursors
+: t
 
 ** Autofill
 #+BEGIN_SRC emacs-lisp
@@ -90,10 +96,11 @@
 (add-hook 'js2-mode-hook 'jm/pretty-symbols)
 (add-hook 'scala-mode-hook 'jm/pretty-symbols)
 (add-hook 'coffee-mode-hook 'jm/pretty-symbols)
+(add-hook 'lua-mode-hook 'jm/pretty-symbols)
 #+end_src
 
 #+RESULTS:
-| jm/pretty-symbols | flycheck-mode | (lambda nil (setq indent-line-function (quote javascript/coffee-indent) evil-shift-width coffee-tab-width)) |
+| jm/pretty-symbols | company-mode |
 ** EVIL
 #+BEGIN_SRC emacs-lisp
 (setq-default evil-escape-delay 0.3)
@@ -172,13 +179,6 @@
 (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
 #+END_SRC
 
-#+RESULTS:
-
-** Multiple Cursors
-#+begin_src emacs-lisp :tangle yes
-#+end_src
-#+RESULTS:
-
 * General Functions
 #+BEGIN_SRC emacs-lisp
   (defun jm/helm-org-dir ()
@@ -234,5 +234,50 @@
     (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 #+END_SRC
 
+** Endless Autocorrect
+Per
+[[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][something]]
+copied on 2016-05-17
+#+begin_src emacs-lisp :tangle yes
+(define-key ctl-x-map "\C-i"
+  #'endless/ispell-word-then-abbrev)
+
+(defun endless/simple-get-word ()
+  (car-safe (save-excursion (ispell-get-word nil))))
+
+(defun endless/ispell-word-then-abbrev (p)
+  "Call `ispell-word', then create an abbrev for it.
+With prefix P, create local abbrev. Otherwise it will
+be global.
+If there's nothing wrong with the word at point, keep
+looking for a typo until the beginning of buffer. You can
+skip typos you don't want to fix with `SPC', and you can
+abort completely with `C-g'."
+  (interactive "P")
+  (let (bef aft)
+    (save-excursion
+      (while (if (setq bef (endless/simple-get-word))
+                 ;; Word was corrected or used quit.
+                 (if (ispell-word nil 'quiet)
+                     nil ; End the loop.
+                   ;; Also end if we reach `bob'.
+                   (not (bobp)))
+               ;; If there's no word at point, keep looking
+               ;; until `bob'.
+               (not (bobp)))
+        (backward-word)
+        (backward-char))
+      (setq aft (endless/simple-get-word)))
+    (if (and aft bef (not (equal aft bef)))
+        (let ((aft (downcase aft))
+              (bef (downcase bef)))
+          (define-abbrev
+            (if p local-abbrev-table global-abbrev-table)
+            bef aft)
+          (message "\"%s\" now expands to \"%s\" %sally"
+                   bef aft (if p "loc" "glob")))
+      (user-error "No typo at or before point"))))
+
+#+end_src
 #+RESULTS:
-: jm/open-with-nvim
+: t

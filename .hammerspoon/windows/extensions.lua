@@ -7,6 +7,7 @@ local fnutils = require "hs.fnutils"
 local indexOf = fnutils.indexOf
 local filter = fnutils.filter
 local geometry = require "hs.geometry"
+local mouse = require "hs.mouse"
 
 local mod = {}
 
@@ -14,13 +15,13 @@ local mod = {}
 -- functools
 ---------------------------------------------------------
 
-function isFunction(a)
+local function isFunction(a)
   return type(a) == "function"
 end
 
 -- gets propery or method value
 -- on a table
-function result(obj, property)
+local function result(obj, property)
   if not obj then return nil end
 
   if isFunction(property) then
@@ -32,30 +33,12 @@ function result(obj, property)
   end
 end
 
-
----------------------------------------------------------
--- Debugging
----------------------------------------------------------
-
-dbg = function(...)
-  print(hs.inspect(...))
-end
-
-dbgf = function (...)
-  return dbg(string.format(...))
-end
-
-function tap (a)
-  dbg(a)
-  return a
-end
-
 ---------------------------------------------------------
 -- Extension of native objects and modules
 ---------------------------------------------------------
 
-function hs.mouse.centerOnRect(rect)
-  hs.mouse.setAbsolutePosition(geometry.rectMidPoint(rect))
+function mod.centerOnRect(rect)
+  mouse.setAbsolutePosition(geometry.rectMidPoint(rect))
 end
 
 ---------------------------------------------------------
@@ -82,20 +65,16 @@ end
 -- MOUSE
 ---------------------------------------------------------
 
-local function centerMouseOnRect(frame)
-  hs.mouse.setAbsolutePosition(geometry.rectMidPoint(frame))
-end
-
 local mouseCircle = nil
 local mouseCircleTimer = nil
 
-function mouseHighlight()
+function mod.mouseHighlight()
   -- Delete an existing highlight if it exists
   result(mouseCircle, "delete")
   result(mouseCircleTimer, "stop")
 
   -- Get the current co-ordinates of the mouse pointer
-  mousepoint = hs.mouse.getAbsolutePosition()
+  local mousepoint = mouse.getAbsolutePosition()
 
   -- Prepare a big red circle around the mouse pointer
   mouseCircle = hs.drawing.circle(hs.geometry.rect(mousepoint.x-20, mousepoint.y-20, 40, 40))
@@ -146,7 +125,7 @@ local lastToggledApplication = ''
 function mod.launchOrCycleFocus(applicationName)
   return function()
     local nextWindow = nil
-    local targetWindow = nil
+    local targetWindow
     local focusedWindow = hs.window.focusedWindow()
     lastToggledApplication = focusedWindow and focusedWindow:application():title()
 
@@ -173,9 +152,8 @@ function mod.launchOrCycleFocus(applicationName)
     end
 
     local windowFrame = targetWindow:frame()
-    hs.mouse.centerOnRect(windowFrame)
-
-    mouseHighlight()
+    mod.centerOnRect(windowFrame)
+    mod.mouseHighlight()
   end
 end
 

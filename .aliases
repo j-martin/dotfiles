@@ -101,7 +101,7 @@ alias ml='make -f Makefile.docker'
 alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias op='open $"(pbpaste)"'
 alias opd='open $(basename("$(pbpaste)"))'
-alias pwdc='pwd | pbcopy'
+alias pwdc='pwd | tr -d '\n' | pbcopy'
 alias pbclean='pbpaste | pbcopy'
 alias rmq='rabbitmq-server'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
@@ -132,7 +132,7 @@ alias s3ue='aws s3 --region us-east-1'
 alias s3ew='aws s3 --region eu-west-1'
 
 ## Git
-alias gbclean='git branch | grep -v "^*" | vipe | xargs git branch -D'
+alias gbclean='git branch | grep -v "^*" | grep -v "master" | fzf -m | xargs git branch -D'
 alias gcml='git checkout master && git pull'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
@@ -253,8 +253,3 @@ alias py='python3'
 alias o='open $(pbpaste)'
 alias c='open /Applications/Google\ Chrome.app'
 alias c2='open "https://console.aws.amazon.com/ec2/"'
-
-pb() {
-  curl -u """$PUSHBULLET_TOKEN"":" -d type="note" -d email="$PUSHBULLET_EMAIL" -d body="$1" -d title="Terminal" 'https://api.pushbullet.com/v2/pushes' >/dev/null 2>&1
-  echo "Notification sent.";
-}

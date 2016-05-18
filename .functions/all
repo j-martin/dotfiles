@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+source "$HOME/.functions/base"
+source "$HOME/.functions/git"
+source "$HOME/.functions/pushbullet"
+source "$HOME/.functions/extra"

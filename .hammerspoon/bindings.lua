@@ -2,7 +2,6 @@ local fnutils = require "hs.fnutils"
 local tabs = require "hs.tabs"
 local hotkey = require "hs.hotkey"
 local grid = require "hs.grid"
-local window = require "hs.window"
 local caffeinate = require "hs.caffeinate"
 local windows = require "windows"
 
@@ -15,8 +14,8 @@ local applications = {
   {key = "A", name = "aText"},
   {key = "P", name = "Sublime Text"},
   {key = "F", name = "Finder"},
-  {key = "U", name = "Emacs", tab = true},
-  {key = "O", name = "IntelliJ IDEA"},
+  {key = "U", name = "Emacs"},
+  {key = "O", name = "IntelliJ IDEA.app"},
   {key = "I", name = "iTerm"},
   {key = "7", name = "1Password 6"},
   {key = ";", name = "Dash"},

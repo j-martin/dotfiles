@@ -33,6 +33,7 @@ values."
        dash
        dockerfile
        emacs-lisp
+       emoji
        evil-cleverparens
        evil-commentary
        gtags
@@ -96,7 +97,7 @@ values."
     ;; (default t)
     dotspacemacs-elpa-https t
     ;; Maximum allowed time in seconds to contact an ELPA repository.
-    dotspacemacs-elpa-timeout 5
+    dotspacemacs-elpa-timeout 50
     ;; If non nil then spacemacs will check for updates at startup
     ;; when the current branch is not `develop'. (default t)
     dotspacemacs-check-for-update t
@@ -129,11 +130,9 @@ values."
     dotspacemacs-themes
     '(
        spacemacs-dark
-       flatland
-       zenburn
        spacemacs-light
-       solarized-light
        solarized-dark
+       solarized-light
        )
     ;; If non nil the cursor color matches the state color in GUI Emacs.
     dotspacemacs-colorize-cursor-according-to-state t
@@ -202,7 +201,7 @@ values."
     dotspacemacs-enable-paste-micro-state nil
     ;; Which-key delay in seconds. The which-key buffer is the popup listing
     ;; the commands bound to the current keystroke sequence. (default 0.4)
-    dotspacemacs-which-key-delay 0.1
+    dotspacemacs-which-key-delay 0.3
     ;; Which-key frame position. Possible values are `right', `bottom' and
     ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
     ;; right; if there is insufficient space it displays it at the bottom.
