@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+_pb () {
+  local endpoint="$1"
+  local params="${@:2}"
+  curl --fail --silent --header "Access-Token: $(_pb_token)" \
+       "https://api.pushbullet.com/v2/$endpoint"
+}
+
+_pb_token () {
+  keyring get system pushbullet
+}

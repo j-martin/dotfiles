@@ -7,10 +7,9 @@ source "$HOME/.functions/base"
 source "$HOME/.functions/git"
 
 _format () {
-  jq -r '.[] | "*** TODO "+ .repository.full_name + "#" + (.number | tostring) + "-" + .title,
+  jq -r '.[] | "*** TODO [[" + .html_url + "][" + .repository.full_name + "#" + (.number | tostring) + "-" + .title + "]]",
 ":PROPERTIES:",
 ":ID: " + (.id | tostring),
-":URL: " + .html_url,
 ":END:",
 .body'
 }

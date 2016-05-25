@@ -17,6 +17,7 @@ values."
     ;; of a list then all discovered layers will be installed.
     dotspacemacs-configuration-layers
     '(
+       html
        ;; ----------------------------------------------------------------
        ;; Example of useful layers you may want to use right away.
        ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -33,7 +34,6 @@ values."
        dash
        dockerfile
        emacs-lisp
-       emoji
        evil-cleverparens
        evil-commentary
        gtags
@@ -58,10 +58,10 @@ values."
        spotify
        sql
        syntax-checking
+       theming
        vagrant
        version-control
        yaml
-       unimpaired
        )
     ;; List of additional packages that will be installed without being
     ;; wrapped in a layer. If you need some configuration for these

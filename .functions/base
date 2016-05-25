@@ -8,6 +8,10 @@ _warn () {
   >&2 echo "[warn] $@"
 }
 
+_error () {
+  >&2 echo "[error] $@"
+}
+
 _production () {
   printf "\033]Ph501010\033\\"
 }

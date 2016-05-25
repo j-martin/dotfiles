@@ -1,16 +1,3 @@
-#+TITLE: Emacs Configuration
-#+AUTHOR: Jean-Martin Archer
-#+EMAIL: jm@jmartin.ca
-
-* General
-** Personal
-#+begin_src emacs-lisp :tangle yes
-(setq user-full-name "Jean-Martin Archer"
-  user-mail-address "jm@jmartin.ca")
-#+end_src
-
-** Convenience
-#+BEGIN_SRC emacs-lisp
 (add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
 (setq confirm-kill-emacs 'y-or-n-p)
 (setq mac-emulate-three-button-mouse t)
@@ -22,20 +9,13 @@
 ;; (spacemacs/toggle-smartparens-globally-on)
 (setq save-interprogram-paste-before-kill t)
 (setq multi-term-program-switches "--login")
-#+END_SRC
-*** Custom file
-#+BEGIN_SRC emacs-lisp
+
 (setq custom-file "~/.spacemacs.d/custom-configuration.el")
 (load custom-file t)
-#+END_SRC
 
-** Github related                                                       :git:
-#+begin_src emacs-lisp :tangle yes
 (setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
 (setq paradox-github-token (shell-command "keyring get system github_paradox"))
-#+end_src
-* UI / Visual
-#+BEGIN_SRC emacs-lisp
+
 (spacemacs/toggle-syntax-checking-on)
 (spacemacs/toggle-truncate-lines-on)
 (spacemacs/toggle-vi-tilde-fringe-off)
@@ -46,11 +26,7 @@
 (golden-ratio-mode 1)
 (menu-bar-mode 1)
 (setq-default avy-all-windows 'all-frames)
-#+END_SRC
 
-#+RESULTS:
-** Whitespace
-#+begin_src emacs-lisp :tangle yes
 (global-whitespace-mode 1)
 (setq fill-column 120)
 (setq whitespace-line-column 160)
@@ -63,26 +39,15 @@
   '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
   '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil))))
   '(whitespace-line ((t nil)))
-  '(whitespace-newline ((t (:foreground "gray20"))))
+  '(whitespace-newline ((t (:foreground "gray30"))))
   '(whitespace-space ((t (:foreground "gray30"))))
   '(whitespace-trailing ((t (:background "saddle brown" :foreground "gray100")))))
-#+end_src
 
-#+RESULTS:
-
-** Fixing spaceline colors on OS X
-As per [[http://emacsredux.com/blog/2014/01/11/a-peek-at-emacs-24-dot-4-srgb-colours-on-os-x/][fixing colors]]
-#+begin_src emacs-lisp :tangle yes
 (setq ns-use-srgb-colorspace nil)
-#+end_src
-** Spacemacs Dark
-#+begin_src emacs-lisp :tangle yes
+
 (setq theming-modifications '((spacemacs-dark (default :foreground "#eeeeee"))))
 (spacemacs/update-theme)
-#+end_src
-* Modes
-** Enabling
-#+begin_src emacs-lisp :tangle yes
+
 (delete-selection-mode 1)
 (editorconfig-mode 1)
 (global-auto-revert-mode t)
@@ -91,25 +56,15 @@ As per [[http://emacsredux.com/blog/2014/01/11/a-peek-at-emacs-24-dot-4-srgb-col
 (global-evil-mc-mode 1)
 (setq-default abbrev-mode t)
 (setq save-abbrevs 'silently)
-#+end_src
 
-#+RESULTS:
-: t
-
-** Autofill
-#+BEGIN_SRC emacs-lisp
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
 (add-hook 'org-mode-hook 'turn-on-auto-fill)
-#+END_SRC
-** Aggressive Indent
-#+begin_src emacs-lisp :tangle yes
+
 (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
 (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
 (add-hook 'shell-script-mode-hook #'aggressive-indent-mode)
-#+end_src
-** Pretty symbols
-#+begin_src emacs-lisp :tangle yes
+
 (defun jm/pretty-symbols ()
   "make some word or string show as pretty Unicode symbols"
   (setq prettify-symbols-alist
@@ -125,29 +80,15 @@ As per [[http://emacsredux.com/blog/2014/01/11/a-peek-at-emacs-24-dot-4-srgb-col
 (add-hook 'scala-mode-hook 'jm/pretty-symbols)
 (add-hook 'coffee-mode-hook 'jm/pretty-symbols)
 (add-hook 'lua-mode-hook 'jm/pretty-symbols)
-#+end_src
 
-#+RESULTS:
-| jm/pretty-symbols | company-mode |
-** EVIL
-#+BEGIN_SRC emacs-lisp
 (setq-default evil-escape-delay 0.3)
 (setq-default evil-escape-key-sequence "jk")
-#+END_SRC
 
-** JS
-#+BEGIN_SRC emacs-lisp
 (setq-default js-indent-level 2)
-#+END_SRC
 
-** magit                                                                :git:
-#+begin_src emacs-lisp :tangle yes
-  (setq magit-repository-directories '("~/Work/"))
-  (setq-default vc-follow-symlinks t)
-#+end_src
-** org
-*** Enabling org-babel
-#+begin_src emacs-lisp :tangle yes
+(setq magit-repository-directories '("~/Work/"))
+(setq-default vc-follow-symlinks t)
+
 (use-package org-babel
   :init
   (org-babel-do-load-languages
@@ -156,23 +97,13 @@ As per [[http://emacsredux.com/blog/2014/01/11/a-peek-at-emacs-24-dot-4-srgb-col
     (emacs-lisp . t)
     (sh . t)
     (python . t))))
-#+end_src
 
-#+RESULTS:
+(setq org-directory "~/.org/")
+(org-agenda-files (list org-directory))
 
-*** Basic setup
-  #+BEGIN_SRC emacs-lisp
-  (setq org-directory "~/.org/")
-  (org-agenda-files (list org-directory))
-  #+END_SRC
-*** States
-Disabling for now and trying to use states per files instead.
-#+begin_src emacs-lisp :tangle yes
-  ;; (setq org-todo-keywords
-  ;;   '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
-#+end_src
-*** Capture Templates
-#+begin_src emacs-lisp :tangle yes
+;; (setq org-todo-keywords
+;;   '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
+
 (setq org-capture-templates
   '(
      ("t" "Todo" entry (file+headline "~/.org/todo.org" "Tasks")
@@ -186,11 +117,7 @@ Disabling for now and trying to use states per files instead.
      ("J" "Journal with Clipboard" entry (file+datetree "~/.org/journal.org")
        "* %?\nEntered on %U\n  %i\n %c\n %a")
      ))
-#+end_src
-#+RESULTS:
-| t | Todo | entry | (file+headline ~/.org/todo.org Tasks) | * TODO %? |
-* Keyboard Bindings
-#+BEGIN_SRC emacs-lisp
+
 (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
 (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
 (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
@@ -209,68 +136,59 @@ Disabling for now and trying to use states per files instead.
 (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
 (spacemacs/set-leader-keys "ot" 'jm/insert-today)
 (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
-#+END_SRC
 
-* General Functions
-#+BEGIN_SRC emacs-lisp
-  (defun jm/helm-org-dir ()
-    (interactive)
-    (helm-find-files-1 (expand-file-name "~/.org/")))
+(defun jm/helm-org-dir ()
+  (interactive)
+  (helm-find-files-1 (expand-file-name "~/.org/")))
 
-  (defun jm/helm-home-dir ()
-    (interactive)
-    (helm-find-files-1 (expand-file-name "~/")))
+(defun jm/helm-home-dir ()
+  (interactive)
+  (helm-find-files-1 (expand-file-name "~/")))
 
-  (defun jm/org-github-todo ()
-    (interactive)
-    (insert (shell-command-to-string "$HOME/.bin/org_todo.sh  2> /dev/null")))
+(defun jm/org-github-todo ()
+  (interactive)
+  (insert (shell-command-to-string "$HOME/.bin/org_todo.sh  2> /dev/null")))
 
-  (defun jm/insert-today ()
-    (interactive)
-    (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
+(defun jm/insert-today ()
+  (interactive)
+  (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
 
-  (defun jm/get-column ()
-    (number-to-string (+ (current-column) 1)))
+(defun jm/get-column ()
+  (number-to-string (+ (current-column) 1)))
 
-  (defun jm/get-line-number ()
-    (number-to-string (line-number-at-pos)))
+(defun jm/get-line-number ()
+  (number-to-string (line-number-at-pos)))
 
-  (defun jm/open-with-line (app)
-    (when buffer-file-name
-      (save-buffer)
-      (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
+(defun jm/open-with-line (app)
+  (when buffer-file-name
+    (save-buffer)
+    (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
 
-  (defun jm/open-with-line-column (app)
-    (when buffer-file-name
-      (save-buffer)
-      (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
+(defun jm/open-with-line-column (app)
+  (when buffer-file-name
+    (save-buffer)
+    (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
 
-  (defun jm/open-with-line-column-vim (app)
-    (when buffer-file-name
-      (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
+(defun jm/open-with-line-column-vim (app)
+  (when buffer-file-name
+    (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
 
-  (defun jm/open-with-reveal (app)
-    (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
+(defun jm/open-with-reveal (app)
+  (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
 
-  (defun jm/open-with-sublime ()
-    (interactive)
-    (jm/open-with-line-column "/usr/local/bin/subl"))
+(defun jm/open-with-sublime ()
+  (interactive)
+  (jm/open-with-line-column "/usr/local/bin/subl"))
 
-  (defun jm/open-with-idea ()
-    (interactive)
-    (jm/open-with-reveal "IntelliJ IDEA")
-    (jm/open-with-line "/usr/local/bin/idea"))
+(defun jm/open-with-idea ()
+  (interactive)
+  (jm/open-with-reveal "IntelliJ IDEA")
+  (jm/open-with-line "/usr/local/bin/idea"))
 
-  (defun jm/open-with-nvim ()
-    (interactive)
-    (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
-#+END_SRC
+(defun jm/open-with-nvim ()
+  (interactive)
+  (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 
-** Endless Autocorrect
-Per
-[[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][something]]
-copied on 2016-05-17
-#+begin_src emacs-lisp :tangle yes
 (define-key ctl-x-map "\C-i"
   #'endless/ispell-word-then-abbrev)
 
@@ -309,7 +227,3 @@ abort completely with `C-g'."
           (message "\"%s\" now expands to \"%s\" %sally"
                    bef aft (if p "loc" "glob")))
       (user-error "No typo at or before point"))))
-
-#+end_src
-#+RESULTS:
-: t
