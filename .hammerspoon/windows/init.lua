@@ -1,7 +1,6 @@
 local window = require "hs.window"
 local grid = require "hs.grid"
 local chooser = require "hs.chooser"
-local mouse = require "hs.mouse"
 local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
@@ -93,26 +92,26 @@ local previousCycleStartPoint = 0
 
 -- cycles window size
 function mod.cycleWidth(startPoint)
+  local width = nil
   local fWindow = window.focusedWindow()
   local primaryScreen = screen.primaryScreen():currentMode()
+  local currentWidth = fWindow:frame().w / primaryScreen.w
 
-  local divisor = nil
-  local currentRatio = primaryScreen.w / fWindow:frame().w
   if previousCycleStartPoint ~= startPoint then
-    divisor = 2
-  elseif currentRatio < 1.7 then
-    divisor = 2.65
-  elseif currentRatio < 2.1 then
-    divisor = 1.61
+    width = 0.5
+  elseif currentWidth < 0.31 then
+    width = 0.5
+  elseif currentWidth < 0.51 then
+    width = 0.7
   else
-    divisor = 2
+    width = 0.3
   end
 
-  local w = primaryScreen.w/divisor
-  local x = (primaryScreen.w - w) * startPoint
-  fWindow:setFrame({x, 0, w, primaryScreen.h})
   previousCycleStartPoint = startPoint
-  centerCursor()
+  local x = startPoint * (1 - (startPoint * width))
+  local frame = geometry.unitrect(x, 0, width, 1)
+  fWindow:move(frame)
+  ext.centerOnWindow()
 end
 
 return mod

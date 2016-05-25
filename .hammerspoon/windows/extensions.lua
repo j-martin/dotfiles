@@ -7,7 +7,11 @@ local fnutils = require "hs.fnutils"
 local indexOf = fnutils.indexOf
 local filter = fnutils.filter
 local geometry = require "hs.geometry"
+local window = require "hs.window"
+local drawing = require "hs.drawing"
+local timer = require "hs.timer"
 local mouse = require "hs.mouse"
+local application = require "hs.application"
 
 local mod = {}
 
@@ -31,14 +35,6 @@ local function result(obj, property)
   else
     return obj[property]
   end
-end
-
----------------------------------------------------------
--- Extension of native objects and modules
----------------------------------------------------------
-
-function mod.centerOnRect(rect)
-  mouse.setAbsolutePosition(geometry.rectMidPoint(rect))
 end
 
 ---------------------------------------------------------
@@ -77,15 +73,25 @@ function mod.mouseHighlight()
   local mousepoint = mouse.getAbsolutePosition()
 
   -- Prepare a big red circle around the mouse pointer
-  mouseCircle = hs.drawing.circle(hs.geometry.rect(mousepoint.x-20, mousepoint.y-20, 40, 40))
+  mouseCircle = drawing.circle(geometry.rect(mousepoint.x-20, mousepoint.y-20, 40, 40))
   mouseCircle:setFillColor({["red"]=0.5,["blue"]=0.5,["green"]=0.5,["alpha"]=0.5})
   mouseCircle:setStrokeWidth(0)
   mouseCircle:show()
 
   -- Set a timer to delete the circle after 3 seconds
-  mouseCircleTimer = hs.timer.doAfter(0.2, function()
+  mouseCircleTimer = timer.doAfter(0.2, function()
     mouseCircle:delete()
   end)
+end
+
+function mod.centerOnRect(rect)
+  mouse.setAbsolutePosition(geometry.rectMidPoint(rect))
+end
+
+
+function mod.centerOnWindow()
+  mod.centerOnRect(window.focusedWindow():frame())
+  mod.mouseHighlight()
 end
 
 ---------------------------------------------------------
@@ -98,13 +104,13 @@ end
 -- @param  windows  list of hs.window or applicationName
 -- @param  window   instance of hs.window
 -- @return hs.window
-local function getNextWindow(windows, window)
+local function getNextWindow(windows, currentWindow)
   if type(windows) == "string" then
     windows = hs.appfinder.appFromName(windows):allWindows()
   end
 
-  windows = filter(windows, hs.window.isStandard)
-  windows = filter(windows, hs.window.isVisible)
+  windows = filter(windows, window.isStandard)
+  -- windows = filter(windows, window.isVisible)
 
   -- need to sort by ID, since the default order of the window
   -- isn't usable when we change the mainWindow
@@ -114,7 +120,7 @@ local function getNextWindow(windows, window)
     return w1:id() > w2:id()
   end)
 
-  lastIndex = indexOf(windows, window)
+  lastIndex = indexOf(windows, currentWindow)
 
   return windows[getNextIndex(windows, lastIndex)]
 end
@@ -126,24 +132,23 @@ function mod.launchOrCycleFocus(applicationName)
   return function()
     local nextWindow = nil
     local targetWindow
-    local focusedWindow = hs.window.focusedWindow()
+    local focusedWindow = window.focusedWindow()
     lastToggledApplication = focusedWindow and focusedWindow:application():title()
 
     if not focusedWindow then return nil end
 
     logger.df('last: %s, current: %s', lastToggledApplication, applicationName)
-
     if lastToggledApplication == applicationName then
       nextWindow = getNextWindow(applicationName, focusedWindow)
       nextWindow:becomeMain()
     else
-      hs.application.launchOrFocus(applicationName)
+      application.launchOrFocus(applicationName)
     end
 
     if nextWindow then
       targetWindow = nextWindow
     else
-      targetWindow = hs.window.focusedWindow()
+      targetWindow = window.focusedWindow()
     end
 
     if not targetWindow then
@@ -151,9 +156,7 @@ function mod.launchOrCycleFocus(applicationName)
       return nil
     end
 
-    local windowFrame = targetWindow:frame()
-    mod.centerOnRect(windowFrame)
-    mod.mouseHighlight()
+    mod.centerOnWindow()
   end
 end
 
