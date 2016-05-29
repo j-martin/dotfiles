@@ -29,7 +29,7 @@
 (load custom-file t)
 #+END_SRC
 
-** Github related                                                       :git:
+** GitHub related                                                       :git:
 #+begin_src emacs-lisp :tangle yes
 (setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
 (setq paradox-github-token (shell-command "keyring get system github_paradox"))
@@ -47,8 +47,14 @@
 (menu-bar-mode 1)
 (setq-default avy-all-windows 'all-frames)
 #+END_SRC
-
-#+RESULTS:
+** Frame Size
+#+begin_src emacs-lisp :tangle yes
+(if (eq system-type 'darwin)
+  (add-to-list 'default-frame-alist '(height . 60))
+  (add-to-list 'default-frame-alist '(width . 134))
+)
+#+end_src
+ #+RESULTS:
 ** Whitespace
 #+begin_src emacs-lisp :tangle yes
 (setq whitespace-style '(tabs tab-mark))
@@ -60,10 +66,6 @@ tab-width 2
 indent-tabs-mode nil
 fci-rule-column 120)
 #+end_src
-
-Fixing spaceline colors on [[http://emacsredux.com/blog/2014/01/11/a-peek-at-emacs-24-dot-4-srgb-colours-on-os-x/][OS X]]
-#+begin_src emacs-lisp :tangle yes
-(setq ns-use-srgb-colorspace nil)
 #+end_src
 * Modes
 ** Enabling
@@ -122,6 +124,7 @@ Fixing spaceline colors on [[http://emacsredux.com/blog/2014/01/11/a-peek-at-ema
   (global-set-key (kbd "TAB") 'self-insert-command)
   (setq tab-width 8)
   (setq c-basic-indent 8))
+
 (add-hook 'makefile-mode-hook 'makefile-mode-config)
 #+end_src
 

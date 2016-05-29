@@ -58,7 +58,6 @@ values."
        spotify
        sql
        syntax-checking
-       themes-megapack
        vagrant
        version-control
        yaml
@@ -129,7 +128,6 @@ values."
     ;; with 2 themes variants, one dark and one light)
     dotspacemacs-themes
     '(
-       hc-zenburn
        spacemacs-dark
        spacemacs-light
        solarized-dark
@@ -270,7 +268,7 @@ values."
 It is called immediately after `dotspacemacs/init'.  You are free to put almost
 any user code here.  The exception is org related code, which should be placed
 in `dotspacemacs/user-config'."
-  )
+  (custom-set-variables '(spacemacs-theme-custom-colors '((base . "#dddddd")))))
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
