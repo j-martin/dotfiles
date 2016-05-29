@@ -41,7 +41,8 @@ local layoutChoices = {
       {"Sublime Text", layout.right50},
     }
   },
-  { text = "70/30",
+  {
+    text = "70/30",
     subText = "70/30",
     layout = {
       {"Emacs", layout.left70},

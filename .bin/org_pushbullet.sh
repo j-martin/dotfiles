@@ -13,13 +13,13 @@ _pb_org () {
 | reverse[]
 | select(has("url"))
 | select(.direction == "self")
-| ["** TODO [[" + .url + "][" + .title + "]]" , ":PROPERTIES:" , ":ID: " + .iden, ":CREATED: " + (.created | tostring), ":END:", .body]
+| ["** TODO .title [[" + .url + "][Link]]", ":PROPERTIES:", ":ID: " + .iden, ":CREATED: " + (.created | tostring), ":MODIFIED: " + (.modified | tostring), ":END:", .body]
 | join("\n")'
 }
 
 _pb_org_last () {
   local file="$1"
-  grep ':CREATED:' "$file" | tail -n1 | cut -d ' ' -f2
+  grep ':MODIFIED:' "$file" | tail -n1 | cut -d ' ' -f2
 }
 
 file="$HOME/.org/reading.org"

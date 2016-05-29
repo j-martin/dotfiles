@@ -3,5 +3,5 @@
 set -o errexit
 set -o pipefail
 
-osascript -e 'tell application "Emacs" to activate'
+# osascript -e 'tell application "Emacs" to activate'
 exec /usr/local/bin/emacsclient --no-wait -e "$@"

@@ -17,7 +17,6 @@ values."
     ;; of a list then all discovered layers will be installed.
     dotspacemacs-configuration-layers
     '(
-       html
        ;; ----------------------------------------------------------------
        ;; Example of useful layers you may want to use right away.
        ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -36,13 +35,14 @@ values."
        emacs-lisp
        evil-cleverparens
        evil-commentary
+       html
+       git
+       github
+       go
        gtags
        ipython-notebook
        java
        javascript
-       git
-       github
-       go
        lua
        markdown
        (org :variables
@@ -58,7 +58,7 @@ values."
        spotify
        sql
        syntax-checking
-       theming
+       themes-megapack
        vagrant
        version-control
        yaml
@@ -129,6 +129,7 @@ values."
     ;; with 2 themes variants, one dark and one light)
     dotspacemacs-themes
     '(
+       hc-zenburn
        spacemacs-dark
        spacemacs-light
        solarized-dark

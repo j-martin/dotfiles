@@ -232,7 +232,7 @@ alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
 alias hd='home diff'
 alias hadd!='home add -f'
 alias hcommit='home commit -m'
-alias hpush!='home commit --amend --no-edit "$HOME" && home push --force'
+alias hpush='home push'
 alias hs='home status'
 
 # Scala
