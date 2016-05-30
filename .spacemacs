@@ -35,6 +35,7 @@ values."
        emacs-lisp
        evil-cleverparens
        evil-commentary
+       helm
        html
        git
        github

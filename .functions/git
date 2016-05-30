@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+readonly JQ_SHORT_BRANCH_NAME=''
+
 _git_repo () {
   git config --get remote.origin.url \
     | cut -d ':' -f2 \
@@ -47,6 +49,12 @@ _github () {
   curl --fail --silent -H "Authorization: token $(keyring get system github_token)" "https://api.github.com/$endpoint"
 }
 
+_github_post () {
+  local endpoint="$1"
+  local payload="$2"
+  curl --fail --silent -XPOST -H "Authorization: token $(keyring get system github_token)" "https://api.github.com/$endpoint" --data "$payload"
+}
+
 _github_search_issues() {
   local label="$1"
   _github "search/issues?q=label:$label&per_page=300"
@@ -75,9 +83,12 @@ _github_issues_search() {
 }
 
 _github_format_issues () {
-  jq -r '.[] | ["#" + (.number | tostring), .title] | join("-")'
+  jq -r ".[] | ["#" + (.number | tostring), .title] | join("-")"
 }
 
+_github_format_issue () {
+  jq -r '["#" + (.number | tostring), .title] | join("-")'
+}
 _github_format_search_issues () {
   jq -r '.items[] | [(.repository_url | sub(".*/"; "")) + "#" + (.number | tostring),
     .title, .state, ([.labels[].name] | join(", ")), .assignee.login] | join("¡")' \
@@ -91,4 +102,17 @@ _github_user () {
 _github_repo_assigned_issues () {
   _github "repos/$(_git_repo)/issues?assignee=$(_github_user)" \
     | _github_format_issues
+}
+
+_github_create_issue () {
+  local title="$1"
+  local body="$2"
+  local payload="$(jo title="$title" body="$body" assignee="$(_github_user)")"
+  _github_post "repos/$(_git_repo)/issues" "$payload"
+}
+
+_github_new_branch () {
+  local title="$1"
+  local body="$2"
+  _git_new_branch "$(_github_create_issue "$title" "$body" | _github_format_issue)"
 }

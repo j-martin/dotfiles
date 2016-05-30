@@ -173,11 +173,10 @@ alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch "$(pbpaste)"'
 alias gnewf='_git_new_branch "$(_github_repo_issues | fzf)"'
 alias gnewi='_git_new_branch "$(_github_issues | fzf)"'
+alias gnewh='_github_new_branch'
 
 
 alias gnewm='git checkout master && git pull && gnew'
-gnewh() { ghi open "$1" --claim &&  git checkout master && git pull && _git_new_branch "$1" ;}
-gnewc() { _git_new_branch "$1" && git commit -m "$1" $2 $3 $4 ;}
 alias gra='git rebase --abort'
 alias grc='git rebase --continue'
 alias greset='git fetch origin && git reset --hard origin/master'
