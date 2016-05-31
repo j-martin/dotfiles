@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-readonly JQ_SHORT_BRANCH_NAME=''
-
 _git_repo () {
   git config --get remote.origin.url \
     | cut -d ':' -f2 \
@@ -41,7 +39,7 @@ _git_pick_commit () {
 
 _git_new_branch () {
   local name="$1"
-  git checkout -b $(echo "$name" | tr ' :,.+^&*()[]@$%' '-' | sed -r 's/-+/-/g')
+  git checkout -b "$(echo "$name" | tr ' :,.+^&*()[]@$%' '-' | sed -r 's/-+/-/g')"
 }
 
 _github () {
@@ -65,7 +63,7 @@ _github_repos () {
 }
 
 _github_pick_repo () {
-  _github_repos | jq -r '.[].git_url' | _fzf $1
+  _github_repos | jq -r '.[].git_url' | _fzf "$1"
 }
 
 _github_repo_issues () {
@@ -83,7 +81,7 @@ _github_issues_search() {
 }
 
 _github_format_issues () {
-  jq -r ".[] | ["#" + (.number | tostring), .title] | join("-")"
+  jq -r '.[] | ["#" + (.number | tostring), .title] | join("-")'
 }
 
 _github_format_issue () {
@@ -107,8 +105,7 @@ _github_repo_assigned_issues () {
 _github_create_issue () {
   local title="$1"
   local body="$2"
-  local payload="$(jo title="$title" body="$body" assignee="$(_github_user)")"
-  _github_post "repos/$(_git_repo)/issues" "$payload"
+  _github_post "repos/$(_git_repo)/issues" "$(jo title="$title" body="$body" assignee="$(_github_user)")"
 }
 
 _github_new_branch () {

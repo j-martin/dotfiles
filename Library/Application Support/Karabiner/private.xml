@@ -1,15 +1,103 @@
 <?xml version="1.0"?>
 <root>
-	<item>
-		<name>F19 to F19</name>
-		<appendix>(F19 to Hyper (ctrl+shift+cmd+opt) + F19 Only, send escape)</appendix>
-		<identifier>private.f192f19_escape</identifier>
-		<autogen>
-			--KeyOverlaidModifier--
-			KeyCode::F19,
-			KeyCode::COMMAND_L,
-			ModifierFlag::OPTION_L | ModifierFlag::SHIFT_L | ModifierFlag::CONTROL_L,
-			KeyCode::ESCAPE
-		</autogen>
-	</item>
+  <item>
+    <name>F19 to F19</name>
+    <appendix>F19 to Hyper (ctrl+shift+cmd+opt) + F19 Only, send escape</appendix>
+    <identifier>private.f192f19_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::F19,
+      KeyCode::COMMAND_L,
+      ModifierFlag::OPTION_L | ModifierFlag::SHIFT_L | ModifierFlag::CONTROL_L,
+      KeyCode::ESCAPE
+    </autogen>
+  </item>
+  <item>
+    <name>Command L and Escape</name>
+    <appendix>Command if held, send escape if press</appendix>
+    <identifier>private.cmd_l_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::COMMAND_L,
+      KeyCode::COMMAND_L,
+      KeyCode::ESCAPE
+    </autogen>
+  </item>
+  <item>
+    <name>Command R and Tab</name>
+    <appendix>Command if held, send tab if press</appendix>
+    <identifier>private.cmd_r_tab</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::COMMAND_R,
+      KeyCode::COMMAND_R,
+      KeyCode::TAB
+    </autogen>
+  </item>
+  <item>
+    <name>Control L and Escape</name>
+    <appendix>Control if held, send escape if press</appendix>
+    <identifier>private.control_l_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::CONTROL_L,
+      KeyCode::CONTROL_L,
+      KeyCode::ESCAPE
+    </autogen>
+  </item>
+  <item>
+    <name>Control R and Escape</name>
+    <appendix>Control if held, send escape if press</appendix>
+    <identifier>private.control_r_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::CONTROL_R,
+      KeyCode::CONTROL_R,
+      KeyCode::ESCAPE
+    </autogen>
+  </item>
+  <item>
+    <name>Option L and Escape</name>
+    <appendix>Option if held, send escape if press</appendix>
+    <identifier>private.option_l_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::OPTION_L,
+      KeyCode::OPTION_L,
+      KeyCode::ESCAPE
+    </autogen>
+  </item>
+  <item>
+    <name>Option R and Forward Delete</name>
+    <appendix>Option if held, send forward delete if press</appendix>
+    <identifier>private.option_r_forward_delete</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::OPTION_R,
+      KeyCode::OPTION_R,
+      KeyCode::FORWARD_DELETE
+    </autogen>
+  </item>
+  <item>
+    <name>Shift L and Escape</name>
+    <appendix>Shift if held, send escape if press</appendix>
+    <identifier>private.shift_l_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::SHIFT_L,
+      KeyCode::SHIFT_L,
+      KeyCode::ESCAPE
+    </autogen>
+  </item>
+  <item>
+    <name>Shift R and Escape</name>
+    <appendix>Shift if held, send escape if press</appendix>
+    <identifier>private.shift_r_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::SHIFT_R,
+      KeyCode::SHIFT_R,
+      KeyCode::ESCAPE
+    </autogen>
+  </item>
 </root>

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+_slack_post () {
+  local channel="$1"
+  local text="$2"
+  curl --fail --silent -XPOST \
+    --data "token=$(_slack_token)" \
+    --data "username=$(_slack_username)" \
+    --data-urlencode "icon_url=$(_slack_icon)" \
+    --data "channel=$channel" \
+    --data "parse=full" \
+    --data-urlencode "text=$text" \
+    "https://slack.com/api/chat.postMessage"
+}
+
+_slack_token () {
+  keyring get system slack_bot
+}
+
+_slack_username () {
+  keyring get system slack_bot_name
+}
+
+_slack_icon () {
+  keyring get system slack_bot_icon
+}

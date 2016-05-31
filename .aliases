@@ -144,6 +144,7 @@ alias gcof='git checkout "$(_git_pick_branch_no_origin)"'
 alias gsp='git show "$(_git_pick_branch):$(fzf)"'
 alias gdp='git diff "$(_git_pick_branch)" -- "$(fzf)"'
 alias gdcf='git diff "$(_git_pick_commit)" -- "$(fzf)"'
+alias gci='_github_create_issue'
 alias gshowf='git show "$(_git_pick_commit):$(fzf)" | pygmentize | less -SRi'
 gshow () { git show "$1:$2" | vi - ;}
 gshowm () { git show "origin/master:$1" | vi - ;}

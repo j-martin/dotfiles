@@ -115,4 +115,8 @@ function mod.cycleWidth(startPoint)
   ext.centerOnWindow()
 end
 
+function mod.snapAll()
+  fnutils.map(window.visibleWindows(), grid.snap)
+end
+
 return mod
