@@ -5,6 +5,7 @@ local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
+local alert = require "hs.alert"
 
 local ext = require "windows/extensions"
 
@@ -15,7 +16,7 @@ mod.launchOrCycleFocus = ext.launchOrCycleFocus
 -- grid/window settings
 grid.ui.textSize = 15
 grid.GRIDWIDTH = 10
-grid.GRIDHEIGHT = 3
+grid.GRIDHEIGHT = 4
 grid.MARGINX = 0
 grid.MARGINY = 0
 window.animationDuration = 0
@@ -29,50 +30,18 @@ local commonLayout = {
 
 local center40 = geometry.unitrect(0.3, 0, 0.4, 1)
 
-local layoutChoices = {
-  {
-    text = "50/50",
-    subText = "50/50",
-    layout = {
-      {"Emacs", layout.left50},
-      {"iTerm2", layout.right50},
-      {"Google Chrome", layout.right50},
-      {"IntelliJ IDEA", layout.right50},
-      {"Sublime Text", layout.right50},
-    }
-  },
-  {
-    text = "70/30",
-    subText = "70/30",
-    layout = {
-      {"Emacs", layout.left70},
-      {"IntelliJ IDEA", layout.right70},
-      {"Google Chrome", layout.right30},
-      {"iTerm2", layout.right30},
-    }
-  },
-  {
-    text = "30/70",
-    subText = "30/70",
-    layout = {
-      {"Emacs", layout.left30},
-      {"Google Chrome", layout.right70},
-      {"IntelliJ IDEA", layout.right70},
-      {"iTerm2", layout.right70},
-    }
-  },
-}
-
 -- displays layout chooser
-function mod.pickLayout()
-  chooser.new(function(chosenLayout)
-      local primaryScreen = screen.primaryScreen():name()
-      local expandLayout = fnutils.map(chosenLayout.layout, function (entry)
-        return {entry[1], nil, primaryScreen, entry[2], nil, nil}
-      end)
-      local fullLayout = fnutils.concat(commonLayout, expandLayout)
-      layout.apply(fullLayout)
-  end):choices(layoutChoices):show()
+function mod.pickLayout(layoutChoices)
+  return function()
+    chooser.new(function(chosenLayout)
+        local primaryScreen = screen.primaryScreen():name()
+        local expandLayout = fnutils.map(chosenLayout.layout, function (entry)
+          return {entry[1], nil, primaryScreen, entry[2], nil, nil}
+        end)
+        local fullLayout = fnutils.concat(commonLayout, expandLayout)
+        layout.apply(fullLayout)
+    end):choices(layoutChoices):show()
+  end
 end
 
 function mod.center40()
@@ -89,18 +58,18 @@ local function centerCursor()
 end
 
 -- required for reseting the previous state.
-local previousCycleStartPoint = 0
+local cycleStates = {}
 
 -- cycles window size
-function mod.cycleWidth(startPoint)
+local function cycleWidth(startPoint)
   local width = nil
   local fWindow = window.focusedWindow()
+  local fApplication = fWindow:application():name()
   local primaryScreen = screen.primaryScreen():currentMode()
   local currentWidth = fWindow:frame().w / primaryScreen.w
+  local isDifferentStartPoint = cycleStates[fApplication] ~= startPoint
 
-  if previousCycleStartPoint ~= startPoint then
-    width = 0.5
-  elseif currentWidth < 0.31 then
+  if currentWidth < 0.31 or isDifferentStartPoint then
     width = 0.5
   elseif currentWidth < 0.51 then
     width = 0.7
@@ -108,15 +77,57 @@ function mod.cycleWidth(startPoint)
     width = 0.3
   end
 
-  previousCycleStartPoint = startPoint
-  local x = startPoint * (1 - (startPoint * width))
-  local frame = geometry.unitrect(x, 0, width, 1)
-  fWindow:move(frame)
+  cycleStates[fApplication] = startPoint
+  local xPos = startPoint * (1 - (startPoint * width))
+  fWindow:move({xPos, 0, width, 1})
   ext.centerOnWindow()
 end
 
+function mod.cycleLeft()
+  cycleWidth(0)
+end
+
+function mod.cycleRight()
+  cycleWidth(1)
+end
+
 function mod.snapAll()
-  fnutils.map(window.visibleWindows(), grid.snap)
+  fnutils.each(window.visibleWindows(), grid.snap)
+end
+
+function mod.modalLayout(modal, mLayouts)
+  function modal:entered()
+    alert.show('Modal Layout', 120)
+  end
+
+  function modal:exited()
+    alert.closeAll()
+    alert.show('Exited mode')
+  end
+
+  local function exit() modal:exit() end
+
+  local function applyLayout(selectedLayout)
+
+    local function moveTo()
+      window.focusedWindow():move(selectedLayout.pos)
+    end
+
+    local function moveToAndExit()
+        moveTo()
+        exit()
+    end
+
+    modal:bind({}, selectedLayout.key, moveTo)
+    modal:bind({'shift'}, selectedLayout.key, moveToAndExit)
+  end
+
+  modal:bind({}, 'escape', exit)
+  modal:bind({}, 'space', exit)
+  modal:bind({}, 'tab', window.switcher.previousWindow)
+  modal:bind({'shift'}, 'tab', window.switcher.nextWindow)
+
+  fnutils.each(mLayouts, applyLayout)
 end
 
 return mod

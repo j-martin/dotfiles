@@ -11,17 +11,17 @@
 
 ** Convenience
 #+BEGIN_SRC emacs-lisp
-(add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
-(setq confirm-kill-emacs 'y-or-n-p)
-(setq mac-emulate-three-button-mouse t)
-(setq x-select-enable-clipboard nil)
-(setq make-backup-files nil)
-(spacemacs/toggle-indent-guide-globally-on)
-;; (spacemacs/toggle-camel-case-motion-globally-on)
-;; (spacemacs/toggle-evil-cleverparens-on)
-;; (spacemacs/toggle-smartparens-globally-on)
-(setq save-interprogram-paste-before-kill t)
-(setq multi-term-program-switches "--login")
+  ;; (add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
+  (setq confirm-kill-emacs 'y-or-n-p)
+  (setq mac-emulate-three-button-mouse t)
+  (setq x-select-enable-clipboard nil)
+  (setq make-backup-files nil)
+  (spacemacs/toggle-indent-guide-globally-on)
+  ;; (spacemacs/toggle-camel-case-motion-globally-on)
+  ;; (spacemacs/toggle-evil-cleverparens-on)
+  ;; (spacemacs/toggle-smartparens-globally-on)
+  (setq save-interprogram-paste-before-kill t)
+  (setq multi-term-program-switches "--login")
 #+END_SRC
 *** Custom file
 #+BEGIN_SRC emacs-lisp
@@ -31,9 +31,14 @@
 
 ** GitHub related                                                       :git:
 #+begin_src emacs-lisp :tangle yes
-(setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
 (setq paradox-github-token (shell-command "keyring get system github_paradox"))
 #+end_src
+#+BEGIN_SRC emacs-lisp
+(setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
+(if (eq system-type 'darwin)
+  (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\"")))
+)
+#+END_SRC
 * UI/Visual
 #+BEGIN_SRC emacs-lisp
 (spacemacs/toggle-syntax-checking-on)
@@ -70,14 +75,16 @@ fci-rule-column 120)
 * Modes
 ** Enabling
 #+begin_src emacs-lisp :tangle yes
-(delete-selection-mode 1)
-(editorconfig-mode 1)
-(global-auto-revert-mode t)
-(global-company-mode 1)
-(ws-butler-global-mode 1)
-(global-evil-mc-mode 1)
-(setq-default abbrev-mode t)
-(setq save-abbrevs 'silently)
+  (delete-selection-mode 1)
+  (editorconfig-mode 1)
+  (global-auto-revert-mode t)
+  (global-company-mode 1)
+  (ws-butler-global-mode 1)
+  (global-evil-mc-mode 1)
+  (setq-default abbrev-mode t)
+  (setq save-abbrevs 'silently)
+  (super-save-mode +1)
+  ;; (require 'live-py-mode)
 #+end_src
 
 #+RESULTS:
@@ -214,6 +221,7 @@ Disabling for now and trying to use states per files instead.
 (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
 (spacemacs/set-leader-keys "ot" 'jm/insert-today)
 (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
+(spacemacs/set-leader-keys "ol" 'org-content)
 #+END_SRC
 
 * General Functions
@@ -228,7 +236,7 @@ Disabling for now and trying to use states per files instead.
 
   (defun jm/org-github-todo ()
     (interactive)
-    (insert (shell-command-to-string "$HOME/.bin/org_todo.sh  2> /dev/null")))
+    (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null")))
 
   (defun jm/insert-today ()
     (interactive)
@@ -271,10 +279,11 @@ Disabling for now and trying to use states per files instead.
     (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 #+END_SRC
 
+#+RESULTS:
+: jm/open-with-nvim
+
 ** Endless Autocorrect
-Per
-[[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][something]]
-copied on 2016-05-17
+Per [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Endless parentheses]] copied on 2016-05-17
 #+begin_src emacs-lisp :tangle yes
 (define-key ctl-x-map "\C-i"
   #'endless/ispell-word-then-abbrev)

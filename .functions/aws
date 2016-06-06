@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+_rds_instances () {
+  aws rds describe-db-instances \
+    | jq -r '.DBInstances[] | [.DBInstanceIdentifier, .DBInstanceClass, .EngineVersion, .AvailabilityZone, .SecondaryAvailabilityZone // "none", .DBInstanceStatus, .Endpoint.Address] | join("|")' \
+    | column -s '|' -t
+}
+
+_rds_pick_instance () {
+  aws rds describe-db-instances | jq -r '.DBInstances[].DBInstanceIdentifier' | fzf
+}
+
+rds_logs (){
+  local db_identifier="${1:-_rds_pick_instance}"
+  aws rds describe-db-log-files --db-instance-identifier "$db_identifier" \
+    | jq -r '.DescribeDBLogFiles[].LogFileName' \
+    | xargs -n1 -P0 -r aws rds download-db-log-file-portion --db-instance-identifier "$db_identifier"  --log-file-name \
+    | jq -r '.LogFileData' \
+    | grep -v 'LOG:  checkpoint' \
+    | sort \
+    | less -SRi
+}

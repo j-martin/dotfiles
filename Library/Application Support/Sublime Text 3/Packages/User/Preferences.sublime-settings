@@ -27,25 +27,49 @@
 	],
 	"itg_small_tabs": true,
 	"open_files_in_new_windows": false,
-	"open_with": [
+	"open_with":
+	[
 		{
-			"command": ["/usr/local/bin/idea", "{filename}:{line}"],
+			"command":
+			[
+				"/usr/local/bin/idea",
+				"{filename}:{line}"
+			],
 			"name": "IntelliJ IDEA"
 		},
 		{
-			"command": ["open", "{directory}"],
+			"command":
+			[
+				"open",
+				"{directory}"
+			],
 			"name": "Finder"
 		},
 		{
-			"command": ["/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim", "{filename}", "+{line}"],
+			"command":
+			[
+				"/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim",
+				"{filename}",
+				"+{line}"
+			],
 			"name": "NeoVim"
 		},
 		{
-			"command": ["/usr/local/bin/emacsclient", "+{line}:{column}", "{filename}", "--no-wait"],
+			"command":
+			[
+				"/usr/local/bin/emacsclient",
+				"+{line}:{column}",
+				"{filename}",
+				"--no-wait"
+			],
 			"name": "Emacs"
 		},
 		{
-			"command": ["/usr/local/bin/vmd", "{filename}"],
+			"command":
+			[
+				"/usr/local/bin/vmd",
+				"{filename}"
+			],
 			"name": "VMD"
 		}
 	],

@@ -8,7 +8,6 @@ _slack_post () {
     --data "username=$(_slack_username)" \
     --data-urlencode "icon_url=$(_slack_icon)" \
     --data "channel=$channel" \
-    --data "parse=full" \
     --data-urlencode "text=$text" \
     "https://slack.com/api/chat.postMessage"
 }

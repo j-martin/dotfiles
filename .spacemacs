@@ -31,6 +31,7 @@ values."
        chrome
        clojure
        dash
+       deft
        dockerfile
        emacs-lisp
        evil-cleverparens
@@ -48,6 +49,7 @@ values."
        markdown
        (org :variables
          org-enable-github-support t)
+       nginx
        osx
        python
        restclient
@@ -59,6 +61,7 @@ values."
        spotify
        sql
        syntax-checking
+       tabbar
        vagrant
        version-control
        yaml
@@ -71,7 +74,8 @@ values."
     '(
        editorconfig
        evil-mc
-       ws-butler
+       ox-reveal
+       super-save
        )
     ;; A list of packages and/or extensions that will not be install and loaded.
     dotspacemacs-excluded-packages '()
@@ -269,7 +273,12 @@ values."
 It is called immediately after `dotspacemacs/init'.  You are free to put almost
 any user code here.  The exception is org related code, which should be placed
 in `dotspacemacs/user-config'."
-  (custom-set-variables '(spacemacs-theme-custom-colors '((base . "#dddddd")))))
+  (custom-set-variables
+    '(spacemacs-theme-custom-colors
+       '(
+          (base . "#dddddd")
+          (const . "#e465cf")
+          ))))
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.

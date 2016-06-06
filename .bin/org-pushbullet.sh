@@ -13,8 +13,7 @@ _pb_org () {
 | reverse[]
 | select(has("url"))
 | select(.direction == "self")
-| ["** TODO .title [[" + .url + "][Link]]", ":PROPERTIES:", ":ID: " + .iden, ":CREATED: " + (.created | tostring), ":MODIFIED: " + (.modified | tostring), ":END:", .body]
-| join("\n")'
+| ["** TODO [[\(.url)][\(.title)]]", ":PROPERTIES:", ":ID: " + .iden, ":CREATED: " + (.created | tostring), ":MODIFIED: " + (.modified | tostring), ":END:", .body] | join("\n")'
 }
 
 _pb_org_last () {

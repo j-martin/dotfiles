@@ -16,18 +16,3 @@ _consul_list_services_dns () {
     | jq -r 'to_entries[] | .key, ({key, value: .value[]} | .value + "." + .key)' \
     | sed "s/$/\.service\.$domain/"
 }
-
-_rds_pick_instance () {
-  aws rds describe-db-instances | jq -r '.DBInstances[].DBInstanceIdentifier' | fzf
-}
-
-rds_logs (){
-  local db_identifier="${1:-_rds_pick_instance}"
-  aws rds describe-db-log-files --db-instance-identifier "$db_identifier" \
-    | jq -r '.DescribeDBLogFiles[].LogFileName' \
-    | xargs -n1 -P0 -r aws rds download-db-log-file-portion --db-instance-identifier "$db_identifier"  --log-file-name \
-    | jq -r '.LogFileData' \
-    | grep -v 'LOG:  checkpoint' \
-    | sort \
-    | less -SRi
-}

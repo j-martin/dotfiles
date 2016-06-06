@@ -5,14 +5,15 @@ Session.vim
 
 # OS X
 .DS_Store
-
-# Thumbnails
 ._*
-
-# Files that might appear on external disk
 .Spotlight-V100
 .Trashes
 
 # Python VirtualEnnv
 venv/
 
+# Emacs
+.projectile
+
+# IntelliJ
+.idea

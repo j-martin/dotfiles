@@ -57,25 +57,25 @@
     </autogen>
   </item>
   <item>
-    <name>Option L and Escape</name>
-    <appendix>Option if held, send escape if press</appendix>
-    <identifier>private.option_l_escape</identifier>
+    <name>Option R to Control R and Escape</name>
+    <appendix>Control R if held, send escape if press</appendix>
+    <identifier>private.option_control_r_escape</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::OPTION_R,
+      KeyCode::CONTROL_R,
+      KeyCode::FORWARD_DELETE
+    </autogen>
+  </item>
+  <item>
+    <name>Option L and Forward Delete</name>
+    <appendix>Option if held, send forward delete if press</appendix>
+    <identifier>private.option_l_forward_delete</identifier>
     <autogen>
       --KeyOverlaidModifier--
       KeyCode::OPTION_L,
       KeyCode::OPTION_L,
       KeyCode::ESCAPE
-    </autogen>
-  </item>
-  <item>
-    <name>Option R and Forward Delete</name>
-    <appendix>Option if held, send forward delete if press</appendix>
-    <identifier>private.option_r_forward_delete</identifier>
-    <autogen>
-      --KeyOverlaidModifier--
-      KeyCode::OPTION_R,
-      KeyCode::OPTION_R,
-      KeyCode::FORWARD_DELETE
     </autogen>
   </item>
   <item>
