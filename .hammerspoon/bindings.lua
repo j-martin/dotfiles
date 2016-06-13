@@ -5,29 +5,47 @@ local grid = require "hs.grid"
 local caffeinate = require "hs.caffeinate"
 local windows = require "windows"
 local layout = require "hs.layout"
+local selection = require "selection"
+
+local hyper = {'cmd', 'alt', 'ctrl', 'shift'}
 
 -- applications keybindings to hyper key
 local applications = {
+  { key = '7', name = '1Password 6' },
   { key = '8', name = 'Slack' },
-  { key = '=', name = 'KeePassX' },
   { key = '9', name = 'Spotify' },
+  { key = '0', name = 'IntelliJ IDEA 14' },
+  { key = '=', name = 'KeePassX' },
   { key = 'z', name = 'Sequel Pro' },
   { key = 'a', name = 'aText' },
-  { key = 'p', name = 'Sublime Text' },
   { key = 'f', name = 'Finder' },
-  { key = 'u', name = 'Emacs' },
-  { key = 'o', name = 'IntelliJ IDEA.app' },
-  { key = 'i', name = 'iTerm' },
-  { key = '7', name = '1Password 6' },
-  { key = ';', name = 'Dash' },
   { key = 'y', name = 'Inbox', tab = true },
-  { key = '0', name = 'IntelliJ IDEA 14' },
+  { key = 'u', name = 'Emacs' },
+  { key = 'i', name = 'iTerm' },
+  { key = 'o', name = 'IntelliJ IDEA.app' },
+  { key = 'p', name = 'Sublime Text' },
+  { key = ';', name = 'Dash' },
   { key = '1', name = 'Activity Monitor' },
   { key = 'l', name = 'Google Chrome' },
   { key = '\\', name = 'Paw', tab = true },
 }
 
-local hyper = {'cmd', 'alt', 'ctrl', 'shift'}
+
+-- other bindings
+hotkey.bind(hyper, 'v', caffeinate.lockScreen)
+hotkey.bind(hyper, 'm', grid.show)
+hotkey.bind(hyper, 's', windows.snapAll)
+
+hotkey.bind(hyper, 'j', windows.cycleLeft)
+hotkey.bind(hyper, 'k', windows.cycleRight)
+
+hotkey.bind(hyper, 'n', windows.maximize)
+hotkey.bind(hyper, 'x', windows.center40)
+
+hotkey.bind(hyper, 'c', hs.toggleConsole)
+hotkey.bind(hyper, 'r', hs.reload)
+hotkey.bind(hyper, '-', selection.googleSelectedText)
+hotkey.bind(hyper, 'e', selection.epochSinceNow)
 
 local function bindToHyper(app)
   if app.tab then tabs.enableForApp(app.name) end
@@ -80,6 +98,8 @@ local mLayouts = {
   { key = '1', pos = { 0.0, 0.0, 0.5, 0.5 } },
   { key = '2', pos = { 0.5, 0.0, 0.5, 0.5 } },
   { key = 'q', pos = { 0.0, 0.5, 0.5, 0.5 } },
+  { key = 'a', pos = { 0.0, 0.0, 0.5, 1.0 } },
+  { key = 's', pos = { 0.5, 0.0, 0.5, 1.0 } },
   { key = 'w', pos = { 0.5, 0.5, 0.5, 0.5 } },
   { key = 'h', pos = { 0.0, 0.0, 0.7, 1.0 } },
   { key = ';', pos = { 0.3, 0.0, 0.7, 1.0 } },
@@ -99,17 +119,3 @@ local mLayouts = {
 }
 
 windows.modalLayout(hotkey.modal.new({'option'}, 'space'), mLayouts)
-
--- other bindings
-hotkey.bind(hyper, "v", caffeinate.lockScreen)
-hotkey.bind(hyper, "m", grid.show)
-hotkey.bind(hyper, "s", windows.snapAll)
-
-hotkey.bind(hyper, "j", windows.cycleLeft)
-hotkey.bind(hyper, "k", windows.cycleRight)
-
-hotkey.bind(hyper, "n", windows.maximize)
-hotkey.bind(hyper, "x", windows.center40)
-
-hotkey.bind(hyper, "c", hs.toggleConsole)
-hotkey.bind(hyper, "r", hs.reload)

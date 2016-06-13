@@ -19,7 +19,8 @@ function audiodevwatch(dev_uid, event_name, event_scope, event_element)
       notify("Headphones plugged")
     else
       logger.d("Headphones disconnected")
-      audio.defaultOlaunchOrCycleFocusutputDevice():setVolume(0)
+      audio.defaultOutputDevice():setVolume(0)
+      logger.d("Speaker muted")
     end
   end
 end

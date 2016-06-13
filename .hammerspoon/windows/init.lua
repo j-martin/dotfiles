@@ -69,7 +69,7 @@ local function cycleWidth(startPoint)
   local currentWidth = fWindow:frame().w / primaryScreen.w
   local isDifferentStartPoint = cycleStates[fApplication] ~= startPoint
 
-  if currentWidth < 0.31 or isDifferentStartPoint then
+  if currentWidth < 0.31 or currentWidth > 0.9 or isDifferentStartPoint then
     width = 0.5
   elseif currentWidth < 0.51 then
     width = 0.7
