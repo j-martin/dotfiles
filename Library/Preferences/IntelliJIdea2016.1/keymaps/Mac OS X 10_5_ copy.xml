@@ -28,12 +28,9 @@
     <keyboard-shortcut first-keystroke="ctrl meta alt p" />
   </action>
   <action id="Tool_External Tools_Emacs">
-    <keyboard-shortcut first-keystroke="shift ctrl meta alt minus" second-keystroke="u" />
-  </action>
-  <action id="Tool_External Tools_NVim">
-    <keyboard-shortcut first-keystroke="shift ctrl meta alt minus" second-keystroke="n" />
+    <keyboard-shortcut first-keystroke="ctrl meta u" second-keystroke="u" />
   </action>
   <action id="Tool_External Tools_Sublime">
-    <keyboard-shortcut first-keystroke="shift ctrl meta alt minus" second-keystroke="p" />
+    <keyboard-shortcut first-keystroke="ctrl meta u" second-keystroke="p" />
   </action>
 </keymap>

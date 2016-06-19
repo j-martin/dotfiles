@@ -13,6 +13,18 @@
     </autogen>
   </item>
   <item>
+    <name>Return to F19</name>
+    <appendix>Return to Hyper (ctrl+shift+cmd+opt) + Return Only, send Return</appendix>
+    <identifier>private.return_to_f19_return</identifier>
+    <autogen>
+      --KeyOverlaidModifier--
+      KeyCode::RETURN,
+      KeyCode::COMMAND_L,
+      ModifierFlag::OPTION_L | ModifierFlag::SHIFT_L | ModifierFlag::CONTROL_L,
+      KeyCode::RETURN
+    </autogen>
+  </item>
+  <item>
     <name>Command L and Escape</name>
     <appendix>Command if held, send escape if press</appendix>
     <identifier>private.cmd_l_escape</identifier>
