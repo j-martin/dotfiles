@@ -1,11 +1,13 @@
-local fnutils = require "hs.fnutils"
-local tabs = require "hs.tabs"
-local hotkey = require "hs.hotkey"
-local grid = require "hs.grid"
-local caffeinate = require "hs.caffeinate"
-local windows = require "windows"
-local layout = require "hs.layout"
-local selection = require "selection"
+local fnutils = require 'hs.fnutils'
+local tabs = require 'hs.tabs'
+local hotkey = require 'hs.hotkey'
+local grid = require 'hs.grid'
+local caffeinate = require 'hs.caffeinate'
+local windows = require 'windows'
+local layout = require 'hs.layout'
+local selection = require 'selection'
+local audio = require 'audio'
+local mode = require 'mode'
 
 local hyper = {'cmd', 'alt', 'ctrl', 'shift'}
 
@@ -52,48 +54,55 @@ local function bindToHyper(app)
   hotkey.bind(hyper, app.key, windows.launchOrCycleFocus(app.name))
 end
 
--- binds the keys to the application above.
+----------------------------------------------
+-- binds the keys to the application above. --
+----------------------------------------------
+
 fnutils.each(applications, bindToHyper)
 
--- setup layouts
-local layoutChoices = {
+------------------------
+-- create layout mode --
+------------------------
+
+local modeLayoutSets = {
   {
-    text = "50/50",
-    subText = "50/50",
+    key = 'b',
     layout = {
-      {"Emacs", layout.left50},
-      {"iTerm2", layout.right50},
-      {"Google Chrome", layout.right50},
-      {"IntelliJ IDEA", layout.right50},
-      {"Sublime Text", layout.right50},
+      {'Emacs', layout.left50},
+      {'iTerm2', layout.right50},
+      {'Google Chrome', layout.right50},
+      {'IntelliJ IDEA', layout.right50},
+      {'Sublime Text', layout.right50},
     }
   },
   {
-    text = "70/30",
-    subText = "70/30",
+    key = 'n',
     layout = {
-      {"Emacs", layout.left70},
-      {"IntelliJ IDEA", layout.right70},
-      {"Google Chrome", layout.right30},
-      {"iTerm2", layout.right30},
+      {'Emacs', layout.left70},
+      {'IntelliJ IDEA', layout.right70},
+      {'Google Chrome', layout.right30},
+      {'iTerm2', layout.right30},
     }
   },
   {
-    text = "30/70",
-    subText = "30/70",
+    key = 'm',
     layout = {
-      {"Emacs", layout.left30},
-      {"Google Chrome", layout.right70},
-      {"IntelliJ IDEA", layout.right70},
-      {"iTerm2", layout.right70},
+      {'Emacs', layout.left30},
+      {'Google Chrome', layout.right70},
+      {'IntelliJ IDEA', layout.right70},
+      {'iTerm2', layout.right70},
     }
   },
 }
 
-hotkey.bind(hyper, "space", windows.pickLayout(layoutChoices))
+local laptopScreen = "Color LCD"
 
--- setup modal layout
-local mLayouts = {
+local commonLayout = {
+  {"Inbox",  nil, laptopScreen, layout.left70, nil, nil},
+  {"Slack",  nil, laptopScreen, layout.right50, nil, nil},
+}
+
+local modeLayouts = {
 --                      x    y    w    h
   { key = '1', pos = { 0.0, 0.0, 0.5, 0.5 } },
   { key = '2', pos = { 0.5, 0.0, 0.5, 0.5 } },
@@ -116,6 +125,42 @@ local mLayouts = {
   { key = 'i', pos = { 0.3, 0.5, 0.4, 0.5 } },
   { key = 'o', pos = { 0.7, 0.5, 0.3, 0.5 } },
   { key = 'p', pos = { 0.3, 0.5, 0.7, 0.5 } },
+  { key = 'space', pos = { 0.0, 0.0, 1.0, 1.0 }},
 }
 
-windows.modalLayout(hotkey.modal.new({'option'}, 'space'), mLayouts)
+local function layoutToFn(binding)
+  return {
+    key = binding.key, fn = windows.applyLayout(commonLayout, binding.layout)
+  }
+end
+
+local function postionToFn(binding)
+  return {
+    key = binding.key, fn = windows.moveTo(binding.pos)
+  }
+end
+
+local layoutBindings = fnutils.concat(
+  fnutils.map(modeLayouts, postionToFn),
+  fnutils.map(modeLayoutSets, layoutToFn)
+)
+
+mode.create({'option'}, 'space', 'Layout', layoutBindings)
+
+-----------------------
+-- create audio mode --
+-----------------------
+
+local audioBindings = {
+  { key = 'j', fn = audio.next },
+  { key = 'k', fn = audio.previous },
+  { key = 'h', fn = audio.current },
+  { key = 'u', fn = audio.changeVolume(-100) },
+  { key = 'i', fn = audio.changeVolume(10) },
+  { key = 'o', fn = audio.changeVolume(-10) },
+  { key = '9', fn = audio.open},
+  { key = 'l', fn = audio.playpause },
+  { key = 'space', fn = audio.playpause },
+}
+
+mode.create(hyper, 'space', 'Audio', audioBindings)

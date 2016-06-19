@@ -5,7 +5,6 @@ local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
-local alert = require "hs.alert"
 
 local ext = require "windows/extensions"
 
@@ -21,26 +20,18 @@ grid.MARGINX = 0
 grid.MARGINY = 0
 window.animationDuration = 0
 
-local laptopScreen = "Color LCD"
-
-local commonLayout = {
-  {"Inbox",  nil, laptopScreen, layout.left70, nil, nil},
-  {"Slack",  nil, laptopScreen, layout.right50, nil, nil},
-}
-
 local center40 = geometry.unitrect(0.3, 0, 0.4, 1)
 
--- displays layout chooser
-function mod.pickLayout(layoutChoices)
+function mod.applyLayout(commonLayout, selectedLayout)
+  local function expandLayout(entry)
+    local primaryScreen = screen.primaryScreen():name()
+    return {entry[1], nil, primaryScreen, entry[2], nil, nil}
+  end
+
   return function()
-    chooser.new(function(chosenLayout)
-        local primaryScreen = screen.primaryScreen():name()
-        local expandLayout = fnutils.map(chosenLayout.layout, function (entry)
-          return {entry[1], nil, primaryScreen, entry[2], nil, nil}
-        end)
-        local fullLayout = fnutils.concat(commonLayout, expandLayout)
-        layout.apply(fullLayout)
-    end):choices(layoutChoices):show()
+    local expandedLayout = fnutils.map(selectedLayout, expandLayout)
+    local completeLayout = fnutils.concat(commonLayout, expandedLayout)
+    layout.apply(completeLayout)
   end
 end
 
@@ -95,39 +86,10 @@ function mod.snapAll()
   fnutils.each(window.visibleWindows(), grid.snap)
 end
 
-function mod.modalLayout(modal, mLayouts)
-  function modal:entered()
-    alert.show('Modal Layout', 120)
+function mod.moveTo(pos)
+  return function()
+    window.focusedWindow():move(pos)
   end
-
-  function modal:exited()
-    alert.closeAll()
-    alert.show('Exited mode')
-  end
-
-  local function exit() modal:exit() end
-
-  local function applyLayout(selectedLayout)
-
-    local function moveTo()
-      window.focusedWindow():move(selectedLayout.pos)
-    end
-
-    local function moveToAndExit()
-        moveTo()
-        exit()
-    end
-
-    modal:bind({}, selectedLayout.key, moveTo)
-    modal:bind({'shift'}, selectedLayout.key, moveToAndExit)
-  end
-
-  modal:bind({}, 'escape', exit)
-  modal:bind({}, 'space', exit)
-  modal:bind({}, 'tab', window.switcher.previousWindow)
-  modal:bind({'shift'}, 'tab', window.switcher.nextWindow)
-
-  fnutils.each(mLayouts, applyLayout)
 end
 
 return mod
