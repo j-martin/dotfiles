@@ -171,7 +171,8 @@ alias gmf='git commit -m "$(_github_repo_issues | fzf)"'
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
-alias gnew='_git_new_branch "$(pbpaste)"'
+alias gnew='_git_new_branch'
+alias gnewp='_git_new_branch "$(pbpaste)"'
 alias gnewf='_git_new_branch "$(_github_repo_issues | fzf)"'
 alias gnewi='_git_new_branch "$(_github_issues | fzf)"'
 alias gnewh='_github_new_branch'
@@ -233,6 +234,7 @@ alias hd='home diff'
 alias hadd!='home add -f'
 alias hcommit='home commit -m'
 alias hpush='home push'
+alias hlog='home log -p'
 alias hs='home status'
 
 # Scala

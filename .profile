@@ -16,5 +16,5 @@ export NODE_PATH="$NODE_PATH:/usr/local/lib/node_modules"
 export EDITOR='/usr/local/bin/nvim'
 export PAGER='less -SRi'
 export HOSTNAME="$HOST"
-export FZF_DEFAULT_COMMAND='ag -g ""'
+export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -l -g ""'
 unset SSL_CERT_FILE
