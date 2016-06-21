@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: elispc
+# key: elispc_
+# --
+#+begin_src emacs-lisp :results none
+$0
+#+end_src

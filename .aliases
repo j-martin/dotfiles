@@ -177,7 +177,6 @@ alias gnewf='_git_new_branch "$(_github_repo_issues | fzf)"'
 alias gnewi='_git_new_branch "$(_github_issues | fzf)"'
 alias gnewh='_github_new_branch'
 
-
 alias gnewm='git checkout master && git pull && gnew'
 alias gra='git rebase --abort'
 alias grc='git rebase --continue'
