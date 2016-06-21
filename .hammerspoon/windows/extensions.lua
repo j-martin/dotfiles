@@ -12,6 +12,7 @@ local drawing = require "hs.drawing"
 local timer = require "hs.timer"
 local mouse = require "hs.mouse"
 local application = require "hs.application"
+local appfinder = require "hs.appfinder"
 
 local mod = {}
 
@@ -38,7 +39,7 @@ local function result(obj, property)
 end
 
 ---------------------------------------------------------
--- COORDINATES, POINTS, RECTS, FRAMES, TABLES
+-- Coordinates, points, rects, frames, tables
 ---------------------------------------------------------
 
 -- Fetch next index but cycle back when at the end
@@ -49,7 +50,7 @@ end
 -- 1
 -- @return int
 local function getNextIndex(table, currentIndex)
-  nextIndex = currentIndex + 1
+  local nextIndex = currentIndex + 1
   if nextIndex > #table then
     nextIndex = 1
   end
@@ -58,7 +59,7 @@ local function getNextIndex(table, currentIndex)
 end
 
 ---------------------------------------------------------
--- MOUSE
+-- Mouse
 ---------------------------------------------------------
 
 local mouseCircle = nil
@@ -73,8 +74,12 @@ function mod.mouseHighlight()
   local mousepoint = mouse.getAbsolutePosition()
 
   -- Prepare a big red circle around the mouse pointer
-  mouseCircle = drawing.circle(geometry.rect(mousepoint.x-20, mousepoint.y-20, 40, 40))
-  mouseCircle:setFillColor({["red"]=0.5,["blue"]=0.5,["green"]=0.5,["alpha"]=0.5})
+  local circle = geometry.rect(mousepoint.x - 20, mousepoint.y - 20, 40, 40)
+
+  local fillColor = { red = 0.5, blue = 0.5, green = 0.5, alpha = 0.5 }
+
+  mouseCircle = drawing.circle(circle)
+  mouseCircle:setFillColor(fillColor)
   mouseCircle:setStrokeWidth(0)
   mouseCircle:show()
 
@@ -95,7 +100,7 @@ function mod.centerOnWindow()
 end
 
 ---------------------------------------------------------
--- APPLICATION / WINDOW
+-- Application / window
 ---------------------------------------------------------
 
 -- Returns the next successive window given a collection of windows
@@ -106,7 +111,7 @@ end
 -- @return hs.window
 local function getNextWindow(windows, currentWindow)
   if type(windows) == "string" then
-    windows = hs.appfinder.appFromName(windows):allWindows()
+    windows = appfinder.appFromName(windows):allWindows()
   end
 
   windows = filter(windows, window.isStandard)
@@ -120,7 +125,7 @@ local function getNextWindow(windows, currentWindow)
     return w1:id() > w2:id()
   end)
 
-  lastIndex = indexOf(windows, currentWindow)
+  local lastIndex = indexOf(windows, currentWindow)
 
   return windows[getNextIndex(windows, lastIndex)]
 end
@@ -132,14 +137,17 @@ function mod.launchOrCycleFocus(applicationName)
   return function()
     local nextWindow = nil
     local targetWindow
-    local focusedWindow = window.focusedWindow()
+    local focusedWindow = window.frontmostWindow()
+    focusedWindow:focus()
+
     lastToggledApplication = focusedWindow and focusedWindow:application():title()
 
     if not focusedWindow then return nil end
 
-    logger.df('last: %s, current: %s', lastToggledApplication, applicationName)
-    if lastToggledApplication == applicationName then
-      nextWindow = getNextWindow(applicationName, focusedWindow)
+    local appName = applicationName:gsub('.app$', '')
+    logger.df('last: %s, current: %s', lastToggledApplication, appName)
+    if lastToggledApplication == appName then
+      nextWindow = getNextWindow(appName, focusedWindow)
       nextWindow:becomeMain()
     else
       application.launchOrFocus(applicationName)

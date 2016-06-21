@@ -5,6 +5,7 @@ local grid = require 'hs.grid'
 local caffeinate = require 'hs.caffeinate'
 local windows = require 'windows'
 local layout = require 'hs.layout'
+local grid = require 'hs.grid'
 local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
@@ -23,7 +24,7 @@ local applications = {
   { key = 'f', name = 'Finder' },
   { key = 'y', name = 'Inbox', tab = true },
   { key = 'u', name = 'Emacs' },
-  { key = 'i', name = 'iTerm' },
+  { key = 'i', name = 'iTerm2' },
   { key = 'o', name = 'IntelliJ IDEA.app' },
   { key = 'p', name = 'Sublime Text' },
   { key = ';', name = 'Dash' },
@@ -125,18 +126,22 @@ local modeLayouts = {
   { key = 'i', pos = { 0.3, 0.5, 0.4, 0.5 } },
   { key = 'o', pos = { 0.7, 0.5, 0.3, 0.5 } },
   { key = 'p', pos = { 0.3, 0.5, 0.7, 0.5 } },
-  { key = 'space', pos = { 0.0, 0.0, 1.0, 1.0 }},
+  { key = 'space', pos = { 0.0, 0.0, 1.0, 1.0 } },
+  { key = '=', fn = grid.resizeWindowWider },
+  { key = '-', fn = grid.resizeWindowThinner },
 }
 
 local function layoutToFn(binding)
   return {
-    key = binding.key, fn = windows.applyLayout(commonLayout, binding.layout)
+    key = binding.key,
+    fn = binding.fn or windows.applyLayout(commonLayout, binding.layout)
   }
 end
 
 local function postionToFn(binding)
   return {
-    key = binding.key, fn = windows.moveTo(binding.pos)
+    key = binding.key,
+    fn = binding.fn or windows.moveTo(binding.pos)
   }
 end
 
