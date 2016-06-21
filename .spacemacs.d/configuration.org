@@ -4,13 +4,17 @@
 #+STARTUP: content
 * General
 ** Personal
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (setq user-full-name "Jean-Martin Archer"
   user-mail-address "jm@jmartin.ca")
 #+end_src
+** Executables
+#+begin_src emacs-lisp :results none
+(setq exec-path (append exec-path '("/usr/local/bin")))
+#+end_src
 
 ** Convenience
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
   ;; (add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
   (setq confirm-kill-emacs 'y-or-n-p)
   (setq mac-emulate-three-button-mouse t)
@@ -22,25 +26,26 @@
   ;; (spacemacs/toggle-smartparens-globally-on)
   (setq save-interprogram-paste-before-kill t)
   (setq multi-term-program-switches "--login")
-#+END_SRC
+#+end_src
 *** Custom file
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
 (setq custom-file "~/.spacemacs.d/custom-configuration.el")
 (load custom-file t)
-#+END_SRC
+#+end_src
 
 ** GitHub related                                                       :git:
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (setq paradox-github-token (shell-command "keyring get system github_paradox"))
 #+end_src
-#+BEGIN_SRC emacs-lisp
+
+#+begin_src emacs-lisp :results none
 (setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
 (if (eq system-type 'darwin)
   (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\"")))
 )
-#+END_SRC
+#+end_src
 * UI/Visual
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
 (spacemacs/toggle-syntax-checking-on)
 (spacemacs/toggle-truncate-lines-on)
 (spacemacs/toggle-vi-tilde-fringe-off)
@@ -51,17 +56,17 @@
 (golden-ratio-mode 1)
 (menu-bar-mode 1)
 (setq-default avy-all-windows 'all-frames)
-#+END_SRC
+#+end_src
 ** Frame Size
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (if (eq system-type 'darwin)
   (add-to-list 'default-frame-alist '(height . 60))
   (add-to-list 'default-frame-alist '(width . 134))
 )
 #+end_src
- #+RESULTS:
+
 ** Whitespace
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (setq whitespace-style '(tabs tab-mark))
 (global-whitespace-mode 1)
 (setq fill-column 120)
@@ -74,7 +79,7 @@ fci-rule-column 120)
 #+end_src
 * Modes
 ** Enabling
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
   (delete-selection-mode 1)
   (editorconfig-mode 1)
   (global-auto-revert-mode t)
@@ -87,23 +92,20 @@ fci-rule-column 120)
   ;; (require 'live-py-mode)
 #+end_src
 
-#+RESULTS:
-: t
-
 ** Autofill
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
 (add-hook 'org-mode-hook 'turn-on-auto-fill)
-#+END_SRC
+#+end_src
 ** Aggressive Indent
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
 (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
 (add-hook 'shell-script-mode-hook #'aggressive-indent-mode)
 #+end_src
 ** Pretty symbols
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (defun jm/pretty-symbols ()
   "make some word or string show as pretty Unicode symbols"
   (setq prettify-symbols-alist
@@ -121,10 +123,8 @@ fci-rule-column 120)
 (add-hook 'lua-mode-hook 'jm/pretty-symbols)
 #+end_src
 
-#+RESULTS:
-| jm/pretty-symbols | company-mode |
 ** Makefile
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (defun makefile-mode-config ()
   (setq indent-tabs-mode t)
   (setq-default indent-tabs-mode t)
@@ -135,28 +135,40 @@ fci-rule-column 120)
 (add-hook 'makefile-mode-hook 'makefile-mode-config)
 #+end_src
 
-#+RESULTS:
-| makefile-config |
 
 ** EVIL
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
 (setq-default evil-escape-delay 0.2)
 (setq-default evil-escape-key-sequence "jk")
-#+END_SRC
+#+end_src
 
 ** JS
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
 (setq-default js-indent-level 2)
-#+END_SRC
+#+end_src
+
+** proselint
+#+begin_src emacs-lisp :results none
+(flycheck-define-checker proselint
+  "A linter for prose."
+  :command ("proselint" source-inplace)
+  :error-patterns
+  ((warning line-start (file-name) ":" line ":" column ": "
+        (id (one-or-more (not (any " "))))
+        (message) line-end))
+  :modes (text-mode markdown-mode gfm-mode))
+
+(add-to-list 'flycheck-checkers 'proselint)
+#+end_src
 
 ** magit                                                                :git:
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
   (setq magit-repository-directories '("~/Work/"))
   (setq-default vc-follow-symlinks t)
 #+end_src
 ** org
 *** Enabling org-babel
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (use-package org-babel
   :init
   (org-babel-do-load-languages
@@ -166,43 +178,66 @@ fci-rule-column 120)
     (python . t))))
 #+end_src
 
-#+RESULTS:
+
 
 *** Basic setup
-  #+BEGIN_SRC emacs-lisp
+  #+begin_src emacs-lisp :results none
   (setq org-directory "~/.org/")
   (setq org-hide-emphasis-markers t)
   (org-agenda-files (list org-directory))
-  #+END_SRC
+  #+end_src
 
-  #+RESULTS:
+
 
 *** States
 Disabling for now and trying to use states per files instead.
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
   ;; (setq org-todo-keywords
   ;;   '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 #+end_src
 *** Capture Templates
-#+begin_src emacs-lisp :tangle yes
-(setq org-capture-templates
-  '(
-     ("t" "Todo" entry (file+headline "~/.org/todo.org" "Tasks")
-       "* TODO %?\n  %i\n %a")
-     ("T" "Todo with clipboard" entry (file+headline "~/.org/todo.org" "Tasks")
-       "* TODO %?\n  %i\n %c\n %a")
-     ("w" "Article/Page to read" entry (file+headline "~/.org/learning.org" "Article")
-       "* %?\n  %i\n %c\n %a")
-     ("j" "Journal" entry (file+datetree "~/.org/journal.org")
-       "* %?\nEntered on %U\n  %i\n %a")
-     ("J" "Journal with Clipboard" entry (file+datetree "~/.org/journal.org")
-       "* %?\nEntered on %U\n  %i\n %c\n %a")
-     ))
+#+begin_src emacs-lisp :results none
+  (setq org-capture-templates
+        '(
+          ("t" "Todo"
+           entry
+           (file+headline "~/.org/todo.org" "Tasks")
+           "* TODO %?\n  %i\n %a")
+          ("T" "Todo with clipboard"
+           entry
+           (file+headline "~/.org/todo.org" "Tasks")
+           "* TODO %?\n  %i\n %c\n %a")
+          ("w" "Todo for work"
+           entry
+           (file+headline "~/.org/todo.org" "Tasks")
+           "* TODO %? :work:\n  %i\n %a")
+          ("W" "Todo with clipboard for work"
+           entry
+           (file+headline "~/.org/todo.org" "Tasks")
+           "* TODO %? :work:\n  %i\n %c\n %a")
+          ("b" "Reading"
+           entry
+           (file+headline "~/.org/reading.org" "Books")
+           "* %?\n  %i\n %c\n %a")
+          ("j" "Journal"
+           entry
+           (file+datetree "~/.org/journal.org")
+           "* %?\nEntered on %U\n  %i\n %a")
+          ("J" "Journal with Clipboard"
+           entry
+           (file+datetree "~/.org/journal.org")
+           "* %?\nEntered on %U\n  %i\n %c\n %a")
+          ))
 #+end_src
-#+RESULTS:
-| t | Todo | entry | (file+headline ~/.org/todo.org Tasks) | * TODO %? |
+*** org-babel
+#+begin_src emacs-lisp :results none
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-window-setup 'current-window)
+#+end_src
+
 * Keyboard Bindings
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
 (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
 (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
 (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
@@ -219,13 +254,29 @@ Disabling for now and trying to use states per files instead.
 (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
 (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
 (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
-(spacemacs/set-leader-keys "ot" 'jm/insert-today)
+(spacemacs/set-leader-keys "ot" 'jm/open-todo)
+(spacemacs/set-leader-keys "oc" 'jm/open-config)
+(spacemacs/set-leader-keys "os" 'jm/open-standup)
 (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
+(spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
 (spacemacs/set-leader-keys "ol" 'org-content)
-#+END_SRC
+(spacemacs/set-leader-keys "ag" 'engine/search-google)
+#+end_src
 
 * General Functions
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp :results none
+  (defun jm/open-config ()
+    (interactive)
+    (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
+
+  (defun jm/open-todo ()
+    (interactive)
+    (find-file (expand-file-name "~/.org/todo.org")))
+
+  (defun jm/open-standup ()
+    (interactive)
+    (find-file (expand-file-name "~/.org/standup.org")))
+
   (defun jm/helm-org-dir ()
     (interactive)
     (helm-find-files-1 (expand-file-name "~/.org/")))
@@ -234,9 +285,14 @@ Disabling for now and trying to use states per files instead.
     (interactive)
     (helm-find-files-1 (expand-file-name "~/")))
 
+  (defun jm/helm-work-dir ()
+    (interactive)
+    (helm-find-files-1 (expand-file-name "~/Work/")))
+
   (defun jm/org-github-todo ()
     (interactive)
-    (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null")))
+    (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
+    (org-content))
 
   (defun jm/insert-today ()
     (interactive)
@@ -271,20 +327,16 @@ Disabling for now and trying to use states per files instead.
 
   (defun jm/open-with-idea ()
     (interactive)
-    (jm/open-with-reveal "IntelliJ IDEA")
-    (jm/open-with-line "/usr/local/bin/idea"))
+    (jm/open-with-line "/usr/local/bin/idea")
+    (jm/open-with-reveal "IntelliJ IDEA"))
 
   (defun jm/open-with-nvim ()
     (interactive)
     (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
-#+END_SRC
-
-#+RESULTS:
-: jm/open-with-nvim
-
+#+end_src
 ** Endless Autocorrect
 Per [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Endless parentheses]] copied on 2016-05-17
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :results none
 (define-key ctl-x-map "\C-i"
   #'endless/ispell-word-then-abbrev)
 
@@ -325,5 +377,3 @@ abort completely with `C-g'."
       (user-error "No typo at or before point"))))
 
 #+end_src
-#+RESULTS:
-: t
