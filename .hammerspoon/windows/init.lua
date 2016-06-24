@@ -1,6 +1,5 @@
 local window = require "hs.window"
 local grid = require "hs.grid"
-local chooser = require "hs.chooser"
 local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
@@ -93,6 +92,18 @@ function mod.moveTo(pos)
     window.focusedWindow():move(pos)
     ext.centerOnWindow()
   end
+end
+
+function mod.cycleScreen()
+  local nextScreen = window.focusedWindow():screen():next()
+  window.focusedWindow():moveToScreen(nextScreen)
+  ext.centerOnWindow()
+end
+
+function mod.cycleScreenBack()
+  local nextScreen = window.focusedWindow():screen():previous()
+  window.focusedWindow():moveToScreen(nextScreen)
+  ext.centerOnWindow()
 end
 
 return mod

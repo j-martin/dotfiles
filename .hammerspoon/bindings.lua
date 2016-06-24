@@ -36,13 +36,12 @@ local applications = {
 
 -- other bindings
 hotkey.bind(hyper, 'v', caffeinate.lockScreen)
-hotkey.bind(hyper, 'm', grid.show)
 hotkey.bind(hyper, 's', windows.snapAll)
-
+hotkey.bind(hyper, 'g', grid.show)
 hotkey.bind(hyper, 'j', windows.cycleLeft)
 hotkey.bind(hyper, 'k', windows.cycleRight)
 
-hotkey.bind(hyper, 'n', windows.maximize)
+hotkey.bind(hyper, 'm', windows.maximize)
 hotkey.bind(hyper, 'x', windows.center40)
 
 hotkey.bind(hyper, 'c', hs.toggleConsole)
@@ -67,7 +66,7 @@ fnutils.each(applications, bindToHyper)
 
 local modeLayoutSets = {
   {
-    key = 'b',
+    key = 'z',
     layout = {
       {'Emacs', layout.left50},
       {'iTerm2', layout.right50},
@@ -77,7 +76,7 @@ local modeLayoutSets = {
     }
   },
   {
-    key = 'n',
+    key = 'x',
     layout = {
       {'Emacs', layout.left70},
       {'IntelliJ IDEA', layout.right70},
@@ -86,7 +85,7 @@ local modeLayoutSets = {
     }
   },
   {
-    key = 'm',
+    key = 'c',
     layout = {
       {'Emacs', layout.left30},
       {'Google Chrome', layout.right70},
@@ -112,6 +111,8 @@ local modeLayouts = {
   { key = 's', pos = { 0.5, 0.0, 0.5, 1.0 } },
   { key = 'w', pos = { 0.5, 0.5, 0.5, 0.5 } },
   { key = 'h', pos = { 0.0, 0.0, 0.7, 1.0 } },
+  { key = 'e', pos = { 0.0, 0.0, 1.0, 0.5 } },
+  { key = 'd', pos = { 0.0, 0.5, 1.0, 0.5 } },
   { key = ';', pos = { 0.3, 0.0, 0.7, 1.0 } },
   { key = 'j', pos = { 0.0, 0.0, 0.3, 1.0 } },
   { key = 'k', pos = { 0.3, 0.0, 0.4, 1.0 } },
@@ -129,6 +130,8 @@ local modeLayouts = {
   { key = 'space', pos = { 0.0, 0.0, 1.0, 1.0 } },
   { key = '=', fn = grid.resizeWindowWider },
   { key = '-', fn = grid.resizeWindowThinner },
+  { key = 'n', fn = windows.cycleScreenBack },
+  { key = 'm', fn = windows.cycleScreen },
 }
 
 local function layoutToFn(binding)
