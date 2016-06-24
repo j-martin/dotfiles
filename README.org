@@ -3,10 +3,16 @@
 The git worktree is inspired from [[https://fuller.li/posts/organising-dotfiles-in-a-git-repository/][organizing dotfiles in a git
 repository]]. The rest is just years of collecting stuff.
 
-#+begin_src shell :tangle yes
-alias home="git --work-tree=$HOME --git-dir=$HOME/.files.git"
-home init
-home remote add origin git@github.com:j-martin/dotfiles.git
-home fetch
-home checkout master
-#+end_src
+** Initial dotfiles installation
+ #+begin_src shell
+ alias home="git --work-tree=$HOME --git-dir=$HOME/.files.git"
+ home init
+ home remote add origin git@github.com:j-martin/dotfiles.git
+ home fetch
+ home checkout master
+ #+end_src
+** Setup and configuration
+Install applications and other configurations.
+ #+begin_src shell
+ .setup/setup.sh
+ #+end_src
