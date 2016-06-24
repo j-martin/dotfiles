@@ -230,7 +230,7 @@ alias pgcli='echo $PGHOST && pgcli'
 # Home/.files
 alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
 alias hd='home diff'
-alias hadd!='home add -f'
+alias hadd='home add -f'
 alias hcommit='home commit -m'
 alias hpush='home push'
 alias hlog='home log -p'
