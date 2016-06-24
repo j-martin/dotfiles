@@ -14,6 +14,7 @@ local hyper = {'cmd', 'alt', 'ctrl', 'shift'}
 
 -- applications keybindings to hyper key
 local applications = {
+  { key = '1', name = 'Activity Monitor' },
   { key = '7', name = '1Password 6' },
   { key = '8', name = 'Slack' },
   { key = '9', name = 'Spotify' },
@@ -28,30 +29,29 @@ local applications = {
   { key = 'o', name = 'IntelliJ IDEA.app' },
   { key = 'p', name = 'Sublime Text' },
   { key = ';', name = 'Dash' },
-  { key = '1', name = 'Activity Monitor' },
   { key = 'l', name = 'Google Chrome' },
   { key = '\\', name = 'Paw', tab = true },
+  { key = 'v', fn = caffeinate.lockScreen },
+  { key = 's', fn = windows.snapAll },
+  { key = 'g', fn = grid.show },
+  { key = 'j', fn = windows.cycleLeft },
+  { key = 'k', fn = windows.cycleRight },
+  { key = 'n', fn = windows.cycleScreen },
+  { key = 'm', fn = windows.maximize },
+  { key = 'x', fn = windows.center40 },
+  { key = 'c', fn = hs.toggleConsole },
+  { key = 'r', fn = hs.reload },
+  { key = '-', fn = selection.googleSelectedText },
+  { key = 'e', fn = selection.epochSinceNow },
 }
 
+local function bindToHyper(binding)
+  if binding.tab then
+    tabs.enableForApp(binding.name)
+  end
 
--- other bindings
-hotkey.bind(hyper, 'v', caffeinate.lockScreen)
-hotkey.bind(hyper, 's', windows.snapAll)
-hotkey.bind(hyper, 'g', grid.show)
-hotkey.bind(hyper, 'j', windows.cycleLeft)
-hotkey.bind(hyper, 'k', windows.cycleRight)
-
-hotkey.bind(hyper, 'm', windows.maximize)
-hotkey.bind(hyper, 'x', windows.center40)
-
-hotkey.bind(hyper, 'c', hs.toggleConsole)
-hotkey.bind(hyper, 'r', hs.reload)
-hotkey.bind(hyper, '-', selection.googleSelectedText)
-hotkey.bind(hyper, 'e', selection.epochSinceNow)
-
-local function bindToHyper(app)
-  if app.tab then tabs.enableForApp(app.name) end
-  hotkey.bind(hyper, app.key, windows.launchOrCycleFocus(app.name))
+  local fn = binding.fn or windows.launchOrCycleFocus(binding.name)
+  hotkey.bind(hyper, binding.key, fn)
 end
 
 ----------------------------------------------
@@ -130,8 +130,8 @@ local modeLayouts = {
   { key = 'space', pos = { 0.0, 0.0, 1.0, 1.0 } },
   { key = '=', fn = grid.resizeWindowWider },
   { key = '-', fn = grid.resizeWindowThinner },
-  { key = 'n', fn = windows.cycleScreenBack },
-  { key = 'm', fn = windows.cycleScreen },
+  { key = 'm', fn = windows.cycleScreenBack },
+  { key = 'n', fn = windows.cycleScreen },
 }
 
 local function layoutToFn(binding)
