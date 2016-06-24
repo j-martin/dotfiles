@@ -30,14 +30,15 @@ defaults write com.apple.Terminal "Default Window Settings" -string "Pro"
 defaults write com.apple.Terminal "Startup Window Settings" -string "Pro"
 defaults write com.apple.dock springboard-show-duration -int 0
 defaults write com.apple.dock springboard-hide-duration -int 0
+defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
+defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
 killall Dock
 
 xcode-select --install
 brew bundle
 npm install -g vmd
-pip install Pygments httpie pgcli clf
-defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
-defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
+pip install -r requirements.txt
 
-ln -s "$HOME" '/Users/jma'
+ln -s "$HOME" '/Users/jm'
 curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
