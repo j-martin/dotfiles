@@ -4,7 +4,8 @@ local pasteboard = require "hs.pasteboard"
 local http = require "hs.http"
 local task = require "hs.task"
 local eventtap = require "hs.eventtap"
-local timer = require "hs.timer"
+local alert = require "hs.alert"
+local logger = hs.logger.new('selection', 'debug')
 
 local mod = {}
 
@@ -23,7 +24,7 @@ local function selectedTextFromClipboard()
   return selection
 end
 
-function mod.selectedText()
+local function selectedText()
   local selection  = uielement.focusedElement():selectedText()
   if not selection then
     return selectedTextFromClipboard()
@@ -40,17 +41,34 @@ local function query(url, text)
   openUrl(url .. http.encodeForQuery(text))
 end
 
-function mod.googleSelectedText()
-  query(engines['google'], mod.selectedText())
+local function google(text)
+  query(engines['google'], text or selectedText())
+end
+
+function mod.actOn()
+  local text = selectedText()
+  if text:gmatch("https?://")() then
+    openUrl(text)
+  elseif text:gmatch("1%d%d%d%d%d%d%d%d%d+")() then
+    mod.epochSinceNow(text)
+  else
+    google(text)
+  end
+end
+
+function mod.paste()
+  local content = pasteboard.getContents()
+  alert("Pasting/Typing: '" .. content .. "'")
+  eventtap.keyStrokes(content)
 end
 
 local function round(number)
   return tostring(math.floor(number))
 end
 
-function mod.epochSinceNow()
+function mod.epochSinceNow(text)
   local current = timer.secondsSinceEpoch()
-  local selection = tonumber(mod.selectedText())
+  local selection = tonumber(text or selectedText())
 
   if selection > 1000000000000 then
     selection = selection / 1000

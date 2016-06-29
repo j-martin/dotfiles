@@ -5,15 +5,19 @@ local grid = require 'hs.grid'
 local caffeinate = require 'hs.caffeinate'
 local windows = require 'windows'
 local layout = require 'hs.layout'
-local grid = require 'hs.grid'
 local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
 
 local hyper = {'cmd', 'alt', 'ctrl', 'shift'}
 
--- applications keybindings to hyper key
-local applications = {
+local mod = {}
+
+--------------------------------------
+-- binds functions to hyper key end --
+--------------------------------------
+
+local hyperBindings = {
   { key = '1', name = 'Activity Monitor' },
   { key = '7', name = '1Password 6' },
   { key = '8', name = 'Slack' },
@@ -31,7 +35,7 @@ local applications = {
   { key = ';', name = 'Dash' },
   { key = 'l', name = 'Google Chrome' },
   { key = '\\', name = 'Paw', tab = true },
-  { key = 'v', fn = caffeinate.lockScreen },
+  { key = 'z', fn = caffeinate.lockScreen },
   { key = 's', fn = windows.snapAll },
   { key = 'g', fn = grid.show },
   { key = 'j', fn = windows.cycleLeft },
@@ -39,14 +43,14 @@ local applications = {
   { key = 'n', fn = windows.cycleScreen },
   { key = 'm', fn = windows.maximize },
   { key = 'x', fn = windows.center40 },
-  { key = 'c', fn = hs.toggleConsole },
+  { key = 't', fn = hs.toggleConsole },
   { key = 'r', fn = hs.reload },
-  { key = '-', fn = selection.googleSelectedText },
-  { key = 'e', fn = selection.epochSinceNow },
+  { key = 'c', fn = selection.actOn },
+  { key = 'v', fn = selection.paste },
 }
 
 local function bindToHyper(binding)
-  if binding.tab then
+  if binding.tab and binding.name then
     tabs.enableForApp(binding.name)
   end
 
@@ -54,46 +58,9 @@ local function bindToHyper(binding)
   hotkey.bind(hyper, binding.key, fn)
 end
 
-----------------------------------------------
--- binds the keys to the application above. --
-----------------------------------------------
-
-fnutils.each(applications, bindToHyper)
-
 ------------------------
 -- create layout mode --
 ------------------------
-
-local modeLayoutSets = {
-  {
-    key = 'z',
-    layout = {
-      {'Emacs', layout.left50},
-      {'iTerm2', layout.right50},
-      {'Google Chrome', layout.right50},
-      {'IntelliJ IDEA', layout.right50},
-      {'Sublime Text', layout.right50},
-    }
-  },
-  {
-    key = 'x',
-    layout = {
-      {'Emacs', layout.left70},
-      {'IntelliJ IDEA', layout.right70},
-      {'Google Chrome', layout.right30},
-      {'iTerm2', layout.right30},
-    }
-  },
-  {
-    key = 'c',
-    layout = {
-      {'Emacs', layout.left30},
-      {'Google Chrome', layout.right70},
-      {'IntelliJ IDEA', layout.right70},
-      {'iTerm2', layout.right70},
-    }
-  },
-}
 
 local laptopScreen = "Color LCD"
 
@@ -132,28 +99,38 @@ local modeLayouts = {
   { key = '-', fn = grid.resizeWindowThinner },
   { key = 'm', fn = windows.cycleScreenBack },
   { key = 'n', fn = windows.cycleScreen },
+  { key = 'z', layout = {
+      {'Emacs', layout.left50},
+      {'iTerm2', layout.right50},
+      {'Google Chrome', layout.right50},
+      {'IntelliJ IDEA', layout.right50},
+      {'Sublime Text', layout.right50},
+    }},
+  { key = 'x', layout = {
+      {'Emacs', layout.left70},
+      {'IntelliJ IDEA', layout.right70},
+      {'Google Chrome', layout.right30},
+      {'iTerm2', layout.right30},
+    }},
+  { key = 'c', layout = {
+      {'Emacs', layout.left30},
+      {'Google Chrome', layout.right70},
+      {'IntelliJ IDEA', layout.right70},
+      {'iTerm2', layout.right70},
+    }},
 }
 
 local function layoutToFn(binding)
-  return {
-    key = binding.key,
-    fn = binding.fn or windows.applyLayout(commonLayout, binding.layout)
-  }
+  local fn = nil
+  if binding.pos then
+    fn = windows.moveTo(binding.pos)
+  elseif binding.layout then
+    fn = windows.applyLayout(commonLayout, binding.layout)
+  end
+  return { key = binding.key, fn = fn or binding.fn }
 end
 
-local function postionToFn(binding)
-  return {
-    key = binding.key,
-    fn = binding.fn or windows.moveTo(binding.pos)
-  }
-end
-
-local layoutBindings = fnutils.concat(
-  fnutils.map(modeLayouts, postionToFn),
-  fnutils.map(modeLayoutSets, layoutToFn)
-)
-
-mode.create({'option'}, 'space', 'Layout', layoutBindings)
+local layoutBindings = fnutils.map(modeLayouts, layoutToFn)
 
 -----------------------
 -- create audio mode --
@@ -163,12 +140,18 @@ local audioBindings = {
   { key = 'j', fn = audio.next },
   { key = 'k', fn = audio.previous },
   { key = 'h', fn = audio.current },
-  { key = 'u', fn = audio.changeVolume(-100) },
-  { key = 'i', fn = audio.changeVolume(10) },
-  { key = 'o', fn = audio.changeVolume(-10) },
+  { key = 'y', fn = audio.changeVolume(-100) },
+  { key = 'u', fn = audio.changeVolume(5) },
+  { key = 'i', fn = audio.changeVolume(-5) },
   { key = '9', fn = audio.open},
   { key = 'l', fn = audio.playpause },
   { key = 'space', fn = audio.playpause },
 }
 
-mode.create(hyper, 'space', 'Audio', audioBindings)
+function mod.init()
+  fnutils.each(hyperBindings, bindToHyper)
+  mode.create({'option'}, 'space', 'Layout', layoutBindings)
+  mode.create(hyper, 'space', 'Audio', audioBindings)
+end
+
+return mod

@@ -12,7 +12,9 @@ function mod.create(modifiers, key, name, bindings)
     alert.show(name .. ' Mode', 120)
   end
 
-  local function exit() mode:exit() end
+  local function exit()
+    mode:exit()
+  end
 
   function mode:exited()
     alert.closeAll()

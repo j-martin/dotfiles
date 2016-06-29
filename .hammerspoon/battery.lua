@@ -3,6 +3,7 @@
 
 local battery = require "hs.battery"
 local notify = require "hs.notify"
+local logger = hs.logger.new('battery', 'debug')
 
 local mod = {}
 
