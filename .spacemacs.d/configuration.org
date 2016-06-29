@@ -254,6 +254,8 @@ Disabling for now and trying to use states per files instead.
 (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
 (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
 (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
+(spacemacs/set-leader-keys "om" 'jm/open-main)
+(spacemacs/set-leader-keys "or" 'jm/open-reading)
 (spacemacs/set-leader-keys "ot" 'jm/open-todo)
 (spacemacs/set-leader-keys "oc" 'jm/open-config)
 (spacemacs/set-leader-keys "os" 'jm/open-standup)
@@ -269,9 +271,17 @@ Disabling for now and trying to use states per files instead.
     (interactive)
     (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
 
+  (defun jm/open-main ()
+    (interactive)
+    (find-file (expand-file-name "~/.org/main.org")))
+
   (defun jm/open-todo ()
     (interactive)
     (find-file (expand-file-name "~/.org/todo.org")))
+
+  (defun jm/open-reading ()
+    (interactive)
+    (find-file (expand-file-name "~/.org/reading.org")))
 
   (defun jm/open-standup ()
     (interactive)

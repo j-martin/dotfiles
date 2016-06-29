@@ -36,12 +36,13 @@ values."
        emacs-lisp
        evil-cleverparens
        evil-commentary
-       helm
-       html
        git
        github
        go
        gtags
+       haskell
+       helm
+       html
        ipython-notebook
        java
        javascript
@@ -61,7 +62,6 @@ values."
        spotify
        sql
        syntax-checking
-       tabbar
        vagrant
        version-control
        yaml
