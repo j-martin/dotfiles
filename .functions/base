@@ -24,6 +24,9 @@ cached () {
   _cached "$@" 300
 }
 
+_trim () {
+  echo "$@" | sed 's,^ *,,; s, *$,,'
+}
 _cached () {
   local cmd="$1"
   local ttl="${2:-60}"

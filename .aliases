@@ -101,7 +101,7 @@ alias ml='make -f Makefile.docker'
 alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias op='open $"(pbpaste)"'
 alias opd='open $(basename("$(pbpaste)"))'
-alias pwdc='pwd | tr -d '\n' | pbcopy'
+alias pwdc='pwd | tr -d "\n" | pbcopy'
 alias pbclean='pbpaste | pbcopy'
 alias rmq='rabbitmq-server'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
@@ -165,13 +165,14 @@ alias gll='git log -p'
 alias glf='git log -p -- "$(_fzf)"'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gplush='git pull && git push'
-gms() {git commit -m "$(_git_current_issue_number) $1" ${@:2} ;}
+gms() { git commit -m "$(_trim "$(_git_current_issue_number) $1")" ${@:2} ;}
 alias gmi='git commit -m "$(_github_issues | fzf)"'
 alias gmf='git commit -m "$(_github_repo_issues | fzf)"'
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
+gnewc () { git_new_branch "$1" && gms $@ ; }
 alias gnewp='_git_new_branch "$(pbpaste)"'
 alias gnewf='_git_new_branch "$(_github_repo_issues | fzf)"'
 alias gnewi='_git_new_branch "$(_github_issues | fzf)"'

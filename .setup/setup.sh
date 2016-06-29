@@ -35,6 +35,9 @@ _macos_customizations () {
   defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
   killall Dock
   ln -s "$HOME" '/Users/jm'
+
+  # fix emacs ansi-term escape code
+  tic -o ~/.terminfo "$(find /usr/local/Cellar -type f -name '*.ti' | head)"
 }
 
 _macos_apps () {
