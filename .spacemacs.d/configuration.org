@@ -100,9 +100,9 @@ fci-rule-column 120)
 #+end_src
 ** Aggressive Indent
 #+begin_src emacs-lisp :results none
-(add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-(add-hook 'clojure-mode-hook #'aggressive-indent-mode)
-(add-hook 'shell-script-mode-hook #'aggressive-indent-mode)
+  ;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+  ;; (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
+  ;; (add-hook 'shell-script-mode-hook #'aggressive-indent-mode)
 #+end_src
 ** Pretty symbols
 #+begin_src emacs-lisp :results none
@@ -134,8 +134,6 @@ fci-rule-column 120)
 
 (add-hook 'makefile-mode-hook 'makefile-mode-config)
 #+end_src
-
-
 ** EVIL
 #+begin_src emacs-lisp :results none
 (setq-default evil-escape-delay 0.2)
@@ -167,28 +165,27 @@ fci-rule-column 120)
   (setq-default vc-follow-symlinks t)
 #+end_src
 ** org
+
 *** Enabling org-babel
 #+begin_src emacs-lisp :results none
-(use-package org-babel
-  :init
-  (org-babel-do-load-languages
-    'org-babel-load-languages
-    '((emacs-lisp . t)
-    (sh . t)
-    (python . t))))
+  (use-package org-babel
+    :init
+    (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+      (sh . t)
+      (python . t))))
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-window-setup 'current-window)
 #+end_src
-
-
-
 *** Basic setup
   #+begin_src emacs-lisp :results none
-  (setq org-directory "~/.org/")
-  (setq org-hide-emphasis-markers t)
-  (org-agenda-files (list org-directory))
+    (setq org-directory "~/.org/")
+    (setq org-hide-emphasis-markers t)
+    (setq org-agenda-files (list org-directory))
+    (setq org-startup-folded t)
   #+end_src
-
-
-
 *** States
 Disabling for now and trying to use states per files instead.
 #+begin_src emacs-lisp :results none
@@ -197,152 +194,155 @@ Disabling for now and trying to use states per files instead.
 #+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :results none
+  (add-hook 'org-capture-mode-hook 'evil-insert-state)
   (setq org-capture-templates
         '(
           ("t" "Todo"
            entry
            (file+headline "~/.org/todo.org" "Tasks")
-           "* TODO %?\n  %i\n %a")
+           "* TODO %?\n%i\n%a")
+
           ("T" "Todo with clipboard"
-           entry
-           (file+headline "~/.org/todo.org" "Tasks")
-           "* TODO %?\n  %i\n %c\n %a")
+            entry
+            (file+headline "~/.org/todo.org" "Tasks")
+            "* TODO %?\n%i\n%c\n%a")
+
           ("w" "Todo for work"
-           entry
-           (file+headline "~/.org/todo.org" "Tasks")
-           "* TODO %? :work:\n  %i\n %a")
+            entry
+            (file+headline "~/.org/todo.org" "Tasks")
+            "* TODO %? :work:\n%i\n%a")
+
           ("W" "Todo with clipboard for work"
-           entry
-           (file+headline "~/.org/todo.org" "Tasks")
-           "* TODO %? :work:\n  %i\n %c\n %a")
+            entry
+            (file+headline "~/.org/todo.org" "Tasks")
+            "* TODO %? :work:\n%i\n%c\n%a")
+
           ("b" "Reading"
-           entry
-           (file+headline "~/.org/reading.org" "Books")
-           "* %?\n  %i\n %c\n %a")
+            entry
+            (file+headline "~/.org/reading.org" "Books")
+            "* %?\n%i\n%c\n%a")
+
           ("j" "Journal"
-           entry
-           (file+datetree "~/.org/journal.org")
-           "* %?\nEntered on %U\n  %i\n %a")
+            entry
+            (file+datetree "~/.org/journal.org")
+            "* %?\nEntered on %U\n%i\n%a")
+
           ("J" "Journal with Clipboard"
-           entry
-           (file+datetree "~/.org/journal.org")
-           "* %?\nEntered on %U\n  %i\n %c\n %a")
+            entry
+            (file+datetree "~/.org/journal.org")
+            "* %?\nEntered on %U\n%i\n%c\n%a")
           ))
-#+end_src
-*** org-babel
-#+begin_src emacs-lisp :results none
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
-  (setq org-src-window-setup 'current-window)
 #+end_src
 
 * Keyboard Bindings
 #+begin_src emacs-lisp :results none
-(define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
-(define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
-(define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
-(define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
-(global-set-key [f8] 'neotree-projectile-action)
+  (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
+  (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
+  (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
+  (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
+  (global-set-key [f8] 'neotree-projectile-action)
 
-(global-set-key (kbd "s-<left>") 'beginning-of-line)
-(global-set-key (kbd "s-<right>") 'end-of-line)
-(define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
-(define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
+  (global-set-key (kbd "s-<left>") 'beginning-of-line)
+  (global-set-key (kbd "s-<right>") 'end-of-line)
+  (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
+  (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
-(spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
-(spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
-(spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
-(spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
-(spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
-(spacemacs/set-leader-keys "om" 'jm/open-main)
-(spacemacs/set-leader-keys "or" 'jm/open-reading)
-(spacemacs/set-leader-keys "ot" 'jm/open-todo)
-(spacemacs/set-leader-keys "oc" 'jm/open-config)
-(spacemacs/set-leader-keys "os" 'jm/open-standup)
-(spacemacs/set-leader-keys "og" 'jm/org-github-todo)
-(spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
-(spacemacs/set-leader-keys "ol" 'org-content)
-(spacemacs/set-leader-keys "ag" 'engine/search-google)
+  (spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
+  (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
+  (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
+  (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
+  (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
+  (spacemacs/set-leader-keys "om" 'jm/open-main)
+  (spacemacs/set-leader-keys "or" 'jm/open-reading)
+  (spacemacs/set-leader-keys "ot" 'jm/open-todo)
+  (spacemacs/set-leader-keys "oc" 'jm/open-config)
+  (spacemacs/set-leader-keys "os" 'jm/open-standup)
+  (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
+  (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
+  (spacemacs/set-leader-keys "ol" 'org-content)
+  (spacemacs/set-leader-keys "oL" 'org-toggle-tags-groups)
+  (spacemacs/set-leader-keys "ag" 'engine/search-google)
 #+end_src
 
 * General Functions
 #+begin_src emacs-lisp :results none
-  (defun jm/open-config ()
-    (interactive)
-    (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
+    (defun jm/open-config ()
+      (interactive)
+      (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
 
-  (defun jm/open-main ()
-    (interactive)
-    (find-file (expand-file-name "~/.org/main.org")))
+    (defun jm/open-main ()
+      (interactive)
+      (find-file (expand-file-name "~/.org/main.org")))
 
-  (defun jm/open-todo ()
-    (interactive)
-    (find-file (expand-file-name "~/.org/todo.org")))
+    (defun jm/open-todo ()
+      (interactive)
+      (find-file (expand-file-name "~/.org/todo.org")))
 
-  (defun jm/open-reading ()
-    (interactive)
-    (find-file (expand-file-name "~/.org/reading.org")))
+    (defun jm/open-reading ()
+      (interactive)
+      (find-file (expand-file-name "~/.org/reading.org")))
 
-  (defun jm/open-standup ()
-    (interactive)
-    (find-file (expand-file-name "~/.org/standup.org")))
+    (defun jm/open-standup ()
+      (interactive)
+      (find-file (expand-file-name "~/.org/standup.org")))
 
-  (defun jm/helm-org-dir ()
-    (interactive)
-    (helm-find-files-1 (expand-file-name "~/.org/")))
+    (defun jm/helm-org-dir ()
+      (interactive)
+      (helm-find-files-1 (expand-file-name "~/.org/")))
 
-  (defun jm/helm-home-dir ()
-    (interactive)
-    (helm-find-files-1 (expand-file-name "~/")))
+    (defun jm/helm-home-dir ()
+      (interactive)
+      (helm-find-files-1 (expand-file-name "~/")))
 
-  (defun jm/helm-work-dir ()
-    (interactive)
-    (helm-find-files-1 (expand-file-name "~/Work/")))
+    (defun jm/helm-work-dir ()
+      (interactive)
+      (helm-find-files-1 (expand-file-name "~/Work/")))
 
-  (defun jm/org-github-todo ()
-    (interactive)
-    (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
-    (org-content))
+    (defun jm/org-github-todo ()
+      (interactive)
+      (end-of-buffer)
+      (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
+      (org-content))
 
-  (defun jm/insert-today ()
-    (interactive)
-    (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
+    (defun jm/insert-today ()
+      (interactive)
+      (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
 
-  (defun jm/get-column ()
-    (number-to-string (+ (current-column) 1)))
+    (defun jm/get-column ()
+      (number-to-string (+ (current-column) 1)))
 
-  (defun jm/get-line-number ()
-    (number-to-string (line-number-at-pos)))
+    (defun jm/get-line-number ()
+      (number-to-string (line-number-at-pos)))
 
-  (defun jm/open-with-line (app)
-    (when buffer-file-name
-      (save-buffer)
-      (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
+    (defun jm/open-with-line (app)
+      (when buffer-file-name
+        (save-buffer)
+        (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
 
-  (defun jm/open-with-line-column (app)
-    (when buffer-file-name
-      (save-buffer)
-      (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
+    (defun jm/open-with-line-column (app)
+      (when buffer-file-name
+        (save-buffer)
+        (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
 
-  (defun jm/open-with-line-column-vim (app)
-    (when buffer-file-name
-      (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
+    (defun jm/open-with-line-column-vim (app)
+      (when buffer-file-name
+        (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
 
-  (defun jm/open-with-reveal (app)
-    (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
+    (defun jm/open-with-reveal (app)
+      (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
 
-  (defun jm/open-with-sublime ()
-    (interactive)
-    (jm/open-with-line-column "/usr/local/bin/subl"))
+    (defun jm/open-with-sublime ()
+      (interactive)
+      (jm/open-with-line-column "/usr/local/bin/subl"))
 
-  (defun jm/open-with-idea ()
-    (interactive)
-    (jm/open-with-line "/usr/local/bin/idea")
-    (jm/open-with-reveal "IntelliJ IDEA"))
+    (defun jm/open-with-idea ()
+      (interactive)
+      (jm/open-with-line "/usr/local/bin/idea")
+      (jm/open-with-reveal "IntelliJ IDEA"))
 
-  (defun jm/open-with-nvim ()
-    (interactive)
-    (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
+    (defun jm/open-with-nvim ()
+      (interactive)
+      (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 #+end_src
 ** Endless Autocorrect
 Per [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Endless parentheses]] copied on 2016-05-17
@@ -385,5 +385,4 @@ abort completely with `C-g'."
           (message "\"%s\" now expands to \"%s\" %sally"
                    bef aft (if p "loc" "glob")))
       (user-error "No typo at or before point"))))
-
 #+end_src
