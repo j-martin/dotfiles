@@ -52,10 +52,7 @@ plugins=(brew common-aliases dircycle dirhistory docker docker-compose git githu
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-export PATH="$HOME/Work/venv/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
-
 bindkey -e
-#bindkey -v
 export KEYTIMEOUT=1
 
 bindkey '^[[1;9C' forward-word

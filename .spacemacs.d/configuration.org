@@ -260,7 +260,7 @@ Disabling for now and trying to use states per files instead.
   (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
   (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
   (spacemacs/set-leader-keys "ol" 'org-content)
-  (spacemacs/set-leader-keys "oL" 'org-toggle-tags-groups)
+  (spacemacs/set-leader-keys "o;" 'org-toggle-tags-groups)
   (spacemacs/set-leader-keys "ag" 'engine/search-google)
 #+end_src
 

@@ -16,10 +16,18 @@ local engines = {
 local function selectedTextFromClipboard()
   local current = pasteboard.readString()
 
-  eventtap.keyStroke({'cmd'}, 'c')
-  timer.usleep(200000)
-  local selection = pasteboard.readString()
+  local clipboardDelay = 200000 -- 200ms
 
+  eventtap.keyStroke({'cmd'}, 'c')
+  timer.usleep(clipboardDelay)
+  local selection = pasteboard.readString()
+  if selection == current then
+    logger.d('Same result. Retrying')
+    timer.usleep(clipboardDelay)
+    selection = pasteboard.readString()
+  end
+
+  logger.d(selection)
   pasteboard:setContents(current)
   return selection
 end

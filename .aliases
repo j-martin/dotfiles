@@ -172,7 +172,7 @@ alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
-gnewc () { git_new_branch "$1" && gms $@ ; }
+gnewc () { _git_new_branch "$1" && gms $@ ; }
 alias gnewp='_git_new_branch "$(pbpaste)"'
 alias gnewf='_git_new_branch "$(_github_repo_issues | fzf)"'
 alias gnewi='_git_new_branch "$(_github_issues | fzf)"'
@@ -189,6 +189,7 @@ alias gs='git status'
 alias gsa='git stash apply'
 alias gsl='git stash list'
 alias gss='git stash save'
+alias gu='_github_open_url'
 alias gupd='git stash && git pull && git stash apply'
 gvbump () { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
 

@@ -42,10 +42,10 @@ values."
        auto-completion-return-key-behavior 'complete
        auto-completion-complete-with-key-sequence "jk"
        auto-completion-complete-with-key-sequence-delay 0.1
-       auto-completion-enable-sort-by-usage t)
+       auto-completion-enable-sort-by-usage t
        auto-completion-enable-help-tooltip t
        auto-completion-enable-snippets-in-popup t
-       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/"
+       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
      chrome
      clojure
@@ -121,7 +121,7 @@ values."
    ;; (default t)
    dotspacemacs-elpa-https t
    ;; Maximum allowed time in seconds to contact an ELPA repository.
-   dotspacemacs-elpa-timeout 5
+   dotspacemacs-elpa-timeout 10
    ;; If non nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. (default t)
    dotspacemacs-check-for-update t

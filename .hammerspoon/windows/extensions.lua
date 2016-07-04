@@ -13,7 +13,7 @@ local timer = require "hs.timer"
 local mouse = require "hs.mouse"
 local application = require "hs.application"
 local appfinder = require "hs.appfinder"
-local logger = hs.logger.new('windows.extensions', 'debug')
+local logger = hs.logger.new('w.extensions', 'debug')
 
 local mod = {}
 

@@ -62,8 +62,35 @@ _github_repos () {
   _github 'user/repos?per_page=200'
 }
 
+_github_repo_names () {
+  _github_repos | jq -r '.[].full_name'
+}
+
+_github_repo_urls () {
+  for name in $(_github_repo_names); do
+    __github_repo_url "$name"
+  done
+}
+
+__github_repo_url () {
+  local repo="$1"
+  local repo_url="https://github.com/$repo"
+  echo "$repo_url"
+  echo "$repo_url/issues"
+  echo "$repo_url/pulls"
+  echo "$repo_url/branches"
+}
+
 _github_pick_repo () {
   _github_repos | jq -r '.[].git_url' | _fzf "$1"
+}
+
+_github_open_url () {
+  open "$(_github_pick_url $@)"
+}
+
+_github_pick_url () {
+  _cached '_github_repo_urls' 86400 | _fzf "https://github.com//$@"
 }
 
 _github_repo_issues () {

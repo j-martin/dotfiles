@@ -10,7 +10,8 @@ source "$HOME/.functions/all"
 source "$HOME/.aliases"
 
 export GOPATH="$HOME/.go"
-export PATH="$PATH:$GOPATH/bin"
+export PATH="$HOME/Work/venv/bin:$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
 export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
 export NODE_PATH="$NODE_PATH:/usr/local/lib/node_modules"
 export EDITOR='/usr/local/bin/nvim'

@@ -8,6 +8,7 @@ local layout = require 'hs.layout'
 local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
+local emacs = require 'emacs'
 
 local hyper = {'cmd', 'alt', 'ctrl', 'shift'}
 
@@ -43,7 +44,8 @@ local hyperBindings = {
   { key = 'n', fn = windows.cycleScreen },
   { key = 'm', fn = windows.maximize },
   { key = 'x', fn = windows.center40 },
-  { key = 't', fn = hs.toggleConsole },
+  { key = 't', fn = emacs.capture },
+  { key = 'q', fn = hs.toggleConsole },
   { key = 'r', fn = hs.reload },
   { key = 'c', fn = selection.actOn },
   { key = 'v', fn = selection.paste },
