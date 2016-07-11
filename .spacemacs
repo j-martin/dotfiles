@@ -66,7 +66,7 @@ values."
      java
      javascript
      lua
-     markdown
+      (markdown :variables markdown-live-preview-engine 'vmd)
      (org :variables
           org-enable-github-support t)
      nginx
@@ -83,6 +83,7 @@ values."
      vagrant
      version-control
      yaml
+     ycmd
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these

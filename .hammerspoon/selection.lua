@@ -14,21 +14,23 @@ local engines = {
 }
 
 local function selectedTextFromClipboard()
-  local current = pasteboard.readString()
-
-  local clipboardDelay = 200000 -- 200ms
-
-  eventtap.keyStroke({'cmd'}, 'c')
-  timer.usleep(clipboardDelay)
-  local selection = pasteboard.readString()
-  if selection == current then
-    logger.d('Same result. Retrying')
-    timer.usleep(clipboardDelay)
-    selection = pasteboard.readString()
+  local function getClipboard(initial, sleep, limit)
+    if limit == 0 then return initial end
+    eventtap.keyStroke({'cmd'}, 'c')
+    timer.usleep(sleep * 1000000)
+    local selection = pasteboard.readString()
+    if selection == initial then
+      logger.d('Same result. Retrying')
+      return getClipboard(initial, sleep, limit - 1)
+    else
+      return selection
+    end
   end
 
-  logger.d(selection)
-  pasteboard:setContents(current)
+  local initial = pasteboard.readString()
+  local selection = getClipboard(initial, 0.1, 6)
+  logger.df('clipboard: %s', selection)
+  pasteboard:setContents(initial)
   return selection
 end
 
@@ -42,7 +44,7 @@ local function selectedText()
 end
 
 local function openUrl(url)
-  task.new('/usr/bin/open', logger.d, logger.d, {url}):start()
+  task.new('/usr/bin/open', nil, logger.d, {url}):start()
 end
 
 local function query(url, text)
@@ -75,15 +77,15 @@ local function round(number)
 end
 
 function mod.epochSinceNow(text)
-  local current = timer.secondsSinceEpoch()
+  local initial = timer.secondsSinceEpoch()
   local selection = tonumber(text or selectedText())
 
   if selection > 1000000000000 then
     selection = selection / 1000
   end
 
-  local diff = current - selection
-  hs.alert(
+  local diff = initial - selection
+  alert.show(
     round(diff / 60) .. ' mins / ' ..
       round(diff / 60 / 60) .. ' hours / ' ..
       round(diff / 60 / 60 / 24) .. ' days / ' ..

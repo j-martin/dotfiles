@@ -123,6 +123,11 @@ fci-rule-column 120)
 (add-hook 'lua-mode-hook 'jm/pretty-symbols)
 #+end_src
 
+** ycmd
+#+begin_src emacs-lisp :results none
+  (setq ycmd-server-command '("python" "/Users/jma/Work/forks/ycmd/ycmd"))
+#+end_src
+
 ** Makefile
 #+begin_src emacs-lisp :results none
 (defun makefile-mode-config ()
@@ -134,6 +139,12 @@ fci-rule-column 120)
 
 (add-hook 'makefile-mode-hook 'makefile-mode-config)
 #+end_src
+** shell-script
+#+begin_src emacs-lisp :results none
+  (add-hook 'sh-mode-hook 'ycmd-mode)
+  (push 'company-dabbrev-code company-backends-sh-mode)
+#+end_src
+
 ** EVIL
 #+begin_src emacs-lisp :results none
 (setq-default evil-escape-delay 0.2)
@@ -163,18 +174,19 @@ fci-rule-column 120)
 #+begin_src emacs-lisp :results none
   (setq magit-repository-directories '("~/Work/"))
   (setq-default vc-follow-symlinks t)
+  (add-hook 'git-commit-mode-hook 'evil-insert-state)
 #+end_src
 ** org
 
 *** Enabling org-babel
 #+begin_src emacs-lisp :results none
-  (use-package org-babel
-    :init
-    (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-      (sh . t)
-      (python . t))))
+  ;; (use-package org-babel
+  ;;   :init
+  ;;   (org-babel-do-load-languages
+  ;;     'org-babel-load-languages
+  ;;     '((emacs-lisp . t)
+  ;;     (sh . t)
+  ;;     (python . t))))
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
@@ -240,7 +252,6 @@ Disabling for now and trying to use states per files instead.
   (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
   (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
   (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
-  (global-set-key [f8] 'neotree-projectile-action)
 
   (global-set-key (kbd "s-<left>") 'beginning-of-line)
   (global-set-key (kbd "s-<right>") 'end-of-line)

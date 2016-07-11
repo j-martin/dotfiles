@@ -110,9 +110,9 @@ s () { ssh "$@"  -t 'command; tmux attach -t jma || tmux new -s jma' ;}
 ss () { ssh "$@"  -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
 alias mtmp='cd $(mktemp -d -t 3)'
 alias tailf='tail -F'
-alias tf='tree -afC'
-alias tfl='tree -afC | less -SRI'
-alias tfs='tree -afC "src"'
+alias tf='tree -afC -I "\.git|.idea|venv|target|targets"'
+alias tfl='tree -afC -I "\.git|.idea|venv|target|targets" | less -SRI'
+alias tfs='tree -afC -I "\.git|.idea|venv|target|targets" "src"'
 alias treef='tree -fa | grep -i'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
 alias vg='vagrant'

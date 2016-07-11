@@ -10,7 +10,7 @@ local audio = require 'audio'
 local mode = require 'mode'
 local emacs = require 'emacs'
 
-local hyper = {'cmd', 'alt', 'ctrl', 'shift'}
+local hyper = { 'cmd', 'alt', 'ctrl', 'shift' }
 
 local mod = {}
 
@@ -47,7 +47,7 @@ local hyperBindings = {
   { key = 't', fn = emacs.capture },
   { key = 'q', fn = hs.toggleConsole },
   { key = 'r', fn = hs.reload },
-  { key = 'c', fn = selection.actOn },
+  { key = 'd', fn = selection.actOn },
   { key = 'v', fn = selection.paste },
 }
 
@@ -64,11 +64,12 @@ end
 -- create layout mode --
 ------------------------
 
-local laptopScreen = "Color LCD"
+local laptopScreen = 'Color LCD'
+local extraScreen = 'DELL P2717H'
 
 local commonLayout = {
-  {"Inbox",  nil, laptopScreen, layout.left70, nil, nil},
-  {"Slack",  nil, laptopScreen, layout.right50, nil, nil},
+  { "Inbox",  nil, laptopScreen, layout.left70, nil, nil },
+  { "Slack",  nil, laptopScreen, layout.right50, nil, nil },
 }
 
 local modeLayouts = {

@@ -20,3 +20,17 @@ rds_logs (){
     | sort \
     | less -SRi
 }
+
+_eb_get_latest_version () {
+  local application="$1"
+  aws elasticbeanstalk describe-application-versions \
+      --application-name "$application" \
+    | jq -r '.ApplicationVersions[0].VersionLabel'
+}
+
+_eb_upgrade_to_latest () {
+  local application="$1"
+  aws elasticbeanstalk update-environment \
+      --environment-name "staging-$application" \
+      --version-label "$(_eb_get_latest_version "$application")"
+}
