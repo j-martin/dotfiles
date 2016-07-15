@@ -9,6 +9,7 @@ local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
 local emacs = require 'emacs'
+local reminder = require 'reminder'
 
 local hyper = { 'cmd', 'alt', 'ctrl', 'shift' }
 
@@ -135,11 +136,13 @@ end
 
 local layoutBindings = fnutils.map(modeLayouts, layoutToFn)
 
------------------------
--- create audio mode --
------------------------
+-------------------------
+-- create general mode --
+-------------------------
 
-local audioBindings = {
+local generalBindings = {
+  { key = 's', fn = reminder.stretches },
+  { key = 'r', fn = reminder.reset },
   { key = 'j', fn = audio.next },
   { key = 'k', fn = audio.previous },
   { key = 'h', fn = audio.current },
@@ -154,7 +157,7 @@ local audioBindings = {
 function mod.init()
   fnutils.each(hyperBindings, bindToHyper)
   mode.create({'option'}, 'space', 'Layout', layoutBindings)
-  mode.create(hyper, 'space', 'Audio', audioBindings)
+  mode.create(hyper, 'space', 'General', generalBindings)
 end
 
 return mod
