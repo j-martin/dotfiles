@@ -34,3 +34,10 @@ _eb_upgrade_to_latest () {
       --environment-name "staging-$application" \
       --version-label "$(_eb_get_latest_version "$application")"
 }
+
+_eb_upgrade_production_to_latest () {
+    local application="$1"
+    aws elasticbeanstalk update-environment \
+        --environment-name "prod-$application" \
+        --version-label "$(_eb_get_latest_version "$application")"
+}
