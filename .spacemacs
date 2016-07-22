@@ -50,7 +50,6 @@ values."
      chrome
      clojure
      dash
-     deft
      dockerfile
      emacs-lisp
      evil-cleverparens
@@ -62,13 +61,11 @@ values."
      haskell
      helm
      html
-     ipython-notebook
      java
      javascript
      lua
-      (markdown :variables markdown-live-preview-engine 'vmd)
-     (org :variables
-          org-enable-github-support t)
+     (markdown :variables markdown-live-preview-engine 'vmd)
+     (org :variables org-enable-github-support t)
      nginx
      osx
      python
@@ -83,7 +80,6 @@ values."
      vagrant
      version-control
      yaml
-     ycmd
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -225,7 +221,7 @@ values."
    dotspacemacs-helm-position 'bottom
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
-   dotspacemacs-enable-paste-transient-state nil
+   dotspacemacs-enable-paste-transient-state t
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
    dotspacemacs-which-key-delay 0.4

@@ -15,7 +15,6 @@
 
 ** Convenience
 #+begin_src emacs-lisp :results none
-  ;; (add-hook 'focus-out-hook (lambda () (save-some-buffers t)))
   (setq confirm-kill-emacs 'y-or-n-p)
   (setq mac-emulate-three-button-mouse t)
   (setq x-select-enable-clipboard nil)
@@ -85,10 +84,10 @@ fci-rule-column 120)
   (global-auto-revert-mode t)
   (global-company-mode 1)
   (ws-butler-global-mode 1)
-  (global-evil-mc-mode 1)
   (setq-default abbrev-mode t)
   (setq save-abbrevs 'silently)
   (super-save-mode +1)
+  ;; (global-evil-mc-mode 1)
   ;; (require 'live-py-mode)
 #+end_src
 
@@ -97,12 +96,6 @@ fci-rule-column 120)
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
 (add-hook 'org-mode-hook 'turn-on-auto-fill)
-#+end_src
-** Aggressive Indent
-#+begin_src emacs-lisp :results none
-  ;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
-  ;; (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
-  ;; (add-hook 'shell-script-mode-hook #'aggressive-indent-mode)
 #+end_src
 ** Pretty symbols
 #+begin_src emacs-lisp :results none
@@ -121,11 +114,6 @@ fci-rule-column 120)
 (add-hook 'scala-mode-hook 'jm/pretty-symbols)
 (add-hook 'coffee-mode-hook 'jm/pretty-symbols)
 (add-hook 'lua-mode-hook 'jm/pretty-symbols)
-#+end_src
-
-** ycmd
-#+begin_src emacs-lisp :results none
-  (setq ycmd-server-command '("python" "/Users/jma/Work/forks/ycmd/ycmd"))
 #+end_src
 
 ** Makefile
@@ -174,19 +162,12 @@ fci-rule-column 120)
 #+begin_src emacs-lisp :results none
   (setq magit-repository-directories '("~/Work/"))
   (setq-default vc-follow-symlinks t)
-  (add-hook 'git-commit-mode-hook 'evil-insert-state)
+  (add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
 #+end_src
 ** org
 
 *** Enabling org-babel
 #+begin_src emacs-lisp :results none
-  ;; (use-package org-babel
-  ;;   :init
-  ;;   (org-babel-do-load-languages
-  ;;     'org-babel-load-languages
-  ;;     '((emacs-lisp . t)
-  ;;     (sh . t)
-  ;;     (python . t))))
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
@@ -198,12 +179,6 @@ fci-rule-column 120)
     (setq org-agenda-files (list org-directory))
     (setq org-startup-folded t)
   #+end_src
-*** States
-Disabling for now and trying to use states per files instead.
-#+begin_src emacs-lisp :results none
-  ;; (setq org-todo-keywords
-  ;;   '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
-#+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :results none
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -271,7 +246,6 @@ Disabling for now and trying to use states per files instead.
   (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
   (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
   (spacemacs/set-leader-keys "ol" 'org-content)
-  (spacemacs/set-leader-keys "o;" 'org-toggle-tags-groups)
   (spacemacs/set-leader-keys "ag" 'engine/search-google)
 #+end_src
 
@@ -280,6 +254,11 @@ Disabling for now and trying to use states per files instead.
     (defun jm/open-config ()
       (interactive)
       (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
+
+    (defun jm/magit-commit-message ()
+      (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '.*#[0-9]*'")))
+        (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
+      (evil-insert-state))
 
     (defun jm/open-main ()
       (interactive)
