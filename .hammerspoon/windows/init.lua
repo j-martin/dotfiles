@@ -4,6 +4,7 @@ local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
+local logger = hs.logger.new('windows', 'info')
 
 local ext = require "windows/extensions"
 
@@ -52,7 +53,7 @@ local cycleStates = {}
 
 -- cycles window size
 local function cycleWidth(startPoint)
-  local width = nil
+  local width
   local focusedWindow = window.frontmostWindow()
   focusedWindow:focus()
 
@@ -94,16 +95,40 @@ function mod.moveTo(pos)
   end
 end
 
+local function maximizeOrCycleScreen()
+  local win = window.focusedWindow()
+  if win:frame().w ~= win:screen():frame().w then
+    win:maximize()
+    return win, nil
+  else
+    return win, win:screen()
+  end
+end
+
 function mod.cycleScreen()
-  local nextScreen = window.focusedWindow():screen():next()
-  window.focusedWindow():moveToScreen(nextScreen)
+  local win, currentScreen = maximizeOrCycleScreen()
+  if currentScreen then
+    win:moveToScreen(currentScreen:next())
+  end
   ext.centerOnWindow()
 end
 
 function mod.cycleScreenBack()
-  local nextScreen = window.focusedWindow():screen():previous()
-  window.focusedWindow():moveToScreen(nextScreen)
+  local win, currentScreen = maximizeOrCycleScreen()
+  if currentScreen then
+    win:moveToScreen(currentScreen:previous())
+  end
   ext.centerOnWindow()
+end
+
+ function mod.alternateScreen()
+  local laptopScreen = 'Color LCD'
+  local extraScreen = 'SMS24A850'
+  if screen.find(extraScreen) then
+    return extraScreen
+  else
+    return laptopScreen
+  end
 end
 
 return mod

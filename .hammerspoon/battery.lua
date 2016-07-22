@@ -8,7 +8,7 @@ local logger = hs.logger.new('battery', 'debug')
 local mod = {}
 
 local state = {
-  min = 30,
+  min = 40,
   remaining = 0
 }
 
@@ -28,7 +28,6 @@ local function watchBattery()
       title = battery.title,
       informativeText = 'Battery left: ' .. state.remaining .. "%\nPower Source: " .. source
     }
-
     notify.new(message):send()
   end
 end

@@ -35,15 +35,16 @@ local function noticeActions(action)
     local counter = 0
     local defaultInterval = 30
 
-    local function increment(item)
-      counter = counter + (item.interval or defaultInterval)
+    local function increment(interval)
+      counter = counter + interval
     end
 
     local function setupTimer(item)
-      timer.doAfter(counter, notice(item.name .. 'R', item.interval or defaultInterval))
-      increment(item)
-      timer.doAfter(counter, notice(item.name .. 'L', item.interval or defaultInterval))
-      increment(item)
+      local interval = item.interval or defaultInterval
+      timer.doAfter(counter, notice(item.name .. 'R', interval / 2))
+      increment(interval)
+      timer.doAfter(counter, notice(item.name .. 'L', interval / 2))
+      increment(interval)
     end
 
     fnutils.each(action, setupTimer)
@@ -72,7 +73,7 @@ local stretchesList = {
 
 local reminders = {
   { name = 'Check your posture!', freq = 600 },
-  { name = 'Posture. Done.', freq = 660 },
+  { name = 'Posture Done.', freq = 660 },
   { name = 'Break', freq = 1800, fn = noticeActions(stretchesList) }
 }
 

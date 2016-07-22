@@ -42,8 +42,8 @@ local hyperBindings = {
   { key = 'g', fn = grid.show },
   { key = 'j', fn = windows.cycleLeft },
   { key = 'k', fn = windows.cycleRight },
-  { key = 'n', fn = windows.cycleScreen },
-  { key = 'm', fn = windows.maximize },
+  { key = 'n', fn = windows.cycleScreen},
+  { key = 'm', fn = windows.cycleScreenBack },
   { key = 'x', fn = windows.center40 },
   { key = 't', fn = emacs.capture },
   { key = 'q', fn = hs.toggleConsole },
@@ -65,12 +65,9 @@ end
 -- create layout mode --
 ------------------------
 
-local laptopScreen = 'Color LCD'
-local extraScreen = 'DELL P2717H'
-
 local commonLayout = {
-  { "Inbox",  nil, laptopScreen, layout.left70, nil, nil },
-  { "Slack",  nil, laptopScreen, layout.right50, nil, nil },
+  { "Inbox",  nil, windows.alternateScreen(), { 0.0, 0.0, 1.0, 0.7 }, nil, nil },
+  { "Slack",  nil, windows.alternateScreen(), { 0.0, 0.3, 1.0, 0.7 }, nil, nil },
 }
 
 local modeLayouts = {
