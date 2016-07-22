@@ -1,0 +1,9 @@
+[user]
+	name = Jean-Martin Archer
+	email = jm@jmartin.ca
+[pull]
+	rebase = true
+[push]
+	default = simple
+[core]
+  commentChar = ";"

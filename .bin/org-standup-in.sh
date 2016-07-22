@@ -8,7 +8,7 @@ source "$HOME/.functions/git"
 
 _format () {
   jq -r '.[] | "** TODO [[\(.html_url)][\(.repository.full_name)#\(.number | tostring) - \(.title)]]" +
-if (has("pull_request") and (.user.login != "j-martin")) then " :work:review:" else ":work:" end,
+if (has("pull_request") and (.user.login != "j-martin")) then " :review:" else "" end,
 ":PROPERTIES:",
 ":ID: " + (.id | tostring),
 ":END:",
