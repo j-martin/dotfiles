@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+
+source "$HOME/.functions/base"
+source "$HOME/.functions/git"
+
+_format () {
+    jq -rc '.[] | [
+        .created_at,
+        .payload.pull_request.html_url // .payload.issue.html_url // "https://github.com/\(.repo.name)",
+        "\(.type) \(.payload.action // "") by \(.actor.login)",
+        .payload.issue.user.login,
+        .payload.issue.assignee.login,
+        .payload.pull_request.user.login,
+        "\(.payload.issue.title // "") \(.payload.comment.body // .payload.pull_request.body // .payload.issue.body // "")"
+      ] | join(" ") | sub("\n|\r|  |\t"; " "; "g")'
+
+}
+
+_github_events \
+    | _format \
+    | grep "$(_github_user)" \
+    | cut -c "-${COLUMNS:-200}"

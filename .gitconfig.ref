@@ -1,9 +1,14 @@
 [user]
-	name = Jean-Martin Archer
-	email = jm@jmartin.ca
+  name = Jean-Martin Archer
+  email = jm@jmartin.ca
 [pull]
-	rebase = true
+  rebase = true
 [push]
-	default = simple
+  default = simple
+[github]
+  user = j-martin
+  oauth-token =
+  team =
+  org =
 [core]
   commentChar = ";"

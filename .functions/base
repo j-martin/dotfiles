@@ -13,6 +13,7 @@ _error () {
 }
 
 _production () {
+  # iTerm escape code to turn the terminal red.
   printf "\033]Ph501010\033\\"
 }
 
@@ -54,4 +55,8 @@ _with_fzf () {
 
 _fzf () {
   fzf -1 -0 -q "$1"
+}
+
+_prefix () {
+  basename "$(pwd)" | sed 's/\-.*//g'
 }

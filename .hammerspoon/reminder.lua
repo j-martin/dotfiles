@@ -72,8 +72,8 @@ local stretchesList = {
 }
 
 local reminders = {
-  { name = 'Check your posture!', freq = 600 },
-  { name = 'Posture Done.', freq = 660 },
+  { name = 'P', freq = 600 },
+  { name = 'P.Done.', freq = 660 },
   { name = 'Break', freq = 1800, fn = noticeActions(stretchesList) }
 }
 

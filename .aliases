@@ -51,6 +51,7 @@ alias agtp='ag -QSA10 --color "# todo-jma"'
 alias bupgrade='brew update && brew unlink moreutils && brew upgrade && brew link moreutils'
 alias ca='cal -y'
 alias clf='clf -c'
+alias c='_with_fzf "cat"'
 alias dk='docker'
 alias dfix='brew unlink docker && brew link --overwrite --force docker'
 alias dkp='docker ps'
@@ -84,8 +85,9 @@ alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
 alias ip='ifconfig | grep "inet 1"'
 idiff () { icdiff "$1" "$2" | less -SRi ; }
-idif () { icdiff "$(_with_fzf $1)" "$(_with_fzf $2)" | less -SRi ; }
+idif () { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi ; }
 lc () { pygmentize $@ | less -SRi; }
+alias lcf='_with_fzf "lc"'
 alias le='less -SRi'
 alias lf='_with_fzf cat | less -SRi'
 alias ler='less README.md'
@@ -153,6 +155,7 @@ alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias gcp='git add -p && git commit' # Commiting part of a file.
 alias gpp='git push --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && sleep 1 && hbp'
+alias ghw='watch -n 300 github-events'
 alias gpick='git cherry-pick'
 alias gcv='git commit -v' # Commit all with a Diff view.
 alias gds='git diff --stat'
@@ -254,5 +257,4 @@ alias py='python3'
 
 # Website
 alias o='open $(pbpaste)'
-alias c='open /Applications/Google\ Chrome.app'
 alias c2='open "https://console.aws.amazon.com/ec2/"'

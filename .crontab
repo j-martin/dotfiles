@@ -1,1 +1,1 @@
-30 * * * * /Users/benchemployee/.bin/org-calendar.sh &> /dev/null
+*/5 * * * * /Users/benchemployee/.bin/org-calendar.sh &> /dev/null

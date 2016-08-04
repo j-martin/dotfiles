@@ -44,13 +44,15 @@ _git_new_branch () {
 
 _github () {
   local endpoint="$1"
-  curl --fail --silent -H "Authorization: token $(keyring get system github_token)" "https://api.github.com/$endpoint"
+  curl --fail --silent -H "Authorization: token $(keyring get system github_token)" \
+       "https://api.github.com/$endpoint"
 }
 
 _github_post () {
   local endpoint="$1"
   local payload="$2"
-  curl --fail --silent -XPOST -H "Authorization: token $(keyring get system github_token)" "https://api.github.com/$endpoint" --data "$payload"
+  curl --fail --silent -XPOST -H "Authorization: token $(keyring get system github_token)" \
+       "https://api.github.com/$endpoint" --data "$payload"
 }
 
 _github_search_issues() {
@@ -99,12 +101,18 @@ _github_repo_issues () {
 
 _github_issues () {
   _github "issues?assignee=$(_github_user)" \
-    | jq -r '.[] | .repository.full_name + "#" + (.number | tostring) + "-" + .title'
+    | REPO="$(_git_repo)" jq -r \
+      '.[] | if (env.REPO == .repository.full_name) then "" else .repository.full_name end + "#\(.number | tostring)-\(.title)"'
 }
 
-_github_issues_search() {
+_github_issues_search () {
   local label="$1"
   _github "search/issues?q=label:$label&per_page=300"
+}
+
+_github_involved_issues () {
+    _github "search/issues?q=is:open+involves:$(_github_user)+user:$(_github_org)&sort=updated&order=desc&per_page=300" \
+        | jq '.items[]'
 }
 
 _github_format_issues () {
@@ -114,6 +122,7 @@ _github_format_issues () {
 _github_format_issue () {
   jq -r '["#" + (.number | tostring), .title] | join("-")'
 }
+
 _github_format_search_issues () {
   jq -r '.items[] | [(.repository_url | sub(".*/"; "")) + "#" + (.number | tostring),
     .title, .state, ([.labels[].name] | join(", ")), .assignee.login] | join("¡")' \
@@ -124,6 +133,14 @@ _github_user () {
   git config --get github.user
 }
 
+_github_team () {
+  git config --get github.team
+}
+
+_github_org () {
+    git config --get github.org
+}
+
 _github_repo_assigned_issues () {
   _github "repos/$(_git_repo)/issues?assignee=$(_github_user)" \
     | _github_format_issues
@@ -132,11 +149,18 @@ _github_repo_assigned_issues () {
 _github_create_issue () {
   local title="$1"
   local body="$2"
-  _github_post "repos/$(_git_repo)/issues" "$(jo title="$title" body="$body" assignee="$(_github_user)")"
+  local assignee="${3:-$(_github_user)}"
+  local labels="${4:-"$(_github_team)"}"
+  local payload="$(jo title="$title" body="$body" assignee="$assignee" labels="$(jo -a $labels)")"
+  _github_post "repos/$(_git_repo)/issues" "$payload"
 }
 
 _github_new_branch () {
   local title="$1"
   local body="$2"
   _git_new_branch "$(_github_create_issue "$title" "$body" | _github_format_issue)"
+}
+
+_github_events () {
+    _github "users/$(_github_user)/events/orgs/BenchLabs?page=[1-9]"
 }
