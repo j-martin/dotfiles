@@ -45,6 +45,12 @@ _macos_apps () {
   brew bundle --global
 }
 
+_linux_apps () {
+  add-apt-repository ppa:git-core/ppa
+  apt-get update
+  apt-get install zsh git
+}
+
 _general () {
   npm install -g vmd
   pip install -r requirements.txt
@@ -55,6 +61,8 @@ _general () {
 if [[ "$(uname)" == 'Darwin' ]]
   _macos_apps
   _macos_customizations
+elif [[ "$(uname)" == 'Linux' ]]
+  _linux_apps
 fi
 
 _general

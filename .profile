@@ -10,11 +10,11 @@ source "$HOME/.functions/all"
 source "$HOME/.aliases"
 
 export GOPATH="$HOME/.go"
-export PATH="$HOME/Work/venv/bin:$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="$HOME/.venv/bin:$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
+test -e /usr/libexec/java_home && export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
+test -e /usr/local/bin/nvim && export EDITOR='/usr/local/bin/nvim'
 export NODE_PATH="$NODE_PATH:/usr/local/lib/node_modules"
-export EDITOR='/usr/local/bin/nvim'
 export PAGER='less -SRi'
 export HOSTNAME="$HOST"
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -l -g ""'
