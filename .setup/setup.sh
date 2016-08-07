@@ -47,8 +47,9 @@ _macos_apps () {
 
 _linux_apps () {
   add-apt-repository ppa:git-core/ppa
+  apt-add-repository ppa:ubuntu-elisp/ppa
   apt-get update
-  apt-get install zsh git
+  apt-get install zsh git silversearcher-ag
 }
 
 _general () {
@@ -58,10 +59,10 @@ _general () {
   git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 }
 
-if [[ "$(uname)" == 'Darwin' ]]
+if [[ "$(uname)" == 'Darwin' ]]; then
   _macos_apps
   _macos_customizations
-elif [[ "$(uname)" == 'Linux' ]]
+elif [[ "$(uname)" == 'Linux' ]]; then
   _linux_apps
 fi
 
