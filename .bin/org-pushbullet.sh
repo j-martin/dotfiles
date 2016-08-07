@@ -21,7 +21,7 @@ _pb_org_last () {
   grep ':MODIFIED:' "$file" | tail -n1 | cut -d ' ' -f2
 }
 
-file="$HOME/.org/reading.org"
+file="$HOME/.org/reference.org"
 
 _pb_org $(_pb_org_last "$file") >> "$file"
 _info "Saved to: $file"

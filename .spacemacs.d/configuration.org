@@ -196,27 +196,27 @@ fci-rule-column 120)
         '(
           ("t" "Todo"
            entry
-           (file+headline "~/.org/todo.org" "Tasks")
+           (file+headline "~/.org/inbox.org" "Tasks")
            "* TODO %?\n%i\n%a")
 
           ("T" "Todo with clipboard"
             entry
-            (file+headline "~/.org/todo.org" "Tasks")
+            (file+headline "~/.org/inbox.org" "Tasks")
             "* TODO %?\n%i\n%c\n%a")
 
           ("w" "Todo for work"
             entry
-            (file+headline "~/.org/todo.org" "Tasks")
-            "* TODO %? :work:\n%i\n%a")
+            (file+headline "~/.org/inbox.org" "Work")
+            "* TODO %?\n%i\n%a")
 
           ("W" "Todo with clipboard for work"
             entry
-            (file+headline "~/.org/todo.org" "Tasks")
-            "* TODO %? :work:\n%i\n%c\n%a")
+            (file+headline "~/.org/inbox.org" "Work")
+            "* TODO %?\n%i\n%c\n%a")
 
-          ("b" "Reading"
+          ("b" "Reference"
             entry
-            (file+headline "~/.org/reading.org" "Books")
+            (file+headline "~/.org/reference.org" "Books")
             "* %?\n%i\n%c\n%a")
 
           ("j" "Journal"
@@ -250,8 +250,8 @@ fci-rule-column 120)
   (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
   (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
   (spacemacs/set-leader-keys "om" 'jm/open-main)
-  (spacemacs/set-leader-keys "or" 'jm/open-reading)
-  (spacemacs/set-leader-keys "ot" 'jm/open-todo)
+  (spacemacs/set-leader-keys "or" 'jm/open-reference)
+  (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
   (spacemacs/set-leader-keys "oc" 'jm/open-config)
   (spacemacs/set-leader-keys "os" 'jm/open-standup)
   (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
@@ -275,13 +275,13 @@ fci-rule-column 120)
       (interactive)
       (find-file (expand-file-name "~/.org/main.org")))
 
-    (defun jm/open-todo ()
+    (defun jm/open-inbox ()
       (interactive)
-      (find-file (expand-file-name "~/.org/todo.org")))
+      (find-file (expand-file-name "~/.org/inbox.org")))
 
-    (defun jm/open-reading ()
+    (defun jm/open-reference ()
       (interactive)
-      (find-file (expand-file-name "~/.org/reading.org")))
+      (find-file (expand-file-name "~/.org/reference.org")))
 
     (defun jm/open-standup ()
       (interactive)

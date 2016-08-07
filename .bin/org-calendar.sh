@@ -8,22 +8,22 @@ source "$HOME/.private/calendars"
 _header () {
   local tag="$1"
   echo "#+TITLE: Calendar"
-  echo "#+AUTHOR: Jean-Martin Archer"
-  echo "#+EMAIL: jm@jmartin.ca"
   echo "#+SETUPFILE: common.org"
   echo "#+FILETAGS: :$tag:"
 }
 
 _get_calendar () {
-  local url="$1"
-  local tag="$2"
-  local ical_file="$(mktemp)"
+  local tag="$1"
+  local urls="${@:2}"
   local output="$HOME/.org/calendar-$tag.org"
   _header "$tag" > "$output"
-  wget -O "$ical_file" "$url"
-  awk -f "$HOME/.bin/ical2org.awk" "$ical_file" >> "$output"
-  rm -f "$ical_file"
+  for url in $urls; do
+    local ical_file="$(mktemp)"
+    wget -O "$ical_file" "$url"
+    awk -f "$HOME/.bin/ical2org.awk" "$ical_file" >> "$output"
+    rm -f "$ical_file"
+  done
 }
 
-_get_calendar "$personal_url" "personal"
-_get_calendar "$work_url" "work"
+_get_calendar "personal" "$personal_url"
+_get_calendar "work" "$work_url" "$work_url2"
