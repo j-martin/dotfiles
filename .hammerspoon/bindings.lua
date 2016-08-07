@@ -66,8 +66,8 @@ end
 ------------------------
 
 local commonLayout = {
-  { "Inbox",  nil, windows.alternateScreen(), { 0.0, 0.0, 1.0, 0.7 }, nil, nil },
-  { "Slack",  nil, windows.alternateScreen(), { 0.0, 0.3, 1.0, 0.7 }, nil, nil },
+  { name = "Inbox", screenFn = windows.alternateScreen, pos = { 0.0, 0.0, 1.0, 0.7 } },
+  { name = "Slack", screenFn = windows.alternateScreen, pos = { 0.0, 0.3, 1.0, 0.7 } },
 }
 
 local modeLayouts = {
@@ -81,6 +81,7 @@ local modeLayouts = {
   { key = 'h', pos = { 0.0, 0.0, 0.7, 1.0 } },
   { key = 'e', pos = { 0.0, 0.0, 1.0, 0.5 } },
   { key = 'd', pos = { 0.0, 0.5, 1.0, 0.5 } },
+  { key = 'f', pos = { 0.2, 0.2, 0.6, 0.6 } },
   { key = ';', pos = { 0.3, 0.0, 0.7, 1.0 } },
   { key = 'j', pos = { 0.0, 0.0, 0.3, 1.0 } },
   { key = 'k', pos = { 0.3, 0.0, 0.4, 1.0 } },
@@ -101,23 +102,23 @@ local modeLayouts = {
   { key = 'm', fn = windows.cycleScreenBack },
   { key = 'n', fn = windows.cycleScreen },
   { key = 'z', layout = {
-      {'Emacs', layout.left50},
-      {'iTerm2', layout.right50},
-      {'Google Chrome', layout.right50},
-      {'IntelliJ IDEA', layout.right50},
-      {'Sublime Text', layout.right50},
+      { 'Emacs', layout.left50 },
+      { 'iTerm2', layout.right50 },
+      { 'Google Chrome', layout.right50 },
+      { 'IntelliJ IDEA', layout.right50 },
+      { 'Sublime Text', layout.right50 },
     }},
   { key = 'x', layout = {
-      {'Emacs', layout.left70},
-      {'IntelliJ IDEA', layout.right70},
-      {'Google Chrome', layout.right30},
-      {'iTerm2', layout.right30},
+      { 'Emacs', layout.left70 },
+      { 'IntelliJ IDEA', layout.right70 },
+      { 'Google Chrome', layout.right30 },
+      { 'iTerm2', layout.right30 },
     }},
   { key = 'c', layout = {
-      {'Emacs', layout.left30},
-      {'Google Chrome', layout.right70},
-      {'IntelliJ IDEA', layout.right70},
-      {'iTerm2', layout.right70},
+      { 'Emacs', layout.left30 },
+      { 'Google Chrome', layout.right70 },
+      { 'IntelliJ IDEA', layout.right70 },
+      { 'iTerm2', layout.right70 },
     }},
 }
 
@@ -146,7 +147,10 @@ local generalBindings = {
   { key = 'y', fn = audio.changeVolume(-100) },
   { key = 'u', fn = audio.changeVolume(5) },
   { key = 'i', fn = audio.changeVolume(-5) },
-  { key = '9', fn = audio.open},
+  { key = 'o', fn = audio.setVolume(15) },
+  { key = 'p', fn = audio.setVolume(30) },
+  { key = ';', fn = audio.setVolume(50) },
+  { key = '9', fn = audio.open },
   { key = 'l', fn = audio.playpause },
   { key = 'space', fn = audio.playpause },
 }

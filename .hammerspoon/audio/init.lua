@@ -21,6 +21,15 @@ function mod.changeVolume(inc)
   end
 end
 
+function mod.setVolume(value)
+  return function ()
+    local device = audio.defaultOutputDevice()
+    device:setMuted(false)
+    device:setVolume(value)
+    alert.show('Volume: ' .. tostring(value) .. ' %' )
+  end
+end
+
 function mod.open()
   application.launchOrFocus('Spotify')
 end

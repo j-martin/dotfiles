@@ -24,13 +24,17 @@ local center40 = geometry.unitrect(0.3, 0, 0.4, 1)
 
 function mod.applyLayout(commonLayout, selectedLayout)
   local function expandLayout(entry)
-    local primaryScreen = screen.primaryScreen():name()
-    return {entry[1], nil, primaryScreen, entry[2], nil, nil}
+    local scr
+    if entry.screenFn then
+      scr = entry.screenFn()
+    else
+      scr = screen.primaryScreen():name()
+    end
+    return { entry.name, nil, scr, entry.pos, nil, nil }
   end
 
   return function()
-    local expandedLayout = fnutils.map(selectedLayout, expandLayout)
-    local completeLayout = fnutils.concat(commonLayout, expandedLayout)
+    local completeLayout = fnutils.map(fnutils.concat(selectedLayout, commonLayout), expandLayout)
     layout.apply(completeLayout)
   end
 end
