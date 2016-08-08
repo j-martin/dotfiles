@@ -48,8 +48,9 @@ _macos_apps () {
 _linux_apps () {
   add-apt-repository ppa:git-core/ppa
   apt-add-repository ppa:ubuntu-elisp/ppa
+  add-apt-repository ppa:neovim-ppa/unstable
   apt-get update
-  apt-get install zsh git silversearcher-ag
+  apt-get install zsh git silversearcher-ag neovim
 }
 
 _general () {
