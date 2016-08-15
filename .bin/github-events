@@ -6,20 +6,24 @@ set -o pipefail
 source "$HOME/.functions/base"
 source "$HOME/.functions/git"
 
-_format () {
-    jq -rc '.[] | [
-        .created_at,
-        .payload.pull_request.html_url // .payload.issue.html_url // "https://github.com/\(.repo.name)",
-        "\(.type) \(.payload.action // "") by \(.actor.login)",
-        .payload.issue.user.login,
-        .payload.issue.assignee.login,
-        .payload.pull_request.user.login,
-        "\(.payload.issue.title // "") \(.payload.comment.body // .payload.pull_request.body // .payload.issue.body // "")"
-      ] | join(" ") | sub("\n|\r|  |\t"; " "; "g")'
-
+_filter () {
+  jq -rc '.[]' \
+    | grep "PullRequestEvent\|$(_github_user)"
 }
 
-_github_events \
-    | _format \
-    | grep "$(_github_user)" \
-    | cut -c "-${COLUMNS:-200}"
+_format () {
+  jq -rc '. | [
+    .created_at,
+    .payload.pull_request.html_url // .payload.issue.html_url // "https://github.com/\(.repo.name)",
+    "|\(.type | sub("Event"; "")) \(.payload.action // "") by \(.actor.login) - ",
+    (.payload |
+      ((.issue // .pull_request) | .user.login, (.assignees[]? | .login)),
+      "|\(.issue // .pull_request | .title // .ref // "") \(.comment // .pull_request // .issue | .body // "")"
+    )] | join(" ") | sub("\n|\r|  |\t"; " "; "g")'
+}
+
+_cached _github_events \
+  | _filter \
+  | _format \
+  | column -s '|' -t \
+  | cut -c "-${COLUMNS:-200}"

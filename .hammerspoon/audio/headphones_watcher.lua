@@ -5,7 +5,7 @@ local mod = {}
 
 local audio = require("hs.audiodevice")
 local alert = require "hs.alert"
-local logger = hs.logger.new('headphones', 'info')
+local logger = hs.logger.new('headphones', 'debug')
 local devices = {}
 
 local previousAlert = nil

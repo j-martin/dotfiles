@@ -52,7 +52,7 @@
 (set-keyboard-coding-system nil)
 (setq neo-theme 'arrow)
 (global-prettify-symbols-mode 1)
-(golden-ratio-mode 1)
+(golden-ratio-mode 0)
 (menu-bar-mode 1)
 (setq-default avy-all-windows 'all-frames)
 #+end_src
@@ -79,16 +79,16 @@ fci-rule-column 120)
 * Modes
 ** Enabling
 #+begin_src emacs-lisp :results none
-  (delete-selection-mode 1)
-  (editorconfig-mode 1)
-  (global-auto-revert-mode t)
-  (global-company-mode 1)
-  (ws-butler-global-mode 1)
-  (setq-default abbrev-mode t)
-  (setq save-abbrevs 'silently)
-  (super-save-mode +1)
-  ;; (global-evil-mc-mode 1)
-  ;; (require 'live-py-mode)
+    (delete-selection-mode 1)
+    (editorconfig-mode 1)
+    (global-auto-revert-mode t)
+    (global-company-mode 1)
+    (ws-butler-global-mode 1)
+    (setq-default abbrev-mode t)
+    (setq save-abbrevs 'silently)
+    (super-save-mode +1)
+    (require 'org-alert)
+    ;; (require 'live-py-mode)
 #+end_src
 ** RAML
 #+begin_src emacs-lisp :results none
@@ -128,18 +128,23 @@ fci-rule-column 120)
 
 ** Makefile
 #+begin_src emacs-lisp :results none
-(defun makefile-mode-config ()
+(defun jm/makefile-mode-config ()
   (setq indent-tabs-mode t)
   (setq-default indent-tabs-mode t)
   (global-set-key (kbd "TAB") 'self-insert-command)
   (setq tab-width 8)
   (setq c-basic-indent 8))
 
-(add-hook 'makefile-mode-hook 'makefile-mode-config)
+(add-hook 'makefile-mode-hook 'jm/makefile-mode-config)
 #+end_src
 ** shell-script
 #+begin_src emacs-lisp :results none
-  (add-hook 'sh-mode-hook 'ycmd-mode)
+  (defun jm/sh-mode-config ()
+    (interactive)
+    (setq sh-indentation 2)
+    (setq sh-basic-offset 2))
+
+  (add-hook 'sh-mode-hook 'jm/sh-mode-config)
   (push 'company-dabbrev-code company-backends-sh-mode)
 #+end_src
 
@@ -213,6 +218,16 @@ fci-rule-column 120)
             entry
             (file+headline "~/.org/inbox.org" "Work")
             "* TODO %?\n%i\n%c\n%a")
+
+          ("s" "Add note to standup"
+            plain
+            (file "~/.org/standup.org")
+            "** TODO %?\n%i\n%a")
+
+          ("S" "Add note to standup DONE"
+            plain
+            (file "~/.org/standup.org")
+            "** DONE %?\n%i\n%a")
 
           ("b" "Reference"
             entry

@@ -18,7 +18,6 @@ function mod.create(modifiers, key, name, bindings)
 
   function mode:exited()
     alert.closeAll()
-    alert.show('Exited ' .. name .. ' mode')
   end
 
   local function callAndExit(fn)
