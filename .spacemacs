@@ -89,6 +89,7 @@ values."
    '(
      editorconfig
      ox-reveal
+     org-mac-link
      super-save
      )
    ;; A list of packages and/or extensions that will not be install and loaded.

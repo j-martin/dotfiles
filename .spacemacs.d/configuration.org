@@ -1,4 +1,4 @@
-#+TITLE: Emacs Configuration
+#+TITLE: Spacemacs Configuration
 #+AUTHOR: Jean-Martin Archer
 #+EMAIL: jm@jmartin.ca
 #+STARTUP: content
@@ -12,7 +12,6 @@
 #+begin_src emacs-lisp :results none
 (setq exec-path (append exec-path '("/usr/local/bin")))
 #+end_src
-
 ** Convenience
 #+begin_src emacs-lisp :results none
   (setq confirm-kill-emacs 'y-or-n-p)
@@ -31,7 +30,6 @@
 (setq custom-file "~/.spacemacs.d/custom-configuration.el")
 (load custom-file t)
 #+end_src
-
 ** GitHub related                                                       :git:
 #+begin_src emacs-lisp :results none
 (setq paradox-github-token (shell-command "keyring get system github_paradox"))
@@ -63,7 +61,6 @@
   (add-to-list 'default-frame-alist '(width . 134))
 )
 #+end_src
-
 ** Whitespace
 #+begin_src emacs-lisp :results none
 (setq whitespace-style '(tabs tab-mark))
@@ -74,7 +71,6 @@
 tab-width 2
 indent-tabs-mode nil
 fci-rule-column 120)
-#+end_src
 #+end_src
 * Modes
 ** Enabling
@@ -87,8 +83,6 @@ fci-rule-column 120)
     (setq-default abbrev-mode t)
     (setq save-abbrevs 'silently)
     (super-save-mode +1)
-    (require 'org-alert)
-    ;; (require 'live-py-mode)
 #+end_src
 ** RAML
 #+begin_src emacs-lisp :results none
@@ -116,7 +110,7 @@ fci-rule-column 120)
        ("lambda" . 955) ; λ
        ("->" . 8594)    ; →
        ("=>" . 8658)    ; ⇒
-       ("function" . ?ƒ)
+       ("function" . ?ƒ); ƒ
        )))
 (add-hook 'lisp-mode-hook 'jm/pretty-symbols)
 (add-hook 'org-mode-hook 'jm/pretty-symbols)
@@ -181,12 +175,18 @@ fci-rule-column 120)
 #+end_src
 ** org
 
-*** Enabling org-babel
+*** org-babel
 #+begin_src emacs-lisp :results none
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
 #+end_src
+*** org-mac-link
+#+begin_src emacs-lisp :results none
+(add-hook 'org-mode-hook (lambda ()
+  (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
+#+end_src
+
 *** Basic setup
   #+begin_src emacs-lisp :results none
     (setq org-directory "~/.org/")
