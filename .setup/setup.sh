@@ -54,7 +54,7 @@ _linux_apps () {
 }
 
 _general () {
-  npm install -g vmd
+  npm install -g vmd eslint
   pip install -r requirements.txt
   curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
   git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d

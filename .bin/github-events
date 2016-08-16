@@ -15,10 +15,10 @@ _format () {
   jq -rc '. | [
     .created_at,
     .payload.pull_request.html_url // .payload.issue.html_url // "https://github.com/\(.repo.name)",
-    "|\(.type | sub("Event"; "")) \(.payload.action // "") by \(.actor.login) - ",
+    "|\(.type | sub("Event"; "")) \(.payload.action // "") by \(.actor.login) => ",
     (.payload |
       ((.issue // .pull_request) | .user.login, (.assignees[]? | .login)),
-      "|\(.issue // .pull_request | .title // .ref // "") \(.comment // .pull_request // .issue | .body // "")"
+      "|\(.issue // .pull_request | .title // .ref // "N/A") => \(.comment // .pull_request // .issue | .body // "N/A")"
     )] | join(" ") | sub("\n|\r|  |\t"; " "; "g")'
 }
 

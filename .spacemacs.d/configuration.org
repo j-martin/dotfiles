@@ -190,6 +190,7 @@ fci-rule-column 120)
 *** Basic setup
   #+begin_src emacs-lisp :results none
     (setq org-directory "~/.org/")
+    (setq org-default-notes-file "~/.org/inbox.orjg")
     (setq org-hide-emphasis-markers t)
     (setq org-agenda-files (list org-directory))
     (setq org-startup-folded t)
@@ -219,6 +220,16 @@ fci-rule-column 120)
             (file+headline "~/.org/inbox.org" "Work")
             "* TODO %?\n%i\n%c\n%a")
 
+          ("q" "Question for work"
+            entry
+            (file+olp "~/.org/inbox.org" "Work" "Questions")
+            "* TODO %?\nEntered on %U\n%i\n%a")
+
+          ("k" "Kudos for work"
+            entry
+            (file+olp "~/.org/inbox.org" "Work" "Kudos")
+            "*** TODO %?\n%i\n%a")
+
           ("s" "Add note to standup"
             plain
             (file "~/.org/standup.org")
@@ -229,10 +240,15 @@ fci-rule-column 120)
             (file "~/.org/standup.org")
             "** DONE %?\n%i\n%a")
 
-          ("b" "Reference"
+          ("r" "Reference / Research"
+            entry
+            (file+headline "~/.org/reference.org" "Research")
+            "** %?\nEntered on %U\n%i\n%c\n%a")
+
+          ("b" "Reference / Books"
             entry
             (file+headline "~/.org/reference.org" "Books")
-            "* %?\n%i\n%c\n%a")
+            "** %?\n%i\n%c\n%a")
 
           ("j" "Journal"
             entry
@@ -256,6 +272,7 @@ fci-rule-column 120)
   (define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
   (global-set-key (kbd "s-<left>") 'beginning-of-line)
   (global-set-key (kbd "s-<right>") 'end-of-line)
+  (global-set-key (kbd "s-t") 'make-frame)
   (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
   (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 

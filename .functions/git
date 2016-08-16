@@ -162,5 +162,5 @@ _github_new_branch () {
 }
 
 _github_events () {
-  _github "users/$(_github_user)/received_events?page=[1-15]"
+  _github "users/$(_github_user)/events/orgs/$(_github_org)?page=[1-9]"
 }

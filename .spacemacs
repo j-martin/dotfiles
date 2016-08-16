@@ -57,7 +57,6 @@ values."
      git
      github
      go
-     gtags
      haskell
      helm
      html
@@ -90,8 +89,6 @@ values."
    '(
      editorconfig
      ox-reveal
-     alert
-     org-alert
      super-save
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
