@@ -6,9 +6,12 @@ set -o pipefail
 source "$HOME/.functions/base"
 source "$HOME/.functions/git"
 
+_unpack () {
+  jq -rc '.[]'
+}
+
 _filter () {
-  jq -rc '.[]' \
-    | grep "PullRequestEvent\|$(_github_user)"
+    grep "PullRequestEvent\|$(_github_user)"
 }
 
 _format () {
@@ -23,6 +26,7 @@ _format () {
 }
 
 _cached _github_events \
+  | _unpack \
   | _filter \
   | _format \
   | column -s '|' -t \

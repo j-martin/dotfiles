@@ -10,6 +10,7 @@ local audio = require 'audio'
 local mode = require 'mode'
 local emacs = require 'emacs'
 local reminder = require 'reminder'
+local logger = hs.logger.new('bindings', 'debug')
 
 local hyper = { 'cmd', 'alt', 'ctrl', 'shift' }
 
@@ -54,6 +55,7 @@ local hyperBindings = {
 
 local function bindToHyper(binding)
   if binding.tab and binding.name then
+    logger.d(binding.name)
     tabs.enableForApp(binding.name)
   end
 
@@ -81,6 +83,7 @@ local modeLayouts = {
   { key = 'w', pos = { 0.5, 0.5, 0.5, 0.5 } },
   { key = 'e', pos = { 0.0, 0.5, 1.0, 0.5 } },
   { key = 'h', pos = { 0.0, 0.0, 0.7, 1.0 } },
+  { key = 'd', pos = { 0.1, 0.1, 0.8, 0.8 } },
   { key = 'f', pos = { 0.2, 0.2, 0.6, 0.6 } },
   { key = ';', pos = { 0.3, 0.0, 0.7, 1.0 } },
   { key = 'j', pos = { 0.0, 0.0, 0.3, 1.0 } },

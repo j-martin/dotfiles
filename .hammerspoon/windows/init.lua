@@ -101,7 +101,7 @@ end
 
 local function maximizeOrCycleScreen()
   local win = window.focusedWindow()
-  if win:frame().w ~= win:screen():frame().w then
+  if win:frame().w + 10 <= win:screen():frame().w then
     win:maximize()
     return win, nil
   else

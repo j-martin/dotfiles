@@ -16,7 +16,7 @@
 #+begin_src emacs-lisp :results none
   (setq confirm-kill-emacs 'y-or-n-p)
   (setq mac-emulate-three-button-mouse t)
-  (setq x-select-enable-clipboard nil)
+  ;; (setq x-select-enable-clipboard nil)
   (setq make-backup-files nil)
   (spacemacs/toggle-indent-guide-globally-on)
   ;; (spacemacs/toggle-camel-case-motion-globally-on)
@@ -139,7 +139,8 @@ fci-rule-column 120)
     (setq sh-basic-offset 2))
 
   (add-hook 'sh-mode-hook 'jm/sh-mode-config)
-  (push 'company-dabbrev-code company-backends-sh-mode)
+  (unless (eq system-type 'windows-nt)
+    (push 'company-dabbrev-code company-backends-sh-mode))
 #+end_src
 
 ** EVIL
@@ -190,7 +191,7 @@ fci-rule-column 120)
 *** Basic setup
   #+begin_src emacs-lisp :results none
     (setq org-directory "~/.org/")
-    (setq org-default-notes-file "~/.org/inbox.orjg")
+    (setq org-default-notes-file "~/.org/inbox.org")
     (setq org-hide-emphasis-markers t)
     (setq org-agenda-files (list org-directory))
     (setq org-startup-folded t)
@@ -223,7 +224,7 @@ fci-rule-column 120)
           ("q" "Question for work"
             entry
             (file+olp "~/.org/inbox.org" "Work" "Questions")
-            "* TODO %?\nEntered on %U\n%i\n%a")
+            "* TODO %? :work:\nEntered on %U\n%i\n%a")
 
           ("k" "Kudos for work"
             entry
@@ -243,12 +244,17 @@ fci-rule-column 120)
           ("r" "Reference / Research"
             entry
             (file+headline "~/.org/reference.org" "Research")
-            "** %?\nEntered on %U\n%i\n%c\n%a")
+            "** %?%c\nEntered on %U\n%i\n\n%a")
+
+          ("R" "Reference / Research TODO"
+            entry
+            (file+headline "~/.org/reference.org" "Research")
+            "** TODO %?\nEntered on %U\n%i\n\n%a")
 
           ("b" "Reference / Books"
             entry
             (file+headline "~/.org/reference.org" "Books")
-            "** %?\n%i\n%c\n%a")
+            "** %?%c\n%i\n\n%a")
 
           ("j" "Journal"
             entry
@@ -288,6 +294,7 @@ fci-rule-column 120)
   (spacemacs/set-leader-keys "os" 'jm/open-standup)
   (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
   (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
+  (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
   (spacemacs/set-leader-keys "ol" 'org-content)
   (spacemacs/set-leader-keys "ag" 'engine/search-google)
 #+end_src
@@ -330,6 +337,10 @@ fci-rule-column 120)
     (defun jm/helm-work-dir ()
       (interactive)
       (helm-find-files-1 (expand-file-name "~/Work/")))
+
+    (defun jm/helm-forks-dir ()
+      (interactive)
+      (helm-find-files-1 (expand-file-name "~/Work/forks/")))
 
     (defun jm/org-github-todo ()
       (interactive)

@@ -41,7 +41,7 @@ values."
        auto-completion-tab-key-behavior 'cycle
        auto-completion-return-key-behavior 'complete
        auto-completion-complete-with-key-sequence "jk"
-       auto-completion-complete-with-key-sequence-delay 0.1
+       auto-completion-complete-with-key-sequence-delay 0.3
        auto-completion-enable-sort-by-usage t
        auto-completion-enable-help-tooltip t
        auto-completion-enable-snippets-in-popup t
@@ -87,9 +87,13 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
    '(
+     auto-capitalize
      editorconfig
+     flycheck-protobuf
      ox-reveal
      org-mac-link
+     protobuf-mode
+     string-inflection
      super-save
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
@@ -309,11 +313,10 @@ executes.
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
   (custom-set-variables
+   '(spacemacs-centered-buffer-mode-fringe-color "#292b2e")
    '(spacemacs-theme-custom-colors
-     '(
-       (base . "#dddddd")
-       (const . "#e465cf")
-       ))))
+     '((base . "#dddddd")
+       (const . "#e465cf")))))
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
