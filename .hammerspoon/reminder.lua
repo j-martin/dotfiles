@@ -48,8 +48,8 @@ local function noticeActions(action)
     end
 
     fnutils.each(action, setupTimer)
-    timer.doAfter(counter, notice('Done!'))
-    timer.doAfter(counter + 1, notice('Done!'))
+    timer.doAfter(counter, notice('Done'))
+    timer.doAfter(counter + 1, notice('Done'))
   end
 end
 

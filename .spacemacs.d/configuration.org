@@ -32,14 +32,11 @@
 #+end_src
 ** GitHub related                                                       :git:
 #+begin_src emacs-lisp :results none
-(setq paradox-github-token (shell-command "keyring get system github_paradox"))
-#+end_src
-
-#+begin_src emacs-lisp :results none
-(setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
-(if (eq system-type 'darwin)
-  (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\"")))
-)
+  (setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
+  (if (eq system-type 'darwin)
+    (setq paradox-github-token (shell-command "keyring get system github_paradox"))
+    (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\"")))
+  )
 #+end_src
 * UI/Visual
 #+begin_src emacs-lisp :results none
@@ -224,7 +221,7 @@ fci-rule-column 120)
           ("q" "Question for work"
             entry
             (file+olp "~/.org/inbox.org" "Work" "Questions")
-            "* TODO %? :work:\nEntered on %U\n%i\n%a")
+            "*** TODO %? :work:\nEntered on %U\n%i\n%a")
 
           ("k" "Kudos for work"
             entry
@@ -241,19 +238,19 @@ fci-rule-column 120)
             (file "~/.org/standup.org")
             "** DONE %?\n%i\n%a")
 
-          ("r" "Reference / Research"
+          ("r" "References / Research"
             entry
-            (file+headline "~/.org/reference.org" "Research")
+            (file+headline "~/.org/references.org" "Research")
             "** %?%c\nEntered on %U\n%i\n\n%a")
 
-          ("R" "Reference / Research TODO"
+          ("R" "References / Research TODO"
             entry
-            (file+headline "~/.org/reference.org" "Research")
+            (file+headline "~/.org/references.org" "Research")
             "** TODO %?\nEntered on %U\n%i\n\n%a")
 
-          ("b" "Reference / Books"
+          ("b" "References / Books"
             entry
-            (file+headline "~/.org/reference.org" "Books")
+            (file+headline "~/.org/references.org" "Books")
             "** %?%c\n%i\n\n%a")
 
           ("j" "Journal"
@@ -288,7 +285,7 @@ fci-rule-column 120)
   (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
   (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
   (spacemacs/set-leader-keys "om" 'jm/open-main)
-  (spacemacs/set-leader-keys "or" 'jm/open-reference)
+  (spacemacs/set-leader-keys "or" 'jm/open-references)
   (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
   (spacemacs/set-leader-keys "oc" 'jm/open-config)
   (spacemacs/set-leader-keys "os" 'jm/open-standup)
@@ -318,9 +315,9 @@ fci-rule-column 120)
       (interactive)
       (find-file (expand-file-name "~/.org/inbox.org")))
 
-    (defun jm/open-reference ()
+    (defun jm/open-references ()
       (interactive)
-      (find-file (expand-file-name "~/.org/reference.org")))
+      (find-file (expand-file-name "~/.org/references.org")))
 
     (defun jm/open-standup ()
       (interactive)

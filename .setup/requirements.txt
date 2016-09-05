@@ -13,6 +13,7 @@ magic-wormhole==0.8.0
 pgcli==0.20.1
 proselint==0.5.3
 python-dateutil==2.5.3
+readability-lxml==0.6.2
 service_factory==0.1.2
 virtualenv==13.1.2
 watchdog==0.8.3

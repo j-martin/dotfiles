@@ -1,1 +1,4 @@
-*/5 * * * * /Users/benchemployee/.bin/org-calendar.sh &> /dev/null
+PATH=/usr/local/bin:/usr/bin:/bin
+
+*/5 * * * * "$HOME/.bin/org-calendar.sh" >/dev/null 2>&1
+0 */4 * * * "$HOME/.bin/org-pushbullet.sh" >/dev/null 2>&1
