@@ -47,8 +47,6 @@ au FileType scala setl ts=2 sts=2 sw=2
 au FileType gitcommit setl spell "spell git commit messages
 au FileType md setl spell "spell git commit messages
 
-"VIMRC
-"=====
 au bufwritepost .vimrc source $MYVIMRC
 nmap <leader>v :tabedit $MYVIMRC<CR>
 
@@ -74,22 +72,27 @@ set list
 
 "Styling
 "=======
-set t_Co=256
-"colorscheme molokai
-let g:molokai_original = 1
-let g:rehash256 = 1
+if has("unix")
+  let s:uname = system("uname -s")
+  if s:uname == "Darwin"
+    set t_Co=256
+    colorscheme molokai
+    let g:molokai_original = 1
+    let g:rehash256 = 1
+  endif
+endif
 
 "Sets the proper font for GVIM.
 "==============================
 if has("gui_running")
-    set lines=45
-    set columns=84
-        set guioptions-=T "Strips the tabbar
-    if has("win32")
-        set guifont=Sauce_Code_Powerline:h11:cANSI
-    else
-        set guifont=Source\ Code\ Pro\ for\ Powerline
-    endif
+  set lines=45
+  set columns=84
+    set guioptions-=T "Strips the tabbar
+  if has("win32")
+      set guifont=Sauce_Code_Powerline:h11:cANSI
+  else
+    set guifont=Source\ Code\ Pro\ for\ Powerline
+  endif
 endif
 
 set number

@@ -1,1 +1,2 @@
-.vimrc
+source ~/.vimrc
+set surround
