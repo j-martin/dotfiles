@@ -61,6 +61,7 @@ _pb_org_last () {
 _pb_convert_page () {
   local url="$1"
   echo "#+STARTUP: showeverything"
+  echo "#+CREATED_AT: $(date -u +%Y-%m-%dT%H:%M:%S%z)"
   echo "#+URL: [[$url][url]]"
   python -m readability.readability -u "$url" \
     | pandoc --columns 100 -f html -t org \
