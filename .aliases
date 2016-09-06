@@ -126,6 +126,7 @@ vgdestroyall () { vagrant global-status | awk '{ if (length($1) == 7)  print $1 
 alias vimrc='vi $HOME/.vimrc'
 alias zshrc='vi $HOME/.zshrc'
 alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
+cb () { open $(_chrome_parse_bookmarks | _fzf "$1" | cut -d '|' -f1); }
 
 # AWS
 alias ash='aws-shell'
@@ -226,7 +227,7 @@ alias mr-clean='mr run git clean -fd'
 # General
 fn() { find . -iname "*$@*" ;}
 fne() { find . -iname "*.$@" ;}
-alias cb='cd $(dirname "$(pbpaste)")'
+alias cpb='cd $(dirname "$(pbpaste)")'
 alias psa='ps aux | grep -i'
 alias which='where'
 alias da='date && date -u'
