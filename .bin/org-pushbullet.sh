@@ -5,10 +5,16 @@ set -o pipefail
 IFS=$'\n'
 
 source "$HOME/.functions/base"
-source "$HOME/.functions/pushbullet"
+source "$HOME/.private/.profile"
 
-org_dir="$HOME/.org"
-ref_file="$org_dir/references.org"
+ORG_DIR="$HOME/.org"
+REF_FILE="${ORG_DIR}/references.org"
+
+_pb () {
+  local endpoint="$1"
+  curl --fail --silent --header "Access-Token: ${PB_TOKEN}" \
+       "https://api.pushbullet.com/v2/$endpoint"
+}
 
 _pb_fetch () {
   local created="$1"
@@ -18,28 +24,32 @@ _pb_fetch () {
       | reverse[]
       | select(has("url"))
       | select(.direction == "self")'
+  _info "Fetching done."
 }
 
 _pb_format_entry () {
   local entry="$1"
 
-  local title="$(echo "$entry" | jq -r ".title // .url")"
-  local url="$(echo "$entry" | jq -r ".url")"
-  local ref_path="references/$(_pb_create_filename "$title").org"
+  local title="$(echo "${entry}" | jq -r ".title // .url")"
+  local url="$(echo "${entry}" | jq -r ".url")"
+  local ref_path="references/$(_pb_create_filename "${title}").org"
 
-  printf "\n** [[file:${ref_path}][${title}]]\n"
+  _info "Processing: '${title}'"
+  printf "\n** [[file:${ref_path}][${title}]]\n" >> "$REF_FILE"
   echo "$entry" \
     | jq -r '[
         ":PROPERTIES:",
         ":ID: " + .iden,
-        ":CREATED: " + (.created | tostring),
-        ":MODIFIED: " + (.modified | tostring),
-        ":URL: [[\(.url)][url]]",
+        ":CREATED: \(.created | tostring)",
+        ":MODIFIED: \(.modified | tostring)",
+        ":URL: \(.url)",
         ":END:",
         .body
-      ] | join("\n")'
+      ] | join("\n")' >> "$REF_FILE"
 
-  _pb_convert_page "$url" > "${org_dir}/${ref_path}"
+  _info "Converting..."
+  _pb_convert_page "$url" > "${ORG_DIR}/${ref_path}"
+  _info "Stored '${ORG_DIR}/${ref_path}'"
 }
 
 _pb_create_filename () {
@@ -48,25 +58,24 @@ _pb_create_filename () {
 
 _pb_org () {
   local created="$(( 1 + $(echo ${1:-1} | cut -d'.' -f1)))"
-  for entry in $(_pb_fetch "$created"); do
-    _pb_format_entry "$entry"
+  for entry in $(_pb_fetch "${created}"); do
+    _pb_format_entry "${entry}"
   done
 }
 
 _pb_org_last () {
-  local ref_file="$1"
-  grep ':MODIFIED:' "$ref_file" | tail -n1 | cut -d ' ' -f2
+  grep ':MODIFIED:' "${REF_FILE}" | tail -n1 | cut -d ' ' -f2
 }
 
 _pb_convert_page () {
   local url="$1"
   echo "#+STARTUP: showeverything"
   echo "#+CREATED_AT: $(date -u +%Y-%m-%dT%H:%M:%S%z)"
-  echo "#+URL: [[$url][url]]"
-  python -m readability.readability -u "$url" \
+  echo "#+URL: ${url}"
+  python -m readability.readability -u "${url}" \
     | pandoc --columns 100 -f html -t org \
     | sed 's/^Title:/#+TITLE: /g; /#+BEGIN\_HTML/,/#+END\_HTML/d'
 }
 
-_pb_org "$(_pb_org_last "$ref_file")" >> "$ref_file"
-_info "Saved to: $ref_file"
+_pb_org "$(_pb_org_last)"
+_info "Saved to '${REF_FILE}'"
