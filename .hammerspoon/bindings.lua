@@ -27,8 +27,10 @@ local hyperBindings = {
   { key = '9', name = 'Spotify' },
   { key = '0', name = 'IntelliJ IDEA 14' },
   { key = '=', name = 'KeePassX' },
-  { key = 'z', name = 'Sequel Pro' },
+  { key = '-', name = 'Sequel Pro' },
   { key = 'a', name = 'aText' },
+  { key = 's', fn = windows.snapAll },
+  { key = 'd', fn = selection.actOn },
   { key = 'f', name = 'Finder' },
   { key = 'y', name = 'Inbox', tab = true },
   { key = 'u', name = 'Emacs' },
@@ -38,30 +40,40 @@ local hyperBindings = {
   { key = ';', name = 'Dash' },
   { key = 'l', name = 'Google Chrome' },
   { key = '\\', name = 'Paw', tab = true },
-  { key = 'z', fn = caffeinate.lockScreen },
-  { key = 's', fn = windows.snapAll },
   { key = 'g', fn = grid.show },
   { key = 'j', fn = windows.cycleLeft },
   { key = 'k', fn = windows.cycleRight },
-  { key = 'n', fn = windows.cycleScreen},
-  { key = 'm', fn = windows.cycleScreenBack },
-  { key = 'x', fn = windows.center40 },
+  { key = 'z', fn = caffeinate.lockScreen },
+  { key = 'x', fn = windows.previousScreen },
+  { key = 'c', pos = { 0.3, 0.1, 0.4, 0.6 } },
+  { key = 'n', pos = { 0.3, 0.0, 0.4, 1.0 } },
+  { key = 'm', pos = { 0.0, 0.0, 1.0, 1.0 } },
+  { key = 'v', fn = selection.paste },
   { key = 't', fn = emacs.capture },
   { key = 'q', fn = hs.toggleConsole },
   { key = 'r', fn = hs.reload },
-  { key = 'd', fn = selection.actOn },
-  { key = 'v', fn = selection.paste },
 }
 
-local function bindToHyper(binding)
-  if binding.tab and binding.name then
-    logger.d(binding.name)
-    tabs.enableForApp(binding.name)
-  end
+-------------------------
+-- create general mode --
+-------------------------
 
-  local fn = binding.fn or windows.launchOrCycleFocus(binding.name)
-  hotkey.bind(hyper, binding.key, fn)
-end
+local generalBindings = {
+  { key = 's', fn = reminder.stretches },
+  { key = 'r', fn = reminder.reset },
+  { key = 'j', fn = audio.next },
+  { key = 'k', fn = audio.previous },
+  { key = 'h', fn = audio.current },
+  { key = 'y', fn = audio.changeVolume(-100) },
+  { key = 'u', fn = audio.changeVolume(5) },
+  { key = 'i', fn = audio.changeVolume(-5) },
+  { key = 'o', fn = audio.setVolume(15) },
+  { key = 'p', fn = audio.setVolume(30) },
+  { key = ';', fn = audio.setVolume(50) },
+  { key = '9', fn = audio.open },
+  { key = 'l', fn = audio.playpause },
+  { key = 'space', fn = audio.playpause },
+}
 
 ------------------------
 -- create layout mode --
@@ -125,41 +137,33 @@ local modeLayouts = {
     }},
 }
 
-local function layoutToFn(binding)
-  local fn = nil
+local function buildBindFunction(binding)
   if binding.pos then
-    fn = windows.moveTo(binding.pos)
+    return windows.moveToPrimaryScreen(binding.pos)
   elseif binding.layout then
-    fn = windows.applyLayout(commonLayout, binding.layout)
+    return windows.applyLayout(commonLayout, binding.layout)
+  elseif binding.name then
+    return windows.launchOrCycleFocus(binding.name)
+  elseif binding.fn then
+    return binding.fn
   end
-  return { key = binding.key, fn = fn or binding.fn }
 end
 
-local layoutBindings = fnutils.map(modeLayouts, layoutToFn)
+local function buildLayoutBinding(binding)
+  return { key = binding.key, fn = buildBindFunction(binding) }
+end
 
--------------------------
--- create general mode --
--------------------------
-
-local generalBindings = {
-  { key = 's', fn = reminder.stretches },
-  { key = 'r', fn = reminder.reset },
-  { key = 'j', fn = audio.next },
-  { key = 'k', fn = audio.previous },
-  { key = 'h', fn = audio.current },
-  { key = 'y', fn = audio.changeVolume(-100) },
-  { key = 'u', fn = audio.changeVolume(5) },
-  { key = 'i', fn = audio.changeVolume(-5) },
-  { key = 'o', fn = audio.setVolume(15) },
-  { key = 'p', fn = audio.setVolume(30) },
-  { key = ';', fn = audio.setVolume(50) },
-  { key = '9', fn = audio.open },
-  { key = 'l', fn = audio.playpause },
-  { key = 'space', fn = audio.playpause },
-}
+local function bindToHyper(binding)
+  if binding.tab and binding.name then
+    logger.d(binding.name)
+    tabs.enableForApp(binding.name)
+  end
+  hotkey.bind(hyper, binding.key, buildBindFunction(binding))
+end
 
 function mod.init()
   fnutils.each(hyperBindings, bindToHyper)
+  local layoutBindings = fnutils.map(modeLayouts, buildLayoutBinding)
   mode.create({'option'}, 'space', 'Layout', layoutBindings)
   mode.create(hyper, 'space', 'General', generalBindings)
 end

@@ -90,7 +90,8 @@ end
 
 function mod.init()
   setReminders(reminders)
-  watcher.new(parseEvent):start()
+  -- disabling reset for now
+  -- watcher.new(parseEvent):start()
 end
 
 return mod

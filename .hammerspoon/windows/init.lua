@@ -4,7 +4,7 @@ local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
-local logger = hs.logger.new('windows', 'info')
+local logger = hs.logger.new('windows', 'debug')
 
 local ext = require "windows/extensions"
 
@@ -19,8 +19,6 @@ grid.GRIDHEIGHT = 4
 grid.MARGINX = 0
 grid.MARGINY = 0
 window.animationDuration = 0
-
-local center40 = geometry.unitrect(0.3, 0, 0.4, 1)
 
 function mod.applyLayout(commonLayout, selectedLayout)
   local function expandLayout(entry)
@@ -39,8 +37,46 @@ function mod.applyLayout(commonLayout, selectedLayout)
   end
 end
 
-function mod.center40()
-  window.focusedWindow():move(center40)
+local previousStates = {}
+
+function mod.moveToPrimaryScreen(pos)
+  local function round(value)
+    return math.ceil(value * 10) / 10
+  end
+
+  local function buildKey(win)
+    return table.concat(pos,'\0') .. win:id()
+  end
+
+  local function toUnitRect(win)
+    local unitRect = fnutils.map(win:screen():toUnitRect(win:frame()), round)
+    return { unitRect._x, unitRect._y, unitRect._w, unitRect._h }
+  end
+
+  local function isSamePos(previousPos)
+    return
+      pos[0] == previousPos[0] and
+      pos[1] == previousPos[1] and
+      pos[2] == previousPos[2] and
+      pos[3] == previousPos[3]
+  end
+
+  return function()
+    local win = window:focusedWindow()
+    local winKey = buildKey(win)
+    local winPos = toUnitRect(win)
+    local previousState = previousStates[winKey]
+
+    if previousState and isSamePos(winPos) then
+      win:move(previousState.pos, previousState.screen)
+      previousStates[winKey] = nil
+      logger.d('reverted to previousState')
+    else
+      previousStates[winKey] = { screen = win:screen(), pos = winPos }
+      win:move(pos, screen.primaryScreen())
+      logger.d('saved previousState')
+    end
+  end
 end
 
 function mod.maximize()
@@ -97,6 +133,16 @@ function mod.moveTo(pos)
     window.focusedWindow():move(pos)
     ext.centerOnWindow()
   end
+end
+
+function mod.previousScreen()
+  local win = window.focusedWindow()
+  win:moveToScreen(win:screen():previous())
+end
+
+function mod.nextScreen()
+  local win = window.focusedWindow()
+  win:moveToScreen(win:screen():next())
 end
 
 local function maximizeOrCycleScreen()
