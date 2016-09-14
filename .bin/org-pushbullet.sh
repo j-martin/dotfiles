@@ -33,22 +33,25 @@ _pb_format_entry () {
   local title="$(echo "${entry}" | jq -r ".title // .url")"
   local url="$(echo "${entry}" | jq -r ".url")"
   local ref_path="references/$(_pb_create_filename "${title}").org"
+  local ref_raw_path="raw/$(_pb_create_filename "${title}").org"
 
   _info "Processing: '${title}'"
   printf "\n** [[file:${ref_path}][${title}]]\n" >> "$REF_FILE"
+  echo ":PROPERTIES:" >> "$REF_FILE"
+  # echo ":RAW: [[file:${ref_raw_path}][raw]]" >> "$REF_FILE"
   echo "$entry" \
     | jq -r '[
-        ":PROPERTIES:",
+        ":URL: [[\(.url)][url]]",
         ":ID: " + .iden,
         ":CREATED: \(.created | tostring)",
         ":MODIFIED: \(.modified | tostring)",
-        ":URL: \(.url)",
         ":END:",
         .body
       ] | join("\n")' >> "$REF_FILE"
 
   _info "Converting..."
-  _pb_convert_page "$url" > "${ORG_DIR}/${ref_path}"
+  _pb_store_page "$url" > "${ORG_DIR}/${ref_path}"
+  # _pb_store_page_raw "$url" > "${ORG_DIR}/${ref_raw_path}"
   _info "Stored '${ORG_DIR}/${ref_path}'"
 }
 
@@ -68,13 +71,28 @@ _pb_org_last () {
 }
 
 _pb_convert_page () {
+  pandoc --columns 100 -f html -t org \
+    | sed 's/^Title:/#+TITLE: /g; /\[\[\]\[\]\]/d; /:PROPERTIES:/,/:END:/d; /#+BEGIN\_HTML/,/#+END\_HTML/d' \
+    | sed '/^$/N;/^\n$/D'
+}
+
+_pb_page_header () {
   local url="$1"
   echo "#+STARTUP: showeverything"
   echo "#+CREATED_AT: $(date -u +%Y-%m-%dT%H:%M:%S%z)"
   echo "#+URL: ${url}"
-  python -m readability.readability -u "${url}" \
-    | pandoc --columns 100 -f html -t org \
-    | sed 's/^Title:/#+TITLE: /g; /#+BEGIN\_HTML/,/#+END\_HTML/d'
+}
+
+_pb_store_page () {
+  local url="$1"
+  _pb_page_header "${url}"
+  python -m readability.readability -u "${url}" | _pb_convert_page
+}
+
+_pb_store_page_raw () {
+  local url="$1"
+  _pb_page_header "${url}"
+  curl --fail --silent "${url}" | _pb_convert_page
 }
 
 _pb_org "$(_pb_org_last)"
