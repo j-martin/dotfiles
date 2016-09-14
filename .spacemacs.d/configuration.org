@@ -19,9 +19,9 @@
   ;; (setq x-select-enable-clipboard nil)
   (setq make-backup-files nil)
   (spacemacs/toggle-indent-guide-globally-on)
-  ;; (spacemacs/toggle-camel-case-motion-globally-on)
-  ;; (spacemacs/toggle-evil-cleverparens-on)
-  ;; (spacemacs/toggle-smartparens-globally-on)
+  (spacemacs/toggle-camel-case-motion-globally-on)
+  (spacemacs/toggle-evil-cleverparens-on)
+  (spacemacs/toggle-smartparens-globally-on)
   (setq save-interprogram-paste-before-kill t)
   (setq multi-term-program-switches "--login")
 #+end_src
@@ -34,7 +34,7 @@
 #+begin_src emacs-lisp :results none
   (setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
   (if (eq system-type 'darwin)
-    (setq paradox-github-token (shell-command "keyring get system github_paradox"))
+      (setq paradox-github-token (shell-command "keyring get system github_paradox"))
     (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\"")))
   )
 #+end_src
@@ -100,21 +100,21 @@ fci-rule-column 120)
 #+end_src
 ** Pretty symbols
 #+begin_src emacs-lisp :results none
-(defun jm/pretty-symbols ()
-  "make some word or string show as pretty Unicode symbols"
-  (setq prettify-symbols-alist
-    '(
-       ("lambda" . 955) ; λ
-       ("->" . 8594)    ; →
-       ("=>" . 8658)    ; ⇒
-       ("function" . ?ƒ); ƒ
-       )))
-(add-hook 'lisp-mode-hook 'jm/pretty-symbols)
-(add-hook 'org-mode-hook 'jm/pretty-symbols)
-(add-hook 'js2-mode-hook 'jm/pretty-symbols)
-(add-hook 'scala-mode-hook 'jm/pretty-symbols)
-(add-hook 'coffee-mode-hook 'jm/pretty-symbols)
-(add-hook 'lua-mode-hook 'jm/pretty-symbols)
+  (defun jm/pretty-symbols ()
+    "make some word or string show as pretty Unicode symbols"
+    (setq prettify-symbols-alist
+      '(
+         ("lambda" . 955) ; λ
+         ("->" . 8594)    ; →
+         ("=>" . 8658)    ; ⇒
+         ("function" . ?ƒ); ƒ
+         )))
+  (add-hook 'lisp-mode-hook 'jm/pretty-symbols)
+  (add-hook 'org-mode-hook 'jm/pretty-symbols)
+  (add-hook 'js2-mode-hook 'jm/pretty-symbols)
+  (add-hook 'scala-mode-hook 'jm/pretty-symbols)
+  (add-hook 'coffee-mode-hook 'jm/pretty-symbols)
+  (add-hook 'lua-mode-hook 'jm/pretty-symbols)
 #+end_src
 
 ** Makefile
@@ -172,7 +172,15 @@ fci-rule-column 120)
   (add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
 #+end_src
 ** org
-
+*** Basic setup
+  #+begin_src emacs-lisp :results none
+    (setq org-directory "~/.org/")
+    (setq org-default-notes-file "~/.org/inbox.org")
+    (setq org-hide-emphasis-markers t)
+    (setq org-agenda-files (list org-directory))
+    (setq org-startup-folded t)
+    (add-hook 'org-mode-hook 'smartparens-mode)
+  #+end_src
 *** org-babel
 #+begin_src emacs-lisp :results none
   (setq org-src-fontify-natively t)
@@ -181,18 +189,12 @@ fci-rule-column 120)
 #+end_src
 *** org-mac-link
 #+begin_src emacs-lisp :results none
-(add-hook 'org-mode-hook (lambda ()
-  (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
+  ;; (if (eq system-type 'darwin)
+  ;;     (require 'org-mac-link)
+  ;;   (add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
+  ;;   )
 #+end_src
 
-*** Basic setup
-  #+begin_src emacs-lisp :results none
-    (setq org-directory "~/.org/")
-    (setq org-default-notes-file "~/.org/inbox.org")
-    (setq org-hide-emphasis-markers t)
-    (setq org-agenda-files (list org-directory))
-    (setq org-startup-folded t)
-  #+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :results none
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -294,6 +296,7 @@ fci-rule-column 120)
   (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
   (spacemacs/set-leader-keys "ol" 'org-content)
   (spacemacs/set-leader-keys "ag" 'engine/search-google)
+  (spacemacs/set-leader-keys "ah" 'engine/search-github)
 #+end_src
 
 * General Functions

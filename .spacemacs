@@ -41,10 +41,10 @@ values."
        auto-completion-tab-key-behavior 'cycle
        auto-completion-return-key-behavior 'complete
        auto-completion-complete-with-key-sequence "jk"
-       auto-completion-complete-with-key-sequence-delay 0.3
-       auto-completion-enable-sort-by-usage t
-       auto-completion-enable-help-tooltip t
-       auto-completion-enable-snippets-in-popup t
+       auto-completion-complete-with-key-sequence-delay 0.6
+       ;; auto-completion-enable-sort-by-usage t
+       ;; auto-completion-enable-help-tooltip t
+       ;; auto-completion-enable-snippets-in-popup t
        auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
      chrome
@@ -225,12 +225,17 @@ values."
    ;; define the position to display `helm', options are `bottom', `top',
    ;; `left', or `right'. (default 'bottom)
    dotspacemacs-helm-position 'bottom
+   ;; Controls fuzzy matching in helm. If set to `always', force fuzzy matching
+   ;; in all non-asynchronous sources. If set to `source', preserve individual
+   ;; source settings. Else, disable fuzzy matching in all sources.
+   ;; (default 'always)
+   dotspacemacs-helm-use-fuzzy 'always
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
    dotspacemacs-enable-paste-transient-state t
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
-   dotspacemacs-which-key-delay 0.4
+   dotspacemacs-which-key-delay 0.5
    ;; Which-key frame position. Possible values are `right', `bottom' and
    ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
    ;; right; if there is insufficient space it displays it at the bottom.
