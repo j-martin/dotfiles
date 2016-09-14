@@ -72,15 +72,10 @@ set list
 
 "Styling
 "=======
-if has("unix")
-  let s:uname = system("uname -s")
-  if s:uname == "Darwin"
-    set t_Co=256
-    colorscheme molokai
-    let g:molokai_original = 1
-    let g:rehash256 = 1
-  endif
-endif
+set t_Co=256
+colorscheme molokai
+let g:molokai_original = 1
+let g:rehash256 = 1
 
 "Sets the proper font for GVIM.
 "==============================
