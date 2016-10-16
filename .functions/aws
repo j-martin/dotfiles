@@ -41,3 +41,8 @@ _eb_upgrade_production_to_latest () {
         --environment-name "prod-$application" \
         --version-label "$(_eb_get_latest_version "$application")"
 }
+
+_ecr_list_images () {
+  local repository="$1"
+  aws ecr list-images --repository="${repository}" | jq -r '.imageIds[].imageTag' | sort -r
+}

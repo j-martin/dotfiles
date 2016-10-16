@@ -50,7 +50,6 @@ values."
      chrome
      clojure
      dash
-     dockerfile
      emacs-lisp
      evil-cleverparens
      evil-commentary
@@ -66,13 +65,16 @@ values."
      (markdown :variables markdown-live-preview-engine 'vmd)
      (org :variables org-enable-github-support t)
      nginx
+     ;; nlinum
      osx
      python
+     pandoc
      restclient
      scala
      search-engine
      shell
      shell-scripts
+     slack
      spell-checking
      sql
      syntax-checking
@@ -320,8 +322,11 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (custom-set-variables
    '(spacemacs-centered-buffer-mode-fringe-color "#292b2e")
    '(spacemacs-theme-custom-colors
-     '((base . "#dddddd")
-       (const . "#e465cf")))))
+      '((base . "#dddddd")
+        ;; (comment . "#4ac1ce")
+        (const . "#e465cf")
+        ;; (str . "#4da594")
+        ))))
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
@@ -330,7 +335,8 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-  (org-babel-load-file "~/.spacemacs.d/configuration.org"))
-
+  (org-babel-load-file "~/.spacemacs.d/configuration.org")
+  (if (file-exists-p "~/.private/configuration.org")
+      (org-babel-load-file "~/.private/configuration.org")))
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.

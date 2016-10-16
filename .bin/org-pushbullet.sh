@@ -72,7 +72,7 @@ _pb_org_last () {
 
 _pb_convert_page () {
   pandoc --columns 100 -f html -t org \
-    | sed 's/^Title:/#+TITLE: /g; /\[\[\]\[\]\]/d; /:PROPERTIES:/,/:END:/d; /#+BEGIN\_HTML/,/#+END\_HTML/d' \
+    | sed 's/^Title:/#+TITLE: /g; /\[\[\]\[\]\]/d; s/\]\[\]\]/\]\[url\]\] /g; /:PROPERTIES:/,/:END:/d; /#+BEGIN\_HTML/,/#+END\_HTML/d' \
     | sed '/^$/N;/^\n$/D'
 }
 

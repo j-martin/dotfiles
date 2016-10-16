@@ -17,4 +17,8 @@ function mod.capture()
   eval('(org-capture)')
 end
 
+function mod.agenda()
+  eval('(org-agenda-list)')
+end
+
 return mod

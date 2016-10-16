@@ -30,7 +30,7 @@
 (setq custom-file "~/.spacemacs.d/custom-configuration.el")
 (load custom-file t)
 #+end_src
-** GitHub related                                                       :git:
+** GitHub related
 #+begin_src emacs-lisp :results none
   (setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
   (if (eq system-type 'darwin)
@@ -72,18 +72,24 @@ fci-rule-column 120)
 * Modes
 ** Enabling
 #+begin_src emacs-lisp :results none
-    (delete-selection-mode 1)
-    (editorconfig-mode 1)
-    (global-auto-revert-mode t)
-    (global-company-mode 1)
-    (ws-butler-global-mode 1)
-    (setq-default abbrev-mode t)
-    (setq save-abbrevs 'silently)
-    (super-save-mode +1)
+  (delete-selection-mode 1)
+  (editorconfig-mode 1)
+  (global-company-mode 1)
+  (ws-butler-global-mode 1)
+  (setq-default abbrev-mode t)
+  (setq save-abbrevs 'silently)
+  (super-save-mode +1)
 #+end_src
-** RAML
+** Autorevert
+#+begin_src emacs-lisp :results none
+  (global-auto-revert-mode t)
+  (setq revert-without-query '(".*"))
+#+end_src
+** AutoMode
 #+begin_src emacs-lisp :results none
   (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
+  (add-to-list 'auto-mode-alist '("\\.groovy\\'" . prog-mode))
+  (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . prog-mode))
 #+end_src
 
 ** Linum
@@ -165,7 +171,7 @@ fci-rule-column 120)
 (add-to-list 'flycheck-checkers 'proselint)
 #+end_src
 
-** magit                                                                :git:
+** magit
 #+begin_src emacs-lisp :results none
   (setq magit-repository-directories '("~/Work/"))
   (setq-default vc-follow-symlinks t)
@@ -278,6 +284,7 @@ fci-rule-column 120)
   (global-set-key (kbd "s-<left>") 'beginning-of-line)
   (global-set-key (kbd "s-<right>") 'end-of-line)
   (global-set-key (kbd "s-t") 'make-frame)
+  (global-set-key (kbd "C-i") 'evil-jump-forward)
   (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
   (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 

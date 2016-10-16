@@ -62,3 +62,7 @@ test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_in
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/Users/benchemployee/.sdkman"
+[[ -s "/Users/benchemployee/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/benchemployee/.sdkman/bin/sdkman-init.sh"

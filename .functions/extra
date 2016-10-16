@@ -2,11 +2,16 @@
 
 _docker_pick_container () {
   local tag_prefix="$1"
-  docker ps | _fzf "${tag_prefix}" | _pick_first_col
+  docker ps \
+    | grep -v 'CONTAINER ID' \
+    | _fzf "'${tag_prefix}" \
+    | _pick_first_col
 }
 
 _docker_pick_images () {
-  docker images | awk '{print $1 ":" $2}' | _fzf $1
+  docker images \
+    | awk '$1 != "REPOSITORY" {print $1 ":" $2}' \
+    | _fzf "'$1"
 }
 
 _consul_list_services_dns () {
@@ -24,4 +29,56 @@ _chrome_parse_bookmarks () {
       | select(.type == "url")
       | "\(.url) | \(.name)"' \
      "$HOME/Library/Application Support/Google/Chrome/Default/Bookmarks"
+}
+
+_circle () {
+  local url="$1"
+  local method="${2:-GET}"
+  curl --silent --fail -X "${method}" "https://circleci.com/api/v1.1/{$url}?circle-token=$CIRCLE_TOKEN"
+}
+
+_circle_statuses () {
+  _circle "projects" \
+    | jq -r '
+      .[]
+      | {name: "https://circleci.com/gh/\(.username)/\(.reponame)", last: .branches.master.recent_builds[0]}
+      | "\(.name)/\(.last.build_num) \(.last.outcome // .last.lifecycle) \(.last.pushed_at)"
+    ' \
+    | column -s ' ' -t | sort
+}
+
+_circle_status () {
+  _circle "project/github/$(_git_repo)" \
+    | _circle_format_status
+}
+
+_circle_format_status () {
+  jq -r '.[] | [
+      "https://circleci.com/gh/\(.username)/\(.reponame)/\(.build_num)",
+      .branch[0:40], .subject[0:40], .author_email, .outcome // .lifecycle
+    ] | join("¶")' \
+  | column -s '¶' -t
+}
+
+_circle_branch () {
+  _circle "project/github/$(_git_repo)/tree/$(urlencode "$(_git_current_branch)")" \
+    | _circle_format_status
+}
+_circle_follow () {
+  _circle "project/github/$(_git_repo)/follow" 'POST'
+}
+
+_circle_trigger () {
+  _circle "project/github/$(_git_repo)/tree/$(urlencode "$(_git_current_branch)")" 'POST'
+}
+
+_circle_detail_build () {
+  local build="$1"
+  _circle "project/github/$(_git_repo)/${build}" \
+    | jq -r '.circle_yml.string, (.steps[] | .name, (.actions[] | "\(.index) | \(.status) | \(.output_url)"))'
+}
+
+urlencode() {
+  python -c 'import urllib, sys; print urllib.quote(sys.argv[1], sys.argv[2])' \
+         "$1" "$urlencode_safe"
 }

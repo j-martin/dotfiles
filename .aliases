@@ -113,9 +113,9 @@ ss () { ssh "$@"  -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
 alias tf='terraform'
-alias tff='tree -afC -I "\.git|.idea|venv|target|targets"'
-alias tfl='tree -afC -I "\.git|.idea|venv|target|targets" | less -SRI'
-alias tfs='tree -afC -I "\.git|.idea|venv|target|targets" "src"'
+alias tff='tree -afC -I "\.git|.idea|venv|target|targets|node_modules"'
+alias tfl='tree -afC -I "\.git|.idea|venv|target|targets|node_modules" | less -SRI'
+alias tfs='tree -afC -I "\.git|.idea|venv|target|targets|node_modules" "src"'
 alias treef='tree -fa | grep -i'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
 alias vg='vagrant'
@@ -144,7 +144,7 @@ alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit'
 alias gwab='git worktree add "$(pwd)-bugfix" "origin/master"'
 alias gwaf='$(git worktree list | fzf | _pick_first_col)'
-alias gcof='git checkout "$(_git_pick_branch_no_origin)"'
+gcof () { git checkout "$(_git_pick_branch_no_origin "'$1")"; }
 alias gsp='git show "$(_git_pick_branch):$(fzf)"'
 alias gdp='git diff "$(_git_pick_branch)" -- "$(fzf)"'
 alias gdcf='git diff "$(_git_pick_commit)" -- "$(fzf)"'
@@ -170,7 +170,7 @@ alias gll='git log -p'
 alias glf='git log -p -- "$(_fzf)"'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gplush='git pull && git push'
-gms() { git commit -m "$(_trim "$(_git_current_issue_number) $1")" ${@:2} ;}
+gms() { git commit -n -m "$(_trim "$(_git_current_issue_number) $1")" ${@:2} ;}
 alias gmi='git commit -m "$(_github_issues | fzf)"'
 alias gmf='git commit -m "$(_github_repo_issues | fzf)"'
 alias gma='git merge --abort'
@@ -179,8 +179,8 @@ alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
 gnewc () { _git_new_branch "$1" && gms $@ ; }
 alias gnewp='_git_new_branch "$(pbpaste)"'
-alias gnewf='_git_new_branch "$(_github_repo_issues | fzf)"'
-alias gnewi='_git_new_branch "$(_github_issues | fzf)"'
+alias gnewi='_git_new_branch "$(_github_repo_issues | fzf)"'
+alias gnewa='_git_new_branch "$(_github_issues | fzf)"'
 alias gnewh='_github_new_branch'
 
 alias gnewm='git checkout master && git pull && gnew'
@@ -213,9 +213,18 @@ alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
 alias hr='open "$GITHUB_URL/$(_git_repo)"'
 alias waf='open "$WAFFLE_URL/$(_git_repo)"'
 
+# Jenkins
+alias jenk='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)/job/$(_git_current_branch)/"'
+alias jenkm='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)/job/master/"'
+alias jenkmc='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)/job/master/lastBuild/console"'
+alias jenkj='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)"'
+
 # CicleCI
 alias cim='open "$CIRCLE_URL/$(_git_repo)"'
 alias cir='open "$CIRCLE_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
+alias cirb='_circle_branch'
+alias cirs='_circle_status'
+alias cirss='_circle_statuses'
 
 # MR
 alias mrs='mr status'

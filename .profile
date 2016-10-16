@@ -19,3 +19,7 @@ export PAGER='less -SRi'
 export HOSTNAME="$HOST"
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -l -g ""'
 unset SSL_CERT_FILE
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/Users/benchemployee/.sdkman"
+[[ -s "/Users/benchemployee/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/benchemployee/.sdkman/bin/sdkman-init.sh"
