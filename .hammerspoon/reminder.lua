@@ -41,15 +41,15 @@ local function noticeActions(action)
 
     local function setupTimer(item)
       local interval = item.interval or defaultInterval
-      timer.doAfter(counter, notice(item.name .. 'R', interval / 2))
+      local padding = '           '
+      timer.doAfter(counter, notice(padding .. '◀︎️' .. item.name .. padding, interval / 2))
       increment(interval)
-      timer.doAfter(counter, notice(item.name .. 'L', interval / 2))
+      timer.doAfter(counter, notice(padding .. item.name .. '▶︎' .. padding, interval / 2))
       increment(interval)
     end
 
     fnutils.each(action, setupTimer)
     timer.doAfter(counter, notice('Done'))
-    timer.doAfter(counter + 1, notice('Done'))
   end
 end
 
@@ -66,14 +66,11 @@ end
 
 
 local stretchesList = {
-  { name = 'HS' },
-  { name = 'HTRS' },
-  { name = 'HTLS' },
+  { name = '✸' },
+  { name = '❖' },
 }
 
 local reminders = {
-  { name = 'P', freq = 600 },
-  { name = 'P.Done.', freq = 660 },
   { name = 'Break', freq = 1800, fn = noticeActions(stretchesList) }
 }
 

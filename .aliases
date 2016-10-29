@@ -42,13 +42,10 @@ alias spp='EDITOR=subl fpp'
 alias se='EDITOR=subl'
 
 # Convenience
-agl () { ag --color --after=4 "$@" | less -SRi; }
-ags () { ag --color --after=4 --smart-case "$@" | less -SRi; }
-uu () { ag --color --before=2 --after=4 --literal "$@" | less -SRi; }
+agl () { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
+ags () { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
+uu () { ag --color --before=2 --after=4 --literal --hidden --path-to-ignore ~/.agignore "$@" | less -SRi; }
 agm () { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
-alias agt='ag -QSA10 --color "//todo-jma"'
-alias agtp='ag -QSA10 --color "# todo-jma"'
-alias bupgrade='brew update && brew unlink moreutils && brew upgrade && brew link moreutils'
 alias ca='cal -y'
 alias clf='clf -c'
 alias c='_with_fzf "cat"'
@@ -113,9 +110,9 @@ ss () { ssh "$@"  -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
 alias tf='terraform'
-alias tff='tree -afC -I "\.git|.idea|venv|target|targets|node_modules"'
-alias tfl='tree -afC -I "\.git|.idea|venv|target|targets|node_modules" | less -SRI'
-alias tfs='tree -afC -I "\.git|.idea|venv|target|targets|node_modules" "src"'
+alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
+alias tfl='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" | less -SRI'
+alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" "src"'
 alias treef='tree -fa | grep -i'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
 alias vg='vagrant'

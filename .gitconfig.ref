@@ -12,3 +12,5 @@
   org =
 [core]
   commentChar = ";"
+[url "git@github.com:"]
+  insteadOf = "https://github.com/"

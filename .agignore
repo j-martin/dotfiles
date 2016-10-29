@@ -1,0 +1,6 @@
+.git
+logs
+.idea
+vendor
+pkg
+node_modules

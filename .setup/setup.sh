@@ -60,6 +60,16 @@ _general () {
   git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 }
 
+_go_specific () {
+  # mostly imports for emacs
+  go get -u -v github.com/nsf/gocode
+  go get -u -v github.com/rogpeppe/godef
+  go get -u -v golang.org/x/tools/cmd/guru
+  go get -u -v golang.org/x/tools/cmd/gorename
+  go get -u -v golang.org/x/tools/cmd/goimports
+
+}
+
 if [[ "$(uname)" == 'Darwin' ]]; then
   _macos_apps
   _macos_customizations

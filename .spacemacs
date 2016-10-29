@@ -30,7 +30,7 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+    '(
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -49,16 +49,20 @@ values."
      better-defaults
      chrome
      clojure
+     csv
      dash
+     docker
      emacs-lisp
      evil-cleverparens
      evil-commentary
      git
      github
      go
+     graphviz
      haskell
      helm
      html
+     imenu-list
      java
      javascript
      lua
@@ -69,6 +73,7 @@ values."
      osx
      python
      pandoc
+     plantuml
      restclient
      scala
      search-engine

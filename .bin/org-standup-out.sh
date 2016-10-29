@@ -12,4 +12,4 @@ _format () {
     | sed 's/^\*\* /- /g; s/^\* //g; s/\]\[/\|/g; s/\[\[/</g; s/\]\]/>/g'
 }
 
-_slack_post '#daily_standup' "$(_format "$HOME/.org/standup.org")"
+_slack_post '#dev_standup' "$(_format "$HOME/.org/standup.org")"

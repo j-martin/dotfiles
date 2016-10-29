@@ -88,8 +88,8 @@ fci-rule-column 120)
 ** AutoMode
 #+begin_src emacs-lisp :results none
   (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
-  (add-to-list 'auto-mode-alist '("\\.groovy\\'" . prog-mode))
-  (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . prog-mode))
+  (add-to-list 'auto-mode-alist '("\\.groovy\\'" . java-mode))
+  (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . java-mode))
 #+end_src
 
 ** Linum
@@ -152,6 +152,13 @@ fci-rule-column 120)
 (setq-default evil-escape-key-sequence "jk")
 #+end_src
 
+** Java
+#+begin_src emacs-lisp :results none
+  (add-hook 'java-mode-hook (lambda ()
+                               (setq c-basic-offset 4
+                                     tab-width 4)))
+
+#+end_src
 ** JS
 #+begin_src emacs-lisp :results none
 (setq-default js-indent-level 2)
@@ -308,92 +315,92 @@ fci-rule-column 120)
 
 * General Functions
 #+begin_src emacs-lisp :results none
-    (defun jm/open-config ()
-      (interactive)
-      (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
+      (defun jm/open-config ()
+        (interactive)
+        (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
 
-    (defun jm/magit-commit-message ()
-      (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '.*#[0-9]*'")))
-        (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
-      (evil-insert-state))
+      (defun jm/magit-commit-message ()
+        (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '.*#[0-9]*'")))
+          (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
+        (evil-insert-state))
 
-    (defun jm/open-main ()
-      (interactive)
-      (find-file (expand-file-name "~/.org/main.org")))
+      (defun jm/open-main ()
+        (interactive)
+        (find-file (expand-file-name "~/.org/main.org")))
 
-    (defun jm/open-inbox ()
-      (interactive)
-      (find-file (expand-file-name "~/.org/inbox.org")))
+      (defun jm/open-inbox ()
+        (interactive)
+        (find-file (expand-file-name "~/.org/inbox.org")))
 
-    (defun jm/open-references ()
-      (interactive)
-      (find-file (expand-file-name "~/.org/references.org")))
+      (defun jm/open-references ()
+        (interactive)
+        (find-file (expand-file-name "~/.org/references.org")))
 
-    (defun jm/open-standup ()
-      (interactive)
-      (find-file (expand-file-name "~/.org/standup.org")))
+      (defun jm/open-standup ()
+        (interactive)
+        (find-file (expand-file-name "~/.org/standup.org")))
 
-    (defun jm/helm-org-dir ()
-      (interactive)
-      (helm-find-files-1 (expand-file-name "~/.org/")))
+      (defun jm/helm-org-dir ()
+        (interactive)
+        (helm-find-files-1 (expand-file-name "~/.org/")))
 
-    (defun jm/helm-home-dir ()
-      (interactive)
-      (helm-find-files-1 (expand-file-name "~/")))
+      (defun jm/helm-home-dir ()
+        (interactive)
+        (helm-find-files-1 (expand-file-name "~/")))
 
-    (defun jm/helm-work-dir ()
-      (interactive)
-      (helm-find-files-1 (expand-file-name "~/Work/")))
+      (defun jm/helm-work-dir ()
+        (interactive)
+        (helm-find-files-1 (expand-file-name "~/Work/")))
 
-    (defun jm/helm-forks-dir ()
-      (interactive)
-      (helm-find-files-1 (expand-file-name "~/Work/forks/")))
+      (defun jm/helm-forks-dir ()
+        (interactive)
+        (helm-find-files-1 (expand-file-name "~/Work/forks/")))
 
-    (defun jm/org-github-todo ()
-      (interactive)
-      (end-of-buffer)
-      (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
-      (org-content))
+      (defun jm/org-github-todo ()
+        (interactive)
+        (end-of-buffer)
+        (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
+        (org-content))
 
-    (defun jm/insert-today ()
-      (interactive)
-      (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
+      (defun jm/insert-today ()
+        (interactive)
+        (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
 
-    (defun jm/get-column ()
-      (number-to-string (+ (current-column) 1)))
+      (defun jm/get-column ()
+        (number-to-string (+ (current-column) 1)))
 
-    (defun jm/get-line-number ()
-      (number-to-string (line-number-at-pos)))
+      (defun jm/get-line-number ()
+        (number-to-string (line-number-at-pos)))
 
-    (defun jm/open-with-line (app)
-      (when buffer-file-name
-        (save-buffer)
-        (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
+      (defun jm/open-with-line (app)
+        (when buffer-file-name
+          (save-buffer)
+          (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
 
-    (defun jm/open-with-line-column (app)
-      (when buffer-file-name
-        (save-buffer)
-        (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
+      (defun jm/open-with-line-column (app)
+        (when buffer-file-name
+          (save-buffer)
+          (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
 
-    (defun jm/open-with-line-column-vim (app)
-      (when buffer-file-name
-        (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
+      (defun jm/open-with-line-column-vim (app)
+        (when buffer-file-name
+          (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
 
-    (defun jm/open-with-reveal (app)
-      (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
+      (defun jm/open-with-reveal (app)
+        (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
 
-    (defun jm/open-with-sublime ()
-      (interactive)
-      (jm/open-with-line-column "/usr/local/bin/subl"))
+      (defun jm/open-with-sublime ()
+        (interactive)
+        (jm/open-with-line-column "/usr/local/bin/subl"))
 
-    (defun jm/open-with-idea ()
-      (interactive)
-      (jm/open-with-line "/usr/local/bin/idea")
-      (jm/open-with-reveal "IntelliJ IDEA"))
+      (defun jm/open-with-idea ()
+        (interactive)
+        (jm/open-with-reveal "IntelliJ IDEA")
+        (jm/open-with-line "/usr/local/bin/idea"))
 
-    (defun jm/open-with-nvim ()
-      (interactive)
-      (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
+      (defun jm/open-with-nvim ()
+        (interactive)
+        (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 #+end_src
 ** Endless Autocorrect
 Per [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Endless parentheses]] copied on 2016-05-17

@@ -17,7 +17,7 @@ test -e /usr/local/bin/nvim && export EDITOR='/usr/local/bin/nvim'
 export NODE_PATH="$NODE_PATH:/usr/local/lib/node_modules"
 export PAGER='less -SRi'
 export HOSTNAME="$HOST"
-export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -l -g ""'
+export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.agignore  -l -g ""'
 unset SSL_CERT_FILE
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
