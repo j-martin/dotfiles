@@ -1,0 +1,3 @@
+[submodule ".oh-my-zsh-custom/plugins/zsh-autosuggestions"]
+	path = .oh-my-zsh-custom/plugins/zsh-autosuggestions
+	url = git://github.com/zsh-users/zsh-autosuggestions
