@@ -50,7 +50,6 @@ alias ca='cal -y'
 alias clf='clf -c'
 alias c='_with_fzf "cat"'
 alias dk='docker'
-alias dfix='brew unlink docker && brew link --overwrite --force docker'
 alias dkp='docker ps'
 dki() { docker images | awk '{print $1 ":" $2}' | sort -u ;}
 alias dc='docker-compose'
@@ -266,6 +265,10 @@ alias py='python3'
 # Website
 alias o='open $(pbpaste)'
 alias c2='open "https://console.aws.amazon.com/ec2/"'
+
+# Brew
+alias bdump='brew bundle --global dump'
+alias bcleanup='brew bundle --global cleanup' # --force
 
 # Bub
 alias b='bub'
