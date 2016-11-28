@@ -56,8 +56,7 @@ _linux_apps () {
 _general () {
   npm install -g vmd eslint
   pip install -r requirements.txt
-  curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
-  git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+  chsh -s $(grep /zsh$ /etc/shells | tail -1)
 }
 
 _go_specific () {
