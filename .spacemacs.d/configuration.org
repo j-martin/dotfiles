@@ -17,6 +17,7 @@
   (setq confirm-kill-emacs 'y-or-n-p)
   (setq mac-emulate-three-button-mouse t)
   ;; (setq x-select-enable-clipboard nil)
+  (fset 'evil-visual-update-x-selection 'ignore)
   (setq make-backup-files nil)
   (spacemacs/toggle-indent-guide-globally-on)
   (spacemacs/toggle-camel-case-motion-globally-on)
@@ -60,14 +61,18 @@
 #+end_src
 ** Whitespace
 #+begin_src emacs-lisp :results none
-(setq whitespace-style '(tabs tab-mark))
-(global-whitespace-mode 1)
-(setq fill-column 120)
-(setq whitespace-line-column 260)
-(setq-default
-tab-width 2
-indent-tabs-mode nil
-fci-rule-column 120)
+  (setq whitespace-display-mappings
+    ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
+    '(
+      (tab-mark 9 [9655 9] [92 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
+      ))
+  (global-whitespace-mode 1)
+  (setq fill-column 120)
+  (setq whitespace-line-column 260)
+  (setq-default
+  tab-width 2
+  indent-tabs-mode nil
+  fci-rule-column 120)
 #+end_src
 * Modes
 ** Enabling
@@ -88,8 +93,8 @@ fci-rule-column 120)
 ** AutoMode
 #+begin_src emacs-lisp :results none
   (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
-  (add-to-list 'auto-mode-alist '("\\.groovy\\'" . java-mode))
-  (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . java-mode))
+  (add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
+  (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
 #+end_src
 
 ** Linum
@@ -152,30 +157,20 @@ fci-rule-column 120)
 (setq-default evil-escape-key-sequence "jk")
 #+end_src
 
+** Scala
+#+begin_src emacs-lisp :results none
+  (setq ensime-startup-snapshot-notification nil)
+#+end_src
 ** Java
 #+begin_src emacs-lisp :results none
   (add-hook 'java-mode-hook (lambda ()
-                               (setq c-basic-offset 4
-                                     tab-width 4)))
+                               (setq c-basic-offset 2
+                                     tab-width 2)))
 
 #+end_src
 ** JS
 #+begin_src emacs-lisp :results none
 (setq-default js-indent-level 2)
-#+end_src
-
-** proselint
-#+begin_src emacs-lisp :results none
-(flycheck-define-checker proselint
-  "A linter for prose."
-  :command ("proselint" source-inplace)
-  :error-patterns
-  ((warning line-start (file-name) ":" line ":" column ": "
-        (id (one-or-more (not (any " "))))
-        (message) line-end))
-  :modes (text-mode markdown-mode gfm-mode))
-
-(add-to-list 'flycheck-checkers 'proselint)
 #+end_src
 
 ** magit
@@ -200,14 +195,6 @@ fci-rule-column 120)
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
 #+end_src
-*** org-mac-link
-#+begin_src emacs-lisp :results none
-  ;; (if (eq system-type 'darwin)
-  ;;     (require 'org-mac-link)
-  ;;   (add-hook 'org-mode-hook (lambda () (define-key org-mode-map (kbd "C-c g") 'org-mac-grab-link)))
-  ;;   )
-#+end_src
-
 *** Capture Templates
 #+begin_src emacs-lisp :results none
   (add-hook 'org-capture-mode-hook 'evil-insert-state)

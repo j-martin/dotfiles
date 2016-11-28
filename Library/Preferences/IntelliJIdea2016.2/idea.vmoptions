@@ -1,6 +1,6 @@
 -server
--Xms2g
--Xmx2048m
+-Xms1500m
+-Xmx1500m
 -XX:NewRatio=3
 -Xss16m
 -XX:+UseConcMarkSweepGC

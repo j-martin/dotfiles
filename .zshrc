@@ -47,7 +47,7 @@ COMPLETION_WAITING_DOTS="true"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(brew common-aliases dircycle dirhistory docker docker-compose git github node npm osx sbt scala ssh-agent tmux vagrant)
+plugins=(brew common-aliases dircycle dirhistory docker docker-compose git github node npm osx sbt scala ssh-agent tmux vagrant zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -66,3 +66,6 @@ test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_in
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="${HOME}/.sdkman"
 [[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
+
+#test -e "/usr/local/opt/nvm/nvm.sh" && export NVM_DIR="$HOME/.nvm"
+#test -e "/usr/local/opt/nvm/nvm.sh" && source "/usr/local/opt/nvm/nvm.sh"

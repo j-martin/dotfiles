@@ -42,30 +42,30 @@ alias spp='EDITOR=subl fpp'
 alias se='EDITOR=subl'
 
 # Convenience
-agl () { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
-ags () { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
-uu () { ag --color --before=2 --after=4 --literal --hidden --path-to-ignore ~/.agignore "$@" | less -SRi; }
-agm () { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
+agl() { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
+ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
+uu() { ag --color --before=2 --after=4 --literal --hidden --path-to-ignore ~/.agignore "$@" | less -SRi; }
+agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
 alias ca='cal -y'
 alias clf='clf -c'
 alias c='_with_fzf "cat"'
 alias dk='docker'
 alias dfix='brew unlink docker && brew link --overwrite --force docker'
 alias dkp='docker ps'
-dki () { docker images | awk '{print $1 ":" $2}' | sort -u ;}
+dki() { docker images | awk '{print $1 ":" $2}' | sort -u ;}
 alias dc='docker-compose'
 alias dm='docker-machine'
-dbuild () {
+dbuild() {
     local name="$(basename "$(pwd)")"
     local image="$(_docker_pick_images ${name:0:5} || _docker_pick_images)"
     docker build -t "$image" . && docker run -it "$image"
 }
-dlog () { docker logs -f "$(_docker_pick_container $1)" ;}
-drun () { docker run -it "$(_docker_pick_images $1)" bash ;}
-drunb () { docker run --entrypoint='/bin/bash' -it "$(_docker_pick_images $1)" ;}
-dbash () { docker exec -it "$(_docker_pick_container $1)" bash ;}
-dsh () { docker exec -it "$(_docker_pick_container $1)" sh ;}
-dkill () { docker kill "$(_docker_pick_container $1)" ;}
+dlog() { docker logs -f "$(_docker_pick_container $1)" ;}
+drun() { docker run -it "$(_docker_pick_images $1)" bash ;}
+drunb() { docker run --entrypoint='/bin/bash' -it "$(_docker_pick_images $1)" ;}
+dbash() { docker exec -it "$(_docker_pick_container $1)" bash ;}
+dsh() { docker exec -it "$(_docker_pick_container $1)" sh ;}
+dkill() { docker kill "$(_docker_pick_container $1)" ;}
 alias dkillall='docker ps -q | xargs -r docker kill'
 alias drmiall='docker images -q | xargs -r docker rmi -f'
 alias dtest='docker build -t $(basename $(pwd)) . && docker run -it $(basename $(pwd))'
@@ -77,13 +77,13 @@ alias hey="growlnotify 'Command Done!' -m 'Yes!'"
 alias hi='history | grep '
 alias hosts='sudo vi /etc/hosts'
 alias jql='jq -C . | less -SRi'
-jqx () { jq . -C "$@" | less -SRi; }
+jqx() { jq . -C "$@" | less -SRi; }
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
 alias ip='ifconfig | grep "inet 1"'
-idiff () { icdiff "$1" "$2" | less -SRi ; }
-idif () { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi ; }
-lc () { pygmentize $@ | less -SRi; }
+idiff() { icdiff "$1" "$2" | less -SRi ; }
+idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi ; }
+lc() { pygmentize $@ | less -SRi; }
 alias lcf='_with_fzf "lc"'
 alias le='less -SRi'
 alias lf='_with_fzf cat | less -SRi'
@@ -105,8 +105,8 @@ alias pbclean='pbpaste | pbcopy'
 alias rmq='rabbitmq-server'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
-s () { ssh "$@"  -t 'command; tmux attach -t jm || tmux new -s jm' ;}
-ss () { ssh "$@"  -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
+s() { ssh "$@"  -t 'command; tmux -CC attach -t jm || tmux -CC new -s jm' ;}
+ss() { ssh "$@"  -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
 alias tf='terraform'
@@ -117,13 +117,13 @@ alias treef='tree -fa | grep -i'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
 alias vg='vagrant'
 alias vgs='vagrant global-status'
-vghalt () { vagrant global-status | awk '{ if ((length($1) == 7) && ($4 == "running"))  print $1 }' | xargs vagrant halt ;}
-vgdestroyc () {  vagrant global-status | awk '{ if ((length($1) == 7) && ($5 ~ /chef-repo/))  print $1 }' | xargs vagrant destroy -f ;}
-vgdestroyall () { vagrant global-status | awk '{ if (length($1) == 7)  print $1 }' | xargs vagrant destroy -f ;}
+vghalt() { vagrant global-status | awk '{ if ((length($1) == 7) && ($4 == "running"))  print $1 }' | xargs vagrant halt ;}
+vgdestroyc() {  vagrant global-status | awk '{ if ((length($1) == 7) && ($5 ~ /chef-repo/))  print $1 }' | xargs vagrant destroy -f ;}
+vgdestroyall() { vagrant global-status | awk '{ if (length($1) == 7)  print $1 }' | xargs vagrant destroy -f ;}
 alias vimrc='vi $HOME/.vimrc'
 alias zshrc='vi $HOME/.zshrc'
 alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
-cb () { open $(_chrome_parse_bookmarks | _fzf "$1" | cut -d '|' -f1); }
+cb() { open $(_chrome_parse_bookmarks | _fzf "$1" | cut -d '|' -f1); }
 
 # AWS
 alias ash='aws-shell'
@@ -138,17 +138,17 @@ alias gcml='git checkout master && git pull'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
 alias gclon='git clone "$(_github_pick_repo)"'
-alias gcane='git commit --amend --no-edit'
+alias gcane='git commit --amend --no-edit -n'
 alias gwab='git worktree add "$(pwd)-bugfix" "origin/master"'
 alias gwaf='$(git worktree list | fzf | _pick_first_col)'
-gcof () { git checkout "$(_git_pick_branch_no_origin "'$1")"; }
+gcof() { git checkout "$(_git_pick_branch_no_origin "'$1")"; }
 alias gsp='git show "$(_git_pick_branch):$(fzf)"'
 alias gdp='git diff "$(_git_pick_branch)" -- "$(fzf)"'
 alias gdcf='git diff "$(_git_pick_commit)" -- "$(fzf)"'
 alias gci='_github_create_issue'
 alias gshowf='git show "$(_git_pick_commit):$(fzf)" | pygmentize | less -SRi'
-gshow () { git show "$1:$2" | vi - ;}
-gshowm () { git show "origin/master:$1" | vi - ;}
+gshow() { git show "$1:$2" | vi - ;}
+gshowm() { git show "origin/master:$1" | vi - ;}
 alias gwip='(git log --oneline master..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias gcp='git add -p && git commit' # Commiting part of a file.
@@ -161,7 +161,7 @@ alias gds='git diff --stat'
 alias gdo='git diff origin/master'
 alias gdc='git diff --cached'
 alias gdos='git diff origin/master --stat'
-gk () { gitk $@; }
+gk() { gitk $@; }
 alias gkap='gitk --all --date-order $(git log -g --pretty=%H)'
 alias gll='git log -p'
 alias glf='git log -p -- "$(_fzf)"'
@@ -174,7 +174,7 @@ alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
-gnewc () { _git_new_branch "$1" && gms $@ ; }
+gnewc() { _git_new_branch "$1" && gms $@ ; }
 alias gnewp='_git_new_branch "$(pbpaste)"'
 alias gnewi='_git_new_branch "$(_github_repo_issues | fzf)"'
 alias gnewa='_git_new_branch "$(_github_issues | fzf)"'
@@ -193,7 +193,7 @@ alias gsl='git stash list'
 alias gss='git stash save'
 alias gu='_github_open_url'
 alias gupd='git stash && git pull && git stash apply'
-gvbump () { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
+gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
 
 # Github
 alias ha='open "$GITHUB_URL"'
@@ -266,3 +266,7 @@ alias py='python3'
 # Website
 alias o='open $(pbpaste)'
 alias c2='open "https://console.aws.amazon.com/ec2/"'
+
+# Bub
+alias b='bub'
+alias bsh='bub ec2'

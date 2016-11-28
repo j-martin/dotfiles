@@ -2,25 +2,25 @@
 <root>
   <item>
     <name>F19 to F19</name>
-    <appendix>F19 to Hyper (ctrl+shift+cmd+opt) + F19 Only, send escape</appendix>
+    <appendix>F19 to Hyper (ctrl+cmd+opt) + F19 Only, send escape</appendix>
     <identifier>private.f192f19_escape</identifier>
     <autogen>
       --KeyOverlaidModifier--
       KeyCode::F19,
       KeyCode::COMMAND_L,
-      ModifierFlag::OPTION_L | ModifierFlag::SHIFT_L | ModifierFlag::CONTROL_L,
+      ModifierFlag::OPTION_L | ModifierFlag::CONTROL_L,
       KeyCode::ESCAPE
     </autogen>
   </item>
   <item>
     <name>Return to F19</name>
-    <appendix>Return to Hyper (ctrl+shift+cmd+opt) + Return Only, send Return</appendix>
+    <appendix>Return to Hyper (ctrl+cmd+opt) + Return Only, send Return</appendix>
     <identifier>private.return_to_f19_return</identifier>
     <autogen>
       --KeyOverlaidModifier--
       KeyCode::RETURN,
       KeyCode::COMMAND_L,
-      ModifierFlag::OPTION_L | ModifierFlag::SHIFT_L | ModifierFlag::CONTROL_L,
+      ModifierFlag::OPTION_L | ModifierFlag::CONTROL_L,
       KeyCode::RETURN
     </autogen>
   </item>

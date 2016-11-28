@@ -60,7 +60,7 @@ _pb_create_filename () {
 }
 
 _pb_org () {
-  local created="$(( 1 + $(echo ${1:-1} | cut -d'.' -f1)))"
+  local created="$(( 100 + $(echo ${1:-1} | cut -d'.' -f1)))"
   for entry in $(_pb_fetch "${created}"); do
     _pb_format_entry "${entry}"
   done

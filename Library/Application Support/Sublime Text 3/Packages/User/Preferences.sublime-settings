@@ -9,7 +9,7 @@
 	[
 		"light"
 	],
-	"font_size": 11,
+	"font_size": 12,
 	"highlight_line": true,
 	"highlight_modified_tabs": true,
 	"hot_exit": false,
