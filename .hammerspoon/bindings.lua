@@ -9,10 +9,11 @@ local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
 local emacs = require 'emacs'
+local chrome = require 'chrome'
 local reminder = require 'reminder'
 local logger = hs.logger.new('bindings', 'debug')
 
-local hyper = { 'cmd', 'alt', 'ctrl', 'shift' }
+local hyper = { 'cmd', 'alt', 'ctrl'}
 
 local mod = {}
 
@@ -33,13 +34,13 @@ local hyperBindings = {
   { key = 's', fn = windows.snapAll },
   { key = 'd', fn = selection.actOn },
   { key = 'f', name = 'Finder' },
-  { key = 'y', name = 'Inbox', tab = true },
+  { key = 'y', fn = chrome.inbox },
   { key = 'u', name = 'Emacs' },
   { key = 'i', name = 'iTerm2' },
   { key = 'o', name = 'IntelliJ IDEA.app' },
   { key = 'p', name = 'Sublime Text' },
   { key = ';', name = 'Dash' },
-  { key = 'l', name = 'Google Chrome' },
+  { key = 'l', name = chrome.name },
   { key = '\\', name = 'Paw', tab = true },
   { key = 'g', fn = grid.show },
   { key = 'j', fn = windows.cycleLeft },

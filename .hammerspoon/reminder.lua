@@ -24,7 +24,8 @@ local isAwake = {
 
 local function notice(message, duration)
   return function()
-    alert(message, duration or 10)
+    local padding = '           '
+    alert('\n' .. padding .. message .. padding .. '\n', duration or 10)
     sound.getByName("Hero"):play()
     sound.getByName("Purr"):play()
   end
@@ -41,15 +42,14 @@ local function noticeActions(action)
 
     local function setupTimer(item)
       local interval = item.interval or defaultInterval
-      local padding = '           '
-      timer.doAfter(counter, notice(padding .. '◀︎️' .. item.name .. padding, interval / 2))
+      timer.doAfter(counter, notice(item.name .. ' ▶', interval - 1))
       increment(interval)
-      timer.doAfter(counter, notice(padding .. item.name .. '▶︎' .. padding, interval / 2))
+      timer.doAfter(counter, notice('◀ ' .. item.name, interval - 1))
       increment(interval)
     end
 
     fnutils.each(action, setupTimer)
-    timer.doAfter(counter, notice('Done'))
+    timer.doAfter(counter, notice("✔"))
   end
 end
 
@@ -67,7 +67,7 @@ end
 
 local stretchesList = {
   { name = '✸' },
-  { name = '❖' },
+  { name = '✪' },
 }
 
 local reminders = {

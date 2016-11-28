@@ -101,18 +101,17 @@ local function cycleWidth(startPoint)
   local primaryScreen = screen.primaryScreen():currentMode()
   local currentWidth = focusedWindow:frame().w / primaryScreen.w
   local isDifferentStartPoint = cycleStates[focusedApplication] ~= startPoint
+  local isOnTop = focusedWindow:frame().y ~= 0
 
-  if currentWidth < 0.31 or currentWidth > 0.9 or isDifferentStartPoint then
+  if isOnTop or currentWidth > 0.51 or isDifferentStartPoint then
     width = 0.5
-  elseif currentWidth < 0.51 then
-    width = 0.7
   else
-    width = 0.3
+    width = 0.7
   end
 
   cycleStates[focusedApplication] = startPoint
-  local xPos = startPoint * (1 - (startPoint * width))
-  focusedWindow:move({xPos, 0, width, 1})
+  local x = startPoint * (1 - (startPoint * width))
+  focusedWindow:move({x, 0, width, 1})
   ext.centerOnWindow()
 end
 

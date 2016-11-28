@@ -91,7 +91,9 @@ function mod.mouseHighlight()
 end
 
 function mod.centerOnRect(rect)
-  mouse.setAbsolutePosition(geometry.rectMidPoint(rect))
+  local point = geometry.rectMidPoint(rect)
+  point.y = point.y - rect.h / 6
+  mouse.setAbsolutePosition(point)
 end
 
 
