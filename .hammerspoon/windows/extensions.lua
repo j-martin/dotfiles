@@ -74,7 +74,6 @@ function mod.mouseHighlight()
   -- Get the current co-ordinates of the mouse pointer
   local mousepoint = mouse.getAbsolutePosition()
 
-  -- Prepare a big red circle around the mouse pointer
   local circle = geometry.rect(mousepoint.x - 20, mousepoint.y - 20, 40, 40)
 
   local fillColor = { red = 0.5, blue = 0.5, green = 0.5, alpha = 0.5 }

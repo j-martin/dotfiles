@@ -6,22 +6,37 @@ local mod = {}
 
 mod.name = 'Google Chrome'
 
-local previousWindow = nil
+local previousTab = nil
+
+local function switchTab()
+  local tab = '1'
+  if previousTab == '1' then
+    tab = '2'
+  end
+  previousTab = tab
+  eventtap.keyStroke({'cmd'}, tab)
+end
 
 function mod.inbox()
   local current = window.focusedWindow()
-  local win = window.find("Inbox")
-  if current == win then
-    previousWindow:focus()
-  else
-    previousWindow = current
-    if win then
-      win:unminimize()
-      win:focus()
-    else
+  local inbox = window.find("Inbox")
+
+  local isChrome = current:application():title() == mod.name
+
+  if current == inbox then
+    switchTab()
+  elseif inbox then
+    inbox:unminimize()
+    inbox:focus()
+  elseif isChrome then
+    switchTab()
+    if not window.find("Inbox") then
       windows.launchOrCycleFocus(mod.name)()
-      eventtap.keyStroke({'cmd'}, '1')
+      switchTab()
     end
+  else
+    windows.launchOrCycleFocus(mod.name)()
+    switchTab()
   end
 end
 

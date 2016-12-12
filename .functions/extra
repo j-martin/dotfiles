@@ -82,3 +82,10 @@ urlencode() {
   python -c 'import urllib, sys; print urllib.quote(sys.argv[1], sys.argv[2])' \
          "$1" "$urlencode_safe"
 }
+
+nvm() {
+  unset -f nvm
+  export NVM_DIR=~/.nvm
+  [ -s /usr/local/opt/nvm/nvm.sh ] && source /usr/local/opt/nvm/nvm.sh  # This loads nvm
+  nvm "$@"
+}

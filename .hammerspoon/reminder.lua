@@ -60,6 +60,10 @@ local function setReminder(item)
   item.timer:stop():start()
 end
 
+local function stopReminder(item)
+  item.timer:stop()
+end
+
 local function setReminders(reminders)
   fnutils.each(reminders, setReminder)
 end
@@ -81,8 +85,13 @@ end
 mod.stretches = noticeActions(stretchesList)
 
 function mod.reset()
-  alert("Resetting timers")
   setReminders(reminders)
+  alert('Reminders have been reset.')
+end
+
+function mod.stop()
+  fnutils.each(reminders, stopReminder)
+  alert('Reminders have been stopped.')
 end
 
 function mod.init()

@@ -17,3 +17,8 @@ venv/
 
 # IntelliJ
 .idea
+
+# gtags
+GPATH
+GRTAGS
+GTAGS

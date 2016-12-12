@@ -17,6 +17,10 @@ function mod.capture()
   eval('(org-capture)')
 end
 
+function mod.inbox()
+  eval('(jm/open-inbox)')
+end
+
 function mod.agenda()
   eval('(org-agenda-list)')
 end

@@ -13,7 +13,8 @@ local chrome = require 'chrome'
 local reminder = require 'reminder'
 local logger = hs.logger.new('bindings', 'debug')
 
-local hyper = { 'cmd', 'alt', 'ctrl'}
+local hyper = { 'cmd', 'alt', 'ctrl' }
+local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
 
 local mod = {}
 
@@ -44,14 +45,18 @@ local hyperBindings = {
   { key = '\\', name = 'Paw', tab = true },
   { key = 'g', fn = grid.show },
   { key = 'j', fn = windows.cycleLeft },
+  { key = 'j', pos = { 0.0, 0.0, 0.3, 1.0 }, shift = true },
   { key = 'k', fn = windows.cycleRight },
+  { key = 'k', pos = { 0.7, 0.0, 0.3, 1.0 }, shift = true },
   { key = 'z', fn = caffeinate.lockScreen },
   { key = 'x', fn = windows.previousScreen },
   { key = 'c', pos = { 0.3, 0.1, 0.4, 0.6 } },
   { key = 'n', pos = { 0.3, 0.0, 0.4, 1.0 } },
+  { key = 'n', pos = { 0.2, 0.0, 0.6, 1.0 }, shift = true },
   { key = 'm', pos = { 0.0, 0.0, 1.0, 1.0 } },
-  { key = 'v', fn = selection.paste },
+  { key = 'v', fn = selection.paste, shift = true },
   { key = 't', fn = emacs.capture },
+  { key = 't', fn = emacs.inbox, shift = true },
   { key = 'q', fn = hs.toggleConsole },
   { key = 'r', fn = hs.reload },
 }
@@ -62,6 +67,7 @@ local hyperBindings = {
 
 local generalBindings = {
   { key = 's', fn = reminder.stretches },
+  { key = 'd', fn = reminder.stop },
   { key = 'r', fn = reminder.reset },
   { key = 'j', fn = audio.next },
   { key = 'k', fn = audio.previous },
@@ -156,11 +162,18 @@ local function buildLayoutBinding(binding)
 end
 
 local function bindToHyper(binding)
+  local modifier = hyper
+
   if binding.tab and binding.name then
     logger.d(binding.name)
     tabs.enableForApp(binding.name)
   end
-  hotkey.bind(hyper, binding.key, buildBindFunction(binding))
+
+  if binding.shift then
+    modifier = hyperShift
+  end
+
+  hotkey.bind(modifier, binding.key, buildBindFunction(binding))
 end
 
 function mod.init()

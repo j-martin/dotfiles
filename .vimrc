@@ -8,14 +8,15 @@ filetype plugin indent on
 call plug#begin('~/.vim/plugged')
 
 Plug 'Lokaltog/vim-easymotion'
+Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'gcmt/breeze.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'rking/ag.vim'
-Plug 'scrooloose/syntastic'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'neomake/neomake'
 Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
@@ -38,6 +39,7 @@ set showcmd
 set autoindent
 set cursorline
 au BufWritePre * :%s/\s\+$//e "Strip trailing space on save
+au FocusLost * :wa "save on focus lost
 
 "Tabs
 "====

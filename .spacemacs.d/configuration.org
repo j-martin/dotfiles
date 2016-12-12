@@ -25,6 +25,7 @@
   (spacemacs/toggle-smartparens-globally-on)
   (setq save-interprogram-paste-before-kill t)
   (setq multi-term-program-switches "--login")
+  (setq gc-cons-threshold (* 800 1024))
 #+end_src
 *** Custom file
 #+begin_src emacs-lisp :results none
@@ -90,11 +91,21 @@
   (global-auto-revert-mode t)
   (setq revert-without-query '(".*"))
 #+end_src
+** Atomic Chrome
+#+begin_src emacs-lisp :results none
+  (atomic-chrome-start-server)
+#+end_src
+
 ** AutoMode
 #+begin_src emacs-lisp :results none
   (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
   (add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
   (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
+#+end_src
+
+** Projectile
+#+begin_src emacs-lisp :results none
+(setq projectile-enable-caching t)
 #+end_src
 
 ** Linum
@@ -139,6 +150,7 @@
 
 (add-hook 'makefile-mode-hook 'jm/makefile-mode-config)
 #+end_src
+
 ** shell-script
 #+begin_src emacs-lisp :results none
   (defun jm/sh-mode-config ()
