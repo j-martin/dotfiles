@@ -29,16 +29,14 @@
 #+end_src
 *** Custom file
 #+begin_src emacs-lisp :results none
-(setq custom-file "~/.spacemacs.d/custom-configuration.el")
-(load custom-file t)
+  (setq custom-file "~/.spacemacs.d/custom-configuration.el")
+  ;; (load custom-file t)
 #+end_src
 ** GitHub related
 #+begin_src emacs-lisp :results none
-  (setq edit-server-url-major-mode-alist '(("github\\.com" . org-mode)))
   (if (eq system-type 'darwin)
       (setq paradox-github-token (shell-command "keyring get system github_paradox"))
-    (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\"")))
-  )
+    (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\""))))
 #+end_src
 * UI/Visual
 #+begin_src emacs-lisp :results none
@@ -65,7 +63,7 @@
   (setq whitespace-display-mappings
     ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
     '(
-      (tab-mark 9 [9655 9] [92 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
+      (tab-mark 9 [9655 9] [255 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
       ))
   (global-whitespace-mode 1)
   (setq fill-column 120)
@@ -111,9 +109,8 @@
 ** Linum
 #+begin_src emacs-lisp :results none
   (add-hook 'prog-mode-hook
-            (lambda () (linum-mode (- (* 5000 80) (buffer-size)))))
+            (lambda () (linum-mode (- (* 2000 80) (buffer-size)))))
 #+end_src
-
 ** Autofill
 #+begin_src emacs-lisp :results none
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
@@ -130,7 +127,7 @@
          ("->" . 8594)    ; →
          ("=>" . 8658)    ; ⇒
          ("function" . ?ƒ); ƒ
-         )))
+)))
   (add-hook 'lisp-mode-hook 'jm/pretty-symbols)
   (add-hook 'org-mode-hook 'jm/pretty-symbols)
   (add-hook 'js2-mode-hook 'jm/pretty-symbols)
@@ -199,7 +196,10 @@
     (setq org-hide-emphasis-markers t)
     (setq org-agenda-files (list org-directory))
     (setq org-startup-folded t)
-    (add-hook 'org-mode-hook 'smartparens-mode)
+    (add-hook 'org-mode-hook 'jm/org-hooks)
+    (defun jm/org-hooks ()
+      (smartparens-mode)
+      (linum-mode -1))
   #+end_src
 *** org-babel
 #+begin_src emacs-lisp :results none
@@ -289,7 +289,7 @@
   (define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
   (global-set-key (kbd "s-<left>") 'beginning-of-line)
   (global-set-key (kbd "s-<right>") 'end-of-line)
-  (global-set-key (kbd "s-t") 'make-frame)
+  (global-set-key (kbd "s-t") 'neotree-find)
   (global-set-key (kbd "C-i") 'evil-jump-forward)
   (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
   (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
@@ -357,6 +357,7 @@
 
       (defun jm/org-github-todo ()
         (interactive)
+        (find-file (expand-file-name "~/.org/standup.org"))
         (end-of-buffer)
         (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
         (org-content))

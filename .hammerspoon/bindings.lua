@@ -9,7 +9,7 @@ local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
 local emacs = require 'emacs'
-local chrome = require 'chrome'
+local applications = require 'applications'
 local reminder = require 'reminder'
 local logger = hs.logger.new('bindings', 'debug')
 
@@ -25,7 +25,8 @@ local mod = {}
 local hyperBindings = {
   { key = '1', name = 'Activity Monitor' },
   { key = '7', name = '1Password 6' },
-  { key = '8', name = 'Slack' },
+  { key = '8', fn = applications.slack },
+  { key = '8', name = applications.name.slack, shift = true },
   { key = '9', name = 'Spotify' },
   { key = '0', name = 'aText' },
   { key = '=', name = 'KeePassX' },
@@ -35,13 +36,13 @@ local hyperBindings = {
   { key = 's', fn = windows.snapAll },
   { key = 'd', fn = selection.actOn },
   { key = 'f', name = 'Finder' },
-  { key = 'y', fn = chrome.inbox },
+  { key = 'y', fn = applications.inbox },
   { key = 'u', name = 'Emacs' },
   { key = 'i', name = 'iTerm2' },
   { key = 'o', name = 'IntelliJ IDEA.app' },
   { key = 'p', name = 'Sublime Text' },
   { key = ';', name = 'Dash' },
-  { key = 'l', name = chrome.name },
+  { key = 'l', name = applications.name.chrome },
   { key = '\\', name = 'Paw', tab = true },
   { key = 'g', fn = grid.show },
   { key = 'j', fn = windows.cycleLeft },

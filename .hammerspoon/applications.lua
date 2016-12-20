@@ -4,9 +4,10 @@ local windows = require 'windows'
 
 local mod = {}
 
-mod.name = 'Google Chrome'
-
-local previousTab = nil
+mod.name = {
+  chrome = 'Google Chrome',
+  slack  = 'Slack'
+}
 
 local function switchTab()
   local tab = '1'
@@ -16,6 +17,13 @@ local function switchTab()
   previousTab = tab
   eventtap.keyStroke({'cmd'}, tab)
 end
+
+function mod.slack()
+  windows.launchOrCycleFocus(mod.name.slack)()
+  eventtap.keyStroke({'cmd'}, 't')
+end
+
+local previousTab = nil
 
 function mod.inbox()
   local current = window.focusedWindow()
@@ -31,11 +39,11 @@ function mod.inbox()
   elseif isChrome then
     switchTab()
     if not window.find("Inbox") then
-      windows.launchOrCycleFocus(mod.name)()
+      windows.launchOrCycleFocus(mod.name.chrome)()
       switchTab()
     end
   else
-    windows.launchOrCycleFocus(mod.name)()
+    windows.launchOrCycleFocus(mod.name.chrome)()
     switchTab()
   end
 end

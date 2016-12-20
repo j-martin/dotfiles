@@ -19,7 +19,7 @@ _pb () {
 _pb_fetch () {
   local created="$1"
   _info "Fetching starting from: $created"
-  _pb "pushes?modified_after=$created" \
+  _pb "pushes?created_after=$created" \
     | jq -c '.pushes
       | reverse[]
       | select(has("url"))

@@ -49,6 +49,7 @@ agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merg
 alias ca='cal -y'
 alias clf='clf -c'
 alias c='_with_fzf "cat"'
+alias cdp='cd "$(dirname "$(pbpaste)")"'
 alias dk='docker'
 alias dkp='docker ps'
 dki() { docker images | awk '{print $1 ":" $2}' | sort -u ;}
