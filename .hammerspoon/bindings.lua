@@ -43,6 +43,7 @@ local hyperBindings = {
   { key = 'p', name = 'Sublime Text' },
   { key = ';', name = 'Dash' },
   { key = 'l', name = applications.name.chrome },
+  { key = 'l', fn = applications.chromeOmni, shift = true },
   { key = '\\', name = 'Paw', tab = true },
   { key = 'g', fn = grid.show },
   { key = 'j', fn = windows.cycleLeft },

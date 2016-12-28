@@ -12,6 +12,6 @@
   org =
 [core]
   commentChar = ";"
-  excludesfile = /Users/benchemployee/.gitignore_global
+  excludesfile = /Users/jma/.gitignore_global
 [url "git@github.com:"]
   insteadOf = "https://github.com/"

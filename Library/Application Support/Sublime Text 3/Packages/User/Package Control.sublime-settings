@@ -36,6 +36,7 @@
 		"nginx",
 		"Open With",
 		"orgmode",
+		"Origami",
 		"Package Control",
 		"Pretty JSON",
 		"Pretty YAML",
@@ -47,11 +48,9 @@
 		"SublimeSBT",
 		"Swap Selections",
 		"Tag",
-		"Theme - Afterglow",
-		"Theme - Flatland",
-		"Theme - itg.flat",
 		"VintageLines",
 		"Vintageous",
+		"VintageousOrigami",
 		"VintageousPluginSurround"
 	]
 }

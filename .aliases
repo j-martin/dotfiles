@@ -274,3 +274,4 @@ alias bcleanup='brew bundle --global cleanup' # --force
 # Bub
 alias b='bub'
 alias bsh='bub ec2'
+alias bj='bub jenkins'

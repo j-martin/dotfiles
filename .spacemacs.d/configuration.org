@@ -98,6 +98,7 @@
 #+begin_src emacs-lisp :results none
   (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
   (add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
+  (add-to-list 'auto-mode-alist '("\\.template\\'" . json-mode))
   (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
 #+end_src
 

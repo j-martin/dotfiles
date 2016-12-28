@@ -1,7 +1,7 @@
 {
 	"anaconda_linting": true,
 	"anaconda_linting_behaviour": "always",
-	"color_scheme": "Packages/Color Scheme - Default/Monokai.tmTheme",
+	"color_scheme": "Packages/Material Theme/schemes/Material-Theme.tmTheme",
 	"draw_white_space": "all",
 	"ensure_newline_at_eof_on_save": true,
 	"extra_file_exclude_patterns":
@@ -46,7 +46,6 @@
 	"ignored_packages":
 	[
 		"nginx",
-		"Theme - Flatland",
 		"Vintage"
 	],
 	"index_exclude_patterns":
@@ -119,7 +118,7 @@
 	"scroll_past_end": true,
 	"tabs_small": true,
 	"test_command": "nose2",
-	"theme": "Default.sublime-theme",
+	"theme": "Material-Theme.sublime-theme",
 	"translate_tabs_to_spaces": false,
 	"trim_trailing_white_space_on_save": true,
 	"use_pylint": false,
