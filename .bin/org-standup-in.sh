@@ -11,8 +11,8 @@ _format () {
 if (has("pull_request") and (.user.login != "j-martin")) then " :review:" else "" end,
 ":PROPERTIES:",
 ":ID: " + (.id | tostring),
-":END:",
-.body'
+":END:"
+'
 }
 
 _get_latest_entry () {

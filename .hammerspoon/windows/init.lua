@@ -3,6 +3,7 @@ local grid = require "hs.grid"
 local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
+local timer = require "hs.timer"
 local geometry = require "hs.geometry"
 local logger = hs.logger.new('windows', 'debug')
 
@@ -14,11 +15,19 @@ mod.launchOrCycleFocus = ext.launchOrCycleFocus
 
 -- grid/window settings
 grid.ui.textSize = 15
-grid.GRIDWIDTH = 10
-grid.GRIDHEIGHT = 4
 grid.MARGINX = 0
 grid.MARGINY = 0
 window.animationDuration = 0
+
+function mod.grid()
+  grid.setGrid('10x4')
+  grid.show()
+end
+
+function mod.altGrid()
+  grid.setGrid('8x4')
+  grid.show()
+end
 
 function mod.applyLayout(commonLayout, selectedLayout)
   local function expandLayout(entry)

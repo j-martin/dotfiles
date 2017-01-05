@@ -76,7 +76,7 @@
       --KeyOverlaidModifier--
       KeyCode::OPTION_R,
       KeyCode::CONTROL_R,
-      KeyCode::FORWARD_DELETE
+      KeyCode::ESCAPE
     </autogen>
   </item>
   <item>
@@ -87,7 +87,7 @@
       --KeyOverlaidModifier--
       KeyCode::OPTION_L,
       KeyCode::OPTION_L,
-      KeyCode::ESCAPE
+      KeyCode::FORWARD_DELETE
     </autogen>
   </item>
   <item>

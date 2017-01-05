@@ -1,5 +1,7 @@
 local eventtap = require 'hs.eventtap'
 local window = require 'hs.window'
+local screen = require 'hs.screen'
+local mouse = require 'hs.mouse'
 local timer = require 'hs.timer'
 local windows = require 'windows'
 
@@ -22,6 +24,17 @@ local function switchTab()
   end
   previousTab = tab
   eventtap.keyStroke({'cmd'}, tab)
+end
+
+function mod.openNotification()
+  local currentScreen = mouse.getCurrentScreen()
+  local currentPos = mouse.getRelativePosition()
+  local targetScreen = screen.primaryScreen()
+  local targetPos = { x = targetScreen:frame().w - 40, y = 40 }
+
+  mouse.setRelativePosition(targetPos, targetScreen)
+  eventtap.leftClick(targetPos)
+  mouse.setRelativePosition(currentPos, currentScreen)
 end
 
 function mod.slack()

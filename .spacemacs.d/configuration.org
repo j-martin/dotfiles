@@ -304,8 +304,10 @@
   (spacemacs/set-leader-keys "or" 'jm/open-references)
   (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
   (spacemacs/set-leader-keys "oc" 'jm/open-config)
+  (spacemacs/set-leader-keys "ac" 'jm/calc)
   (spacemacs/set-leader-keys "os" 'jm/open-standup)
-  (spacemacs/set-leader-keys "og" 'jm/org-github-todo)
+  (spacemacs/set-leader-keys "og" 'jm/org-github-in)
+  (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
   (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
   (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
   (spacemacs/set-leader-keys "ol" 'org-content)
@@ -315,30 +317,34 @@
 
 * General Functions
 #+begin_src emacs-lisp :results none
-      (defun jm/open-config ()
-        (interactive)
-        (find-file (expand-file-name "~/.spacemacs.d/configuration.org")))
-
       (defun jm/magit-commit-message ()
         (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '.*#[0-9]*'")))
           (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
         (evil-insert-state))
 
+      (defun jm/open-file (file)
+        (find-file (expand-file-name file))
+        (evil-normal-state))
+
+      (defun jm/open-config ()
+        (interactive)
+        (jm/open-file "~/.spacemacs.d/configuration.org"))
+
       (defun jm/open-main ()
         (interactive)
-        (find-file (expand-file-name "~/.org/main.org")))
+        (jm/open-file "~/.org/main.org"))
 
       (defun jm/open-inbox ()
         (interactive)
-        (find-file (expand-file-name "~/.org/inbox.org")))
+        (jm/open-file "~/.org/inbox.org"))
 
       (defun jm/open-references ()
         (interactive)
-        (find-file (expand-file-name "~/.org/references.org")))
+        (jm/open-file "~/.org/references.org"))
 
       (defun jm/open-standup ()
         (interactive)
-        (find-file (expand-file-name "~/.org/standup.org")))
+        (jm/open-file "~/.org/standup.org"))
 
       (defun jm/helm-org-dir ()
         (interactive)
@@ -356,12 +362,17 @@
         (interactive)
         (helm-find-files-1 (expand-file-name "~/Work/forks/")))
 
-      (defun jm/org-github-todo ()
+      (defun jm/org-github-in ()
         (interactive)
-        (find-file (expand-file-name "~/.org/standup.org"))
+        (jm/open-file "~/.org/standup.org")
         (end-of-buffer)
         (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
         (org-content))
+
+      (defun jm/org-github-out ()
+        (interactive)
+        (jm/open-file "~/.org/standup.org")
+        (shell-command "$HOME/.bin/org-standup-out.sh  2> /dev/null"))
 
       (defun jm/insert-today ()
         (interactive)
@@ -393,6 +404,11 @@
       (defun jm/open-with-sublime ()
         (interactive)
         (jm/open-with-line-column "/usr/local/bin/subl"))
+
+      (defun jm/calc ()
+        (interactive)
+        (quick-calc)
+        (yank))
 
       (defun jm/open-with-idea ()
         (interactive)

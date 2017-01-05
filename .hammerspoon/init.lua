@@ -14,4 +14,8 @@ audio.init()
 reminder.init()
 usb.init()
 
+notifications = hs.distributednotifications.new(function(name, object, userInfo)
+    print(string.format("name: %s\nobject: %s\nuserInfo: %s\n", name, object, hs.inspect(userInfo)))
+end):start()
+
 alert.show("Config loaded")

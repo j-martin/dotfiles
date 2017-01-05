@@ -40,11 +40,11 @@ values."
      (auto-completion :variables
        auto-completion-tab-key-behavior 'cycle
        auto-completion-return-key-behavior 'complete
-       auto-completion-complete-with-key-sequence "jk"
+       ;; auto-completion-complete-with-key-sequence "jk"
        auto-completion-complete-with-key-sequence-delay 0.6
        ;; auto-completion-enable-sort-by-usage t
-       ;; auto-completion-enable-help-tooltip t
-       auto-completion-enable-snippets-in-popup t
+       auto-completion-enable-help-tooltip t
+       ;; auto-completion-enable-snippets-in-popup nil
        auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
      clojure
@@ -100,6 +100,7 @@ values."
      protobuf-mode
      string-inflection
      super-save
+     writegood-mode
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
