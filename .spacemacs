@@ -80,7 +80,7 @@ values."
      ;; slack
      (spell-checking :variables spell-checking-enable-by-default nil)
      sql
-     (syntax-checking :variables syntax-checking-enable-by-default nil)
+     syntax-checking
      ;; terraform
      ;; themes-megapack
      ;; vagrant
