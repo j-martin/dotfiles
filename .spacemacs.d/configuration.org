@@ -14,28 +14,28 @@
 #+end_src
 ** Convenience
 #+begin_src emacs-lisp :results none
-  (setq confirm-kill-emacs 'y-or-n-p)
-  (setq mac-emulate-three-button-mouse t)
-  ;; (setq x-select-enable-clipboard nil)
-  (fset 'evil-visual-update-x-selection 'ignore)
-  (setq make-backup-files nil)
-  (spacemacs/toggle-indent-guide-globally-on)
-  (spacemacs/toggle-camel-case-motion-globally-on)
-  (spacemacs/toggle-evil-cleverparens-on)
-  (spacemacs/toggle-smartparens-globally-on)
-  (setq save-interprogram-paste-before-kill t)
-  (setq multi-term-program-switches "--login")
-  (setq gc-cons-threshold (* 800 1024))
+(setq confirm-kill-emacs 'y-or-n-p)
+(setq mac-emulate-three-button-mouse t)
+;; (setq x-select-enable-clipboard nil)
+(fset 'evil-visual-update-x-selection 'ignore)
+(setq make-backup-files nil)
+(spacemacs/toggle-indent-guide-globally-on)
+(spacemacs/toggle-camel-case-motion-globally-on)
+(spacemacs/toggle-evil-cleverparens-on)
+(spacemacs/toggle-smartparens-globally-on)
+(setq save-interprogram-paste-before-kill t)
+(setq multi-term-program-switches "--login")
+(setq gc-cons-threshold (* 800 1024))
 #+end_src
 *** Custom file
 #+begin_src emacs-lisp :results none
-  (setq custom-file "~/.spacemacs.d/custom-configuration.el")
-  ;; (load custom-file t)
+(setq custom-file "~/.spacemacs.d/custom-configuration.el")
+;; (load custom-file t)
 #+end_src
 ** GitHub related
 #+begin_src emacs-lisp :results none
-  (if (eq system-type 'darwin)
-      (setq paradox-github-token (shell-command "keyring get system github_paradox"))
+(if (eq system-type 'darwin)
+    (setq paradox-github-token (shell-command "keyring get system github_paradox"))
     (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\""))))
 #+end_src
 * UI/Visual
@@ -60,15 +60,14 @@
 #+end_src
 ** Whitespace
 #+begin_src emacs-lisp :results none
-  (setq whitespace-display-mappings
-    ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
-    '(
-      (tab-mark 9 [9655 9] [255 9]) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
-      ))
-  (global-whitespace-mode 1)
-  (setq fill-column 120)
-  (setq whitespace-line-column 260)
-  (setq-default
+(setq whitespace-display-mappings
+  ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
+  '((tab-mark 9 [9655 9] [255 9]))) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
+
+(global-whitespace-mode 1)
+(setq fill-column 120)
+(setq whitespace-line-column 260)
+(setq-default
   tab-width 2
   indent-tabs-mode nil
   fci-rule-column 120)
@@ -76,30 +75,30 @@
 * Modes
 ** Enabling
 #+begin_src emacs-lisp :results none
-  (delete-selection-mode 1)
-  (editorconfig-mode 1)
-  (global-company-mode 1)
-  (ws-butler-global-mode 1)
-  (setq-default abbrev-mode t)
-  (setq save-abbrevs 'silently)
-  (super-save-mode +1)
+(delete-selection-mode 1)
+(editorconfig-mode 1)
+(global-company-mode 1)
+(ws-butler-global-mode 1)
+(setq-default abbrev-mode t)
+(setq save-abbrevs 'silently)
+(super-save-mode +1)
 #+end_src
 ** Autorevert
 #+begin_src emacs-lisp :results none
-  (global-auto-revert-mode t)
-  (setq revert-without-query '(".*"))
+(global-auto-revert-mode t)
+(setq revert-without-query '(".*"))
 #+end_src
 ** Atomic Chrome
 #+begin_src emacs-lisp :results none
-  (atomic-chrome-start-server)
+(atomic-chrome-start-server)
 #+end_src
 
 ** AutoMode
 #+begin_src emacs-lisp :results none
-  (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
-  (add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
-  (add-to-list 'auto-mode-alist '("\\.template\\'" . json-mode))
-  (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
+(add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
+(add-to-list 'auto-mode-alist '("\\.template\\'" . json-mode))
+(add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
 #+end_src
 
 ** Projectile
@@ -109,8 +108,8 @@
 
 ** Linum
 #+begin_src emacs-lisp :results none
-  (add-hook 'prog-mode-hook
-            (lambda () (linum-mode (- (* 2000 80) (buffer-size)))))
+(add-hook 'prog-mode-hook
+          (lambda () (linum-mode (- (* 2000 80) (buffer-size)))))
 #+end_src
 ** Autofill
 #+begin_src emacs-lisp :results none
@@ -129,20 +128,20 @@
          ("=>" . 8658)    ; ⇒
          ("function" . ?ƒ); ƒ
 )))
-  (add-hook 'lisp-mode-hook 'jm/pretty-symbols)
-  (add-hook 'org-mode-hook 'jm/pretty-symbols)
-  (add-hook 'js2-mode-hook 'jm/pretty-symbols)
-  (add-hook 'scala-mode-hook 'jm/pretty-symbols)
-  (add-hook 'coffee-mode-hook 'jm/pretty-symbols)
-  (add-hook 'lua-mode-hook 'jm/pretty-symbols)
+(add-hook 'lisp-mode-hook 'jm/pretty-symbols)
+(add-hook 'org-mode-hook 'jm/pretty-symbols)
+(add-hook 'js2-mode-hook 'jm/pretty-symbols)
+(add-hook 'scala-mode-hook 'jm/pretty-symbols)
+(add-hook 'coffee-mode-hook 'jm/pretty-symbols)
+(add-hook 'lua-mode-hook 'jm/pretty-symbols)
 #+end_src
 
 ** Makefile
 #+begin_src emacs-lisp :results none
 (defun jm/makefile-mode-config ()
-  (setq indent-tabs-mode t)
   (setq-default indent-tabs-mode t)
   (global-set-key (kbd "TAB") 'self-insert-command)
+  (setq indent-tabs-mode t)
   (setq tab-width 8)
   (setq c-basic-indent 8))
 
@@ -151,14 +150,15 @@
 
 ** shell-script
 #+begin_src emacs-lisp :results none
-  (defun jm/sh-mode-config ()
-    (interactive)
-    (setq sh-indentation 2)
-    (setq sh-basic-offset 2))
+(defun jm/sh-mode-config ()
+  (interactive)
+  (setq sh-indentation 2)
+  (setq sh-basic-offset 2))
 
-  (add-hook 'sh-mode-hook 'jm/sh-mode-config)
-  (unless (eq system-type 'windows-nt)
-    (push 'company-dabbrev-code company-backends-sh-mode))
+(add-hook 'sh-mode-hook 'jm/sh-mode-config)
+
+(unless (eq system-type 'windows-nt)
+  (push 'company-dabbrev-code company-backends-sh-mode))
 #+end_src
 
 ** EVIL
@@ -169,13 +169,13 @@
 
 ** Scala
 #+begin_src emacs-lisp :results none
-  (setq ensime-startup-snapshot-notification nil)
+(setq ensime-startup-snapshot-notification nil)
 #+end_src
 ** Java
 #+begin_src emacs-lisp :results none
   (add-hook 'java-mode-hook (lambda ()
-                               (setq c-basic-offset 2
-                                     tab-width 2)))
+                              (setq c-basic-offset 2
+                                    tab-width 2)))
 
 #+end_src
 ** JS
@@ -185,239 +185,258 @@
 
 ** magit
 #+begin_src emacs-lisp :results none
-  (setq magit-repository-directories '("~/Work/"))
-  (setq-default vc-follow-symlinks t)
-  (add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
+(setq magit-repository-directories '("~/Work/"))
+(setq-default vc-follow-symlinks t)
+(add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
 #+end_src
 ** org
 *** Basic setup
   #+begin_src emacs-lisp :results none
-    (setq org-directory "~/.org/")
-    (setq org-default-notes-file "~/.org/inbox.org")
-    (setq org-hide-emphasis-markers t)
-    (setq org-agenda-files (list org-directory))
-    (setq org-startup-folded t)
-    (add-hook 'org-mode-hook 'jm/org-hooks)
-    (defun jm/org-hooks ()
-      (smartparens-mode)
-      (linum-mode -1))
+(setq org-directory "~/.org/")
+(setq org-default-notes-file "~/.org/inbox.org")
+(setq org-hide-emphasis-markers t)
+(setq org-agenda-files (list org-directory))
+(setq org-startup-folded t)
+(setq org-catch-invisible-edits 'error)
+(add-hook 'org-mode-hook 'jm/org-hooks)
+
+(defun jm/org-hooks ()
+  (smartparens-mode)
+  (linum-mode -1))
   #+end_src
 *** org-babel
 #+begin_src emacs-lisp :results none
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
-  (setq org-src-window-setup 'current-window)
+(setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
+(setq org-src-window-setup 'current-window)
 #+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :results none
-  (add-hook 'org-capture-mode-hook 'evil-insert-state)
-  (setq org-capture-templates
-        '(
-          ("t" "Todo"
-           entry
-           (file+headline "~/.org/inbox.org" "Tasks")
-           "* TODO %?\n%i\n%a")
+(add-hook 'org-capture-mode-hook 'evil-insert-state)
+(setq org-capture-templates
+      '(
+        ("t" "Todo"
+         entry
+         (file+headline "~/.org/inbox.org" "Tasks")
+         "* TODO %?\n%i\n%a")
 
-          ("T" "Todo with clipboard"
-            entry
-            (file+headline "~/.org/inbox.org" "Tasks")
-            "* TODO %?\n%i\n%c\n%a")
+        ("T" "Todo with clipboard"
+          entry
+          (file+headline "~/.org/inbox.org" "Tasks")
+          "* TODO %?\n%i\n%c\n%a")
 
-          ("w" "Todo for work"
-            entry
-            (file+headline "~/.org/inbox.org" "Work")
-            "* TODO %?\n%i\n%a")
+        ("c" "Calendar"
+         entry
+         (file "~/.org/calendar-personal.org")
+         "* %?\n:%i\n%a")
 
-          ("W" "Todo with clipboard for work"
-            entry
-            (file+headline "~/.org/inbox.org" "Work")
-            "* TODO %?\n%i\n%c\n%a")
+        ("w" "Todo for work"
+          entry
+          (file+headline "~/.org/inbox.org" "Work")
+          "* TODO %?\n%i\n%a")
 
-          ("q" "Question for work"
-            entry
-            (file+olp "~/.org/inbox.org" "Work" "Questions")
-            "*** TODO %? :work:\nEntered on %U\n%i\n%a")
+        ("W" "Todo with clipboard for work"
+          entry
+          (file+headline "~/.org/inbox.org" "Work")
+          "* TODO %?\n%i\n%c\n%a")
 
-          ("k" "Kudos for work"
-            entry
-            (file+olp "~/.org/inbox.org" "Work" "Kudos")
-            "*** TODO %?\n%i\n%a")
+        ("q" "Question for work"
+          entry
+          (file+olp "~/.org/inbox.org" "Work" "Questions")
+          "*** TODO %? :work:\nEntered on %U\n%i\n%a")
 
-          ("s" "Add note to standup"
-            plain
-            (file "~/.org/standup.org")
-            "** TODO %?\n%i\n%a")
+        ("k" "Kudos for work"
+          entry
+          (file+olp "~/.org/inbox.org" "Work" "Kudos")
+          "*** TODO %?\n%i\n%a")
 
-          ("S" "Add note to standup DONE"
-            plain
-            (file "~/.org/standup.org")
-            "** DONE %?\n%i\n%a")
+        ("s" "Add note to standup"
+          plain
+          (file "~/.org/standup.org")
+          "** TODO %?\n%i\n%a")
 
-          ("r" "References / Research"
-            entry
-            (file+headline "~/.org/references.org" "Research")
-            "** %?%c\nEntered on %U\n%i\n\n%a")
+        ("S" "Add note to standup DONE"
+          plain
+          (file "~/.org/standup.org")
+          "** DONE %?\n%i\n%a")
 
-          ("R" "References / Research TODO"
-            entry
-            (file+headline "~/.org/references.org" "Research")
-            "** TODO %?\nEntered on %U\n%i\n\n%a")
+        ("r" "References / Research"
+          entry
+          (file+headline "~/.org/references.org" "Research")
+          "** %?%c\nEntered on %U\n%i\n\n%a")
 
-          ("b" "References / Books"
-            entry
-            (file+headline "~/.org/references.org" "Books")
-            "** %?%c\n%i\n\n%a")
+        ("R" "References / Research TODO"
+          entry
+          (file+headline "~/.org/references.org" "Research")
+          "** TODO %?\nEntered on %U\n%i\n\n%a")
 
-          ("j" "Journal"
-            entry
-            (file+datetree "~/.org/journal.org")
-            "* %?\nEntered on %U\n%i\n%a")
+        ("b" "References / Books"
+          entry
+          (file+headline "~/.org/references.org" "Books")
+          "** %?%c\n%i\n\n%a")
 
-          ("J" "Journal with Clipboard"
-            entry
-            (file+datetree "~/.org/journal.org")
-            "* %?\nEntered on %U\n%i\n%c\n%a")
-          ))
+        ("j" "Journal"
+          entry
+          (file+datetree "~/.org/journal.org")
+          "* %?\nEntered on %U\n%i\n%a")
+
+        ("J" "Journal with Clipboard"
+          entry
+          (file+datetree "~/.org/journal.org")
+          "* %?\nEntered on %U\n%i\n%c\n%a")
+        ))
 #+end_src
 
 * Keyboard Bindings
 #+begin_src emacs-lisp :results none
-  (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
-  (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
-  (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
-  (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
-  (define-key evil-normal-state-map (kbd "[s") 'flycheck-previous-error)
-  (define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
-  (global-set-key (kbd "s-<left>") 'beginning-of-line)
-  (global-set-key (kbd "s-<right>") 'end-of-line)
-  (global-set-key (kbd "s-t") 'neotree-find)
-  (global-set-key (kbd "C-i") 'evil-jump-forward)
-  (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
-  (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
+(define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
+(define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
+(define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
+(define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
+(define-key evil-normal-state-map (kbd "[s") 'flycheck-previous-error)
+(define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
+(define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
+(global-set-key (kbd "s-<left>") 'beginning-of-line)
+(global-set-key (kbd "s-<right>") 'end-of-line)
+(global-set-key (kbd "s-t") 'neotree-find)
+(global-set-key (kbd "C-i") 'evil-jump-forward)
+(define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
+(define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
-  (spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
-  (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
-  (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
-  (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
-  (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
-  (spacemacs/set-leader-keys "om" 'jm/open-main)
-  (spacemacs/set-leader-keys "or" 'jm/open-references)
-  (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
-  (spacemacs/set-leader-keys "oc" 'jm/open-config)
-  (spacemacs/set-leader-keys "ac" 'jm/calc)
-  (spacemacs/set-leader-keys "os" 'jm/open-standup)
-  (spacemacs/set-leader-keys "og" 'jm/org-github-in)
-  (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
-  (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
-  (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
-  (spacemacs/set-leader-keys "ol" 'org-content)
-  (spacemacs/set-leader-keys "ag" 'engine/search-google)
-  (spacemacs/set-leader-keys "ah" 'engine/search-github)
+(spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
+(spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
+(spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
+(spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
+(spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
+(spacemacs/set-leader-keys "om" 'jm/open-main)
+(spacemacs/set-leader-keys "or" 'jm/open-references)
+(spacemacs/set-leader-keys "ot" 'jm/open-inbox)
+(spacemacs/set-leader-keys "oc" 'jm/open-config)
+(spacemacs/set-leader-keys "oC" 'jm/open-config-private)
+(spacemacs/set-leader-keys "ac" 'jm/calc)
+(spacemacs/set-leader-keys "os" 'jm/open-standup)
+(spacemacs/set-leader-keys "og" 'jm/org-github-in)
+(spacemacs/set-leader-keys "oG" 'jm/org-github-out)
+(spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
+(spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
+(spacemacs/set-leader-keys "ol" 'org-content)
+(spacemacs/set-leader-keys "ag" 'engine/search-google)
+(spacemacs/set-leader-keys "ah" 'engine/search-github)
 #+end_src
 
-* General Functions
+* Functions
 #+begin_src emacs-lisp :results none
-      (defun jm/magit-commit-message ()
-        (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '.*#[0-9]*'")))
-          (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
-        (evil-insert-state))
+(defun jm/magit-commit-message ()
+  (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '.*#[0-9]*'")))
+    (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
+  (evil-insert-state))
 
-      (defun jm/open-file (file)
-        (find-file (expand-file-name file))
-        (evil-normal-state))
+(defun jm/open-file (file)
+  (find-file (expand-file-name file))
+  (evil-normal-state))
 
-      (defun jm/open-config ()
-        (interactive)
-        (jm/open-file "~/.spacemacs.d/configuration.org"))
+(defun jm/open-config ()
+  (interactive)
+  (jm/open-file "~/.spacemacs.d/configuration.org"))
 
-      (defun jm/open-main ()
-        (interactive)
-        (jm/open-file "~/.org/main.org"))
+(defun jm/open-config-private ()
+  (interactive)
+  (jm/open-file "~/.private/configuration.org"))
 
-      (defun jm/open-inbox ()
-        (interactive)
-        (jm/open-file "~/.org/inbox.org"))
+(defun jm/open-main ()
+  (interactive)
+  (jm/open-file "~/.org/main.org"))
 
-      (defun jm/open-references ()
-        (interactive)
-        (jm/open-file "~/.org/references.org"))
+(defun jm/open-inbox ()
+  (interactive)
+  (jm/open-file "~/.org/inbox.org"))
 
-      (defun jm/open-standup ()
-        (interactive)
-        (jm/open-file "~/.org/standup.org"))
+(defun jm/open-references ()
+  (interactive)
+  (jm/open-file "~/.org/references.org"))
 
-      (defun jm/helm-org-dir ()
-        (interactive)
-        (helm-find-files-1 (expand-file-name "~/.org/")))
+(defun jm/open-standup ()
+  (interactive)
+  (jm/open-file "~/.org/standup.org"))
 
-      (defun jm/helm-home-dir ()
-        (interactive)
-        (helm-find-files-1 (expand-file-name "~/")))
+(defun jm/helm-org-dir ()
+  (interactive)
+  (helm-find-files-1 (expand-file-name "~/.org/")))
 
-      (defun jm/helm-work-dir ()
-        (interactive)
-        (helm-find-files-1 (expand-file-name "~/Work/")))
+(defun jm/helm-home-dir ()
+  (interactive)
+  (helm-find-files-1 (expand-file-name "~/")))
 
-      (defun jm/helm-forks-dir ()
-        (interactive)
-        (helm-find-files-1 (expand-file-name "~/Work/forks/")))
+(defun jm/helm-work-dir ()
+  (interactive)
+  (helm-find-files-1 (expand-file-name "~/Work/")))
 
-      (defun jm/org-github-in ()
-        (interactive)
-        (jm/open-file "~/.org/standup.org")
-        (end-of-buffer)
-        (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
-        (org-content))
+(defun jm/helm-forks-dir ()
+  (interactive)
+  (helm-find-files-1 (expand-file-name "~/Work/forks/")))
 
-      (defun jm/org-github-out ()
-        (interactive)
-        (jm/open-file "~/.org/standup.org")
-        (shell-command "$HOME/.bin/org-standup-out.sh  2> /dev/null"))
+(defun jm/org-github-in ()
+  (interactive)
+  (jm/open-file "~/.org/standup.org")
+  (end-of-buffer)
+  (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
+  (org-content))
 
-      (defun jm/insert-today ()
-        (interactive)
-        (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
+(defun jm/org-github-out ()
+  (interactive)
+  (jm/open-file "~/.org/standup.org")
+  (save-buffer)
+  (shell-command "$HOME/.bin/org-standup-out.sh  2> /dev/null"))
 
-      (defun jm/get-column ()
-        (number-to-string (+ (current-column) 1)))
+(defun jm/insert-today ()
+  (interactive)
+  (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
 
-      (defun jm/get-line-number ()
-        (number-to-string (line-number-at-pos)))
+(defun jm/get-column ()
+  (number-to-string (+ (current-column) 1)))
 
-      (defun jm/open-with-line (app)
-        (when buffer-file-name
-          (save-buffer)
-          (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
+(defun jm/get-line-number ()
+  (number-to-string (line-number-at-pos)))
 
-      (defun jm/open-with-line-column (app)
-        (when buffer-file-name
-          (save-buffer)
-          (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
+(defun jm/open-with-line (app)
+  (when buffer-file-name
+    (save-buffer)
+    (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
 
-      (defun jm/open-with-line-column-vim (app)
-        (when buffer-file-name
-          (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
+(defun jm/open-with-line-column (app)
+  (when buffer-file-name
+    (save-buffer)
+    (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
 
-      (defun jm/open-with-reveal (app)
-        (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
+(defun jm/open-with-line-column-vim (app)
+  (when buffer-file-name
+    (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
 
-      (defun jm/open-with-sublime ()
-        (interactive)
-        (jm/open-with-line-column "/usr/local/bin/subl"))
+(defun jm/open-with-reveal (app)
+  (shell-command (concat "osascript -e 'tell application \"" app "\" to activate'")))
 
-      (defun jm/calc ()
-        (interactive)
-        (quick-calc)
-        (yank))
+(defun jm/open-with-sublime ()
+  (interactive)
+  (jm/open-with-line-column "/usr/local/bin/subl"))
 
-      (defun jm/open-with-idea ()
-        (interactive)
-        (jm/open-with-reveal "IntelliJ IDEA")
-        (jm/open-with-line "/usr/local/bin/idea"))
+(defun jm/calc ()
+  (interactive)
+  (quick-calc)
+  (yank))
 
-      (defun jm/open-with-nvim ()
-        (interactive)
-        (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
+(defun jm/open-folds ()
+  (interactive)
+  (evil-open-folds)
+  (recenter))
+
+(defun jm/open-with-idea ()
+  (interactive)
+  (jm/open-with-reveal "IntelliJ IDEA")
+  (jm/open-with-line "/usr/local/bin/idea"))
+
+(defun jm/open-with-nvim ()
+  (interactive)
+  (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 #+end_src
 ** Endless Autocorrect
 Per [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Endless parentheses]] copied on 2016-05-17
