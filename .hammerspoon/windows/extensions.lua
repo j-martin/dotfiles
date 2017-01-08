@@ -91,13 +91,27 @@ end
 
 function mod.centerOnRect(rect)
   local point = geometry.rectMidPoint(rect)
-  point.y = point.y - rect.h / 6
+  point.y = rect.y + rect.h / 3
   mouse.setAbsolutePosition(point)
 end
 
+function mod.centerOnTitle(rect)
+  local point = geometry.rectMidPoint(rect)
+  point.y = rect.y + 15
+  mouse.setAbsolutePosition(point)
+end
 
 function mod.centerOnWindow()
-  mod.centerOnRect(window.focusedWindow():frame())
+  local focused = window.focusedWindow()
+  local application = focused:application():title()
+
+  -- exclude rule
+  if application == 'iTerm2' then
+    mod.centerOnTitle(focused:frame())
+  else
+    mod.centerOnRect(focused:frame())
+  end
+
   mod.mouseHighlight()
 end
 

@@ -15,6 +15,8 @@ mod.launchOrCycleFocus = ext.launchOrCycleFocus
 
 -- grid/window settings
 grid.ui.textSize = 15
+grid.GRIDWIDTH = 10
+grid.GRIDHEIGHT = 4
 grid.MARGINX = 0
 grid.MARGINY = 0
 window.animationDuration = 0
@@ -43,6 +45,7 @@ function mod.applyLayout(commonLayout, selectedLayout)
   return function()
     local completeLayout = fnutils.map(fnutils.concat(selectedLayout, commonLayout), expandLayout)
     layout.apply(completeLayout)
+    ext.centerOnWindow()
   end
 end
 
@@ -90,11 +93,6 @@ end
 
 function mod.maximize()
   window.focusedWindow():maximize()
-end
-
-local function centerCursor()
-  ext.centerOnRect(window.focusedWindow():frame())
-  ext.mouseHighlight()
 end
 
 -- required for reseting the previous state.

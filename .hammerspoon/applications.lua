@@ -27,10 +27,18 @@ local function switchTab()
 end
 
 function mod.openNotification()
+  clickNotification(160)
+end
+
+function mod.openNotificationAction()
+  clickNotification(40)
+end
+
+function clickNotification(offset)
   local currentScreen = mouse.getCurrentScreen()
   local currentPos = mouse.getRelativePosition()
   local targetScreen = screen.primaryScreen()
-  local targetPos = { x = targetScreen:frame().w - 40, y = 40 }
+  local targetPos = { x = targetScreen:frame().w - offset, y = 40 }
 
   mouse.setRelativePosition(targetPos, targetScreen)
   eventtap.leftClick(targetPos)

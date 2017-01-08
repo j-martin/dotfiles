@@ -2,6 +2,7 @@ local fnutils = require 'hs.fnutils'
 local tabs = require 'hs.tabs'
 local hotkey = require 'hs.hotkey'
 local grid = require 'hs.grid'
+local hints = require 'hs.hints'
 local caffeinate = require 'hs.caffeinate'
 local windows = require 'windows'
 local layout = require 'hs.layout'
@@ -22,17 +23,21 @@ local mod = {}
 -- binds functions to hyper key end --
 --------------------------------------
 
+hotkey.bind({ 'ctrl' }, 'tab', hints.windowHints)
+
 local hyperBindings = {
   { key = '1', name = 'Activity Monitor' },
  -- key = '6' reserved for aText
   { key = '7', name = '1Password 6' },
+  { key = '8', name = applications.name.slack },
   { key = '9', name = 'Spotify' },
   { key = '0', name = 'aText' },
   { key = '=', name = 'KeePassX' },
   { key = '-', name = 'Sequel Pro' },
   { key = 'a', fn = emacs.agenda },
   { key = 'e', name = 'Charles' },
-  { key = 'w', fn = applications.openNotification },
+  { key = 'b', fn = applications.openNotification },
+  { key = 'b', fn = applications.openNotificationAction, shift = true },
   { key = 's', fn = windows.snapAll },
   { key = 'd', fn = selection.actOn },
   { key = 'f', name = 'Finder' },
@@ -64,6 +69,14 @@ local hyperBindings = {
   { key = 't', fn = emacs.inbox, shift = true },
   { key = 'q', fn = hs.toggleConsole },
   { key = 'r', fn = hs.reload },
+  { key = 'up', fn = grid.resizeWindowShorter },
+  { key = 'down', fn = grid.resizeWindowTaller },
+  { key = 'left', fn = grid.resizeWindowThinner },
+  { key = 'right', fn = grid.resizeWindowWider },
+  { key = 'up', fn = grid.pushWindowUp, shift = true },
+  { key = 'down', fn = grid.pushWindowDown, shift = true },
+  { key = 'left', fn = grid.pushWindowLeft, shift = true },
+  { key = 'right', fn = grid.pushWindowRight, shift = true },
   { key = '1', pos = { 0.00, 0.00, 0.30, 0.50 }, shift = true },
   { key = '2', pos = { 0.30, 0.00, 0.40, 0.50 }, shift = true },
   { key = '3', pos = { 0.70, 0.00, 0.30, 0.50 }, shift = true },
@@ -142,7 +155,7 @@ local modeLayouts = {
   { key = 'i', pos = { 0.30, 0.50, 0.40, 0.50 } },
   { key = 'o', pos = { 0.70, 0.50, 0.30, 0.50 } },
   { key = 'p', pos = { 0.30, 0.50, 0.70, 0.50 } },
-  { key = 'space', pos = { 0.0, 0.0, 1.0, 1.0 } },
+  { key = 'space', fn = hints.windowHints },
   { key = '=', fn = grid.resizeWindowWider },
   { key = '-', fn = grid.resizeWindowThinner },
   { key = 'm', fn = windows.cycleScreenBack },
