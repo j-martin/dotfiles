@@ -225,11 +225,6 @@
           (file+headline "~/.org/inbox.org" "Tasks")
           "* TODO %?\n%i\n%c\n%a")
 
-        ("c" "Calendar"
-         entry
-         (file "~/.org/calendar-personal.org")
-         "* %?\n:%i\n%a")
-
         ("w" "Todo for work"
           entry
           (file+headline "~/.org/inbox.org" "Work")
