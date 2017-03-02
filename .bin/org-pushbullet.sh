@@ -19,7 +19,7 @@ _pb () {
 _pb_fetch () {
   local created="$1"
   _info "Fetching starting from: $created"
-  _pb "pushes?created_after=$created" \
+  _pb "pushes?modified_after=$created" \
     | jq -c '.pushes
       | reverse[]
       | select(has("url"))
@@ -36,7 +36,8 @@ _pb_format_entry () {
   local ref_raw_path="raw/$(_pb_create_filename "${title}").org"
 
   _info "Processing: '${title}'"
-  printf "\n** [[file:${ref_path}][${title}]]\n" >> "$REF_FILE"
+  echo ''
+  echo "** [[file:${ref_path}][${title}]]" >> "$REF_FILE"
   echo ":PROPERTIES:" >> "$REF_FILE"
   # echo ":RAW: [[file:${ref_raw_path}][raw]]" >> "$REF_FILE"
   echo "$entry" \
@@ -86,7 +87,7 @@ _pb_page_header () {
 _pb_store_page () {
   local url="$1"
   _pb_page_header "${url}"
-  python -m readability.readability -u "${url}" | _pb_convert_page
+  pipenv run python -m readability.readability -u "${url}" | _pb_convert_page
 }
 
 _pb_store_page_raw () {

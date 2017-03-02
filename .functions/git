@@ -22,7 +22,7 @@ _git_current_branch_url () {
 }
 
 _git_current_issue_number () {
-  _git_current_branch | (grep -o '.*#[0-9]*' || echo '')
+  _git_current_branch | (grep -o '^[0-9]*' || echo '')
 }
 
 _git_pick_branch_no_origin() {
@@ -41,7 +41,7 @@ _git_pick_commit () {
 
 _git_new_branch () {
   local name="$1"
-  git checkout -b "$(echo "$name" | tr ' :,.+^&*()[]@$%' '-' | sed -r 's/-+/-/g')"
+  git checkout -b "$(echo "$name" | tr ' #:,.+^&*()[]@$%/' '-' | sed -r 's/-+/-/g')"
 }
 
 _github () {
@@ -141,7 +141,7 @@ _github_team () {
 }
 
 _github_org () {
-    git config --get github.org
+  git config --get github.org
 }
 
 _github_repo_assigned_issues () {
@@ -154,7 +154,8 @@ _github_create_issue () {
   local body="$2"
   local assignee="${3:-$(_github_user)}"
   local labels="${4:-"$(_github_team)"}"
-  local payload="$(jo title="$title" body="$body" assignee="$assignee" labels="$(jo -a $labels)")"
+  local payload
+  payload="$(jo title="$title" body="$body" assignee="$assignee" labels="$(jo -a $labels)")"
   _github_post "repos/$(_git_repo)/issues" "$payload"
 }
 
@@ -166,4 +167,15 @@ _github_new_branch () {
 
 _github_events () {
   _github "users/$(_github_user)/events/orgs/$(_github_org)?page=[1-9]"
+}
+
+_git_switch_worktree() {
+  local cur_dir
+  cur_dir="$(basename "$(pwd)")"
+  if [[ "${cur_dir}" =~ .*bugfix ]]; then
+    cd "${cur_dir//\-bugfix//}"
+  else
+    cd "${cur_dir}-bugfix"
+  fi
+
 }

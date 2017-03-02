@@ -1,34 +1,38 @@
 #!/usr/bin/env bash
 
-_info () {
+_info() {
   >&2 echo "[info] $@"
 }
 
-_warn () {
+_warn() {
   >&2 echo "[warn] $@"
 }
 
-_error () {
+_error() {
   >&2 echo "[error] $@"
 }
 
-_production () {
+_production() {
   # iTerm escape code to turn the terminal red.
   printf "\033]Ph501010\033\\"
 }
 
-_pick_first_col () {
+_safe() {
+  printf "\033]Ph103010\033\\"
+}
+
+_pick_first_col() {
   cut -d ' ' -f1
 }
 
-cached () {
+cached() {
   _cached "$@" 300
 }
 
-_trim () {
+_trim() {
   echo "$@" | sed 's,^ *,,; s, *$,,'
 }
-_cached () {
+_cached() {
   local cmd="$1"
   local ttl="${2:-60}"
   local ts="$(( $(date +'%s') / $ttl ))"
@@ -42,7 +46,7 @@ _cached () {
   fi
 }
 
-_with_fzf () {
+_with_fzf() {
   local app="$1"
   local prefix="$2"
   local file="$(_fzf "${prefix}" || echo "${prefix}")"
@@ -53,10 +57,26 @@ _with_fzf () {
   fi
 }
 
-_fzf () {
+_fzf() {
   fzf -1 -0 -q "$1"
 }
 
-_prefix () {
+_prefix() {
   basename "$(pwd)" | sed 's/\-.*//g'
+}
+
+_open_tunnel() {
+  local host="${1}"
+  local port="${2}"
+  local local_port="${3:-$port}"
+  _production
+  ssh -M -S my-ctrl-socket -fnNT -L "${local_port}:${host}:${port}" 'jump'
+  ssh -S my-ctrl-socket -O check 'jump'
+  _info "Tunnel to '${host}:${port}' open on '127.0.0.1:${local_port}'"
+}
+
+_close_tunnel() {
+  ssh -S my-ctrl-socket -O exit 'jump' || _warn 'The tunnel was already closed.'
+  _info 'Tunnel closed.'
+  _safe
 }

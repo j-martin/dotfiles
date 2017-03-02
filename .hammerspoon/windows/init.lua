@@ -88,6 +88,7 @@ function mod.moveToPrimaryScreen(pos)
       win:move(pos, screen.primaryScreen())
       logger.d('saved previousState')
     end
+    ext.centerOnTitle(win:frame())
   end
 end
 
@@ -95,39 +96,36 @@ function mod.maximize()
   window.focusedWindow():maximize()
 end
 
+local function isTableOfTables(t)
+  for _, v in ipairs(t) do
+    if type(v) ~= 'table' then
+      return false
+    end
+  end
+  return true
+end
+
 -- required for reseting the previous state.
 local cycleStates = {}
 
 -- cycles window size
-local function cycleWidth(startPoint)
-  local width
-  local focusedWindow = window.frontmostWindow()
-  focusedWindow:focus()
-
-  local focusedApplication = focusedWindow:application():name()
-  local primaryScreen = screen.primaryScreen():currentMode()
-  local currentWidth = focusedWindow:frame().w / primaryScreen.w
-  local isDifferentStartPoint = cycleStates[focusedApplication] ~= startPoint
-  local isOnTop = focusedWindow:frame().y ~= 0
-
-  if isOnTop or currentWidth > 0.51 or isDifferentStartPoint then
-    width = 0.5
-  else
-    width = 0.7
+function mod.setPosition(pos)
+  if not isTableOfTables(pos) then
+    return mod.moveToPrimaryScreen(pos)
   end
+  local nextPos
+  return function()
+    local win = window.frontmostWindow():focus()
+    local id = win:id()
 
-  cycleStates[focusedApplication] = startPoint
-  local x = startPoint * (1 - (startPoint * width))
-  focusedWindow:move({x, 0, width, 1})
-  ext.centerOnWindow()
-end
+    if cycleStates[id] ~= pos then
+      nextPos = fnutils.cycle(pos)
+    end
 
-function mod.cycleLeft()
-  cycleWidth(0)
-end
-
-function mod.cycleRight()
-  cycleWidth(1)
+    cycleStates[id] = pos
+    win:move(nextPos(), screen.primaryScreen())
+    ext.centerOnTitle(win:frame())
+  end
 end
 
 function mod.snapAll()

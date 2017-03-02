@@ -173,9 +173,9 @@
 #+end_src
 ** Java
 #+begin_src emacs-lisp :results none
-  (add-hook 'java-mode-hook (lambda ()
-                              (setq c-basic-offset 2
-                                    tab-width 2)))
+(add-hook 'java-mode-hook (lambda ()
+                             (setq c-basic-offset 2
+                                   tab-width 2)))
 
 #+end_src
 ** JS
@@ -192,17 +192,17 @@
 ** org
 *** Basic setup
   #+begin_src emacs-lisp :results none
-(setq org-directory "~/.org/")
-(setq org-default-notes-file "~/.org/inbox.org")
-(setq org-hide-emphasis-markers t)
-(setq org-agenda-files (list org-directory))
-(setq org-startup-folded t)
-(setq org-catch-invisible-edits 'error)
-(add-hook 'org-mode-hook 'jm/org-hooks)
+    (setq org-directory "~/.org/")
+    (setq org-default-notes-file "~/.org/inbox.org")
+    (setq org-hide-emphasis-markers t)
+    (setq org-agenda-files (list "~/.org/inbox.org" "~/.org/calendar-personal.org" "~/.org/calendar-work.org"))
+    (setq org-startup-folded t)
+    (setq org-catch-invisible-edits 'error)
+    (add-hook 'org-mode-hook 'jm/org-hooks)
 
-(defun jm/org-hooks ()
-  (smartparens-mode)
-  (linum-mode -1))
+    (defun jm/org-hooks ()
+      (smartparens-mode)
+      (linum-mode -1))
   #+end_src
 *** org-babel
 #+begin_src emacs-lisp :results none
@@ -212,74 +212,64 @@
 #+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :results none
-(add-hook 'org-capture-mode-hook 'evil-insert-state)
-(setq org-capture-templates
-      '(
-        ("t" "Todo"
-         entry
-         (file+headline "~/.org/inbox.org" "Tasks")
-         "* TODO %?\n%i\n%a")
+  (add-hook 'org-capture-mode-hook 'evil-insert-state)
+  (setq org-capture-templates
+        '(
+          ("t" "Todo"
+           entry
+           (file+headline "~/.org/inbox.org" "Tasks")
+           "* TODO %?\n%i\n%a")
 
-        ("T" "Todo with clipboard"
-          entry
-          (file+headline "~/.org/inbox.org" "Tasks")
-          "* TODO %?\n%i\n%c\n%a")
+          ("T" "Todo with clipboard"
+            entry
+            (file+headline "~/.org/inbox.org" "Tasks")
+            "* TODO %?\n%i\n%c\n%a")
 
-        ("w" "Todo for work"
-          entry
-          (file+headline "~/.org/inbox.org" "Work")
-          "* TODO %?\n%i\n%a")
+          ("w" "Todo for work"
+            entry
+            (file+headline "~/.org/inbox.org" "Tasks")
+            "* TODO %? :work:\n%i\n%a")
 
-        ("W" "Todo with clipboard for work"
-          entry
-          (file+headline "~/.org/inbox.org" "Work")
-          "* TODO %?\n%i\n%c\n%a")
+          ("W" "Todo with clipboard for work"
+            entry
+            (file+headline "~/.org/inbox.org" "Tasks")
+            "* TODO %? :work:\n%i\n%c\n%a")
 
-        ("q" "Question for work"
-          entry
-          (file+olp "~/.org/inbox.org" "Work" "Questions")
-          "*** TODO %? :work:\nEntered on %U\n%i\n%a")
+          ("s" "Add note to standup"
+            plain
+            (file "~/.org/standup.org")
+            "** TODO %?\n%i\n%a")
 
-        ("k" "Kudos for work"
-          entry
-          (file+olp "~/.org/inbox.org" "Work" "Kudos")
-          "*** TODO %?\n%i\n%a")
+          ("S" "Add note to standup DONE"
+            plain
+            (file "~/.org/standup.org")
+            "** DONE %?\n%i\n%a")
 
-        ("s" "Add note to standup"
-          plain
-          (file "~/.org/standup.org")
-          "** TODO %?\n%i\n%a")
+          ("r" "References / Research"
+            entry
+            (file+headline "~/.org/references.org" "Research")
+            "** %?%c\nEntered on %U\n%i\n\n%a")
 
-        ("S" "Add note to standup DONE"
-          plain
-          (file "~/.org/standup.org")
-          "** DONE %?\n%i\n%a")
+          ("R" "References / Research TODO"
+            entry
+            (file+headline "~/.org/references.org" "Research")
+            "** TODO %?\nEntered on %U\n%i\n\n%a")
 
-        ("r" "References / Research"
-          entry
-          (file+headline "~/.org/references.org" "Research")
-          "** %?%c\nEntered on %U\n%i\n\n%a")
+          ("b" "References / Books"
+            entry
+            (file+headline "~/.org/references.org" "Books")
+            "** %?%c\n%i\n\n%a")
 
-        ("R" "References / Research TODO"
-          entry
-          (file+headline "~/.org/references.org" "Research")
-          "** TODO %?\nEntered on %U\n%i\n\n%a")
+          ("j" "Journal"
+            entry
+            (file+datetree "~/.org/journal.org")
+            "* %?\nEntered on %U\n%i\n%a")
 
-        ("b" "References / Books"
-          entry
-          (file+headline "~/.org/references.org" "Books")
-          "** %?%c\n%i\n\n%a")
-
-        ("j" "Journal"
-          entry
-          (file+datetree "~/.org/journal.org")
-          "* %?\nEntered on %U\n%i\n%a")
-
-        ("J" "Journal with Clipboard"
-          entry
-          (file+datetree "~/.org/journal.org")
-          "* %?\nEntered on %U\n%i\n%c\n%a")
-        ))
+          ("J" "Journal with Clipboard"
+            entry
+            (file+datetree "~/.org/journal.org")
+            "* %?\nEntered on %U\n%i\n%c\n%a")
+          ))
 #+end_src
 
 * Keyboard Bindings
@@ -298,6 +288,7 @@
 (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
 (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
+(spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
 (spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
 (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
 (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
@@ -315,6 +306,8 @@
 (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
 (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
 (spacemacs/set-leader-keys "ol" 'org-content)
+(spacemacs/set-leader-keys "wv" 'jm/split-window)
+(spacemacs/set-leader-keys "ws" 'jm/split-window-below)
 (spacemacs/set-leader-keys "ag" 'engine/search-google)
 (spacemacs/set-leader-keys "ah" 'engine/search-github)
 #+end_src
@@ -322,13 +315,23 @@
 * Functions
 #+begin_src emacs-lisp :results none
 (defun jm/magit-commit-message ()
-  (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '.*#[0-9]*'")))
+  (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '^[0-9]*'")))
     (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
   (evil-insert-state))
 
 (defun jm/open-file (file)
   (find-file (expand-file-name file))
   (evil-normal-state))
+
+(defun jm/split-window ()
+  (interactive)
+  (split-window-right-and-focus)
+  (spacemacs/alternate-buffer))
+
+(defun jm/split-window-below ()
+  (interactive)
+  (split-window-below-and-focus)
+  (spacemacs/alternate-buffer))
 
 (defun jm/open-config ()
   (interactive)

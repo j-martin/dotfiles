@@ -33,6 +33,12 @@ _macos_customizations () {
   defaults write com.apple.dock springboard-hide-duration -int 0
   defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
   defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
+
+  # set clicky noise
+  defaults write com.apple.universalaccess slowKey 0
+  defaults write com.apple.universalaccess slowKeyDelay 0
+  defaults write com.apple.universalaccess slowKeyBeepOn 0
+
   killall Dock
   ln -s "$HOME" '/Users/jm'
 

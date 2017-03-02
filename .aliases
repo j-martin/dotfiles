@@ -123,7 +123,7 @@ vgdestroyall() { vagrant global-status | awk '{ if (length($1) == 7)  print $1 }
 alias vimrc='vi $HOME/.vimrc'
 alias zshrc='vi $HOME/.zshrc'
 alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
-cb() { open $(_chrome_parse_bookmarks | _fzf "$1" | cut -d '|' -f1); }
+cb() { open "$(_chrome_parse_bookmarks | _fzf \"$1\" | cut -d '|' -f1)"; }
 
 # AWS
 alias ash='aws-shell'
@@ -139,7 +139,10 @@ alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
-alias gwab='git worktree add "$(pwd)-bugfix" "origin/master"'
+alias gdff='git diff --color | diff-so-fancy'
+alias gdf='git diff -- "$(fzf)"'
+alias gwab='git worktree add "$(pwd)-bugfix" "origin/master" && cd "$(pwd)-bugfix"'
+alias gwa='_git_switch_worktree'
 alias gwaf='$(git worktree list | fzf | _pick_first_col)'
 gcof() { git checkout "$(_git_pick_branch_no_origin "'$1")"; }
 alias gsp='git show "$(_git_pick_branch):$(fzf)"'
@@ -174,10 +177,11 @@ alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
-gnewc() { _git_new_branch "$1" && gms $@ ; }
+gnewc() { _git_new_branch "$1" && git commit -n -m "$@" ; }
 alias gnewp='_git_new_branch "$(pbpaste)"'
-alias gnewi='_git_new_branch "$(_github_repo_issues | fzf)"'
-alias gnewa='_git_new_branch "$(_github_issues | fzf)"'
+# alias gnewi='_git_new_branch "$(_github_repo_issues | fzf)"'
+alias gnewa='_git_new_branch "$(_wrike_branch | fzf)"'
+alias gnewaa='_git_new_branch "$(_wrike_all_tasks | fzf)"'
 alias gnewh='_github_new_branch'
 
 alias gnewm='git checkout master && git pull && gnew'
@@ -275,3 +279,9 @@ alias bcleanup='brew bundle --global cleanup' # --force
 alias b='bub'
 alias bsh='bub ec2'
 alias bj='bub jenkins'
+
+# Wrike
+alias wo='_wrike_open'
+alias wn='_wrike_new'
+alias wna='_wrike_new_current'
+alias wni='_wrike_new_idea'

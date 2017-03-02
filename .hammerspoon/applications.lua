@@ -17,6 +17,8 @@ local function wait()
   timer.usleep(10000)
 end
 
+local previousTab = nil
+
 local function switchTab()
   local tab = '1'
   if previousTab == '1' then
@@ -26,15 +28,7 @@ local function switchTab()
   eventtap.keyStroke({'cmd'}, tab)
 end
 
-function mod.openNotification()
-  clickNotification(160)
-end
-
-function mod.openNotificationAction()
-  clickNotification(40)
-end
-
-function clickNotification(offset)
+local function clickNotification(offset)
   local currentScreen = mouse.getCurrentScreen()
   local currentPos = mouse.getRelativePosition()
   local targetScreen = screen.primaryScreen()
@@ -45,6 +39,14 @@ function clickNotification(offset)
   mouse.setRelativePosition(currentPos, currentScreen)
 end
 
+function mod.openNotification()
+  clickNotification(160)
+end
+
+function mod.openNotificationAction()
+  clickNotification(40)
+end
+
 function mod.slack()
   windows.launchOrCycleFocus(mod.name.slack)()
   wait()
@@ -53,13 +55,19 @@ function mod.slack()
   eventtap.keyStroke({'cmd'}, 't')
 end
 
+function mod.slackUnread()
+  mod.slack()
+  wait()
+  eventtap.keyStrokes('allunread')
+  wait()
+  eventtap.keyStroke({}, 'return')
+end
+
 function mod.chromeOmni()
   windows.launchOrCycleFocus(mod.name.chrome)()
   wait()
   eventtap.keyStroke({'shift'}, 't')
 end
-
-local previousTab = nil
 
 function mod.inbox()
   local current = window.focusedWindow()

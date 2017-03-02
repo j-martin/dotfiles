@@ -53,16 +53,15 @@ local hyperBindings = {
   { key = 'g', fn = windows.grid },
   { key = 'g', fn = windows.altGrid, shift = true },
   { key = 'h', fn = applications.slack },
-  { key = 'h', name = applications.name.slack, shift = true },
-  { key = 'j', fn = windows.cycleLeft },
+  { key = 'h', fn = applications.slackUnread, shift = true },
+  { key = 'j', pos = { { 0.0, 0.0, 0.5, 1.0}, { 0.0, 0.0, 0.7, 1.0} } },
   { key = 'j', pos = { 0.00, 0.00, 0.30, 1.00 }, shift = true },
-  { key = 'k', fn = windows.cycleRight },
+  { key = 'k', pos = { { 0.5, 0.0, 0.5, 1.0}, { 0.3, 0.0, 0.7, 1.0} } },
   { key = 'k', pos = { 0.70, 0.00, 0.30, 1.00 }, shift = true },
   { key = 'z', fn = caffeinate.lockScreen },
   { key = 'x', fn = windows.previousScreen },
-  { key = 'c', pos = { 0.30, 0.10, 0.40, 0.60 } },
-  { key = 'n', pos = { 0.30, 0.00, 0.40, 1.00 } },
-  { key = 'n', pos = { 0.20, 0.00, 0.60, 1.00 }, shift = true },
+  { key = 'n', pos = { { 0.30, 0.00, 0.40, 1.00 }, { 0.20, 0.00, 0.60, 1.00 } } },
+  { key = 'n', pos = { { 0.30, 0.10, 0.40, 0.60 }, { 0.20, 0.10, 0.60, 0.80 }, { 0.30, 0.10, 0.40, 0.30 } }, shift = true },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 } },
   { key = 'v', fn = selection.paste, shift = true },
   { key = 't', fn = emacs.capture },
@@ -183,7 +182,7 @@ local modeLayouts = {
 
 local function buildBindFunction(binding)
   if binding.pos then
-    return windows.moveToPrimaryScreen(binding.pos)
+    return windows.setPosition(binding.pos)
   elseif binding.layout then
     return windows.applyLayout(commonLayout, binding.layout)
   elseif binding.name then

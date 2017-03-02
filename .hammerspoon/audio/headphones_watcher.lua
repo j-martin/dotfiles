@@ -14,6 +14,7 @@ local function dedupAlert(message)
   if message ~= previousAlert then
     alert(message)
   end
+  previousAlert = message
 end
 
 -- Per-device watcher to detect headphones in/out

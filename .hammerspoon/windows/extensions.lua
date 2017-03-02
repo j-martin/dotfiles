@@ -103,8 +103,6 @@ end
 
 function mod.centerOnWindow()
   local focused = window.focusedWindow()
-  local application = focused:application():title()
-
   -- exclude rule
   if application == 'iTerm2' then
     mod.centerOnTitle(focused:frame())
