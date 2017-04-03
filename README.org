@@ -10,6 +10,8 @@ repository]]. The rest is just years of collecting stuff.
  home remote add origin git@github.com:j-martin/dotfiles.git
  home fetch
  home checkout master
+ home submodule init
+ home submodule update
  #+end_src
 ** Setup and configuration
 Install applications and other configurations.
