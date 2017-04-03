@@ -51,7 +51,7 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 
 plugins=(brew common-aliases dircycle dirhistory docker docker-compose git github node npm osx sbt scala ssh-agent tmux vagrant zsh-autosuggestions)
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
 # Fixes for zsh-autosuggestions slow paste
 export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=5
@@ -65,8 +65,9 @@ export KEYTIMEOUT=1
 bindkey '^[[1;9C' forward-word
 bindkey '^[[1;9D' backward-word
 
-test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+source "$HOME/.profile"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

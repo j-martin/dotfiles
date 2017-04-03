@@ -5,7 +5,8 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export CDPATH=".:$HOME:$WORK"
 
-source "$HOME/.private/.profile"
+test -d "$HOME/.private/.profile" && source "$HOME/.private/.profile"
+
 source "$HOME/.functions/all"
 source "$HOME/.aliases"
 
