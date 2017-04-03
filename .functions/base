@@ -17,6 +17,10 @@ _production() {
   printf "\033]Ph501010\033\\"
 }
 
+_watchout() {
+  printf "\033]Ph403010\033\\"
+}
+
 _safe() {
   printf "\033]Ph103010\033\\"
 }
@@ -32,6 +36,7 @@ cached() {
 _trim() {
   echo "$@" | sed 's,^ *,,; s, *$,,'
 }
+
 _cached() {
   local cmd="$1"
   local ttl="${2:-60}"
@@ -69,8 +74,9 @@ _open_tunnel() {
   local host="${1}"
   local port="${2}"
   local local_port="${3:-$port}"
+  local jump_host="${4:-jump}"
   _production
-  ssh -M -S my-ctrl-socket -fnNT -L "${local_port}:${host}:${port}" 'jump'
+  ssh -M -S my-ctrl-socket -fnNT -L "${local_port}:${host}:${port}" "${jump_host}"
   ssh -S my-ctrl-socket -O check 'jump'
   _info "Tunnel to '${host}:${port}' open on '127.0.0.1:${local_port}'"
 }

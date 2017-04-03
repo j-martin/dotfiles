@@ -97,7 +97,7 @@ end
 
 function mod.centerOnTitle(rect)
   local point = geometry.rectMidPoint(rect)
-  point.y = rect.y + 15
+  point.y = rect.y + 5
   mouse.setAbsolutePosition(point)
 end
 

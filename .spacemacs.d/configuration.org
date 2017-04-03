@@ -285,6 +285,7 @@
 (global-set-key (kbd "s-<right>") 'end-of-line)
 (global-set-key (kbd "s-t") 'neotree-find)
 (global-set-key (kbd "C-i") 'evil-jump-forward)
+
 (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
 (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
@@ -299,7 +300,6 @@
 (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
 (spacemacs/set-leader-keys "oc" 'jm/open-config)
 (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
-(spacemacs/set-leader-keys "ac" 'jm/calc)
 (spacemacs/set-leader-keys "os" 'jm/open-standup)
 (spacemacs/set-leader-keys "og" 'jm/org-github-in)
 (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
@@ -308,6 +308,8 @@
 (spacemacs/set-leader-keys "ol" 'org-content)
 (spacemacs/set-leader-keys "wv" 'jm/split-window)
 (spacemacs/set-leader-keys "ws" 'jm/split-window-below)
+(spacemacs/set-leader-keys "ac" 'jm/calc)
+(spacemacs/set-leader-keys "ai" 'jm/open-iterm)
 (spacemacs/set-leader-keys "ag" 'engine/search-google)
 (spacemacs/set-leader-keys "ah" 'engine/search-github)
 #+end_src
@@ -416,6 +418,10 @@
 (defun jm/open-with-sublime ()
   (interactive)
   (jm/open-with-line-column "/usr/local/bin/subl"))
+
+(defun jm/open-iterm ()
+  (interactive)
+  (shell-command (concat "~/.bin/iterm-open.sh '" default-directory "'")))
 
 (defun jm/calc ()
   (interactive)

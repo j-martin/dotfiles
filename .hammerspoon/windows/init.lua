@@ -49,28 +49,28 @@ function mod.applyLayout(commonLayout, selectedLayout)
   end
 end
 
-local previousStates = {}
-
-function mod.moveToPrimaryScreen(pos)
+local function toUnitRect(win)
   local function round(value)
     return math.ceil(value * 10) / 10
   end
 
+  local unitRect = fnutils.map(win:screen():toUnitRect(win:frame()), round)
+  return { unitRect._x, unitRect._y, unitRect._w, unitRect._h }
+end
+
+local function isSamePos(currentPos, previousPos)
+  return
+    currentPos[0] == previousPos[0] and
+    currentPos[1] == previousPos[1] and
+    currentPos[2] == previousPos[2] and
+    currentPos[3] == previousPos[3]
+end
+
+local previousStates = {}
+
+function mod.moveToPrimaryScreen(pos)
   local function buildKey(win)
     return table.concat(pos,'\0') .. win:id()
-  end
-
-  local function toUnitRect(win)
-    local unitRect = fnutils.map(win:screen():toUnitRect(win:frame()), round)
-    return { unitRect._x, unitRect._y, unitRect._w, unitRect._h }
-  end
-
-  local function isSamePos(previousPos)
-    return
-      pos[0] == previousPos[0] and
-      pos[1] == previousPos[1] and
-      pos[2] == previousPos[2] and
-      pos[3] == previousPos[3]
   end
 
   return function()
@@ -79,7 +79,7 @@ function mod.moveToPrimaryScreen(pos)
     local winPos = toUnitRect(win)
     local previousState = previousStates[winKey]
 
-    if previousState and isSamePos(winPos) then
+    if previousState and isSamePos(pos, winPos) then
       win:move(previousState.pos, previousState.screen)
       previousStates[winKey] = nil
       logger.d('reverted to previousState')
@@ -109,21 +109,30 @@ end
 local cycleStates = {}
 
 -- cycles window size
-function mod.setPosition(pos)
-  if not isTableOfTables(pos) then
-    return mod.moveToPrimaryScreen(pos)
+function mod.setPosition(positions)
+  if not isTableOfTables(positions) then
+    return mod.moveToPrimaryScreen(positions)
   end
-  local nextPos
+
+  local nextPosFn
+
   return function()
     local win = window.frontmostWindow():focus()
     local id = win:id()
 
-    if cycleStates[id] ~= pos then
-      nextPos = fnutils.cycle(pos)
+    if cycleStates[id] ~= positions then
+      nextPosFn = fnutils.cycle(positions)
     end
 
-    cycleStates[id] = pos
-    win:move(nextPos(), screen.primaryScreen())
+    local nextPos = nextPosFn()
+
+    if isSamePos(nextPos, toUnitRect(win)) then
+      logger.d('same postion, skipping')
+      nextPos = nextPosFn()
+    end
+
+    cycleStates[id] = positions
+    win:move(nextPos, screen.primaryScreen())
     ext.centerOnTitle(win:frame())
   end
 end

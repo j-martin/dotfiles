@@ -2,7 +2,6 @@
 
 CIRCLE_URL="https://circleci.com/gh"
 GITHUB_URL='https://github.com'
-WAFFLE_URL="https://waffle.io"
 
 # Aliases Helpers
 alias sp='source $HOME/.profile'
@@ -20,6 +19,11 @@ alias et='emacsclient --tty'
 alias e='_with_fzf "ec"'
 alias etf='_with_fzf "emacsclient --tty"'
 
+# ZSH Specific
+if [ -n "$ZSH_VERSION" ]; then
+  alias -g F='"$(fzf)"'
+fi
+
 # Quick edit
 alias eco='_with_fzf "ec" ".conf$" '
 alias esc='_with_fzf "ec" ".scala$" '
@@ -30,8 +34,6 @@ alias esh='_with_fzf "ec" ".sh$" '
 alias ejs='_with_fzf "ec" ".js$" '
 alias ejo='_with_fzf "ec" ".json$" '
 alias exm='_with_fzf "ec" ".xml$" '
-
-# Emacs / Org
 alias eo='ee "(jm/open-org-dir)"'
 
 # Sublime
@@ -46,10 +48,11 @@ agl() { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
 ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
 uu() { ag --color --before=2 --after=4 --literal --hidden --path-to-ignore ~/.agignore "$@" | less -SRi; }
 agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
-alias ca='cal -y'
+alias cay='cal -y'
 alias clf='clf -c'
-alias c='_with_fzf "cat"'
+alias ca='_with_fzf "cat"'
 alias cdp='cd "$(dirname "$(pbpaste)")"'
+alias cf='cd "$(dirname "$(fzf)")"'
 alias dk='docker'
 alias dkp='docker ps'
 dki() { docker images | awk '{print $1 ":" $2}' | sort -u ;}
@@ -134,12 +137,13 @@ alias s3ew='aws s3 --region eu-west-1'
 
 ## Git
 alias gbclean='git branch | grep -v "^*" | grep -v "master" | fzf -m | xargs git branch -D'
+alias gbcleanall='git branch | grep -v "^*" | grep -v "master" | xargs git branch -D'
 alias gcml='git checkout master && git pull'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
-alias gdff='git diff --color | diff-so-fancy'
+alias gdff='git diff --color | diff-so-fancy | less -SRi'
 alias gdf='git diff -- "$(fzf)"'
 alias gwab='git worktree add "$(pwd)-bugfix" "origin/master" && cd "$(pwd)-bugfix"'
 alias gwa='_git_switch_worktree'
@@ -179,9 +183,24 @@ alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
 gnewc() { _git_new_branch "$1" && git commit -n -m "$@" ; }
 alias gnewp='_git_new_branch "$(pbpaste)"'
-# alias gnewi='_git_new_branch "$(_github_repo_issues | fzf)"'
-alias gnewa='_git_new_branch "$(_wrike_branch | fzf)"'
-alias gnewaa='_git_new_branch "$(_wrike_all_tasks | fzf)"'
+gnewi() {
+  local title="$1"
+  local desc="$2"
+  local id
+  id="$(_wrike_new_current "${title}" "${desc}" | sed 's#https://www.wrike.com/open.htm?id=##g')"
+  _git_new_branch "${id} ${title}"
+  _wrike_wip
+}
+
+gnewic() {
+  local title="$1"
+  local desc="$2"
+  gnewi "${title}" "${desc}"
+  git commit -n -m "$(_trim "$(_git_current_issue_number) ${title}\n\n${desc}")" "${@:3}"
+}
+
+alias gnewa='_git_new_branch "$(_wrike_branch | fzf)" && _wrike_wip'
+alias gnewaa='_git_new_branch "$(_wrike_all_tasks | fzf)" && _wrike_wip'
 alias gnewh='_github_new_branch'
 
 alias gnewm='git checkout master && git pull && gnew'
@@ -235,6 +254,7 @@ alias mr-clear='mr run git stash clear'
 alias mr-clean='mr run git clean -fd'
 
 # General
+alias ic=imgcat
 fn() { find . -iname "*$@*" ;}
 fne() { find . -iname "*.$@" ;}
 alias cpb='cd $(dirname "$(pbpaste)")'
@@ -281,7 +301,11 @@ alias bsh='bub ec2'
 alias bj='bub jenkins'
 
 # Wrike
+alias ww='_wrike_wip'
+alias wc='_wrike_comments'
 alias wo='_wrike_open'
+alias woo='open "https://www.wrike.com/open.htm?id=$(pbpaste)"'
 alias wn='_wrike_new'
 alias wna='_wrike_new_current'
 alias wni='_wrike_new_idea'
+alias wdone='_wrike_complete'

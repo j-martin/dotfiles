@@ -48,9 +48,15 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
+
 plugins=(brew common-aliases dircycle dirhistory docker docker-compose git github node npm osx sbt scala ssh-agent tmux vagrant zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
+
+# Fixes for zsh-autosuggestions slow paste
+export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=5
+unset zle_bracketed_paste
+
 
 # User configuration
 bindkey -e
