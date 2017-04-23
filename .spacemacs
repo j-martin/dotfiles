@@ -31,7 +31,6 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
     '(
-       csv
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -49,7 +48,7 @@ values."
        auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
      clojure
-     ;; csv
+     csv
      ;; dash
      docker
      emacs-lisp
@@ -57,6 +56,7 @@ values."
      evil-commentary
      git
      github
+     gtags
      go
      ;; graphviz
      haskell
@@ -72,6 +72,7 @@ values."
      osx
      python
      ;; plantuml
+     react
      ruby
      rust
      ;; restclient
@@ -86,9 +87,11 @@ values."
      sql
      syntax-checking
      ;; terraform
+     typescript
      ;; themes-megapack
      ;; vagrant
      version-control
+     vimscript
      yaml
      )
    ;; List of additional packages that will be installed without being
@@ -369,31 +372,10 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+(setq custom-file "~/.spacemacs.d/custom-configuration.el")
 (org-babel-load-file "~/.spacemacs.d/configuration.org")
 (if (file-exists-p "~/.private/configuration.org")
 (org-babel-load-file "~/.private/configuration.org")))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (yaml-mode which-key web-mode use-package toc-org shell-pop rubocop rspec-mode robe restart-emacs racer pyvenv persp-mode org-download nginx-mode neotree move-text mmm-mode markdown-toc markdown-mode live-py-mode link-hint js2-refactor intero info+ indent-guide imenu-list hide-comnt help-fns+ helm-projectile helm-flx helm-company groovy-mode go-eldoc git-timemachine git-link flycheck-rust eyebrowse expand-region exec-path-from-shell evil-mc evil-ediff ensime sbt-mode scala-mode editorconfig dumb-jump dockerfile-mode company-quickhelp company-go coffee-mode aggressive-indent ace-window ace-link avy packed cider clojure-mode multiple-cursors anaconda-mode company json-mode tablist smartparens highlight evil flycheck flyspell-correct haskell-mode go-mode yasnippet helm helm-core alert log4e projectile magit magit-popup git-commit async hydra f js2-mode yapfify xterm-color ws-butler writegood-mode with-editor winum web-beautify volatile-highlights vmd-mode vi-tilde-fringe uuidgen unfill undo-tree toml-mode tagedit super-save string-inflection sql-indent spaceline smeargle slim-mode scss-mode sass-mode rvm ruby-tools ruby-test-mode reveal-in-osx-finder rbenv rake rainbow-delimiters queue pytest pyenv-mode py-isort pug-mode protobuf-mode popwin pkg-info pip-requirements pbcopy paradox osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-plus-contrib org-bullets open-junk-file noflet mwim multi-term minitest magit-gitflow magit-gh-pulls macrostep lua-mode lorem-ipsum livid-mode linum-relative less-css-mode launchctl json-snatcher json-reformat js-doc jinja2-mode insert-shebang hy-mode hungry-delete htmlize hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-pydoc helm-mode-manager helm-make helm-hoogle helm-gitignore helm-descbinds helm-css-scss helm-c-yasnippet helm-ag haskell-snippets goto-chg google-translate golden-ratio go-guru gnuplot gntp github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-messenger git-gutter-fringe git-gutter-fringe+ gist gh-md fuzzy flyspell-popup flyspell-correct-helm flycheck-pos-tip flycheck-haskell flx-ido fish-mode fill-column-indicator fancy-battery evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-commentary evil-cleverparens evil-args evil-anzu eshell-z eshell-prompt-extras esh-help emmet-mode elisp-slime-nav docker diminish diff-hl cython-mode csv-mode confluence company-web company-tern company-statistics company-shell company-ghci company-ghc company-cabal company-ansible company-anaconda column-enforce-mode cmm-mode clojure-snippets clj-refactor clean-aindent-mode cider-eval-sexp-fu chruby cargo bundler bind-key auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile atomic-chrome ansible-doc ansible adaptive-wrap ace-jump-helm-line ac-ispell)))
- '(spacemacs-centered-buffer-mode-fringe-color "#292b2e")
- '(spacemacs-theme-custom-colors
-   (quote
-    ((base . "#eeeeee")
-     (cblk . "#eeeeee")
-     (comment . "#3dbdcc")
-     (const . "#e465cf")
-     (str . "#3fba93")))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

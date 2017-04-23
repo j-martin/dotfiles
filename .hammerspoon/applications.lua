@@ -4,8 +4,28 @@ local screen = require 'hs.screen'
 local mouse = require 'hs.mouse'
 local timer = require 'hs.timer'
 local windows = require 'windows'
+local alert = require "hs.alert"
 
 local mod = {}
+
+alert.defaultStyle = {
+    fillColor = {
+      alpha = 0.75,
+      white = 0
+    },
+    radius = 10,
+    strokeColor = {
+      alpha = 0,
+      white = 0
+    },
+    strokeWidth = 5,
+    textColor = {
+      alpha = 1,
+      white = 1
+    },
+    textFont = "SauceCodePowerline-Regular",
+    textSize = 20
+}
 
 mod.name = {
   chrome = 'Google Chrome',
@@ -26,6 +46,7 @@ local function switchTab()
   end
   previousTab = tab
   eventtap.keyStroke({'cmd'}, tab)
+  alert('Tab ' .. tab, 0.4)
 end
 
 local function clickNotification(offset)

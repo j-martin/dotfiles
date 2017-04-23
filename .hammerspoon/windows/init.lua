@@ -3,8 +3,6 @@ local grid = require "hs.grid"
 local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
-local timer = require "hs.timer"
-local geometry = require "hs.geometry"
 local logger = hs.logger.new('windows', 'debug')
 
 local ext = require "windows/extensions"
@@ -45,7 +43,6 @@ function mod.applyLayout(commonLayout, selectedLayout)
   return function()
     local completeLayout = fnutils.map(fnutils.concat(selectedLayout, commonLayout), expandLayout)
     layout.apply(completeLayout)
-    ext.centerOnWindow()
   end
 end
 
@@ -64,6 +61,15 @@ local function isSamePos(currentPos, previousPos)
     currentPos[1] == previousPos[1] and
     currentPos[2] == previousPos[2] and
     currentPos[3] == previousPos[3]
+end
+
+local function inPostions(currentPos, positions)
+  for _, p in ipairs(positions) do
+    if isSamePos(currentPos, p) then
+      return true
+    end
+  end
+  return false
 end
 
 local previousStates = {}
@@ -118,16 +124,17 @@ function mod.setPosition(positions)
 
   return function()
     local win = window.frontmostWindow():focus()
+    local currentPos = toUnitRect(win)
     local id = win:id()
 
-    if cycleStates[id] ~= positions then
+    if cycleStates[id] ~= positions or not inPostions(currentPos, positions) then
       nextPosFn = fnutils.cycle(positions)
     end
 
     local nextPos = nextPosFn()
 
-    if isSamePos(nextPos, toUnitRect(win)) then
-      logger.d('same postion, skipping')
+    if isSamePos(nextPos, currentPos) then
+      logger.d('same postion, using next')
       nextPos = nextPosFn()
     end
 
@@ -144,7 +151,7 @@ end
 function mod.moveTo(pos)
   return function()
     window.focusedWindow():move(pos)
-    ext.centerOnWindow()
+    ext.centerOnTitle(pos)
   end
 end
 
@@ -173,7 +180,7 @@ function mod.cycleScreen()
   if currentScreen then
     win:moveToScreen(currentScreen:next())
   end
-  ext.centerOnWindow()
+  ext.centerOnTitle(win:frame())
 end
 
 function mod.cycleScreenBack()
@@ -181,7 +188,7 @@ function mod.cycleScreenBack()
   if currentScreen then
     win:moveToScreen(currentScreen:previous())
   end
-  ext.centerOnWindow()
+  ext.centerOnTitle(win:frame())
 end
 
  function mod.alternateScreen()

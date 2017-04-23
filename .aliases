@@ -95,6 +95,7 @@ alias vir="$EDITOR README.md"
 vme() { $EDITOR "$1" & vmd "$1"; }
 alias vms='EDITOR=subl vme'
 alias vmr='EDITOR=subl vme README.md'
+alias yml2json="python3 -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' <"
 alias emr='EDITOR=ec vme README.md'
 alias lo='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 alias no='e ~/.org/MAIN.org'
@@ -136,14 +137,15 @@ alias s3ue='aws s3 --region us-east-1'
 alias s3ew='aws s3 --region eu-west-1'
 
 ## Git
-alias gbclean='git branch | grep -v "^*" | grep -v "master" | fzf -m | xargs git branch -D'
-alias gbcleanall='git branch | grep -v "^*" | grep -v "master" | xargs git branch -D'
+alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | fzf -m | xargs git branch -D'
+alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | xargs git branch -D'
 alias gcml='git checkout master && git pull'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
-alias gdff='git diff --color | diff-so-fancy | less -SRi'
+alias gdff='git icdiff | less -SRi'
+alias gdfff='git diff --color | diff-so-fancy | less -SRi'
 alias gdf='git diff -- "$(fzf)"'
 alias gwab='git worktree add "$(pwd)-bugfix" "origin/master" && cd "$(pwd)-bugfix"'
 alias gwa='_git_switch_worktree'
@@ -259,7 +261,13 @@ fn() { find . -iname "*$@*" ;}
 fne() { find . -iname "*.$@" ;}
 alias cpb='cd $(dirname "$(pbpaste)")'
 alias psa='ps aux | grep -i'
-alias which='where'
+whichl() { ls -lha "$(where $1)" ;}
+
+# Mac Specific
+if [[ "$(uname)" == 'Darwin' ]]; then
+  alias which='where'
+fi
+
 alias da='date && date -u'
 alias qrc='pbpaste | qr'
 alias pgcli='echo $PGHOST && pgcli'
@@ -267,15 +275,18 @@ alias pgcli='echo $PGHOST && pgcli'
 # Home/.files
 alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
 alias hd='home diff'
-alias hadd='home add -f'
+hadd() {
+  echo "$*" | grep -vi '.private\|work\|Dropbox' && home add -f "$@"
+}
 alias hcommit='home commit -m'
-alias hpush='home push'
 alias hlog='home log -p'
 alias hs='home status'
 
-# Scala
+# Languages
 alias scal='scala -Dscala.color'
 agsbt() { agq "$@" -a --depth 2 ./*.{sbt,scala} ;}
+alias groov="groovyConsole > /dev/null &"
+alias yar='nvm install && yarn'
 
 # AWS
 alias ec2d='aws ec2 describe-instances | jq -C . | less -SRi'
@@ -302,7 +313,7 @@ alias bj='bub jenkins'
 
 # Wrike
 alias ww='_wrike_wip'
-alias wc='_wrike_comments'
+alias wcom='_wrike_comments'
 alias wo='_wrike_open'
 alias woo='open "https://www.wrike.com/open.htm?id=$(pbpaste)"'
 alias wn='_wrike_new'

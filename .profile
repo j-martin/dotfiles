@@ -5,7 +5,7 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export CDPATH=".:$HOME:$WORK"
 
-test -d "$HOME/.private/.profile" && source "$HOME/.private/.profile"
+test -f "$HOME/.private/.profile" && source "$HOME/.private/.profile"
 
 source "$HOME/.functions/all"
 source "$HOME/.aliases"
@@ -21,6 +21,9 @@ export HOSTNAME="$HOST"
 export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.agignore  -l -g ""'
 unset SSL_CERT_FILE
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/Users/benchemployee/.sdkman"
-[[ -s "/Users/benchemployee/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/benchemployee/.sdkman/bin/sdkman-init.sh"
+[[ -s "/Users/jm/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/jm/.sdkman/bin/sdkman-init.sh"
+
+if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
+  exec startx
+fi

@@ -29,7 +29,6 @@
 #+end_src
 *** Custom file
 #+begin_src emacs-lisp :results none
-(setq custom-file "~/.spacemacs.d/custom-configuration.el")
 ;; (load custom-file t)
 #+end_src
 ** GitHub related
@@ -62,7 +61,7 @@
 #+begin_src emacs-lisp :results none
 (setq whitespace-display-mappings
   ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
-  '((tab-mark 9 [9655 9] [255 9]))) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
+  '((tab-mark 9 [183 9] [255 9]))) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
 
 (global-whitespace-mode 1)
 (setq fill-column 120)
@@ -227,13 +226,13 @@
 
           ("w" "Todo for work"
             entry
-            (file+headline "~/.org/inbox.org" "Tasks")
-            "* TODO %? :work:\n%i\n%a")
+            (file+headline "~/.org/inbox.org" "Work")
+            "* TODO %?\n%i\n%a")
 
           ("W" "Todo with clipboard for work"
             entry
-            (file+headline "~/.org/inbox.org" "Tasks")
-            "* TODO %? :work:\n%i\n%c\n%a")
+            (file+headline "~/.org/inbox.org" "Work")
+            "* TODO %?\n%i\n%c\n%a")
 
           ("s" "Add note to standup"
             plain
@@ -284,6 +283,8 @@
 (global-set-key (kbd "s-<left>") 'beginning-of-line)
 (global-set-key (kbd "s-<right>") 'end-of-line)
 (global-set-key (kbd "s-t") 'neotree-find)
+(global-set-key (kbd "s-[") 'evil-jump-backward)
+(global-set-key (kbd "s-]") 'evil-jump-forward)
 (global-set-key (kbd "C-i") 'evil-jump-forward)
 
 (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)

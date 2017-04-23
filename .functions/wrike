@@ -18,7 +18,7 @@ _wrike_post() {
 _wrike_put() {
   local url_segment="$1"
   local payload="$2"
-  curl --silent --fail -g -X PUT \
+  curl -v --fail -g -X PUT \
        --header "Authorization: bearer $(keyring get system wrike)" \
        "https://www.wrike.com/api/v3/${url_segment}" -d "${payload}"
 }

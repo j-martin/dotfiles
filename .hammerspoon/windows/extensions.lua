@@ -13,6 +13,7 @@ local timer = require "hs.timer"
 local mouse = require "hs.mouse"
 local application = require "hs.application"
 local appfinder = require "hs.appfinder"
+local screen = require "hs.screen"
 local logger = hs.logger.new('windows.ext', 'debug')
 
 local mod = {}
@@ -89,29 +90,12 @@ function mod.mouseHighlight()
   end)
 end
 
-function mod.centerOnRect(rect)
-  local point = geometry.rectMidPoint(rect)
-  point.y = rect.y + rect.h / 3
-  mouse.setAbsolutePosition(point)
-end
-
 function mod.centerOnTitle(rect)
   local point = geometry.rectMidPoint(rect)
   point.y = rect.y + 5
   mouse.setAbsolutePosition(point)
 end
 
-function mod.centerOnWindow()
-  local focused = window.focusedWindow()
-  -- exclude rule
-  if application == 'iTerm2' then
-    mod.centerOnTitle(focused:frame())
-  else
-    mod.centerOnRect(focused:frame())
-  end
-
-  mod.mouseHighlight()
-end
 
 ---------------------------------------------------------
 -- Application / window
@@ -158,6 +142,11 @@ function mod.launchOrCycleFocus(applicationName)
 
     if not focusedWindow then return nil end
 
+    if applicationName == 'iTerm2' then
+      -- moving the cursor out the window, to preserve iTerm currently focussed split
+      mouse.setAbsolutePosition(geometry.point(screen.mainScreen():fullFrame().w / 2, 5))
+    end
+
     local appName = applicationName:gsub('.app$', '')
     logger.df('last: %s, current: %s', lastToggledApplication, appName)
     if lastToggledApplication == appName then
@@ -178,7 +167,7 @@ function mod.launchOrCycleFocus(applicationName)
       return nil
     end
 
-    mod.centerOnWindow()
+    mod.centerOnTitle(targetWindow:frame())
   end
 end
 

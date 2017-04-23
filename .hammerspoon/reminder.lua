@@ -25,7 +25,26 @@ local isAwake = {
 local function notice(message, duration)
   return function()
     local padding = '           '
-    alert('\n' .. padding .. message .. padding .. '\n', duration or 10)
+    local style = {
+      fillColor = {
+        alpha = 0.25,
+        white = 0
+      },
+      radius = 10,
+      strokeColor = {
+        alpha = 0,
+        white = 0
+      },
+      strokeWidth = 5,
+      textColor = {
+        alpha = 0.25,
+        white = 1
+      },
+      textFont = "SauceCodePowerline-Regular",
+      textSize = 100
+    }
+
+    alert('\n' .. padding .. message .. padding .. '\n', duration or 10, style)
     sound.getByName("Hero"):play()
     sound.getByName("Purr"):play()
   end
@@ -49,7 +68,7 @@ local function noticeActions(action)
     end
 
     fnutils.each(action, setupTimer)
-    timer.doAfter(counter, notice("✔"))
+    timer.doAfter(counter, alert("✔"))
   end
 end
 
@@ -70,8 +89,7 @@ end
 
 
 local stretchesList = {
-  { name = '✸' },
-  { name = '✪' },
+  { name = '' },
 }
 
 local reminders = {

@@ -1,3 +1,4 @@
+// Source: https://github.com/ttscoff/KeyBindings/blob/master/readme.md
 // Set a binding for repeating action (e.g.: ^u, 5, right arrow)
 // > defaults write -g NSRepeatCountBinding -string "^u"
 

@@ -1,5 +1,4 @@
 local fnutils = require 'hs.fnutils'
-local tabs = require 'hs.tabs'
 local hotkey = require 'hs.hotkey'
 local grid = require 'hs.grid'
 local hints = require 'hs.hints'
@@ -42,7 +41,7 @@ local hyperBindings = {
   { key = 'd', fn = selection.actOn },
   { key = 'f', name = 'Finder' },
   { key = 'y', fn = applications.inbox },
-  { key = 'u', name = 'Emacs', tab = true },
+  { key = 'u', name = 'Emacs' },
   { key = 'i', name = 'iTerm2' },
   { key = 'o', name = 'IntelliJ IDEA.app' },
   { key = 'o', name = 'Gogland 1.0 EAP.app', shift = true },
@@ -50,7 +49,7 @@ local hyperBindings = {
   { key = ';', name = 'Dash' },
   { key = 'l', name = applications.name.chrome },
   { key = 'l', fn = applications.chromeOmni, shift = true },
-  { key = '\\', name = 'Paw', tab = true },
+  { key = '\\', name = 'Paw' },
   { key = 'g', fn = windows.grid },
   { key = 'g', fn = windows.altGrid, shift = true },
   { key = 'h', fn = applications.slack },
@@ -62,13 +61,14 @@ local hyperBindings = {
   { key = 'z', fn = caffeinate.lockScreen },
   { key = 'x', fn = windows.previousScreen },
   { key = 'n', pos = { { 0.30, 0.00, 0.40, 1.00 }, { 0.20, 0.00, 0.60, 1.00 } } },
-  { key = 'n', pos = { { 0.30, 0.10, 0.40, 0.60 }, { 0.20, 0.10, 0.60, 0.80 }, { 0.30, 0.10, 0.40, 0.30 } }, shift = true },
+  { key = 'n', pos = { { 0.30, 0.05, 0.40, 0.60 }, { 0.20, 0.05, 0.60, 0.80 }, { 0.30, 0.05, 0.40, 0.30 } }, shift = true },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 } },
+  { key = 'v', name = 'Visual Studio Code' },
   { key = 'v', fn = selection.paste, shift = true },
   { key = 't', fn = emacs.capture },
   { key = 't', fn = emacs.inbox, shift = true },
-  { key = 'q', fn = hs.toggleConsole },
-  { key = 'r', fn = hs.reload },
+  { key = 'c', fn = hs.toggleConsole, shift = true },
+  { key = 'r', fn = hs.reload, shift = true },
   { key = 'up', fn = grid.resizeWindowShorter },
   { key = 'down', fn = grid.resizeWindowTaller },
   { key = 'left', fn = grid.resizeWindowThinner },
@@ -77,24 +77,6 @@ local hyperBindings = {
   { key = 'down', fn = grid.pushWindowDown, shift = true },
   { key = 'left', fn = grid.pushWindowLeft, shift = true },
   { key = 'right', fn = grid.pushWindowRight, shift = true },
-  { key = '1', pos = { 0.00, 0.00, 0.30, 0.50 }, shift = true },
-  { key = '2', pos = { 0.30, 0.00, 0.40, 0.50 }, shift = true },
-  { key = '3', pos = { 0.70, 0.00, 0.30, 0.50 }, shift = true },
-  { key = 'q', pos = { 0.00, 0.50, 0.30, 0.50 }, shift = true },
-  { key = 'w', pos = { 0.30, 0.50, 0.40, 0.50 }, shift = true },
-  { key = 'e', pos = { 0.70, 0.50, 0.30, 0.50 }, shift = true },
-  { key = '6', pos = { 0.00, 0.00, 0.25, 1.00 }, shift = true },
-  { key = '7', pos = { 0.25, 0.00, 0.25, 1.00 }, shift = true },
-  { key = '8', pos = { 0.50, 0.00, 0.25, 1.00 }, shift = true },
-  { key = '9', pos = { 0.75, 0.00, 0.25, 1.00 }, shift = true },
-  { key = 'a', pos = { 0.00, 0.00, 0.25, 0.50 }, shift = true },
-  { key = 's', pos = { 0.25, 0.00, 0.25, 0.50 }, shift = true },
-  { key = 'd', pos = { 0.50, 0.00, 0.25, 0.50 }, shift = true },
-  { key = 'f', pos = { 0.75, 0.00, 0.25, 0.50 }, shift = true },
-  { key = 'z', pos = { 0.00, 0.50, 0.25, 0.50 }, shift = true },
-  { key = 'x', pos = { 0.25, 0.50, 0.25, 0.50 }, shift = true },
-  { key = 'c', pos = { 0.50, 0.50, 0.25, 0.50 }, shift = true },
-  { key = 'v', pos = { 0.75, 0.50, 0.25, 0.50 }, shift = true },
 }
 
 -------------------------
@@ -199,11 +181,6 @@ end
 
 local function bindToHyper(binding)
   local modifier = hyper
-
-  if binding.tab and binding.name then
-    logger.d(binding.name)
-    tabs.enableForApp(binding.name)
-  end
 
   if binding.shift then
     modifier = hyperShift
