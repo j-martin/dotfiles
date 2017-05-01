@@ -44,7 +44,7 @@
 (spacemacs/toggle-vi-tilde-fringe-off)
 (setq powerline-default-separator 'utf-8)
 (set-keyboard-coding-system nil)
-(setq neo-theme 'arrow)
+(setq neo-theme 'icons)
 (global-prettify-symbols-mode 1)
 (golden-ratio-mode 0)
 (menu-bar-mode 1)
@@ -82,6 +82,12 @@
 (setq save-abbrevs 'silently)
 (super-save-mode +1)
 #+end_src
+** Company
+#+begin_src emacs-lisp :results none
+(setq company-dabbrev-downcase 0)
+(setq company-idle-delay 0.5)
+#+end_src
+
 ** Autorevert
 #+begin_src emacs-lisp :results none
 (global-auto-revert-mode t)
@@ -285,6 +291,9 @@
 (global-set-key (kbd "s-t") 'neotree-find)
 (global-set-key (kbd "s-[") 'evil-jump-backward)
 (global-set-key (kbd "s-]") 'evil-jump-forward)
+(global-set-key (kbd "C-s-g") 'evil-iedit-state/iedit-mode)
+(global-set-key (kbd "s-d") 'mc/mark-next-like-this)
+(global-set-key (kbd "s-D") 'mc/skip-to-next-like-this)
 (global-set-key (kbd "C-i") 'evil-jump-forward)
 
 (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)

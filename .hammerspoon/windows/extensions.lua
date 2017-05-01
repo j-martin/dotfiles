@@ -1,8 +1,5 @@
 -- initially from https://raw.githubusercontent.com/oskarols/dotfiles/0bd44443d00108e3c1a8d01520489e2d165f70ff/hammerspoon/extensions.lua
 
-partial = hs.fnutils.partial
-sequence = hs.fnutils.sequence
-
 local fnutils = require "hs.fnutils"
 local indexOf = fnutils.indexOf
 local filter = fnutils.filter
@@ -18,6 +15,7 @@ local logger = hs.logger.new('windows.ext', 'debug')
 
 local mod = {}
 
+application.enableSpotlightForNameSearches(true)
 ---------------------------------------------------------
 -- functools
 ---------------------------------------------------------

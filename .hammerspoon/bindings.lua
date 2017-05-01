@@ -55,14 +55,15 @@ local hyperBindings = {
   { key = 'h', fn = applications.slack },
   { key = 'h', fn = applications.slackUnread, shift = true },
   { key = 'j', pos = { { 0.0, 0.0, 0.5, 1.0}, { 0.0, 0.0, 0.7, 1.0} } },
-  { key = 'j', pos = { 0.00, 0.00, 0.30, 1.00 }, shift = true },
+  { key = 'j', pos = { { 0.00, 0.00, 0.30, 1.00 }, { 0.00, 0.00, 0.70, 1.00 } }, shift = true },
   { key = 'k', pos = { { 0.5, 0.0, 0.5, 1.0}, { 0.3, 0.0, 0.7, 1.0} } },
-  { key = 'k', pos = { 0.70, 0.00, 0.30, 1.00 }, shift = true },
+  { key = 'k', pos = { { 0.70, 0.00, 0.30, 1.00 }, { 0.30, 0.00, 0.70, 1.00 } }, shift = true },
   { key = 'z', fn = caffeinate.lockScreen },
   { key = 'x', fn = windows.previousScreen },
   { key = 'n', pos = { { 0.30, 0.00, 0.40, 1.00 }, { 0.20, 0.00, 0.60, 1.00 } } },
   { key = 'n', pos = { { 0.30, 0.05, 0.40, 0.60 }, { 0.20, 0.05, 0.60, 0.80 }, { 0.30, 0.05, 0.40, 0.30 } }, shift = true },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 } },
+  { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 }, shift = true, targetScreen = 'current' },
   { key = 'v', name = 'Visual Studio Code' },
   { key = 'v', fn = selection.paste, shift = true },
   { key = 't', fn = emacs.capture },
@@ -111,7 +112,7 @@ local commonLayout = {
 }
 
 local modeLayouts = {
---                      x    y    w    h
+--                      x     y     w     h
   { key = '1', pos = { 0.00, 0.00, 0.50, 0.50 } },
   { key = '2', pos = { 0.50, 0.00, 0.50, 0.50 } },
   { key = '3', pos = { 0.00, 0.00, 1.00, 0.50 } },
@@ -164,8 +165,10 @@ local modeLayouts = {
 }
 
 local function buildBindFunction(binding)
-  if binding.pos then
-    return windows.setPosition(binding.pos)
+  if binding.pos and binding.targetScreen then
+    return windows.setPosition(binding.pos, binding.targetScreen)
+  elseif binding.pos then
+    return windows.setPosition(binding.pos, 'primary')
   elseif binding.layout then
     return windows.applyLayout(commonLayout, binding.layout)
   elseif binding.name then

@@ -12,47 +12,54 @@ _get_latest_entry () {
     | tail -n1 \
     | cut -d' ' -f2
 }
-_format() {
+_format_wrike() {
   local state="$1"
   jq -r ".data[] | \"** ${state} [[\(.permalink)][\(.title)]]\""
 }
 
 _format_github() {
-  jq -r '.items[] | "** TODO [[\(.html_url)][\(.repository_url)#\(.number | tostring) - \(.title)]] :review:",
-":PROPERTIES:",
-":ID: " + (.id | tostring),
-":END:"
-' \
-    | sed "s#https://api.github.com/repos/$(_github_org)/##g"
-}
-_generate_done() {
-  local user="$1"
-  local last_entry="$(_get_latest_entry)"
-  _wrike "tasks/?responsibles=[${user}]&completedDate={\"start\":\"${last_entry}T08:00:00Z\"}" \
-    | _format 'DONE'
-
-  _github "search/issues?q=type:pr+reviewed-by:$(_github_user)+closed:>${last_entry}" \
-    | _format_github \
-    | sed 's/^\*\* TODO/\*\* DONE/' \
+  local state="${1:-TODO}"
+  local tags="$2"
+  jq -r ".items[] | \"** ${state} [[\(.html_url)][\(.repository_url)#\(.number | tostring) - \(.title)]] ${tags}\",
+\":PROPERTIES:\",
+\":ID: \" + (.id | tostring),
+\":END:\"
+" \
+    | sed "s#https://api.github.com/repos/$(_github_org)/##g" \
     | tr -d '\r'
 }
 
-_generate_todo() {
+_generate_previous() {
+  local user="$1"
+  local last_entry="$(_get_latest_entry)"
+  _wrike "tasks/?responsibles=[${user}]&completedDate={\"start\":\"${last_entry}T08:00:00Z\"}" \
+    | _format_wrike 'DONE'
+
+  _github "search/issues?q=author:$(_github_user)+closed:>=${last_entry}" \
+    | _format_github 'DONE'
+
+  _github "search/issues?q=author:$(_github_user)+state:open+created:>=${last_entry}" \
+    | _format_github 'TODO' ':merge:'
+
+  _github "search/issues?q=type:pr+reviewed-by:$(_github_user)+closed:>=${last_entry}" \
+    | _format_github 'DONE' ':review:'
+}
+
+_generate_today() {
   local user="$1"
   echo "* $(/bin/date "+%Y-%m-%d")"
 
   _github "search/issues?q=type:pr+review-requested:$(_github_user)+is:open" \
-    | _format_github \
-    | tr -d '\r'
+    | _format_github 'TODO' ':review:'
 
   _wrike "tasks/?responsibles=[${user}]&status=[Active]" \
-    | _format 'TODO'
+    | _format_wrike 'TODO'
 }
 
 _main() {
   local user="$(_wrike_user)"
-  _generate_done "${user}"
-  _generate_todo "${user}"
+  _generate_previous "${user}"
+  _generate_today "${user}"
 }
 
 _main

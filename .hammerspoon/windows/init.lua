@@ -72,11 +72,18 @@ local function inPostions(currentPos, positions)
   return false
 end
 
+local function resolveTargetScreen(targetScreen)
+  if targetScreen == 'primary' then
+    return screen.primaryScreen()
+  end
+  return nil
+end
+
 local previousStates = {}
 
-function mod.moveToPrimaryScreen(pos)
+function mod.moveWindowTo(pos, targetScreen)
   local function buildKey(win)
-    return table.concat(pos,'\0') .. win:id()
+    return table.concat(pos, '\0') .. win:id()
   end
 
   return function()
@@ -91,7 +98,7 @@ function mod.moveToPrimaryScreen(pos)
       logger.d('reverted to previousState')
     else
       previousStates[winKey] = { screen = win:screen(), pos = winPos }
-      win:move(pos, screen.primaryScreen())
+      win:move(pos, resolveTargetScreen(targetScreen))
       logger.d('saved previousState')
     end
     ext.centerOnTitle(win:frame())
@@ -115,9 +122,9 @@ end
 local cycleStates = {}
 
 -- cycles window size
-function mod.setPosition(positions)
+function mod.setPosition(positions, targetScreen)
   if not isTableOfTables(positions) then
-    return mod.moveToPrimaryScreen(positions)
+    return mod.moveWindowTo(positions, targetScreen)
   end
 
   local nextPosFn
@@ -139,7 +146,8 @@ function mod.setPosition(positions)
     end
 
     cycleStates[id] = positions
-    win:move(nextPos, screen.primaryScreen())
+
+    win:move(nextPos, resolveTargetScreen(targetScreen))
     ext.centerOnTitle(win:frame())
   end
 end

@@ -276,7 +276,7 @@ alias pgcli='echo $PGHOST && pgcli'
 alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
 alias hd='home diff'
 hadd() {
-  echo "$*" | grep -vi '.private\|work\|Dropbox' && home add -f "$@"
+  echo "$*" | grep -vi '.config\|.private\|work\|Dropbox' && home add -f "$@"
 }
 alias hcommit='home commit -m'
 alias hlog='home log -p'

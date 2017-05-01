@@ -5,6 +5,7 @@ local http = require "hs.http"
 local task = require "hs.task"
 local eventtap = require "hs.eventtap"
 local alert = require "hs.alert"
+local window = require "hs.window"
 local logger = hs.logger.new('selection', 'debug')
 
 local mod = {}
@@ -13,31 +14,33 @@ local engines = {
   google = 'https://www.google.ca/search?q='
 }
 
-local function selectedTextFromClipboard()
-  local function getClipboard(initial, sleep, limit)
-    if limit == 0 then return initial end
+local function selectedTextFromClipboard(currentApp)
+
+  local function getClipboard(initial, limit)
+    if limit < 0 then return initial end
     eventtap.keyStroke({'cmd'}, 'c')
-    timer.usleep(sleep * 1000000)
+    timer.usleep(0.1 * 1000000)
     local selection = pasteboard.readString()
-    if selection == initial then
+    if selection == initial and currentApp ~= 'Google Chrome' then
       logger.d('Same result. Retrying')
-      return getClipboard(initial, sleep, limit - 1)
+      return getClipboard(initial, limit - 1)
     else
       return selection
     end
   end
 
   local initial = pasteboard.readString()
-  local selection = getClipboard(initial, 0.1, 6)
+  local selection = getClipboard(initial, 10)
   logger.df('clipboard: %s', selection)
   pasteboard:setContents(initial)
   return selection
 end
 
 local function selectedText()
+  local currentApp = window.focusedWindow():application():name()
   local selection  = uielement.focusedElement():selectedText()
-  if not selection then
-    return selectedTextFromClipboard()
+  if not selection or currentApp == 'Emacs' then
+    return selectedTextFromClipboard(currentApp)
   end
 
   return selection
