@@ -27,15 +27,13 @@
 (setq multi-term-program-switches "--login")
 (setq gc-cons-threshold (* 800 1024))
 #+end_src
-*** Custom file
-#+begin_src emacs-lisp :results none
-;; (load custom-file t)
-#+end_src
 ** GitHub related
 #+begin_src emacs-lisp :results none
-(if (eq system-type 'darwin)
-    (setq paradox-github-token (shell-command "keyring get system github_paradox"))
-    (add-hook 'edit-server-done-hook (lambda () (shell-command "open -a \"Google Chrome\""))))
+  (if (eq system-type 'darwin)
+      (setq paradox-github-token (shell-command "keyring get system github_paradox"))
+    (add-hook 'edit-server-done-hook
+              (lambda ()
+                (shell-command "open -a \"Google Chrome\""))))
 #+end_src
 * UI/Visual
 #+begin_src emacs-lisp :results none
@@ -52,24 +50,26 @@
 #+end_src
 ** Frame Size
 #+begin_src emacs-lisp :results none
-(if (eq system-type 'darwin)
-  (add-to-list 'default-frame-alist '(height . 60))
-  (add-to-list 'default-frame-alist '(width . 134))
-)
+  (if (eq system-type 'darwin)
+      (add-to-list 'default-frame-alist
+                   '(height . 60))
+    (add-to-list 'default-frame-alist
+                 '(width . 134)))
 #+end_src
 ** Whitespace
 #+begin_src emacs-lisp :results none
-(setq whitespace-display-mappings
-  ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
-  '((tab-mark 9 [183 9] [255 9]))) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
+  (setq whitespace-display-mappings
+        ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
+        '((tab-mark 9 [183 9] [255 9]))) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
 
-(global-whitespace-mode 1)
-(setq fill-column 120)
-(setq whitespace-line-column 260)
-(setq-default
-  tab-width 2
-  indent-tabs-mode nil
-  fci-rule-column 120)
+  (global-whitespace-mode 1)
+  (setq fill-column 120)
+  (setq whitespace-line-column 260)
+
+  (setq-default
+    tab-width 2
+    indent-tabs-mode nil
+    fci-rule-column 120)
 #+end_src
 * Modes
 ** Enabling
@@ -115,8 +115,10 @@
 
 ** Linum
 #+begin_src emacs-lisp :results none
-(add-hook 'prog-mode-hook
-          (lambda () (linum-mode (- (* 2000 80) (buffer-size)))))
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (linum-mode (- (* 2000 80)
+                             (buffer-size)))))
 #+end_src
 ** Autofill
 #+begin_src emacs-lisp :results none
@@ -129,18 +131,18 @@
   (defun jm/pretty-symbols ()
     "make some word or string show as pretty Unicode symbols"
     (setq prettify-symbols-alist
-      '(
-         ("lambda" . 955) ; λ
-         ("->" . 8594)    ; →
-         ("=>" . 8658)    ; ⇒
-         ("function" . ?ƒ); ƒ
-)))
-(add-hook 'lisp-mode-hook 'jm/pretty-symbols)
-(add-hook 'org-mode-hook 'jm/pretty-symbols)
-(add-hook 'js2-mode-hook 'jm/pretty-symbols)
-(add-hook 'scala-mode-hook 'jm/pretty-symbols)
-(add-hook 'coffee-mode-hook 'jm/pretty-symbols)
-(add-hook 'lua-mode-hook 'jm/pretty-symbols)
+          '(
+            ("lambda" . 955) ; λ
+            ("->" . 8594)    ; →
+            ("=>" . 8658)    ; ⇒
+            ("function" . ?ƒ); ƒ
+            )))
+  (add-hook 'lisp-mode-hook 'jm/pretty-symbols)
+  (add-hook 'org-mode-hook 'jm/pretty-symbols)
+  (add-hook 'js2-mode-hook 'jm/pretty-symbols)
+  (add-hook 'scala-mode-hook 'jm/pretty-symbols)
+  (add-hook 'coffee-mode-hook 'jm/pretty-symbols)
+  (add-hook 'lua-mode-hook 'jm/pretty-symbols)
 #+end_src
 
 ** Makefile
@@ -157,15 +159,15 @@
 
 ** shell-script
 #+begin_src emacs-lisp :results none
-(defun jm/sh-mode-config ()
-  (interactive)
-  (setq sh-indentation 2)
-  (setq sh-basic-offset 2))
+  (defun jm/sh-mode-config ()
+    (interactive)
+    (setq sh-indentation 2)
+    (setq sh-basic-offset 2))
 
-(add-hook 'sh-mode-hook 'jm/sh-mode-config)
+  (add-hook 'sh-mode-hook 'jm/sh-mode-config)
 
-(unless (eq system-type 'windows-nt)
-  (push 'company-dabbrev-code company-backends-sh-mode))
+  (unless (eq system-type 'windows-nt)
+    (push 'company-dabbrev-code company-backends-sh-mode))
 #+end_src
 
 ** EVIL
@@ -202,7 +204,9 @@
     (setq org-directory "~/.org/")
     (setq org-default-notes-file "~/.org/inbox.org")
     (setq org-hide-emphasis-markers t)
-    (setq org-agenda-files (list "~/.org/inbox.org" "~/.org/calendar-personal.org" "~/.org/calendar-work.org"))
+    (setq org-agenda-files (list "~/.org/inbox.org"
+                                 "~/.org/calendar-personal.org"
+                                 "~/.org/calendar-work.org"))
     (setq org-startup-folded t)
     (setq org-catch-invisible-edits 'error)
     (add-hook 'org-mode-hook 'jm/org-hooks)
@@ -220,73 +224,58 @@
 *** Capture Templates
 #+begin_src emacs-lisp :results none
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
-  (setq org-capture-templates
-        '(
-          ("t" "Todo"
-           entry
-           (file+headline "~/.org/inbox.org" "Tasks")
-           "* TODO %?\nEntered on %U\n%i\n%a")
-
-          ("T" "Todo with clipboard"
-            entry
-            (file+headline "~/.org/inbox.org" "Tasks")
-            "* TODO %?\nEntered on %U\n%i\n%c\n%a")
-
-          ("w" "Todo for work"
-            entry
-            (file+headline "~/.org/inbox.org" "Work")
-            "* TODO %?\nEntered on %U\n%i\n%a")
-
-          ("W" "Todo with clipboard for work"
-            entry
-            (file+headline "~/.org/inbox.org" "Work")
-            "* TODO %?\nEntered on %U\n%i\n%c\n%a")
-
-          ("s" "Add note to standup"
-            plain
-            (file "~/.org/standup.org")
-            "** TODO %?\nEntered on %U\n%i\n%a")
-
-          ("S" "Add note to standup DONE"
-            plain
-            (file "~/.org/standup.org")
-            "** DONE %?\nEntered on %U\n%i\n%a")
-
-          ("r" "References / Research"
-            entry
-            (file+headline "~/.org/references.org" "Research")
-            "** %?%c\nEntered on %U\n%i\n\n%a")
-
-          ("R" "References / Research TODO"
-            entry
-            (file+headline "~/.org/references.org" "Research")
-            "** TODO %?\nEntered on %U\n%i\n\n%a")
-
-          ("b" "References / Books"
-            entry
-            (file+headline "~/.org/references.org" "Books")
-            "** %?%c\nEntered on %U\n%i\n\n%a")
-
-          ("p" "Protocol"
-            entry
-            (file+headline "~/.org/references.org" "Research")
-            "* %?\nSource: %u, %c\n #+begin_quote\n%i\n#+end_quote\n")
-
-          ("L" "Protocol Link"
-            entry
-            (file+headline "~/.org/references.org" "Research")
-            "* %?[[%:link][%:description]] \nCaptured On: %U")
-
-          ("j" "Journal"
-            entry
-            (file+datetree "~/.org/journal.org")
-            "* %?\nEntered on %U\n%i\n%a")
-
-          ("J" "Journal with Clipboard"
-            entry
-            (file+datetree "~/.org/journal.org")
-            "* %?\nEntered on %U\n%i\n%c\n%a")
-          ))
+  (setq org-capture-templates '(("t" "Todo"
+                                 entry
+                                 (file+headline "~/.org/inbox.org" "Tasks")
+                                 "* TODO %?\nEntered on %U\n%i\n%a")
+                                ("T" "Todo with clipboard"
+                                 entry
+                                 (file+headline "~/.org/inbox.org" "Tasks")
+                                 "* TODO %?\nEntered on %U\n%i\n%c\n%a")
+                                ("w" "Todo for work"
+                                 entry
+                                 (file+headline "~/.org/inbox.org" "Work")
+                                 "* TODO %?\nEntered on %U\n%i\n%a")
+                                ("W" "Todo with clipboard for work"
+                                 entry
+                                 (file+headline "~/.org/inbox.org" "Work")
+                                 "* TODO %?\nEntered on %U\n%i\n%c\n%a")
+                                ("s" "Add note to standup"
+                                 plain
+                                 (file "~/.org/standup.org")
+                                 "** TODO %?\nEntered on %U\n%i\n%a")
+                                ("S" "Add note to standup DONE"
+                                 plain
+                                 (file "~/.org/standup.org")
+                                 "** DONE %?\nEntered on %U\n%i\n%a")
+                                ("r" "References / Research"
+                                 entry
+                                 (file+headline "~/.org/references.org" "Research")
+                                 "** %?%c\nEntered on %U\n%i\n\n%a")
+                                ("R" "References / Research TODO"
+                                 entry
+                                 (file+headline "~/.org/references.org" "Research")
+                                 "** TODO %?\nEntered on %U\n%i\n\n%a")
+                                ("b" "References / Books"
+                                 entry
+                                 (file+headline "~/.org/references.org" "Books")
+                                 "** %?%c\nEntered on %U\n%i\n\n%a")
+                                ("p" "Protocol"
+                                 entry
+                                 (file+headline "~/.org/references.org" "Research")
+                                 "* %?\nSource: %u, %c\n #+begin_quote\n%i\n#+end_quote\n")
+                                ("L" "Protocol Link"
+                                 entry
+                                 (file+headline "~/.org/references.org" "Research")
+                                 "* %?[[%:link][%:description]] \nCaptured On: %U")
+                                ("j" "Journal"
+                                 entry
+                                 (file+datetree "~/.org/journal.org")
+                                 "* %?\nEntered on %U\n%i\n%a")
+                                ("J" "Journal with Clipboard"
+                                 entry
+                                 (file+datetree "~/.org/journal.org")
+                                 "* %?\nEntered on %U\n%i\n%c\n%a")))
 #+end_src
 
 * Keyboard Bindings
@@ -312,36 +301,60 @@
 (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
 (spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
-(spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
-(spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
-(spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
-(spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
-(spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
-(spacemacs/set-leader-keys "om" 'jm/open-main)
-(spacemacs/set-leader-keys "or" 'jm/open-references)
-(spacemacs/set-leader-keys "ot" 'jm/open-inbox)
-(spacemacs/set-leader-keys "oc" 'jm/open-config)
-(spacemacs/set-leader-keys "oC" 'jm/open-config-private)
-(spacemacs/set-leader-keys "os" 'jm/open-standup)
-(spacemacs/set-leader-keys "og" 'jm/org-github-in)
-(spacemacs/set-leader-keys "oG" 'jm/org-github-out)
-(spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
-(spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
-(spacemacs/set-leader-keys "ol" 'org-content)
-(spacemacs/set-leader-keys "wv" 'jm/split-window)
-(spacemacs/set-leader-keys "ws" 'jm/split-window-below)
 (spacemacs/set-leader-keys "ac" 'jm/calc)
-(spacemacs/set-leader-keys "ai" 'jm/open-iterm)
 (spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
 (spacemacs/set-leader-keys "ah" 'engine/search-github)
+(spacemacs/set-leader-keys "ai" 'jm/open-iterm)
+(spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
+(spacemacs/set-leader-keys "oC" 'jm/open-config-private)
+(spacemacs/set-leader-keys "oG" 'jm/org-github-out)
+(spacemacs/set-leader-keys "oc" 'jm/open-config)
+(spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
+(spacemacs/set-leader-keys "og" 'jm/org-github-in)
+(spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
+(spacemacs/set-leader-keys "o9" 'org-edit-src-code)
+(spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
+(spacemacs/set-leader-keys "ol" 'org-content)
+(spacemacs/set-leader-keys "om" 'jm/open-main)
+(spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
+(spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
+(spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
+(spacemacs/set-leader-keys "or" 'jm/open-references)
+(spacemacs/set-leader-keys "os" 'jm/open-standup)
+(spacemacs/set-leader-keys "ot" 'jm/open-inbox)
+(spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
+(spacemacs/set-leader-keys "ws" 'jm/split-window-below)
+(spacemacs/set-leader-keys "wv" 'jm/split-window)
 #+end_src
 
 * Functions
+** Git
 #+begin_src emacs-lisp :results none
   (defun jm/magit-commit-message ()
-    (let ((branch-name (shell-command-to-string "git symbolic-ref --short -q HEAD | grep -o '^[0-9]*'")))
-      (if (= (length branch-name) 0) () (insert (concat (replace-regexp-in-string "\n" "" branch-name) " "))))
+    (let ((taskId (s-match "^[0-9]*"
+                           (jm/git-current-branch))))
+      (if (> (length taskId) 0)
+          (insert (concat (car taskId) " "))))
     (evil-insert-state))
+
+  (defun jm/github-open-pr ()
+    (interactive)
+    (jm/open (concat (jm/github-repository)
+                     "/compare/master.."
+                     (jm/git-current-branch))))
+
+  (defun jm/git-current-branch ()
+    (s-trim (shell-command-to-string "git symbolic-ref --short -q HEAD")))
+
+  (defun jm/git-current-origin ()
+    (s-trim (shell-command-to-string "git config --get remote.origin.url")))
+
+  (defun jm/github-repository ()
+    (concat "https://github.com/"
+            (s-chop-suffix ".git"
+                           (replace-regexp-in-string "^.*github\.com."
+                                                     ""
+                                                     (jm/git-current-origin)))))
 #+end_src
 
 ** Utils
@@ -420,7 +433,6 @@
   (defun jm/helm-forks-dir ()
     (interactive)
     (helm-find-files-1 (expand-file-name "~/Work/forks/")))
-
 #+end_src
 
 ** Standup
