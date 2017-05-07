@@ -10,3 +10,9 @@
 [submodule ".oh-my-zsh-custom/plugins/auto-fu.zsh"]
 	path = .oh-my-zsh-custom/plugins/auto-fu.zsh
 	url = git@github.com:hchbaw/auto-fu.zsh.git
+[submodule ".vendor/org-protocol-handler"]
+	path = .vendor/org-protocol-handler
+	url = https://github.com/aaronbieber/org-protocol-handler.git
+[submodule "/Users/benchemployee/.emacs.dev"]
+	path = /Users/benchemployee/.emacs.dev
+	url = https://github.com/syl20bnr/spacemacs
