@@ -29,7 +29,7 @@ alert.defaultStyle = {
 
 mod.name = {
   chrome = 'Google Chrome',
-  inbox = 'Inbox',
+  inbox = 'Inbox - ', -- extra characters to be more specific
   slack  = 'Slack'
 }
 

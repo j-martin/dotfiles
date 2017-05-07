@@ -57,6 +57,7 @@ source "$ZSH/oh-my-zsh.sh"
 export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=5
 unset zle_bracketed_paste
 
+setopt histignoredups
 
 # User configuration
 bindkey -e
