@@ -106,6 +106,7 @@ values."
      confluence
      editorconfig
      groovy-mode
+     parinfer
      protobuf-mode
      string-inflection
      super-save

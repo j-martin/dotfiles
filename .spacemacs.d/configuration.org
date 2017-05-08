@@ -5,27 +5,27 @@
 * General
 ** Personal
 #+begin_src emacs-lisp :results none
-(setq user-full-name "Jean-Martin Archer"
-  user-mail-address "jm@jmartin.ca")
+  (setq user-full-name "Jean-Martin Archer"
+    user-mail-address "jm@jmartin.ca")
 #+end_src
 ** Executables
 #+begin_src emacs-lisp :results none
-(setq exec-path (append exec-path '("/usr/local/bin")))
+  (setq exec-path (append exec-path '("/usr/local/bin")))
 #+end_src
 ** Convenience
 #+begin_src emacs-lisp :results none
-(setq confirm-kill-emacs 'y-or-n-p)
-(setq mac-emulate-three-button-mouse t)
-;; (setq x-select-enable-clipboard nil)
-(fset 'evil-visual-update-x-selection 'ignore)
-(setq make-backup-files nil)
-(spacemacs/toggle-indent-guide-globally-on)
-(spacemacs/toggle-camel-case-motion-globally-on)
-(spacemacs/toggle-evil-cleverparens-on)
-(spacemacs/toggle-smartparens-globally-on)
-(setq save-interprogram-paste-before-kill t)
-(setq multi-term-program-switches "--login")
-(setq gc-cons-threshold (* 800 1024))
+  (setq confirm-kill-emacs 'y-or-n-p)
+  (setq mac-emulate-three-button-mouse t)
+  ;; (setq x-select-enable-clipboard nil)
+  (fset 'evil-visual-update-x-selection 'ignore)
+  (setq make-backup-files nil)
+  (spacemacs/toggle-indent-guide-globally-on)
+  (spacemacs/toggle-camel-case-motion-globally-on)
+  (spacemacs/toggle-evil-cleverparens-on)
+  (spacemacs/toggle-smartparens-globally-on)
+  (setq save-interprogram-paste-before-kill t)
+  (setq multi-term-program-switches "--login")
+  (setq gc-cons-threshold (* 800 1024))
 #+end_src
 ** GitHub related
 #+begin_src emacs-lisp :results none
@@ -37,16 +37,16 @@
 #+end_src
 * UI/Visual
 #+begin_src emacs-lisp :results none
-(spacemacs/toggle-syntax-checking-on)
-(spacemacs/toggle-truncate-lines-on)
-(spacemacs/toggle-vi-tilde-fringe-off)
-(setq powerline-default-separator 'utf-8)
-(set-keyboard-coding-system nil)
-(setq neo-theme 'icons)
-(global-prettify-symbols-mode 1)
-(golden-ratio-mode 0)
-(menu-bar-mode 1)
-(setq-default avy-all-windows 'all-frames)
+  (spacemacs/toggle-syntax-checking-on)
+  (spacemacs/toggle-truncate-lines-on)
+  (spacemacs/toggle-vi-tilde-fringe-off)
+  (setq powerline-default-separator 'utf-8)
+  (set-keyboard-coding-system nil)
+  (setq neo-theme 'icons)
+  (global-prettify-symbols-mode 1)
+  (golden-ratio-mode 0)
+  (menu-bar-mode 1)
+  (setq-default avy-all-windows 'all-frames)
 #+end_src
 ** Frame Size
 #+begin_src emacs-lisp :results none
@@ -74,16 +74,16 @@
 * Modes
 ** Enabling
 #+begin_src emacs-lisp :results none
-(server-start)
-(delete-selection-mode 1)
-(editorconfig-mode 1)
-(global-company-mode 1)
-(ws-butler-global-mode 1)
-(setq-default abbrev-mode t)
-(setq save-abbrevs 'silently)
-(super-save-mode +1)
-(require 'org-protocol)
-(require 'org-mac-link)
+  (server-start)
+  (delete-selection-mode 1)
+  (editorconfig-mode 1)
+  (global-company-mode 1)
+  (ws-butler-global-mode 1)
+  (setq-default abbrev-mode t)
+  (setq save-abbrevs 'silently)
+  (super-save-mode +1)
+  (require 'org-protocol)
+  (require 'org-mac-link)
 #+end_src
 ** Company
 #+begin_src emacs-lisp :results none
@@ -92,25 +92,40 @@
 
 ** Autorevert
 #+begin_src emacs-lisp :results none
-(global-auto-revert-mode t)
-(setq revert-without-query '(".*"))
+  (global-auto-revert-mode t)
+  (setq auto-revert-interval 0.25)
+  (setq auto-revert-verbose nil)
+  (setq revert-without-query '(".*"))
+#+end_src
+** Aggresive Indent
+#+begin_src emacs-lisp :results none
+  ;; (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
 #+end_src
 ** Atomic Chrome
 #+begin_src emacs-lisp :results none
-(atomic-chrome-start-server)
+  (atomic-chrome-start-server)
 #+end_src
 
+** Parinfer
+#+begin_src emacs-lisp :results none
+  (require 'parinfer)
+  (add-hook 'emacs-lisp-mode-hook 'parinfer-mode)
+  (add-hook 'emacs-lisp-mode-hook 'turn-off-smartparens-mode)
+  (this
+   [1 [2 3 4]]
+   (something))
+#+end_src
 ** AutoMode
 #+begin_src emacs-lisp :results none
-(add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
-(add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
-(add-to-list 'auto-mode-alist '("\\.template\\'" . json-mode))
-(add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
+  (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
+  (add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
+  (add-to-list 'auto-mode-alist '("\\.template\\'" . json-mode))
+  (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
 #+end_src
 
 ** Projectile
 #+begin_src emacs-lisp :results none
-(setq projectile-enable-caching t)
+  (setq projectile-enable-caching t)
 #+end_src
 
 ** Linum
@@ -122,9 +137,9 @@
 #+end_src
 ** Autofill
 #+begin_src emacs-lisp :results none
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
-(add-hook 'markdown-mode-hook 'turn-on-auto-fill)
-(add-hook 'org-mode-hook 'turn-on-auto-fill)
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
+  (add-hook 'org-mode-hook 'turn-on-auto-fill)
 #+end_src
 ** Pretty symbols
 #+begin_src emacs-lisp :results none
@@ -172,31 +187,30 @@
 
 ** EVIL
 #+begin_src emacs-lisp :results none
-(setq-default evil-escape-delay 0.2)
-(setq-default evil-escape-key-sequence "jk")
+  (setq-default evil-escape-delay 0.2)
+  (setq-default evil-escape-key-sequence "jk")
 #+end_src
 
 ** Scala
 #+begin_src emacs-lisp :results none
-(setq ensime-startup-snapshot-notification nil)
+  (setq ensime-startup-snapshot-notification nil)
 #+end_src
 ** Java
 #+begin_src emacs-lisp :results none
-(add-hook 'java-mode-hook (lambda ()
-                             (setq c-basic-offset 2
-                                   tab-width 2)))
-
+  (add-hook 'java-mode-hook
+            (lambda ()
+              (setq c-basic-offset 2 tab-width 2)))
 #+end_src
 ** JS
 #+begin_src emacs-lisp :results none
-(setq-default js-indent-level 2)
+  (setq-default js-indent-level 2)
 #+end_src
 
 ** magit
 #+begin_src emacs-lisp :results none
-(setq magit-repository-directories '("~/Work/"))
-(setq-default vc-follow-symlinks t)
-(add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
+  (setq magit-repository-directories '("~/Work/"))
+  (setq-default vc-follow-symlinks t)
+  (add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
 #+end_src
 ** org
 *** Basic setup
@@ -217,9 +231,9 @@
   #+end_src
 *** org-babel
 #+begin_src emacs-lisp :results none
-(setq org-src-fontify-natively t)
-(setq org-src-tab-acts-natively t)
-(setq org-src-window-setup 'current-window)
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-window-setup 'current-window)
 #+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :results none
@@ -280,51 +294,52 @@
 
 * Keyboard Bindings
 #+begin_src emacs-lisp :results none
-(define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
-(define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
-(define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
-(define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
-(define-key evil-normal-state-map (kbd "[s") 'flycheck-previous-error)
-(define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
-(define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
-(global-set-key (kbd "s-<left>") 'beginning-of-line)
-(global-set-key (kbd "s-<right>") 'end-of-line)
-(global-set-key (kbd "s-t") 'neotree-find)
-(global-set-key (kbd "s-[") 'evil-jump-backward)
-(global-set-key (kbd "s-]") 'evil-jump-forward)
-(global-set-key (kbd "C-s-g") 'evil-iedit-state/iedit-mode)
-(global-set-key (kbd "s-d") 'mc/mark-next-like-this)
-(global-set-key (kbd "s-D") 'mc/skip-to-next-like-this)
-(global-set-key (kbd "C-i") 'evil-jump-forward)
+  (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
+  (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
+  (define-key evil-normal-state-map (kbd "M-<up>") 'er/expand-region)
+  (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
+  (define-key evil-normal-state-map (kbd "[s") 'flycheck-previous-error)
+  (define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
+  (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
+  (global-set-key (kbd "s-<left>") 'beginning-of-line)
+  (global-set-key (kbd "s-<right>") 'end-of-line)
+  (global-set-key (kbd "s-t") 'neotree-find)
+  (global-set-key (kbd "s-[") 'evil-jump-backward)
+  (global-set-key (kbd "s-]") 'evil-jump-forward)
+  (global-set-key (kbd "C-s-g") 'evil-iedit-state/iedit-mode)
+  (global-set-key (kbd "s-d") 'mc/mark-next-like-this)
+  (global-set-key (kbd "s-D") 'mc/skip-to-next-like-this)
+  (global-set-key (kbd "C-i") 'evil-jump-forward)
 
-(define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
-(define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
+  (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
+  (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
-(spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
-(spacemacs/set-leader-keys "ac" 'jm/calc)
-(spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
-(spacemacs/set-leader-keys "ah" 'engine/search-github)
-(spacemacs/set-leader-keys "ai" 'jm/open-iterm)
-(spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
-(spacemacs/set-leader-keys "oC" 'jm/open-config-private)
-(spacemacs/set-leader-keys "oG" 'jm/org-github-out)
-(spacemacs/set-leader-keys "oc" 'jm/open-config)
-(spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
-(spacemacs/set-leader-keys "og" 'jm/org-github-in)
-(spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
-(spacemacs/set-leader-keys "o9" 'org-edit-src-code)
-(spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
-(spacemacs/set-leader-keys "ol" 'org-content)
-(spacemacs/set-leader-keys "om" 'jm/open-main)
-(spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
-(spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
-(spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
-(spacemacs/set-leader-keys "or" 'jm/open-references)
-(spacemacs/set-leader-keys "os" 'jm/open-standup)
-(spacemacs/set-leader-keys "ot" 'jm/open-inbox)
-(spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
-(spacemacs/set-leader-keys "ws" 'jm/split-window-below)
-(spacemacs/set-leader-keys "wv" 'jm/split-window)
+  (spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
+  (spacemacs/set-leader-keys "ac" 'jm/calc)
+  (spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
+  (spacemacs/set-leader-keys "ah" 'engine/search-github)
+  (spacemacs/set-leader-keys "ai" 'jm/open-iterm)
+  (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
+  (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
+  (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
+  (spacemacs/set-leader-keys "oc" 'jm/open-config)
+  (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
+  (spacemacs/set-leader-keys "og" 'jm/org-github-in)
+  (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
+  (spacemacs/set-leader-keys "o9" 'org-edit-src-code)
+  (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
+  (spacemacs/set-leader-keys "ol" 'org-content)
+  (spacemacs/set-leader-keys "om" 'jm/open-main)
+  (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
+  (spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
+  (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
+  (spacemacs/set-leader-keys "or" 'jm/open-references)
+  (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
+  (spacemacs/set-leader-keys "os" 'jm/open-standup)
+  (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
+  (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
+  (spacemacs/set-leader-keys "ws" 'jm/split-window-below)
+  (spacemacs/set-leader-keys "wv" 'jm/split-window)
 #+end_src
 
 * Functions
@@ -497,42 +512,42 @@
 *** Endless Autocorrect
  Per [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Endless parentheses]] copied on 2016-05-17
  #+begin_src emacs-lisp :results none
- (define-key ctl-x-map "\C-i"
-   #'endless/ispell-word-then-abbrev)
+   (define-key ctl-x-map "\C-i"
+     #'endless/ispell-word-then-abbrev)
 
- (defun endless/simple-get-word ()
-   (car-safe (save-excursion (ispell-get-word nil))))
+   (defun endless/simple-get-word ()
+     (car-safe (save-excursion (ispell-get-word nil))))
 
- (defun endless/ispell-word-then-abbrev (p)
-   "Call `ispell-word', then create an abbrev for it.
- With prefix P, create local abbrev. Otherwise it will
- be global.
- If there's nothing wrong with the word at point, keep
- looking for a typo until the beginning of buffer. You can
- skip typos you don't want to fix with `SPC', and you can
- abort completely with `C-g'."
-   (interactive "P")
-   (let (bef aft)
-     (save-excursion
-       (while (if (setq bef (endless/simple-get-word))
-                  ;; Word was corrected or used quit.
-                  (if (ispell-word nil 'quiet)
-                      nil ; End the loop.
-                    ;; Also end if we reach `bob'.
-                    (not (bobp)))
-                ;; If there's no word at point, keep looking
-                ;; until `bob'.
-                (not (bobp)))
-         (backward-word)
-         (backward-char))
-       (setq aft (endless/simple-get-word)))
-     (if (and aft bef (not (equal aft bef)))
-         (let ((aft (downcase aft))
-               (bef (downcase bef)))
-           (define-abbrev
-             (if p local-abbrev-table global-abbrev-table)
-             bef aft)
-           (message "\"%s\" now expands to \"%s\" %sally"
-                    bef aft (if p "loc" "glob")))
-       (user-error "No typo at or before point"))))
+   (defun endless/ispell-word-then-abbrev (p)
+     "Call `ispell-word', then create an abbrev for it.
+   With prefix P, create local abbrev. Otherwise it will
+   be global.
+   If there's nothing wrong with the word at point, keep
+   looking for a typo until the beginning of buffer. You can
+   skip typos you don't want to fix with `SPC', and you can
+   abort completely with `C-g'."
+     (interactive "P")
+     (let (bef aft)
+       (save-excursion
+         (while (if (setq bef (endless/simple-get-word))
+                    ;; Word was corrected or used quit.
+                    (if (ispell-word nil 'quiet)
+                        nil ; End the loop.
+                      ;; Also end if we reach `bob'.
+                      (not (bobp)))
+                  ;; If there's no word at point, keep looking
+                  ;; until `bob'.
+                  (not (bobp)))
+           (backward-word)
+           (backward-char))
+         (setq aft (endless/simple-get-word)))
+       (if (and aft bef (not (equal aft bef)))
+           (let ((aft (downcase aft))
+                 (bef (downcase bef)))
+             (define-abbrev
+               (if p local-abbrev-table global-abbrev-table)
+               bef aft)
+             (message "\"%s\" now expands to \"%s\" %sally"
+                      bef aft (if p "loc" "glob")))
+         (user-error "No typo at or before point"))))
  #+end_src
