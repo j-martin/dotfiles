@@ -1,0 +1,125 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "64b849642653ed90df031ed1a8aad8d1b8a1561a6265ba301da6f9c49f399ad0"
+        },
+        "requires": {},
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "Pygments": {
+            "hash": "sha256:78f3f434bcc5d6ee09020f92ba487f95ba50f1e3ef83ae96b9d5ffa1bab25c5d",
+            "version": "==2.2.0"
+        },
+        "appdirs": {
+            "hash": "sha256:d8b24664561d0d34ddfaec54636d502d7cea6e29c3eaf68f3df6180863e2166e",
+            "version": "==1.4.3"
+        },
+        "appnope": {
+            "hash": "sha256:5b26757dc6f79a3b7dc9fab95359328d5747fcb2409d331ea66d0272b90ab2a0",
+            "version": "==0.1.0"
+        },
+        "breadability": {
+            "hash": "sha256:f1a7fdad1e58e295df80954879143824c706bbfb1826cdf4b1d15de1a86afe99",
+            "version": "==0.1.20"
+        },
+        "chardet": {
+            "hash": "sha256:6ebf56457934fdce01fb5ada5582762a84eed94cad43ed877964aebbdd8174c0",
+            "version": "==3.0.2"
+        },
+        "cssselect": {
+            "hash": "sha256:4f5f799a1d3182b04814007e9e7fc6c362f4489c7420d6b348cc901ece07ced9",
+            "version": "==1.0.1"
+        },
+        "decorator": {
+            "hash": "sha256:73cbaadb8bc4e3c65fe1100773d56331a2d756cc0f5c7b9d8d5d5223fe04f600",
+            "version": "==4.0.11"
+        },
+        "docopt": {
+            "hash": "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491",
+            "version": "==0.6.2"
+        },
+        "ipython": {
+            "hash": "sha256:9cdbfa1af3a92cf019d1a592646e27159b3cac1ab9f2be7643d5e3bc413d3b5c",
+            "version": "==6.0.0"
+        },
+        "ipython_genutils": {
+            "hash": "sha256:72dd37233799e619666c9f639a9da83c34013a73e8bbc79a7a6348d93c61fab8",
+            "version": "==0.2.0"
+        },
+        "jedi": {
+            "hash": "sha256:96678411f2ffa444da3a5e7fdd4adc513b728a4a4617b30308be5c950722424b",
+            "version": "==0.10.2"
+        },
+        "keyring": {
+            "hash": "sha256:9ab1b9efe140783ae87c721c6ed4525080725472e5ff62355544568ef5716b18",
+            "version": "==10.3.2"
+        },
+        "lxml": {
+            "hash": "sha256:aa502d78a51ee7d127b4824ff96500f0181d3c7826e6ee7b800d068be79361c7",
+            "version": "==3.7.3"
+        },
+        "packaging": {
+            "hash": "sha256:99276dc6e3a7851f32027a68f1095cd3f77c148091b092ea867a351811cfe388",
+            "version": "==16.8"
+        },
+        "pexpect": {
+            "hash": "sha256:f853b52afaf3b064d29854771e2db509ef80392509bde2dd7a6ecf2dfc3f0018",
+            "version": "==4.2.1"
+        },
+        "pickleshare": {
+            "hash": "sha256:c9a2541f25aeabc070f12f452e1f2a8eae2abd51e1cd19e8430402bdf4c1d8b5",
+            "version": "==0.7.4"
+        },
+        "prompt_toolkit": {
+            "hash": "sha256:7281b5199235adaef6980942840c43753e4ab20dfe41338da634fb41c194f9d8",
+            "version": "==1.0.14"
+        },
+        "ptyprocess": {
+            "hash": "sha256:464cb76f7a7122743dd25507650db89cd447c51f38e4671602b3eaa2e38e05ae",
+            "version": "==0.5.1"
+        },
+        "pyparsing": {
+            "hash": "sha256:fee43f17a9c4087e7ed1605bd6df994c6173c1e977d7ade7b651292fab2bd010",
+            "version": "==2.2.0"
+        },
+        "readability-lxml": {
+            "hash": "sha256:ac3b88747bf4ee1093124a1e7370f345fb69e5673eb7e96f97c761427074e426",
+            "version": "==0.6.2"
+        },
+        "requests": {
+            "hash": "sha256:3b39cde35be51762885631cf586f4dc2284951b44d479a4454020758d767cc2f",
+            "version": "==2.14.2"
+        },
+        "setuptools": {
+            "hash": "sha256:19d753940f8cdbee7548da318f8b56159aead279ef811a6efc8b8a33d89c86a4",
+            "version": "==35.0.2"
+        },
+        "simplegeneric": {
+            "hash": "sha256:dc972e06094b9af5b855b3df4a646395e43d1c9d0d39ed345b7393560d0b9173",
+            "version": "==0.8.1"
+        },
+        "six": {
+            "hash": "sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1",
+            "version": "==1.10.0"
+        },
+        "todoist-python": {
+            "hash": "sha256:6d6785a886e3986a67e60c74428581d0e5e92781eab949b0fc02de94165aaa15",
+            "version": "==7.0.16"
+        },
+        "traitlets": {
+            "hash": "sha256:c6cb5e6f57c5a9bdaa40fa71ce7b4af30298fbab9ece9815b5d995ab6217c7d9",
+            "version": "==4.3.2"
+        },
+        "wcwidth": {
+            "hash": "sha256:f4ebe71925af7b40a864553f761ed559b43544f8f71746c2d756c7fe788ade7c",
+            "version": "==0.1.7"
+        }
+    },
+    "develop": {}
+}
