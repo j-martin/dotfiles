@@ -60,7 +60,7 @@ local hyperBindings = {
   { key = 'k', pos = { { 0.70, 0.00, 0.30, 1.00 }, { 0.30, 0.00, 0.70, 1.00 } }, shift = true },
   { key = 'z', fn = caffeinate.lockScreen },
   { key = 'x', fn = windows.previousScreen },
-  { key = 'n', pos = { { 0.30, 0.00, 0.40, 1.00 }, { 0.20, 0.00, 0.60, 1.00 } } },
+  { key = 'n', pos = { { 0.30, 0.00, 0.40, 1.00 }, { 0.20, 0.00, 0.60, 1.00 } }, reversable = true },
   { key = 'n', pos = { { 0.30, 0.05, 0.40, 0.60 }, { 0.20, 0.05, 0.60, 0.80 }, { 0.30, 0.05, 0.40, 0.30 } }, shift = true },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 } },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 }, shift = true, targetScreen = 'current' },
@@ -166,9 +166,9 @@ local modeLayouts = {
 
 local function buildBindFunction(binding)
   if binding.pos and binding.targetScreen then
-    return windows.setPosition(binding.pos, binding.targetScreen)
+    return windows.setPosition(binding.pos, binding.targetScreen, binding.reversable)
   elseif binding.pos then
-    return windows.setPosition(binding.pos, 'primary')
+    return windows.setPosition(binding.pos, 'primary', binding.reversable)
   elseif binding.layout then
     return windows.applyLayout(commonLayout, binding.layout)
   elseif binding.name then

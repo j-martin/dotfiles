@@ -68,7 +68,6 @@ local function noticeActions(action)
     end
 
     fnutils.each(action, setupTimer)
-    timer.doAfter(counter, alert("✔"))
   end
 end
 
@@ -93,7 +92,7 @@ local stretchesList = {
 }
 
 local reminders = {
-  { name = 'Break', freq = 1800, fn = noticeActions(stretchesList) }
+  { name = 'Break', freq = 1200, fn = noticeActions(stretchesList) }
 }
 
 local function parseEvent(event)

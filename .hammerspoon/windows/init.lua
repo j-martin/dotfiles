@@ -118,16 +118,29 @@ local function isTableOfTables(t)
   return true
 end
 
+local function reverse(arr)
+  local i, j = 1, #arr
+  while i < j do
+    arr[i], arr[j] = arr[j], arr[i]
+    i = i + 1
+    j = j - 1
+  end
+end
+
 -- required for reseting the previous state.
 local cycleStates = {}
 
 -- cycles window size
-function mod.setPosition(positions, targetScreen)
+function mod.setPosition(positions, targetScreen, reversable)
   if not isTableOfTables(positions) then
     return mod.moveWindowTo(positions, targetScreen)
   end
 
   local nextPosFn
+
+  if reversable and screen.primaryScreen():name() == 'Color LCD' then
+    reverse(positions)
+  end
 
   return function()
     local win = window.frontmostWindow():focus()
