@@ -38,6 +38,10 @@ _wrike_assigned_tasks() {
   _wrike "tasks/?responsibles=[$(_wrike_user)]&status=[Active]"
 }
 
+_wrike_todo() {
+  _wrike 'folders/IEABJUC4I4DUMKMP/tasks?customStatuses=["IEABJUC4JMACWQ5K"]' | __wrike_format_task
+}
+
 _wrike_all_tasks() {
   _wrike 'tasks?status=["Active"]' | __wrike_format_task
 }

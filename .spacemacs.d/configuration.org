@@ -111,9 +111,6 @@
   (require 'parinfer)
   (add-hook 'emacs-lisp-mode-hook 'parinfer-mode)
   (add-hook 'emacs-lisp-mode-hook 'turn-off-smartparens-mode)
-  (this
-   [1 [2 3 4]]
-   (something))
 #+end_src
 ** AutoMode
 #+begin_src emacs-lisp :results none
@@ -219,6 +216,7 @@
     (setq org-default-notes-file "~/.org/inbox.org")
     (setq org-hide-emphasis-markers t)
     (setq org-agenda-files (list "~/.org/inbox.org"
+                                 "~/.org/todoist.org"
                                  "~/.org/calendar-personal.org"
                                  "~/.org/calendar-work.org"))
     (setq org-startup-folded t)
@@ -229,7 +227,7 @@
       (smartparens-mode)
       (linum-mode -1))
   #+end_src
-*** org-babel
+*** Babel
 #+begin_src emacs-lisp :results none
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
@@ -318,7 +316,8 @@
   (spacemacs/set-leader-keys "ac" 'jm/calc)
   (spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
   (spacemacs/set-leader-keys "ah" 'engine/search-github)
-  (spacemacs/set-leader-keys "ai" 'jm/open-iterm)
+  (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
+  (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
   (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
   (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
   (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
@@ -348,15 +347,17 @@
   (defun jm/magit-commit-message ()
     (let ((taskId (s-match "^[0-9]*"
                            (jm/git-current-branch))))
-      (if (> (length taskId) 0)
-          (insert (concat (car taskId) " "))))
+      (when (> (length taskId) 5)
+          (insert (concat (car taskId)
+                          " "))))
     (evil-insert-state))
 
   (defun jm/github-open-pr ()
     (interactive)
-    (jm/open (concat (jm/github-repository)
-                     "/compare/master.."
-                     (jm/git-current-branch))))
+    (let ((branch (jm/git-current-branch))
+          (repo (jm/github-repository)))
+      (jm/open (if (string= branch "master") repo (concat repo "/compare/master..." branch)))))
+
 
   (defun jm/git-current-branch ()
     (s-trim (shell-command-to-string "git symbolic-ref --short -q HEAD")))
@@ -408,6 +409,9 @@
   (defun jm/open-file (file)
     (find-file (expand-file-name file))
     (evil-normal-state))
+
+  (defun jm/open (file)
+    (shell-command (concat "open " file)))
 
   (defun jm/open-config ()
     (interactive)
@@ -498,6 +502,10 @@
   (defun jm/open-iterm ()
     (interactive)
     (shell-command (concat "~/.bin/iterm-open.sh '" default-directory "'")))
+
+  (defun jm/open-project-iterm ()
+    (interactive)
+    (shell-command (concat "~/.bin/iterm-open.sh \"$(git rev-parse --show-toplevel)\"")))
 
   (defun jm/open-with-idea ()
     (interactive)

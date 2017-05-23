@@ -202,6 +202,7 @@ gnewic() {
 }
 
 alias gnewa='_git_new_branch "$(_wrike_branch | fzf)" && _wrike_wip'
+alias gnewt='_git_new_branch "$(_wrike_todo | fzf)" && _wrike_wip'
 alias gnewaa='_git_new_branch "$(_wrike_all_tasks | fzf)" && _wrike_wip'
 alias gnewh='_github_new_branch'
 

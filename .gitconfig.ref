@@ -4,7 +4,7 @@
 [pull]
   rebase = true
 [push]
-  default = simple
+  default = current
 [github]
   user = j-martin
   oauth-token =

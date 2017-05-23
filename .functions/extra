@@ -91,3 +91,12 @@ nvm() {
   nvm "$@"
   node --version
 }
+
+_todoist() {
+  local resource_types="$1"
+  curl --fail --silent https://todoist.com/API/v7/sync \
+       -d token=$(keyring get system todoist) \
+       -d sync_token='*' \
+       -d resource_types="[\"${resource_types}\"]" \
+       | jq ".${resource_types}[]"
+}

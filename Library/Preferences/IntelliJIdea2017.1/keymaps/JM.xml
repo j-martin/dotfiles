@@ -1,7 +1,4 @@
 <keymap version="1" name="JM" parent="Mac OS X 10.5+">
-  <action id="ActivateDatabaseToolWindow">
-    <keyboard-shortcut first-keystroke="ctrl w" second-keystroke="d" />
-  </action>
   <action id="ChangeSplitOrientation">
     <keyboard-shortcut first-keystroke="ctrl w" second-keystroke="r" />
   </action>
@@ -34,6 +31,9 @@
   </action>
   <action id="Tool_External Tools_Sublime">
     <keyboard-shortcut first-keystroke="ctrl meta p" />
+  </action>
+  <action id="Unsplit">
+    <keyboard-shortcut first-keystroke="ctrl w" second-keystroke="d" />
   </action>
   <action id="UnsplitAll">
     <keyboard-shortcut first-keystroke="ctrl w" second-keystroke="m" />

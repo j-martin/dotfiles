@@ -1,4 +1,0 @@
-PATH=/usr/local/bin:/usr/bin:/bin
-
-*/30 * * * * "$HOME/.bin/org-calendar.sh" >/dev/null 2>&1
-0 * * * * "$HOME/.bin/org-pushbullet.sh" >/dev/null 2>&1

@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
-_rds_instances () {
+_rds_instances() {
   aws rds describe-db-instances \
     | jq -r '.DBInstances[] | [.DBInstanceIdentifier, .DBInstanceClass, .EngineVersion, .AvailabilityZone, .SecondaryAvailabilityZone // "none", .DBInstanceStatus, .Endpoint.Address] | join("|")' \
     | column -s '|' -t
 }
 
-_rds_pick_instance () {
+_rds_pick_instance() {
   aws rds describe-db-instances | jq -r '.DBInstances[].DBInstanceIdentifier' | fzf
 }
 
-rds_logs (){
+rds_logs(){
   local db_identifier="${1:-_rds_pick_instance}"
   aws rds describe-db-log-files --db-instance-identifier "$db_identifier" \
     | jq -r '.DescribeDBLogFiles[].LogFileName' \
@@ -21,28 +21,42 @@ rds_logs (){
     | less -SRi
 }
 
-_eb_get_latest_version () {
+_eb_get_latest_version() {
   local application="$1"
   aws elasticbeanstalk describe-application-versions \
       --application-name "$application" \
     | jq -r '.ApplicationVersions[0].VersionLabel'
 }
 
-_eb_upgrade_to_latest () {
+_eb_upgrade_to_latest() {
   local application="$1"
   aws elasticbeanstalk update-environment \
       --environment-name "staging-$application" \
       --version-label "$(_eb_get_latest_version "$application")"
 }
 
-_eb_upgrade_production_to_latest () {
+_eb_upgrade_production_to_latest() {
     local application="$1"
     aws elasticbeanstalk update-environment \
         --environment-name "prod-$application" \
         --version-label "$(_eb_get_latest_version "$application")"
 }
 
-_ecr_list_images () {
+_ecr_list_images() {
   local repository="$1"
   aws ecr list-images --repository="${repository}" | jq -r '.imageIds[].imageTag' | sort -r
+}
+
+_s3_cp_public() {
+  local source="$1"
+  local destination="$2"
+  local link="https://s3.amazonaws.com/${destination##*s3://}/$(basename "${source}")"
+  s3 cp "${source}" "${destination}" --acl public-read
+  echo "${link}" | tr -s '/'
+}
+
+_s3_list_https() {
+  local location="$1"
+  local bucket="${location%\/*}"
+  s3 ls --recursive "${location}" | awk "{ print \"https://s3.amazonaws.com/${bucket}/\" \$4 }"
 }
