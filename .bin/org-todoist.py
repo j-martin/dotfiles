@@ -27,7 +27,10 @@ def main():
         for project_name in tasks:
             fp.write(f"* {project_name}\n")
             for task in tasks[project_name]:
-                entry = f"""** TODO {task['content']}
+                state = 'TODO'
+                if task['checked']:
+                    state = 'DONE'
+                entry = f"""** {state} {task['content']}
 :PROPERTIES:
 :URL: [[https://todoist.com/showTask?id={task['id']}&sync_id={task['id']}][url]]
 :ID: {task['id']}
