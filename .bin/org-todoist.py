@@ -13,7 +13,6 @@ def main():
 
     api_key = keyring.get_keyring().get_password('system', 'todoist')
     api = todoist.TodoistAPI(api_key)
-    print(api_key)
     api.sync()
 
     projects = {p['id']: p['name'] for p in api.projects.all()}
@@ -32,7 +31,7 @@ def main():
                     state = 'DONE'
                 entry = f"""** {state} {task['content']}
 :PROPERTIES:
-:URL: [[https://todoist.com/showTask?id={task['id']}&sync_id={task['id']}][url]]
+:URL: https://todoist.com/showTask?id={task['id']}&sync_id={task['id']}
 :ID: {task['id']}
 :ADDED: {task['date_added']}
 :END:
