@@ -12,22 +12,24 @@ local HOME = os.getenv('HOME')
 -- using pipenv is also finicky.
 -- where pwd = ~/.bin
 local tasks = {
-  { cmd = '~/org-calendar.sh' },
-  { cmd = '~/org-pushbullet.sh' },
+  { cmd = '/bin/bash', args = { 'org-calendar.sh' }},
+  { cmd = '/bin/bash', args = { 'org-pushbullet.sh' }},
   { cmd = '/usr/local/bin/pipenv', args = { 'run', 'python', 'org-todoist.py' }}
 }
 
-local function checkStatus(exitCode, stdOut, stdErr)
+local function returnCallback(exitCode, stdOut, stdErr)
   if exitCode ~= 0 then
     alert.show('the process failed to run, see logs')
     logger.d(stdOut)
     logger.d(stdErr)
+    return false
   else
-    logger.f('process done or terminated')
+    logger.f('process done')
+    return true
   end
 end
 
-local function stream(task, stdOut, stdErr)
+local function streamCallback(_, stdOut, stdErr)
   logger.d(stdOut)
   logger.d(stdErr)
   return true
@@ -49,7 +51,7 @@ local function runTask(t)
 
     local args = t.args and t.args or {}
     local pwd = expand(t.pwd and t.pwd or '~/.bin')
-    local process = task.new(expand(t.cmd), checkStatus, stream, args)
+    local process = task.new(expand(t.cmd), returnCallback, nil, args)
 
     logger.f('starting job %s %s in %s', t.cmd, args, pwd)
     process:setWorkingDirectory(pwd)
@@ -69,6 +71,7 @@ local function scheduleTask(t)
 end
 
 function mod.init()
+  -- runTask(tasks[3])()
   fnutils.each(tasks, scheduleTask)
 end
 

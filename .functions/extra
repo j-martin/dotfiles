@@ -100,3 +100,7 @@ _todoist() {
        -d resource_types="[\"${resource_types}\"]" \
        | jq ".${resource_types}[]"
 }
+
+_org_cleanup() {
+  find "$HOME/.org" -maxdepth 1 -not -name '*.org*' -not -name '.projectile' -type f -delete
+}

@@ -22,7 +22,7 @@ _git_current_branch_url () {
 }
 
 _git_current_issue_number () {
-  _git_current_branch | (grep -o '^[0-9]*' || echo '')
+  _git_current_branch | (grep -oE '^[A-Z]+-[0-9]+' || echo '')
 }
 
 _git_pick_branch_no_origin() {

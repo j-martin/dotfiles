@@ -27,7 +27,7 @@ hotkey.bind({ 'ctrl' }, 'tab', hints.windowHints)
 local hyperBindings = {
   { key = '1', name = 'Activity Monitor' },
  -- key = '6' reserved for aText
-  { key = '7', name = '1Password 6' },
+  { key = '\\', name = '1Password 6' },
   { key = '8', name = applications.name.slack },
   { key = '9', name = 'Spotify' },
   { key = '0', name = 'aText' },
@@ -49,7 +49,7 @@ local hyperBindings = {
   { key = ';', name = 'Dash' },
   { key = 'l', name = applications.name.chrome },
   { key = 'l', fn = applications.chromeOmni, shift = true },
-  { key = '\\', name = 'Paw' },
+  { key = '7', name = 'Paw' },
   { key = 'g', fn = windows.grid },
   { key = 'g', fn = windows.altGrid, shift = true },
   { key = 'h', fn = applications.slack },
@@ -64,11 +64,11 @@ local hyperBindings = {
   { key = 'n', pos = { { 0.30, 0.05, 0.40, 0.60 }, { 0.20, 0.05, 0.60, 0.80 }, { 0.30, 0.05, 0.40, 0.30 } }, shift = true },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 } },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 }, shift = true, targetScreen = 'current' },
-  { key = 'v', name = 'Visual Studio Code' },
   { key = 'v', fn = selection.paste, shift = true },
   { key = 't', fn = emacs.capture },
   { key = 't', fn = emacs.inbox, shift = true },
   { key = 'c', fn = hs.toggleConsole, shift = true },
+  { key = 'r', fn = emacs.references },
   { key = 'r', fn = hs.reload, shift = true },
   { key = 'up', fn = grid.resizeWindowShorter },
   { key = 'down', fn = grid.resizeWindowTaller },
@@ -197,6 +197,9 @@ function mod.init()
   local layoutBindings = fnutils.map(modeLayouts, buildLayoutBinding)
   mode.create({'option'}, 'space', 'Layout', layoutBindings)
   mode.create(hyper, 'space', 'General', generalBindings)
+
+  hotkey.bind({'cmd'}, 'h', applications.slack)
+  hotkey.bind({'cmd'}, 'm', windows.cycleScreen)
 end
 
 return mod

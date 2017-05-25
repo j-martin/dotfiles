@@ -5,16 +5,13 @@ set -o pipefail
 
 source "$HOME/.functions/base"
 source "$HOME/.functions/git"
-source "$HOME/.functions/wrike"
+
+BINPATH="$(dirname "$0")"
 
 _get_latest_entry () {
   grep '^\* ' ~/.org/standup.org \
     | tail -n1 \
     | cut -d' ' -f2
-}
-_format_wrike() {
-  local state="$1"
-  jq -r ".data[] | \"** ${state} [[\(.permalink)][\(.title)]]\""
 }
 
 _format_github() {
@@ -30,10 +27,9 @@ _format_github() {
 }
 
 _generate_previous() {
-  local user="$1"
   local last_entry="$(_get_latest_entry)"
-  _wrike "tasks/?responsibles=[${user}]&completedDate={\"start\":\"${last_entry}T08:00:00Z\"}" \
-    | _format_wrike 'DONE'
+  echo '** ---------------------'
+  pipenv run python org-jira.py --query "assignee = currentuser() AND resolutiondate > ${last_entry}"
 
   _github "search/issues?q=author:$(_github_user)+closed:>=${last_entry}" \
     | _format_github 'DONE'
@@ -46,20 +42,19 @@ _generate_previous() {
 }
 
 _generate_today() {
-  local user="$1"
   echo "* $(/bin/date "+%Y-%m-%d")"
 
   _github "search/issues?q=type:pr+review-requested:$(_github_user)+is:open" \
     | _format_github 'TODO' ':review:'
 
-  _wrike "tasks/?responsibles=[${user}]&status=[Active]" \
-    | _format_wrike 'TODO'
+  pipenv run python org-jira.py
 }
 
 _main() {
-  local user="$(_wrike_user)"
-  _generate_previous "${user}"
-  _generate_today "${user}"
-}
+  pushd "${BINPATH}" > /dev/null
+  _generate_previous
+  _generate_today
+  popd > /dev/null
+ }
 
 _main

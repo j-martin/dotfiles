@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+__jira_credential() {
+  echo "${JIRA_USER}:$(keyring get system jira)"
+}
+
+__jira_search() {
+  local query="$1"
+  curl --fail --silent --get --user "$(__jira_credential)" \
+       -XGET --header "Content-Type: application/json" \
+       --data-urlencode "jql=${query}" \
+       --data-urlencode "fields=key,summary" \
+       "${JIRA_URL}/rest/api/2/search" \
+    | jq -r '.issues[] | "\(.key) \(.fields.summary)"'
+}
+
+__jira_create() {
+  local summary="$1"
+  local description="${2:-"*What:*\n *Why:*\n *Success:*\n See summary."}"
+  local body
+  body=$(cat <<EOF
+{
+  "fields": {
+    "project":
+    {
+      "key": "PL"
+    },
+    "summary": "${summary}",
+    "description": "${description}",
+    "issuetype": {
+      "name": "Task"
+    },
+    "assignee": {
+      "name": "${JIRA_USER%@*}"
+    }
+  }
+}
+EOF
+)
+  curl --fail --silent --user "$(__jira_credential)" -X POST --data "${body}" \
+       --header "Content-Type: application/json" \
+       "${JIRA_URL}/rest/api/2/issue"
+}
+
+_jira_create() {
+  __jira_create "$1" "$2" | jq -r "\"\(.key) $1\""
+}
+_jira_assigned_issues() {
+  __jira_search "resolution = null AND assignee=currentUser()"
+}
+
+_jira_search() {
+  _jira_search_text "$1" | cut -d: -f1
+}
+
+_jira_search_text() {
+  jira  ls -q "text ~ \"$1\"" | fzf -1 -0
+}

@@ -8,11 +8,17 @@ source "$HOME/.functions/slack"
 
 _format () {
   local file="$1"
-  grep '^\*' "$file" \
+  sed '0,/^\* -------/d' "$file" \
+    | grep '^\*' \
+    | grep -v '^\*\* -------' \
+    | grep -vE '^\*\*\*+' \
     | sed 's/^\*\* DONE/  :white_check_mark:/; s/^\*\* TODO/  :lower_left_paintbrush:/' \
     | sed 's/^\* //g; s/\]\[/\|/g; s/\[\[/</g; s/\]\]/>/g' \
     | sed 's/:review:/:eyes:/g; s/:merge:/:hammer:/g'
 }
 
-# _format "$HOME/.org/standup.org"
-_slack_post '#dev_standup' "$(_format "$HOME/.org/standup.org")"
+if [[ -n "$DEBUG" ]]; then
+  _format "$HOME/.org/standup.org"
+else
+  _slack_post '#team_platform' "$(_format "$HOME/.org/standup.org")"
+fi

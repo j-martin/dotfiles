@@ -48,6 +48,56 @@
   (menu-bar-mode 1)
   (setq-default avy-all-windows 'all-frames)
 #+end_src
+** Spaceline
+#+begin_src emacs-lisp :results none
+  (defun jm/rolling-subseq (seq index len)
+    (if (<= (length seq) 1)
+        seq
+      (if (<= (+ index len) (length seq))
+          (subseq seq
+                  index
+                  (+ index len))
+        (append (subseq seq
+                        index
+                        (length seq))
+                (subseq seq
+                        0
+                        (- (+ index len)
+                           (length seq)))))))
+
+  (defun jm/s-substring (str len)
+    (if (< (length str) len)
+        str
+      (concat (substring str 0 (min (or (string-match " " str) 1024) len)) "…")))
+
+  (defun jm/previous-buffer-line ()
+    (let ((prev (mapcar (lambda (b) (jm/s-substring (buffer-name (car b)) 10))
+                        (window-prev-buffers)))
+          (next (mapcar (lambda (b) (jm/s-substring (buffer-name b) 10))
+                        (window-next-buffers))))
+      (mapconcat 'identity
+                 (append (let ((prev-pos (position (buffer-name)
+                                                   prev)))
+                           (if (eq (car next) (car prev))
+                               (jm/rolling-subseq prev (+ (or prev-pos 0) 1) 3)
+                             (jm/rolling-subseq prev 0 3)))
+                         (if (not next)
+                             nil
+                           (append '("◀▶")
+                                   (jm/rolling-subseq next 0 3))))
+                 " ")))
+
+
+  (spaceline-define-segment jm/previous-buffers
+    "Displays the last three buffers"
+    (jm/previous-buffer-line))
+  (spaceline-toggle-jm/previous-buffers-on)
+
+  (defun jm/test ()
+    (interactive)
+    (print (jm/previous-buffer-line)))
+#+end_src
+
 ** Frame Size
 #+begin_src emacs-lisp :results none
   (if (eq system-type 'darwin)
@@ -72,6 +122,13 @@
     fci-rule-column 120)
 #+end_src
 * Modes
+** Terminal
+#+begin_src emacs-lisp :results none
+  (setq ansi-term-color-vector [term term-color-black term-color-red term-color-green
+                                     term-color-yellow term-color-blue term-color-magenta
+                                     term-color-cyan term-color-white])
+#+end_src
+
 ** Enabling
 #+begin_src emacs-lisp :results none
   (server-start)
@@ -97,6 +154,16 @@
   (setq auto-revert-verbose nil)
   (setq revert-without-query '(".*"))
 #+end_src
+** Markdown
+#+begin_src emacs-lisp :results none
+  (defun jm/markdown-mode-config ()
+    (setq tab-width 4)
+    (setq indent-tabs-mode nil)
+    (setq markdown-asymmetric-header t))
+
+  (add-hook 'markdown-mode-hook 'jm/markdown-mode-config)
+#+end_src
+
 ** Aggresive Indent
 #+begin_src emacs-lisp :results none
   ;; (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
@@ -112,6 +179,29 @@
   (add-hook 'emacs-lisp-mode-hook 'parinfer-mode)
   (add-hook 'emacs-lisp-mode-hook 'turn-off-smartparens-mode)
 #+end_src
+** Python
+#+begin_src emacs-lisp :results none
+(setq naconda-mode-server-command "
+import sys
+import anaconda_mode
+anaconda_mode.main(sys.argv[1:])
+")
+(defun jm/python-mode-config ()
+  (setq evil-shift-width 4))
+(add-hook 'python-mode-hook 'jm/python-mode-config)
+#+end_src
+
+** Elisp
+#+begin_src emacs-lisp :results none
+(setq-default srefactor-newline-threshold 120)
+#+end_src
+
+** Shell
+#+begin_src emacs-lisp :results none
+(setq-default dotspacemacs-configuration-layers
+  '((shell :variables shell-default-shell 'eshell)))
+#+end_srC
+
 ** AutoMode
 #+begin_src emacs-lisp :results none
   (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
@@ -119,6 +209,19 @@
   (add-to-list 'auto-mode-alist '("\\.template\\'" . json-mode))
   (add-to-list 'auto-mode-alist '("\\Jenkinsfile\\'" . groovy-mode))
 #+end_src
+
+** Docker
+#+begin_src emacs-lisp :results none
+(setenv "DOCKER_TLS_VERIFY" "0")
+(setenv "DOCKER_HOST" "tcp://10.11.12.13:2375")
+#+end_src
+
+** Groovy
+ #+begin_src emacs-lisp :results none
+   (add-hook 'groovy-mode-hook
+             (lambda ()
+               (setq groovy-indent-offset 2)))
+ #+end_src
 
 ** Projectile
 #+begin_src emacs-lisp :results none
@@ -132,6 +235,12 @@
               (linum-mode (- (* 2000 80)
                              (buffer-size)))))
 #+end_src
+
+** Tramp
+#+begin_src emacs-lisp :results none
+(setq tramp-default-method "ssh")
+#+end_src
+
 ** Autofill
 #+begin_src emacs-lisp :results none
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
@@ -167,9 +276,10 @@
   (setq c-basic-indent 8))
 
 (add-hook 'makefile-mode-hook 'jm/makefile-mode-config)
+(add-hook 'makefile-bsdmake-mode-hook 'jm/makefile-mode-config)
 #+end_src
 
-** shell-script
+** Shell-script
 #+begin_src emacs-lisp :results none
   (defun jm/sh-mode-config ()
     (interactive)
@@ -186,6 +296,8 @@
 #+begin_src emacs-lisp :results none
   (setq-default evil-escape-delay 0.2)
   (setq-default evil-escape-key-sequence "jk")
+  (evil-ex-define-cmd "WQ" 'evil-save-modified-and-close)
+  (evil-ex-define-cmd "Wq" 'evil-save-modified-and-close)
 #+end_src
 
 ** Scala
@@ -202,14 +314,15 @@
 #+begin_src emacs-lisp :results none
   (setq-default js-indent-level 2)
 #+end_src
-
-** magit
+** Magit
 #+begin_src emacs-lisp :results none
-  (setq magit-repository-directories '("~/Work/"))
-  (setq-default vc-follow-symlinks t)
-  (add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
+    (setq magit-repository-directories '("~/Work/"))
+    (setq-default vc-follow-symlinks t)
+    (setq magit-save-repository-buffers 'dontask)
+    (setq magit-push-current-set-remote-if-missing t)
+    (add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
 #+end_src
-** org
+** Org
 *** Basic setup
   #+begin_src emacs-lisp :results none
     (setq org-directory "~/.org/")
@@ -219,6 +332,10 @@
                                  "~/.org/todoist.org"
                                  "~/.org/calendar-personal.org"
                                  "~/.org/calendar-work.org"))
+    (setq org-refile-targets
+          '(("inbox.org" :maxlevel . 1)
+            ("standup.org" :maxlevel . 1)))
+
     (setq org-startup-folded t)
     (setq org-catch-invisible-edits 'error)
     (add-hook 'org-mode-hook 'jm/org-hooks)
@@ -246,11 +363,11 @@
                                  "* TODO %?\nEntered on %U\n%i\n%c\n%a")
                                 ("w" "Todo for work"
                                  entry
-                                 (file+headline "~/.org/inbox.org" "Work")
+                                 (file+headline "~/.org/standup.org" "Tasks")
                                  "* TODO %?\nEntered on %U\n%i\n%a")
                                 ("W" "Todo with clipboard for work"
                                  entry
-                                 (file+headline "~/.org/inbox.org" "Work")
+                                 (file+headline "~/.org/standup.org" "Tasks")
                                  "* TODO %?\nEntered on %U\n%i\n%c\n%a")
                                 ("s" "Add note to standup"
                                  plain
@@ -268,6 +385,10 @@
                                  entry
                                  (file+headline "~/.org/references.org" "Research")
                                  "** TODO %?\nEntered on %U\n%i\n\n%a")
+                                ("y" "References / Temporary"
+                                 entry
+                                 (file+headline "~/.org/references.org" "Temporary")
+                                 "** %?%c\nEntered on %U\n%i\n\n%a")
                                 ("b" "References / Books"
                                  entry
                                  (file+headline "~/.org/references.org" "Books")
@@ -299,8 +420,10 @@
   (define-key evil-normal-state-map (kbd "[s") 'flycheck-previous-error)
   (define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
   (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
-  (global-set-key (kbd "s-<left>") 'beginning-of-line)
+  (global-set-key (kbd "s-<left>") 'back-to-indentation)
   (global-set-key (kbd "s-<right>") 'end-of-line)
+  (global-set-key (kbd "s-j") 'previous-buffer)
+  (global-set-key (kbd "s-k") 'next-buffer)
   (global-set-key (kbd "s-t") 'neotree-find)
   (global-set-key (kbd "s-[") 'evil-jump-backward)
   (global-set-key (kbd "s-]") 'evil-jump-forward)
@@ -308,24 +431,32 @@
   (global-set-key (kbd "s-d") 'mc/mark-next-like-this)
   (global-set-key (kbd "s-D") 'mc/skip-to-next-like-this)
   (global-set-key (kbd "C-i") 'evil-jump-forward)
+  (global-set-key (kbd "C-SPC") 'helm-company)
+  (global-set-key (kbd "C-M-SPC") 'helm-yas-complete)
 
   (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
   (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
+  (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
+  (spacemacs/set-leader-keys-for-major-mode 'org-mode "o" 'org-edit-src-code)
+
   (spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
   (spacemacs/set-leader-keys "ac" 'jm/calc)
   (spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
+  (spacemacs/set-leader-keys "by" 'spacemacs/copy-whole-buffer-to-clipboard)
   (spacemacs/set-leader-keys "ah" 'engine/search-github)
   (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
+  (spacemacs/set-leader-keys "ih" 'jm/insert-left)
+  (spacemacs/set-leader-keys "il" 'jm/insert-right)
   (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
   (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
+  (spacemacs/set-leader-keys "gc" 'jm/magit-branch-from-jira)
   (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
   (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
   (spacemacs/set-leader-keys "oc" 'jm/open-config)
   (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
   (spacemacs/set-leader-keys "og" 'jm/org-github-in)
   (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
-  (spacemacs/set-leader-keys "o9" 'org-edit-src-code)
   (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
   (spacemacs/set-leader-keys "ol" 'org-content)
   (spacemacs/set-leader-keys "om" 'jm/open-main)
@@ -345,18 +476,39 @@
 ** Git
 #+begin_src emacs-lisp :results none
   (defun jm/magit-commit-message ()
-    (let ((taskId (s-match "^[0-9]*"
-                           (jm/git-current-branch))))
-      (when (> (length taskId) 5)
-          (insert (concat (car taskId)
-                          " "))))
+    (let ((task-id (car (s-match "^[A-Z]+-[0-9]+"
+                                 (jm/git-current-branch)))))
+      (when (> (length task-id) 3)
+        (insert (concat task-id " "))))
     (evil-insert-state))
+
+  (defun jm/magit-branch-from-jira ()
+    (interactive)
+    (helm :sources (helm-build-async-source "Create branch from JIRA"
+                     :action 'jm/magit-branch
+                     :candidates-process 'jm/jira-assigned-issue-process)
+          :buffer "*helm jira tasks*"))
+
+  (defun jm/jira-assigned-issue-process ()
+    (start-process "assigned" nil "~/.bin/env.sh" "_jira_assigned_issues"))
+
+  (defun jm/magit-branch (task)
+    (magit-branch-and-checkout (jm/git-branch-name-sanitize task)
+                               "origin/master"))
+
+  (defun jm/git-branch-name-sanitize (name)
+    (replace-regexp-in-string "-$" ""
+                              (replace-regexp-in-string "-+" "-"
+                                                        (replace-regexp-in-string "[^a-zA-Z0-9]" "-" name))))
 
   (defun jm/github-open-pr ()
     (interactive)
     (let ((branch (jm/git-current-branch))
           (repo (jm/github-repository)))
-      (jm/open (if (string= branch "master") repo (concat repo "/compare/master..." branch)))))
+      (magit-push-current-to-pushremote nil)
+      (jm/open (if (string= branch "master")
+                   repo
+                 (concat repo "/compare/master..." branch)))))
 
 
   (defun jm/git-current-branch ()
@@ -389,6 +541,15 @@
     (interactive)
     (insert (shell-command-to-string "/bin/date \"+%Y-%m-%d\"")))
 
+  (defun jm/insert-left ()
+    (interactive)
+    (insert " "))
+
+  (defun jm/insert-right ()
+    (interactive)
+    (evil-forward-char 1)
+    (insert " ")
+    (evil-backward-char 2))
 #+end_src
 
 ** Window Management
@@ -435,7 +596,7 @@
 
   (defun jm/open-standup ()
     (interactive)
-   (jm/open-file "~/.org/standup.org"))
+    (jm/open-file "~/.org/standup.org"))
 
   (defun jm/helm-org-dir ()
     (interactive)
@@ -461,6 +622,7 @@
     (jm/open-file "~/.org/standup.org")
     (end-of-buffer)
     (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
+    ;; (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh"))
     (org-content))
 
   (defun jm/org-github-out ()

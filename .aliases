@@ -19,9 +19,16 @@ alias et='emacsclient --tty'
 alias e='_with_fzf "ec"'
 alias etf='_with_fzf "emacsclient --tty"'
 
+ea() {
+  ec $(ag "$@" | fzf -0 -1 |  awk -F: '{print "+" $2 " " $1}')
+}
+
 # ZSH Specific
 if [ -n "$ZSH_VERSION" ]; then
   alias -g F='"$(fzf)"'
+  alias -g L='| less -SRi'
+  alias -g LL='2>&1 | less -SRi'
+  alias -g JI='$(_git_current_issue_number)'
 fi
 
 # Quick edit
@@ -137,6 +144,7 @@ alias s3ue='aws s3 --region us-east-1'
 alias s3ew='aws s3 --region eu-west-1'
 
 ## Git
+alias gl='git pull --tags'
 alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | fzf -m | xargs git branch -D'
 alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | xargs git branch -D'
 alias gcml='git checkout master && git pull'
@@ -144,6 +152,7 @@ alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
+alias gfo='git fetch origin && git fetch origin --tags'
 alias gdff='git icdiff | less -SRi'
 alias gdfff='git diff --color | diff-so-fancy | less -SRi'
 alias gdf='git diff -- "$(fzf)"'
@@ -183,16 +192,9 @@ alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
-gnewc() { _git_new_branch "$1" && git commit -n -m "$@" ; }
+gnewc() { _git_new_branch "$1" && git commit -n -m "$@" ;}
+gnewj() { _git_new_branch "$(_jira_create "$1" "$2")" ;}
 alias gnewp='_git_new_branch "$(pbpaste)"'
-gnewi() {
-  local title="$1"
-  local desc="$2"
-  local id
-  id="$(_wrike_new_current "${title}" "${desc}" | sed 's#https://www.wrike.com/open.htm?id=##g')"
-  _git_new_branch "${id} ${title}"
-  _wrike_wip
-}
 
 gnewic() {
   local title="$1"
@@ -201,9 +203,8 @@ gnewic() {
   git commit -n -m "$(_trim "$(_git_current_issue_number) ${title}\n\n${desc}")" "${@:3}"
 }
 
-alias gnewa='_git_new_branch "$(_wrike_branch | fzf)" && _wrike_wip'
-alias gnewt='_git_new_branch "$(_wrike_todo | fzf)" && _wrike_wip'
-alias gnewaa='_git_new_branch "$(_wrike_all_tasks | fzf)" && _wrike_wip'
+alias gnewa='_git_new_branch "$(_jira_assigned_issues | fzf)"'
+gnews() { _git_new_branch "$(_jira_search_text "$1")" ;}
 alias gnewh='_github_new_branch'
 
 alias gnewm='git checkout master && git pull && gnew'
@@ -295,7 +296,7 @@ alias yar='nvm install && yarn'
 # AWS
 alias ec2d='aws ec2 describe-instances | jq -C . | less -SRi'
 ec2ip() { jq ".Reservations[].Instances[] | select((.PrivateIpAddress == \"$1\" or .PublicIpAddress == \"$1\"))" ;}
-alias r53="aws route53 list-hosted-zones | jq '.HostedZones[].Id' | xargs -n1 -P0 aws route53 list-resource-record-sets --hosted-zone-id | grep -n10"
+alias r53="aws route53 list-hosted-zones | jq '.HostedZones[].Id' | xargs -n1 -P0 aws route53 list-resource-record-sets --hosted-zone-id --output text | grep"
 
 # Python Aliases
 alias ipy='ipython3'
@@ -315,12 +316,20 @@ alias b='bub'
 alias bsh='bub ec2'
 alias bj='bub jenkins'
 
-# Wrike
-alias ww='_wrike_wip'
-alias wcom='_wrike_comments'
-alias wo='_wrike_open'
-alias woo='open "https://www.wrike.com/open.htm?id=$(pbpaste)"'
-alias wn='_wrike_new'
-alias wna='_wrike_new_current'
-alias wni='_wrike_new_idea'
-alias wdone='_wrike_complete'
+# JIRA
+alias j=jira
+alias jb='jira browse "$(_git_current_issue_number)"'
+alias jc='jira create -p PL -o issuetype=Task'
+alias jca='jira create -p PL -o issuetype=Task -o assignee="${JIRA_USER%@*}"'
+alias je='jira edit "$(_git_current_issue_number)"'
+alias jj='jira "$(_git_current_issue_number)"'
+alias jo='open "${JIRA_URL}/browse/$(_git_current_issue_number)"'
+alias jcs='jira subtask "$(_git_current_issue_number)"'
+jcss() { jira subtask "$(_jira_search "$1")" ;}
+alias jcsa='jira subtask "$(_git_current_issue_number)" -o assignee="${JIRA_USER%@*}"'
+alias jt='jira ls -q "assignee = currentUser() and status != done"'
+alias jtd='jira transition Done "$(_git_current_issue_number)"'
+alias jtp='jira transition "In Progress" "$(_git_current_issue_number)"'
+alias jtr='jira transition Review "$(_git_current_issue_number)"'
+js() { jira "$(_jira_search "$1")" ;}
+jsb() { jira browse "$(_jira_search "$1")" ;}

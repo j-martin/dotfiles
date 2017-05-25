@@ -21,6 +21,10 @@ function mod.inbox()
   eval('(jm/open-inbox)')
 end
 
+function mod.references()
+  eval('(jm/open-references)')
+end
+
 function mod.agenda()
   eval('(org-agenda-list)')
 end

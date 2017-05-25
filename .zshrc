@@ -66,7 +66,11 @@ export KEYTIMEOUT=1
 bindkey '^[[1;9C' forward-word
 bindkey '^[[1;9D' backward-word
 
+# Disabling iTerm extensions if running inside EMACS.
+# It causes issue with escape chars.
+if [[ -z "${EMACS}" ]]; then
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+fi
 
 source "$HOME/.profile"
 

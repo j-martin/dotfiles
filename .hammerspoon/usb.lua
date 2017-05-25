@@ -33,6 +33,7 @@ local function buildHandlers(watchedEvents)
       if isEventType and isProductID and isVendorID then
         logger.df("event matched %s", inspect(watchedEvent))
         watchedEvent.fn()
+        hs.reload()
       end
     end
   end

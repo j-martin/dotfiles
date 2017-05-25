@@ -75,7 +75,7 @@ _pb_format_entry() {
 }
 
 _pb_create_filename() {
-  echo "$1" | sed -e 's/[^A-Za-z0-9._-]/_/g' | tr '[:upper:]' '[:lower:]'
+  echo "$1" | sed -e 's/[^A-Za-z0-9._-]/_/g' | tr '[:upper:]' '[:lower:]' | cut -c1-40
 }
 
 _pb_org() {
