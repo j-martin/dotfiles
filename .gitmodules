@@ -16,3 +16,6 @@
 [submodule "/Users/benchemployee/.emacs.dev"]
 	path = /Users/benchemployee/.emacs.dev
 	url = https://github.com/syl20bnr/spacemacs
+[submodule ".vendor/alfred-jira"]
+	path = .vendor/alfred-jira
+	url = git@github.com:steyep/alfred-jira.git

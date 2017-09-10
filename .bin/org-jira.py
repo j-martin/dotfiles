@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import keyring
 from jira import JIRA
 import argparse
@@ -22,9 +23,12 @@ def list_issues(jira, query):
 
 
 def format_issue(issue):
-    status = issue.fields.status.name.upper()
-    if status != 'DONE':
-        status = 'TODO'
+    reg = re.compile(r'^\*', re.MULTILINE)
+    description = reg.sub('-', issue.fields.description.replace(r'\r', '')).strip()
+
+    status = 'TODO'
+    if issue.fields.status.name.upper() in {'DONE', 'DEPLOYED'}:
+        status = 'DONE'
 
     return f"""** {status} [[{issue.permalink()}][{issue.key} {issue.fields.summary}]]
 :PROPERTIES:
@@ -34,25 +38,24 @@ def format_issue(issue):
 :UPDATED: {issue.fields.updated}
 :END:
 
-{issue.fields.description}
-
-{format_comments(issue)}
+{description}
 """
 
 
 def format_comments(issue):
     comments = issue.fields.comment.comments
-
     if len(comments) == 0:
         return ""
 
     results = ['*** Comments']
     for comment in comments:
+        reg = re.compile(r'^\*', re.MULTILINE)
+        body = reg.sub('-', comment.body.replace(r'\r', '')).strip()
         result = f"""
 Author: {comment.author.displayName}
 Created: {comment.created}
 Updated: {comment.updated}
-{comment.body}
+{body}
 """
         results.append(result)
 

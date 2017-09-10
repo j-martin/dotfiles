@@ -95,7 +95,9 @@
 
   (defun jm/test ()
     (interactive)
-    (print (jm/previous-buffer-line)))
+    (let ((value (thing-at-point 'word)))
+      (search-forward "mode")
+      (message "%s" value)))
 #+end_src
 
 ** Frame Size
@@ -144,7 +146,7 @@
 #+end_src
 ** Company
 #+begin_src emacs-lisp :results none
-(setq company-idle-delay 0.5)
+(setq company-idle-delay 0.2)
 #+end_src
 
 ** Autorevert
@@ -194,6 +196,12 @@ anaconda_mode.main(sys.argv[1:])
 ** Elisp
 #+begin_src emacs-lisp :results none
 (setq-default srefactor-newline-threshold 120)
+#+end_src
+
+** EShell
+#+begin_src emacs-lisp :results none
+  ;; disabling company-mode
+  (add-hook 'eshell-mode-hook 'company-mode)
 #+end_src
 
 ** Shell
@@ -440,17 +448,17 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
   (spacemacs/set-leader-keys-for-major-mode 'org-mode "o" 'org-edit-src-code)
 
-  (spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
+  ;; (spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
   (spacemacs/set-leader-keys "ac" 'jm/calc)
   (spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
-  (spacemacs/set-leader-keys "by" 'spacemacs/copy-whole-buffer-to-clipboard)
   (spacemacs/set-leader-keys "ah" 'engine/search-github)
+  (spacemacs/set-leader-keys "by" 'spacemacs/copy-whole-buffer-to-clipboard)
   (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
+  (spacemacs/set-leader-keys "gc" 'magit-commit)
+  (spacemacs/set-leader-keys "gn" 'jm/magit-branch-from-jira)
+  (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
   (spacemacs/set-leader-keys "ih" 'jm/insert-left)
   (spacemacs/set-leader-keys "il" 'jm/insert-right)
-  (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
-  (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
-  (spacemacs/set-leader-keys "gc" 'jm/magit-branch-from-jira)
   (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
   (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
   (spacemacs/set-leader-keys "oc" 'jm/open-config)
@@ -464,10 +472,13 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
   (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
   (spacemacs/set-leader-keys "or" 'jm/open-references)
-  (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
   (spacemacs/set-leader-keys "os" 'jm/open-standup)
   (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
+  (spacemacs/set-leader-keys "oy" 'jm/test)
   (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
+  (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
+  (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
+  (spacemacs/set-leader-keys "wa" 'jm/split-window-below-and-find-file)
   (spacemacs/set-leader-keys "ws" 'jm/split-window-below)
   (spacemacs/set-leader-keys "wv" 'jm/split-window)
 #+end_src
@@ -563,6 +574,11 @@ anaconda_mode.main(sys.argv[1:])
     (interactive)
     (split-window-below-and-focus)
     (spacemacs/alternate-buffer))
+
+  (defun jm/split-window-below-and-find-file ()
+    (interactive)
+    (split-window-below-and-focus)
+    (helm-projectile-find-file))
 #+end_src
 
 ** File Navigation

@@ -56,3 +56,8 @@ _jira_search() {
 _jira_search_text() {
   jira  ls -q "text ~ \"$1\"" | fzf -1 -0
 }
+
+
+_jira_current_issue_key_or_assigned () {
+  _git_current_branch | (_git_filter_issue_key || _jira_assigned_issues | fzf | cut -f1 -d' ')
+}

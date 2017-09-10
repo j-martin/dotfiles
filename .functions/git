@@ -21,8 +21,12 @@ _git_current_branch_url () {
   _git_current_branch | sed "s/#/%23/g"
 }
 
+_git_filter_issue_key () {
+  grep -oE '^[A-Z]+-[0-9]+'
+}
+
 _git_current_issue_number () {
-  _git_current_branch | (grep -oE '^[A-Z]+-[0-9]+' || echo '')
+  _git_current_branch | (_git_filter_issue_key || echo '')
 }
 
 _git_pick_branch_no_origin() {
@@ -177,5 +181,18 @@ _git_switch_worktree() {
   else
     cd "${cur_dir}-bugfix"
   fi
+}
 
+mass () {
+  for i in $(find . -type d -maxdepth 2 -name '.git'); do
+    local dir="$(dirname $i)"
+    echo
+    echo "${dir}" | sed 's/./\=/g'
+    echo "${dir}"
+    echo "${dir}" | sed 's/./\=/g'
+    echo
+    pushd "${dir}"> /dev/null
+    "$@"
+    popd > /dev/null
+  done
 }

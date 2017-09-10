@@ -7,7 +7,12 @@ GITHUB_URL='https://github.com'
 alias sp='source $HOME/.profile'
 alias alia='ec $HOME/.aliases && sp'
 alias aliap='ec $HOME/.private/.profile && sp'
-alias ali='sp && alias | grep '
+ali() {
+  sp
+  ( alias
+    typeset -f | grep '^\w.*() {' | sed 's/ () {//' \
+ ) | grep "$@" | sort
+}
 
 # Editor
 alias vi='nvim'
@@ -28,7 +33,7 @@ if [ -n "$ZSH_VERSION" ]; then
   alias -g F='"$(fzf)"'
   alias -g L='| less -SRi'
   alias -g LL='2>&1 | less -SRi'
-  alias -g JI='$(_git_current_issue_number)'
+  alias -g JI='$(_jira_current_issue_key_or_assigned)'
 fi
 
 # Quick edit
@@ -183,11 +188,11 @@ gk() { gitk $@; }
 alias gkap='gitk --all --date-order $(git log -g --pretty=%H)'
 alias gll='git log -p'
 alias glf='git log -p -- "$(_fzf)"'
+alias glgg='git log --graph --decorate'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gplush='git pull && git push'
-gms() { git commit -n -m "$(_trim "$(_git_current_issue_number) $1")" ${@:2} ;}
-alias gmi='git commit -m "$(_github_issues | fzf)"'
-alias gmf='git commit -m "$(_github_repo_issues | fzf)"'
+gms() { git commit -n -m "$(_trim "$(_jira_current_issue_key_or_assigned) $1")" ${@:2} ;}
+alias gmc='git commit -m'
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
@@ -200,7 +205,7 @@ gnewic() {
   local title="$1"
   local desc="$2"
   gnewi "${title}" "${desc}"
-  git commit -n -m "$(_trim "$(_git_current_issue_number) ${title}\n\n${desc}")" "${@:3}"
+  git commit -n -m "$(_trim "$(_jira_current_issue_key_or_assigned) ${title}\n\n${desc}")" "${@:3}"
 }
 
 alias gnewa='_git_new_branch "$(_jira_assigned_issues | fzf)"'
@@ -224,9 +229,6 @@ gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" versi
 
 # Github
 alias ha='open "$GITHUB_URL"'
-alias hia='open "$GITHUB_URL/issues?utf8=✓&q=is%3Aopen+j-martin+"'
-alias hia2='open "$GITHUB_URL/issues/assigned"'
-alias hpa='open "$GITHUB_URL/pulls?utf8=✓&q=is%3Aopen+j-martin+"'
 alias hp='open "$GITHUB_URL/$(_git_repo)/pulls"'
 alias hc='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
 alias ht='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
@@ -267,6 +269,10 @@ whichl() { ls -lha "$(where $1)" ;}
 
 # Emacs
 alias emacs-clean="find ~/.emacs.d -name '*.elc' -delete"
+emacs-rebuild-eshell-alias() {
+  alias | sed "s/='/ /; s/'$//; s/^/alias /" > ~/.emacs.d/.cache/eshell/alias
+}
+
 
 # Mac Specific
 if [[ "$(uname)" == 'Darwin' ]]; then
@@ -280,6 +286,7 @@ alias pgcli='echo $PGHOST && pgcli'
 # Home/.files
 alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
 alias hd='home diff'
+alias hdf='home icdiff'
 hadd() {
   echo "$*" | grep -vi '.org\|.config\|.private\|work\|Dropbox' && home add -f "$@"
 }
@@ -318,18 +325,21 @@ alias bj='bub jenkins'
 
 # JIRA
 alias j=jira
-alias jb='jira browse "$(_git_current_issue_number)"'
+alias jb='jira browse "$(_jira_current_issue_key_or_assigned)"'
+alias jbp='jira browse "$(pbpaste | _git_filter_issue_key)"'
 alias jc='jira create -p PL -o issuetype=Task'
+alias jcc='_jira_create'
 alias jca='jira create -p PL -o issuetype=Task -o assignee="${JIRA_USER%@*}"'
-alias je='jira edit "$(_git_current_issue_number)"'
-alias jj='jira "$(_git_current_issue_number)"'
-alias jo='open "${JIRA_URL}/browse/$(_git_current_issue_number)"'
-alias jcs='jira subtask "$(_git_current_issue_number)"'
+alias je='jira edit "$(_jira_current_issue_key_or_assigned)"'
+alias jj='jira "$(_jira_current_issue_key_or_assigned)"'
+alias jo='open "${JIRA_URL}/browse/$(_jira_current_issue_key_or_assigned)"'
+alias jcs='jira subtask "$(_jira_current_issue_key_or_assigned)"'
 jcss() { jira subtask "$(_jira_search "$1")" ;}
-alias jcsa='jira subtask "$(_git_current_issue_number)" -o assignee="${JIRA_USER%@*}"'
+alias jcsa='jira subtask "$(_jira_current_issue_key_or_assigned)" -o assignee="${JIRA_USER%@*}"'
 alias jt='jira ls -q "assignee = currentUser() and status != done"'
-alias jtd='jira transition Done "$(_git_current_issue_number)"'
-alias jtp='jira transition "In Progress" "$(_git_current_issue_number)"'
-alias jtr='jira transition Review "$(_git_current_issue_number)"'
+alias jtd='jira transition Done "$(_jira_current_issue_key_or_assigned)"'
+alias jtde='jira transition Deployed "$(_jira_current_issue_key_or_assigned)"'
+alias jtp='jira transition "In Progress" "$(_jira_current_issue_key_or_assigned)"'
+alias jtr='jira transition Review "$(_jira_current_issue_key_or_assigned)"'
 js() { jira "$(_jira_search "$1")" ;}
 jsb() { jira browse "$(_jira_search "$1")" ;}

@@ -12,9 +12,7 @@ _format () {
     | grep '^\*' \
     | grep -v '^\*\* -------' \
     | grep -vE '^\*\*\*+' \
-    | sed 's/^\*\* DONE/  :white_check_mark:/; s/^\*\* TODO/  :lower_left_paintbrush:/' \
-    | sed 's/^\* //g; s/\]\[/\|/g; s/\[\[/</g; s/\]\]/>/g' \
-    | sed 's/:review:/:eyes:/g; s/:merge:/:hammer:/g'
+    | sed 's/^\* //g; s/\]\[/\|/g; s/\[\[/</g; s/\]\]/>/g'
 }
 
 if [[ -n "$DEBUG" ]]; then
