@@ -23,10 +23,9 @@ local function returnCallback(exitCode, stdOut, stdErr)
     logger.d(stdOut)
     logger.d(stdErr)
     return false
-  else
-    logger.f('process done')
-    return true
   end
+  logger.f('process done')
+  return true
 end
 
 local function streamCallback(_, stdOut, stdErr)
@@ -51,7 +50,7 @@ local function runTask(t)
 
     local args = t.args and t.args or {}
     local pwd = expand(t.pwd and t.pwd or '~/.bin')
-    local process = task.new(expand(t.cmd), returnCallback, nil, args)
+    local process = task.new(expand(t.cmd), returnCallback, streamCallback, args)
 
     logger.f('starting job %s %s in %s', t.cmd, args, pwd)
     process:setWorkingDirectory(pwd)
@@ -71,7 +70,6 @@ local function scheduleTask(t)
 end
 
 function mod.init()
-  -- runTask(tasks[3])()
   fnutils.each(tasks, scheduleTask)
 end
 

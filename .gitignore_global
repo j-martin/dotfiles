@@ -17,6 +17,7 @@ venv/
 
 # IntelliJ
 .idea
+*.iml
 
 # gtags
 GPATH

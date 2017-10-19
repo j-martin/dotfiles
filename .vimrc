@@ -3,6 +3,7 @@ filetype off
 set rtp+=~/.vim
 filetype plugin indent on
 
+
 "Plugings
 "========
 call plug#begin('~/.vim/plugged')
@@ -11,12 +12,10 @@ Plug 'Lokaltog/vim-easymotion'
 Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'gcmt/breeze.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'neomake/neomake'
 Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
@@ -24,6 +23,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'w0rp/ale'
 
 call plug#end()
 
@@ -32,6 +32,7 @@ call plug#end()
 let mapleader=" "
 set noerrorbells
 set autoread
+
 set tabstop=4 shiftwidth=4 expandtab
 set showmode
 set backspace=indent,eol,start
@@ -44,7 +45,7 @@ au FocusLost * :wa "save on focus lost
 "Tabs
 "====
 au FileType python setl ts=4 sts=4 sw=4
-au FileType json setl ts=4 sts=4 sw=4
+au FileType json setl ts=2 sts=2 sw=2
 au FileType scala setl ts=2 sts=2 sw=2
 au FileType gitcommit setl spell "spell git commit messages
 au FileType md setl spell "spell git commit messages

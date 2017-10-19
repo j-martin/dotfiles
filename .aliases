@@ -175,7 +175,7 @@ gshowm() { git show "origin/master:$1" | vi - ;}
 alias gwip='(git log --oneline master..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias gcp='git add -p && git commit' # Commiting part of a file.
-alias gpp='git push --set-upstream origin $(git symbolic-ref --short -q HEAD)'
+alias gpp='git push --no-verify --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && sleep 1 && hbp'
 alias ghw='watch -n10 github-events'
 alias gpick='git cherry-pick'
@@ -184,7 +184,7 @@ alias gds='git diff --stat'
 alias gdo='git diff origin/master'
 alias gdc='git diff --cached'
 alias gdos='git diff origin/master --stat'
-gk() { gitk $@; }
+gk() { \gitk $@; }
 alias gkap='gitk --all --date-order $(git log -g --pretty=%H)'
 alias gll='git log -p'
 alias glf='git log -p -- "$(_fzf)"'
@@ -192,7 +192,7 @@ alias glgg='git log --graph --decorate'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gplush='git pull && git push'
 gms() { git commit -n -m "$(_trim "$(_jira_current_issue_key_or_assigned) $1")" ${@:2} ;}
-alias gmc='git commit -m'
+alias gmc='git commit -n -m'
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
@@ -264,6 +264,7 @@ alias ic=imgcat
 fn() { find . -iname "*$@*" ;}
 fne() { find . -iname "*.$@" ;}
 alias cpb='cd $(dirname "$(pbpaste)")'
+alias kb='keybase'
 alias psa='ps aux | grep -i'
 whichl() { ls -lha "$(where $1)" ;}
 

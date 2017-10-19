@@ -117,7 +117,7 @@ _pb_page_header() {
 _pb_store_page() {
   local url="$1"
   _pb_page_header "${url}"
-  (breadability "${url}" | _pb_convert_page) # || echo 'Failed to fetch page.'
+  (pipenv run breadability "${url}" | _pb_convert_page) # || echo 'Failed to fetch page.'
 }
 
 _pb_org "$(_pb_org_last)"

@@ -24,7 +24,7 @@ def list_issues(jira, query):
 
 def format_issue(issue):
     reg = re.compile(r'^\*', re.MULTILINE)
-    description = reg.sub('-', issue.fields.description.replace(r'\r', '')).strip()
+    description = reg.sub('-', (issue.fields.description or '').replace(r'\r', '')).strip()
 
     status = 'TODO'
     if issue.fields.status.name.upper() in {'DONE', 'DEPLOYED'}:
@@ -50,7 +50,7 @@ def format_comments(issue):
     results = ['*** Comments']
     for comment in comments:
         reg = re.compile(r'^\*', re.MULTILINE)
-        body = reg.sub('-', comment.body.replace(r'\r', '')).strip()
+        body = reg.sub('-', (comment.body or '').replace(r'\r', '')).strip()
         result = f"""
 Author: {comment.author.displayName}
 Created: {comment.created}

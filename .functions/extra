@@ -104,3 +104,11 @@ _todoist() {
 _org_cleanup() {
   find "$HOME/.org" -maxdepth 1 -not -name '*.org*' -not -name '.projectile' -type f -delete
 }
+
+godev() {
+  local org
+  org="$(git config --get github.org)"
+  mkdir -p "$GOPATH/src/github.com/${org}"
+  ln -s "$(pwd)" "$GOPATH/src/github.com/${org}/"
+  cd "$GOPATH/src/github.com/${org}/$(basename "$(pwd)")"
+}

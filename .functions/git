@@ -45,7 +45,7 @@ _git_pick_commit () {
 
 _git_new_branch () {
   local name="$1"
-  git checkout -b "$(echo "$name" | tr ' #:,.+^&*()[]@$%/' '-' | sed -r 's/-+/-/g')"
+  git checkout -b "$(echo "$name" | tr ' #:,.+^&*()`[]@$%/' '-' | sed -r 's/-+/-/g')"
 }
 
 _github () {

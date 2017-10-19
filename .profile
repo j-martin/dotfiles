@@ -12,8 +12,6 @@ test -f "$HOME/.private/.profile" && source "$HOME/.private/.profile"
 source "$HOME/.functions/all"
 source "$HOME/.aliases"
 
-test -d "$HOME/.org/references" || enc
-
 export GOPATH="$HOME/.go"
 export PATH="$HOME/.venv/bin:$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
@@ -32,3 +30,5 @@ export SDKMAN_DIR="/Users/benchemployee/.sdkman"
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
   exec startx
 fi
+
+export PATH="$HOME/.cargo/bin:$PATH"

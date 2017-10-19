@@ -23,6 +23,7 @@
   (spacemacs/toggle-camel-case-motion-globally-on)
   (spacemacs/toggle-evil-cleverparens-on)
   (spacemacs/toggle-smartparens-globally-on)
+  (setq create-lockfiles nil)
   (setq save-interprogram-paste-before-kill t)
   (setq multi-term-program-switches "--login")
   (setq gc-cons-threshold (* 800 1024))
@@ -193,6 +194,10 @@ anaconda_mode.main(sys.argv[1:])
 (add-hook 'python-mode-hook 'jm/python-mode-config)
 #+end_src
 
+** Alert
+#+begin_src emacs-lisp :results none
+(setq alert-default-style 'osx-notifier)
+#+end_src
 ** Elisp
 #+begin_src emacs-lisp :results none
 (setq-default srefactor-newline-threshold 120)
@@ -460,12 +465,13 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "ih" 'jm/insert-left)
   (spacemacs/set-leader-keys "il" 'jm/insert-right)
   (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
-  (spacemacs/set-leader-keys "oG" 'jm/org-github-out)
+  (spacemacs/set-leader-keys "oO" 'jm/org-github-out)
   (spacemacs/set-leader-keys "oc" 'jm/open-config)
   (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
-  (spacemacs/set-leader-keys "og" 'jm/org-github-in)
+  (spacemacs/set-leader-keys "oI" 'jm/org-github-in)
   (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
   (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
+  (spacemacs/set-leader-keys "og" 'jm/open-with-gogland)
   (spacemacs/set-leader-keys "ol" 'org-content)
   (spacemacs/set-leader-keys "om" 'jm/open-main)
   (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
@@ -689,6 +695,11 @@ anaconda_mode.main(sys.argv[1:])
     (interactive)
     (jm/open-with-reveal "IntelliJ IDEA")
     (jm/open-with-line "/usr/local/bin/idea"))
+
+  (defun jm/open-with-gogland ()
+    (interactive)
+    (jm/open-with-reveal "Gogland")
+    (jm/open-with-line "/usr/local/bin/gogland"))
 
   (defun jm/open-with-nvim ()
     (interactive)
