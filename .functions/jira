@@ -46,7 +46,7 @@ _jira_create() {
   __jira_create "$1" "$2" | jq -r "\"\(.key) $1\""
 }
 _jira_assigned_issues() {
-  __jira_search "resolution = null AND assignee=currentUser()"
+  _cached __jira_search "resolution = null AND assignee=currentUser()"
 }
 
 _jira_search() {
@@ -58,6 +58,6 @@ _jira_search_text() {
 }
 
 
-_jira_current_issue_key_or_assigned () {
+_jira_current_issue_key_or_assigned() {
   _git_current_branch | (_git_filter_issue_key || _jira_assigned_issues | fzf | cut -f1 -d' ')
 }

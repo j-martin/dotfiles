@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-_slack_post () {
+_slack_post() {
   local channel="$1"
   local text="$2"
   curl --fail --silent -XPOST \
@@ -12,14 +12,14 @@ _slack_post () {
     "https://slack.com/api/chat.postMessage"
 }
 
-_slack_token () {
+_slack_token() {
   keyring get system slack_bot
 }
 
-_slack_username () {
+_slack_username() {
   keyring get system slack_bot_name
 }
 
-_slack_icon () {
+_slack_icon() {
   keyring get system slack_bot_icon
 }

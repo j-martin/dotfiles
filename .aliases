@@ -46,12 +46,16 @@ alias esh='_with_fzf "ec" ".sh$" '
 alias ejs='_with_fzf "ec" ".js$" '
 alias ejo='_with_fzf "ec" ".json$" '
 alias exm='_with_fzf "ec" ".xml$" '
-alias eo='ee "(jm/open-org-dir)"'
+alias eo='ee "(jm/helm-org-dir)"'
+
+# Navigation
+alias cw="cd $WORK"
+alias cj="$HOME/code/j-martin"
+alias co="$HOME/code/others"
 
 # Sublime
 alias st='subl'
 alias stt='subl ./' # Depends on the 'st' command in the ~/.bin dir.
-alias sproj="cd $WORK && sublime-project"
 alias spp='EDITOR=subl fpp'
 alias se='EDITOR=subl'
 
@@ -233,11 +237,11 @@ alias hp='open "$GITHUB_URL/$(_git_repo)/pulls"'
 alias hc='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
 alias ht='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
 alias hbp='open "$GITHUB_URL/$(_git_repo)/compare/master...$(_git_current_branch_url)"'
+alias hpr='_github_pr'
 alias hb='open "$GITHUB_URL/$(_git_repo)/branches"'
 alias his='open "$GITHUB_URL/$(_git_repo)/issues"'
 alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
 alias hr='open "$GITHUB_URL/$(_git_repo)"'
-alias waf='open "$WAFFLE_URL/$(_git_repo)"'
 
 # Jenkins
 alias jenk='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)/job/$(_git_current_branch)/"'
@@ -270,6 +274,7 @@ whichl() { ls -lha "$(where $1)" ;}
 
 # Emacs
 alias emacs-clean="find ~/.emacs.d -name '*.elc' -delete"
+alias emacs-stop='kill -USR1 $(pgrep Emacs)'
 emacs-rebuild-eshell-alias() {
   alias | sed "s/='/ /; s/'$//; s/^/alias /" > ~/.emacs.d/.cache/eshell/alias
 }

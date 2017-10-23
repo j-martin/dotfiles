@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
 
-_git_repo () {
+_git_repo() {
   git config --get remote.origin.url \
     | cut -d ':' -f2 \
     | cut -d '.' -f1 \
     | head -n1
 }
 
-_git_repo_name () {
+_git_repo_name() {
   git config --get remote.origin.url \
     | cut -d/ -f2 \
     | cut -d. -f1
 }
 
-_git_current_branch () {
+_git_current_branch() {
   git symbolic-ref --short -q HEAD
 }
 
-_git_current_branch_url () {
+_git_current_branch_url() {
   _git_current_branch | sed "s/#/%23/g"
 }
 
-_git_filter_issue_key () {
+_git_filter_issue_key() {
   grep -oE '^[A-Z]+-[0-9]+'
 }
 
-_git_current_issue_number () {
+_git_current_issue_number() {
   _git_current_branch | (_git_filter_issue_key || echo '')
 }
 
@@ -34,27 +34,27 @@ _git_pick_branch_no_origin() {
   _git_pick_branch "$filter" | sed 's/origin\///g'
 }
 
-_git_pick_branch () {
+_git_pick_branch() {
   local filter="$1"
   git branch --all --sort=-committerdate |  fzf -q "$filter" | sed 's/remotes\///g' | cut -c 3-
 }
 
-_git_pick_commit () {
+_git_pick_commit() {
   git log --oneline --all | head -n 100 | _fzf "$1" | _pick_first_col
 }
 
-_git_new_branch () {
+_git_new_branch() {
   local name="$1"
   git checkout -b "$(echo "$name" | tr ' #:,.+^&*()`[]@$%/' '-' | sed -r 's/-+/-/g')"
 }
 
-_github () {
+_github() {
   local endpoint="$1"
   curl --fail --silent -H "Authorization: token $(keyring get system github_token)" \
        "https://api.github.com/$endpoint"
 }
 
-_github_post () {
+_github_post() {
   local endpoint="$1"
   local payload="$2"
   curl --fail --silent -XPOST -H "Authorization: token $(keyring get system github_token)" \
@@ -66,21 +66,21 @@ _github_search_issues() {
   _github "search/issues?q=label:$label&per_page=300"
 }
 
-_github_repos () {
+_github_repos() {
   _github 'user/repos?per_page=200'
 }
 
-_github_repo_names () {
+_github_repo_names() {
   _github_repos | jq -r '.[].full_name'
 }
 
-_github_repo_urls () {
+_github_repo_urls() {
   for name in $(_github_repo_names); do
     __github_repo_url "$name"
   done
 }
 
-__github_repo_url () {
+__github_repo_url() {
   local repo="$1"
   local repo_url="https://github.com/$repo"
   echo "<a href=\"$repo_url\">$1</a>"
@@ -90,70 +90,70 @@ __github_repo_url () {
   echo "<a href=\"$repo_url/branches\">$1 - Branches</a>"
 }
 
-_github_pick_repo () {
+_github_pick_repo() {
   _github_repos | jq -r '.[].git_url' | _fzf "$1"
 }
 
-_github_open_url () {
+_github_open_url() {
   open "$(_github_pick_url $@)"
 }
 
-_github_pick_url () {
-  _cached '_github_repo_urls' 86400 | _fzf "https://github.com//$@"
+_github_pick_url() {
+  CACHE_TTL=86400 _cached _github_repo_urls | _fzf "https://github.com//$@"
 }
 
-_github_repo_issues () {
+_github_repo_issues() {
   _github "repos/$(_git_repo)/issues" | _github_format_issues
 }
 
-_github_issues () {
+_github_issues() {
   _github "issues?assignee=$(_github_user)" \
     | REPO="$(_git_repo)" jq -r \
       '.[] | if (env.REPO == .repository.full_name) then "" else .repository.full_name end + "#\(.number | tostring)-\(.title)"'
 }
 
-_github_issues_search () {
+_github_issues_search() {
   local label="$1"
   _github "search/issues?q=label:$label&per_page=300"
 }
 
-_github_involved_issues () {
+_github_involved_issues() {
     _github "search/issues?q=is:open+involves:$(_github_user)+user:$(_github_org)&sort=updated&order=desc&per_page=300" \
         | jq '.items[]'
 }
 
-_github_format_issues () {
+_github_format_issues() {
   jq -r '.[] | ["#" + (.number | tostring), .title] | join("-")'
 }
 
-_github_format_issue () {
+_github_format_issue() {
   jq -r '["#" + (.number | tostring), .title] | join("-")'
 }
 
-_github_format_search_issues () {
+_github_format_search_issues() {
   jq -r '.items[] | [(.repository_url | sub(".*/"; "")) + "#" + (.number | tostring),
     .title, .state, ([.labels[].name] | join(", ")), .assignee.login] | join("¡")' \
       | column -s '¡' -t
 }
 
-_github_user () {
+_github_user() {
   git config --get github.user
 }
 
-_github_team () {
+_github_team() {
   git config --get github.team
 }
 
-_github_org () {
+_github_org() {
   git config --get github.org
 }
 
-_github_repo_assigned_issues () {
+_github_repo_assigned_issues() {
   _github "repos/$(_git_repo)/issues?assignee=$(_github_user)" \
     | _github_format_issues
 }
 
-_github_create_issue () {
+_github_create_issue() {
   local title="$1"
   local body="$2"
   local assignee="${3:-$(_github_user)}"
@@ -163,13 +163,13 @@ _github_create_issue () {
   _github_post "repos/$(_git_repo)/issues" "$payload"
 }
 
-_github_new_branch () {
+_github_new_branch() {
   local title="$1"
   local body="$2"
   _git_new_branch "$(_github_create_issue "$title" "$body" | _github_format_issue)"
 }
 
-_github_events () {
+_github_events() {
   _github "users/$(_github_user)/events/orgs/$(_github_org)?page=[1-9]"
 }
 
@@ -183,16 +183,22 @@ _git_switch_worktree() {
   fi
 }
 
+_github_pr() {
+  local title
+  if [[ $(git log origin/master...HEAD --no-merges --pretty=format:"%h" | wc -w) == 1 ]]; then
+    title="$(git log origin/master...HEAD --no-merges --pretty=format:"%s")"
+  else
+    title="$(_git_current_branch | sed "s/-/ /g; s/ /-/")"
+  fi
+  local reviewers="${1:-$(git config --get github.reviewers)}"
+  open "$(git pull-request -r "${reviewers}" -m "${title}")"
+}
+
+_mass() {
+  parallel --max-proc 20 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'" \"$HOME/.bin/env.sh\" $* )"
+}
+
 mass () {
-  for i in $(find . -type d -maxdepth 2 -name '.git'); do
-    local dir="$(dirname $i)"
-    echo
-    echo "${dir}" | sed 's/./\=/g'
-    echo "${dir}"
-    echo "${dir}" | sed 's/./\=/g'
-    echo
-    pushd "${dir}"> /dev/null
-    "$@"
-    popd > /dev/null
-  done
+  find . -maxdepth 2 -type d -name '.git' \
+    | _mass "$@"
 }

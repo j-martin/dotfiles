@@ -125,6 +125,10 @@
     fci-rule-column 120)
 #+end_src
 * Modes
+#+begin_src emacs-lisp :results none
+(require 'helm-bookmark)
+#+end_src
+
 ** Terminal
 #+begin_src emacs-lisp :results none
   (setq ansi-term-color-vector [term term-color-black term-color-red term-color-green
@@ -630,11 +634,7 @@ anaconda_mode.main(sys.argv[1:])
 
   (defun jm/helm-work-dir ()
     (interactive)
-    (helm-find-files-1 (expand-file-name "~/Work/")))
-
-  (defun jm/helm-forks-dir ()
-    (interactive)
-    (helm-find-files-1 (expand-file-name "~/Work/forks/")))
+    (helm-find-files-1 (expand-file-name "~/Code/benchlabs/")))
 #+end_src
 
 ** Standup
