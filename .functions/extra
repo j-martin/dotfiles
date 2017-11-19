@@ -107,10 +107,9 @@ _org_cleanup() {
 
 godev() {
   local org
-  org="$(git config --get github.org)"
-  mkdir -p "$GOPATH/src/github.com/${org}"
-  ln -s "$(pwd)" "$GOPATH/src/github.com/${org}/"
+  org="$(git config --get github.org | tr '[:upper:]' '[:lower:]')"
   cd "$GOPATH/src/github.com/${org}/$(basename "$(pwd)")"
+  pwd
 }
 
 # Workaround broken projectile import.

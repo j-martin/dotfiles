@@ -34,10 +34,8 @@ _macos_customizations () {
   defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
   defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
 
-  # set clicky noise
-  defaults write com.apple.universalaccess slowKey 0
-  defaults write com.apple.universalaccess slowKeyDelay 0
-  defaults write com.apple.universalaccess slowKeyBeepOn 0
+  defaults write -g InitialKeyRepeat -int 15
+  defaults write -g KeyRepeat -int 2
 
   killall Dock
   ln -s "$HOME" '/Users/jm'

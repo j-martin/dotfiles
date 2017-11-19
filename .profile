@@ -7,7 +7,7 @@ export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK"
 export VISUAL="emacsclient"
 export GPG_TTY="$(tty)"
 
-test -d "$HOME/.storage" || encfs "$HOME/Dropbox/Storage" "$HOME/.storage"
+test -d "$HOME/.storage/config" || encfs "$HOME/Dropbox/Storage" "$HOME/.storage"
 test -f "$HOME/.private/.profile" && source "$HOME/.private/.profile"
 
 source "$HOME/.functions/all"

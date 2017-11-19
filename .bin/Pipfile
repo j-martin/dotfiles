@@ -1,12 +1,19 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+
 [packages]
 
-"readability-lxml" = "*"
+readability-lxml = "*"
 breadability = "*"
-"todoist-python" = "*"
+todoist-python = "*"
 ipython = "*"
 keyring = "*"
 jira = "==1.0.10"
+
+
+[dev-packages]
+
+bpython = "*"

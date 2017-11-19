@@ -4,6 +4,16 @@ __jira_credential() {
   echo "${JIRA_USER}:$(keyring get system jira)"
 }
 
+__jira_post() {
+  local endpoint="$1"
+  local body="$2"
+  curl --fail --silent \
+       --user "$(__jira_credential)" \
+       --data "${body}" \
+       --header "Content-Type: application/json" \
+       "${JIRA_URL}/rest/api/2/${endpoint}"
+}
+
 __jira_search() {
   local query="$1"
   curl --fail --silent --get --user "$(__jira_credential)" \
@@ -12,6 +22,16 @@ __jira_search() {
        --data-urlencode "fields=key,summary" \
        "${JIRA_URL}/rest/api/2/search" \
     | jq -r '.issues[] | "\(.key) \(.fields.summary)"'
+}
+
+__jira_search2() {
+  local query="$1"
+  curl --fail --silent --get --user "$(__jira_credential)" \
+       -XGET --header "Content-Type: application/json" \
+       --data-urlencode "jql=${query}" \
+       --data-urlencode "fields=key,summary,assignee,status" \
+       "${JIRA_URL}/rest/api/2/search" \
+    | jq -r '.issues[] | "\(.key) \(.fields.summary)\t\(.fields.assignee.name)\t\(.fields.status.name)"'
 }
 
 __jira_create() {
@@ -37,16 +57,30 @@ __jira_create() {
 }
 EOF
 )
-  curl --fail --silent --user "$(__jira_credential)" -X POST --data "${body}" \
-       --header "Content-Type: application/json" \
-       "${JIRA_URL}/rest/api/2/issue"
+  __jira_post "issue" "${body}"
+}
+
+# https://docs.atlassian.com/jira/REST/cloud/#api/2/issue-doTransition
+_jira_transition() {
+  local issue_key="$1"
+  local transition_id="$2"
+  body=$(cat <<EOF
+{
+  "transition": {
+    "id": "${transition_id}"
+  }
+}
+EOF
+)
+  __jira_post "issue/${issue_key}/transitions" "${body}"
+  _info "${issue_key} transitioned with ${transition_id}"
 }
 
 _jira_create() {
   __jira_create "$1" "$2" | jq -r "\"\(.key) $1\""
 }
 _jira_assigned_issues() {
-  _cached __jira_search "resolution = null AND assignee=currentUser()"
+  _cached __jira_search "resolution = null AND assignee=currentUser() ORDER BY Rank"
 }
 
 _jira_search() {
@@ -56,7 +90,6 @@ _jira_search() {
 _jira_search_text() {
   jira  ls -q "text ~ \"$1\"" | fzf -1 -0
 }
-
 
 _jira_current_issue_key_or_assigned() {
   _git_current_branch | (_git_filter_issue_key || _jira_assigned_issues | fzf | cut -f1 -d' ')

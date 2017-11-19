@@ -386,6 +386,10 @@ anaconda_mode.main(sys.argv[1:])
                                  entry
                                  (file+headline "~/.org/standup.org" "Tasks")
                                  "* TODO %?\nEntered on %U\n%i\n%c\n%a")
+                                ("c" "Todo with clipboard for work"
+                                 entry
+                                 (file+headline "~/.org/standup.org" "Tasks")
+                                 "* TODO %?\nEntered on %U\n%i\n%c\n%a\n[[file://%F::%(with-current-buffer (org-capture-get :original-buffer) (number-to-string (line-number-at-pos)))][%F]] ")
                                 ("s" "Add note to standup"
                                  plain
                                  (file "~/.org/standup.org")
@@ -448,7 +452,7 @@ anaconda_mode.main(sys.argv[1:])
   (global-set-key (kbd "s-d") 'mc/mark-next-like-this)
   (global-set-key (kbd "s-D") 'mc/skip-to-next-like-this)
   (global-set-key (kbd "C-i") 'evil-jump-forward)
-  (global-set-key (kbd "C-SPC") 'helm-company)
+  ;; (global-set-key (kbd "C-SPC") 'helm-company)
   (global-set-key (kbd "C-M-SPC") 'helm-yas-complete)
 
   (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
@@ -475,7 +479,6 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "oI" 'jm/org-github-in)
   (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
   (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
-  (spacemacs/set-leader-keys "og" 'jm/open-with-gogland)
   (spacemacs/set-leader-keys "ol" 'org-content)
   (spacemacs/set-leader-keys "om" 'jm/open-main)
   (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
@@ -545,7 +548,6 @@ anaconda_mode.main(sys.argv[1:])
                                                      ""
                                                      (jm/git-current-origin)))))
 #+end_src
-
 ** Utils
 #+begin_src emacs-lisp :results none
   (defun jm/open-folds ()
@@ -695,11 +697,6 @@ anaconda_mode.main(sys.argv[1:])
     (interactive)
     (jm/open-with-reveal "IntelliJ IDEA")
     (jm/open-with-line "/usr/local/bin/idea"))
-
-  (defun jm/open-with-gogland ()
-    (interactive)
-    (jm/open-with-reveal "Gogland")
-    (jm/open-with-line "/usr/local/bin/gogland"))
 
   (defun jm/open-with-nvim ()
     (interactive)

@@ -50,9 +50,9 @@ _ecr_list_images() {
 _s3_cp_public() {
   local source="$1"
   local destination="$2"
-  local link="https://s3.amazonaws.com/${destination##*s3://}/$(basename "${source}")"
+  local link="https://s3.amazonaws.com/${destination##*s3://}$(basename "${source}")"
   s3 cp "${source}" "${destination}" --acl public-read
-  echo "${link}" | tr -s '/'
+  echo "${link}"
 }
 
 _s3_list_https() {
