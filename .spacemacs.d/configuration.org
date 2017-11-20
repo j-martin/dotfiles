@@ -530,9 +530,7 @@ anaconda_mode.main(sys.argv[1:])
     (let ((branch (jm/git-current-branch))
           (repo (jm/github-repository)))
       (magit-push-current-to-pushremote nil)
-      (jm/open (if (string= branch "master")
-                   repo
-                 (concat repo "/compare/master..." branch)))))
+      (start-process "assigned" nil "~/.bin/env.sh" "_github_pr")))
 
 
   (defun jm/git-current-branch ()
