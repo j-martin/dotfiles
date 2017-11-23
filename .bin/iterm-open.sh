@@ -7,10 +7,11 @@ _open() {
   local directory="$1"
 
   osascript &>/dev/null <<EOF
-    tell application "iTerm" to activate
-    tell application "System Events" to tell process "iTerm" to keystroke "t" using command down
-    tell application "System Events" to tell process "iTerm" to keystroke "cd '${directory}'"
-    tell application "System Events" to tell process "iTerm" to key code 52
+set the clipboard to "cd '${directory}'"
+tell application "iTerm2" to activate
+tell application "System Events" to tell process "iTerm" to keystroke "t" using {command down}
+tell application "System Events" to tell process "iTerm" to keystroke "v" using {command down}
+tell application "System Events" to tell process "iTerm" to key code 52
 EOF
 }
 

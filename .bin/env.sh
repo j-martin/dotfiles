@@ -8,6 +8,5 @@ source "${BINPATH}/../.private/.profile"
 
 set -o errexit
 set -o pipefail
-set -u
 
 "$@"

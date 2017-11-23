@@ -488,12 +488,20 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "os" 'jm/open-standup)
   (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
   (spacemacs/set-leader-keys "oy" 'jm/test)
+  (spacemacs/set-leader-keys "ov" 'jm/open-with-vscode)
   (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
   (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
   (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
   (spacemacs/set-leader-keys "wa" 'jm/split-window-below-and-find-file)
   (spacemacs/set-leader-keys "ws" 'jm/split-window-below)
   (spacemacs/set-leader-keys "wv" 'jm/split-window)
+#+end_src
+
+** Fixes
+*** Fix while https://github.com/syl20bnr/evil-iedit-state/pull/19 gets merged.
+#+begin_src emacs-lisp :results none
+  (require 'evil-iedit-state)
+  (define-key evil-iedit-state-map "V"   'iedit-show/hide-unmatched-lines)
 #+end_src
 
 * Functions
@@ -695,6 +703,10 @@ anaconda_mode.main(sys.argv[1:])
     (interactive)
     (jm/open-with-reveal "IntelliJ IDEA")
     (jm/open-with-line "/usr/local/bin/idea"))
+
+  (defun jm/open-with-vscode ()
+    (interactive)
+    (jm/open-with-line-column "/usr/local/bin/code -g"))
 
   (defun jm/open-with-nvim ()
     (interactive)

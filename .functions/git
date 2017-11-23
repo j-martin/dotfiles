@@ -69,9 +69,7 @@ _git_new_branch() {
 }
 
 _git_new_branch_from_new_issue() {
-  local title="$1"
-  local desc="$2"
-  _git_new_branch "$(_jira_create "${title}" "${desc}")"
+  _git_new_branch "$(_jira_create "$@")"
 }
 
 _git_new_branch_and_commit_from_new_issue() {

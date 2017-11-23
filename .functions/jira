@@ -1,7 +1,28 @@
 #!/usr/bin/env bash
 
+# The JIRA_URL, JIRA_USER, JIRA_BOARD_ID, JIRA_PROJECT_KEY environment variables
+# must be defined/exported.
+
 __jira_credential() {
   echo "${JIRA_USER}:$(keyring get system jira)"
+}
+
+__jira_get() {
+  local endpoint="$1"
+  curl --fail --silent \
+       --user "$(__jira_credential)" \
+       "${JIRA_URL}${endpoint}"
+}
+
+__jira_put() {
+  local endpoint="$1"
+  local body="$2"
+  curl --fail --silent \
+       -XPUT \
+       --user "$(__jira_credential)" \
+       --data "${body}" \
+       --header "Content-Type: application/json" \
+       "${JIRA_URL}${endpoint}"
 }
 
 __jira_post() {
@@ -11,13 +32,12 @@ __jira_post() {
        --user "$(__jira_credential)" \
        --data "${body}" \
        --header "Content-Type: application/json" \
-       "${JIRA_URL}/rest/api/2/${endpoint}"
+       "${JIRA_URL}${endpoint}"
 }
 
 __jira_search() {
   local query="$1"
   curl --fail --silent --get --user "$(__jira_credential)" \
-       -XGET --header "Content-Type: application/json" \
        --data-urlencode "jql=${query}" \
        --data-urlencode "fields=key,summary" \
        "${JIRA_URL}/rest/api/2/search" \
@@ -37,13 +57,15 @@ __jira_search2() {
 __jira_create() {
   local summary="$1"
   local description="${2:-"*What:*\n *Why:*\n *Success:*\n See summary."}"
+  local story_points="${3:-1}"
+  local sprint_id
+  sprint_id="$(_jira_current_sprint "${JIRA_BOARD_ID}")"
   local body
   body=$(cat <<EOF
 {
   "fields": {
-    "project":
-    {
-      "key": "PL"
+    "project": {
+      "key": "${JIRA_PROJECT_KEY}"
     },
     "summary": "${summary}",
     "description": "${description}",
@@ -52,12 +74,19 @@ __jira_create() {
     },
     "assignee": {
       "name": "${JIRA_USER%@*}"
-    }
+    },
+    "customfield_10006": ${sprint_id},
+    "customfield_10100": ${story_points}
   }
 }
 EOF
 )
-  __jira_post "issue" "${body}"
+  __jira_post "/rest/api/2/issue" "${body}"
+}
+
+_jira_current_sprint() {
+  local board="${1}"
+  __jira_get "/rest/agile/1.0/board/${board}/sprint?state=active" | jq '.values[0].id'
 }
 
 # https://docs.atlassian.com/jira/REST/cloud/#api/2/issue-doTransition
@@ -72,15 +101,40 @@ _jira_transition() {
 }
 EOF
 )
-  __jira_post "issue/${issue_key}/transitions" "${body}"
+  __jira_post "/rest/api/2/issue/${issue_key}/transitions" "${body}"
   _info "${issue_key} transitioned with ${transition_id}"
 }
 
-_jira_create() {
-  __jira_create "$1" "$2" | jq -r "\"\(.key) $1\""
+__jira_claim() {
+  local issue_key="$1"
+  local transition_id="$2"
+  body=$(cat <<EOF
+{
+  "name": "${JIRA_USER%@*}"
 }
+EOF
+)
+
+  __jira_put "/rest/api/2/issue/${issue_key}/assignee" "${body}"
+  _jira_transition "${issue_key}" 31
+  _info "${issue_key} claimed."
+}
+
+_jira_claim() {
+  __jira_claim "$(_jira_unassigned_issues | __jira_pick_issue_key)"
+}
+
+_jira_create() {
+  __jira_create "$@" | jq -r "\"\(.key) $1\""
+}
+
 _jira_assigned_issues() {
   _cached __jira_search "resolution = null AND assignee=currentUser() ORDER BY Rank"
+}
+
+_jira_unassigned_issues() {
+  __jira_search \
+    "project = ${JIRA_PROJECT_KEY} AND sprint IN openSprints() AND assignee = null AND resolution = null ORDER BY Rank"
 }
 
 _jira_search() {
@@ -91,6 +145,10 @@ _jira_search_text() {
   jira  ls -q "text ~ \"$1\"" | fzf -1 -0
 }
 
+__jira_pick_issue_key() {
+  fzf | cut -f1 -d' '
+}
+
 _jira_current_issue_key_or_assigned() {
-  _git_current_branch | (_git_filter_issue_key || _jira_assigned_issues | fzf | cut -f1 -d' ')
+  _git_current_branch | (_git_filter_issue_key || _jira_assigned_issues | __jira_pick_issue_key)
 }
