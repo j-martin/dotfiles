@@ -201,6 +201,7 @@ function mod.init()
 
   hotkey.bind({'cmd'}, 'h', applications.slack)
   hotkey.bind({'cmd'}, 'm', windows.cycleScreen)
+  hotkey.bind({'cmd', 'option'}, 'm', windows.cycleScreen)
 end
 
 return mod

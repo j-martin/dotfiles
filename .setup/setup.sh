@@ -34,6 +34,10 @@ _macos_customizations () {
   defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
   defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
 
+  # Disable relauching application.
+  defaults write -g ApplePersistence -bool no
+
+  # Make key repeat faster.
   defaults write -g InitialKeyRepeat -int 15
   defaults write -g KeyRepeat -int 2
 

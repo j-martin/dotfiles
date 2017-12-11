@@ -1,19 +1,32 @@
 #!/usr/bin/env bash
 
 export WORK="$HOME/code/benchlabs"
+export GOPATH="$HOME/.go"
+export GOWORK="$GOPATH/src/github.com/benchlabs/"
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
-export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK"
+export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK"
 export VISUAL="emacsclient"
 export GPG_TTY="$(tty)"
 
-test -d "$HOME/.storage/config" || encfs "$HOME/Dropbox/Storage" "$HOME/.storage"
+__encfs() {
+  local root_dir="$1"
+  local mount_point="$2"
+  local mount_file="${mount_point}/.mounted"
+  if [[ ! -f "${mount_file}" ]]; then
+    echo "Mounting: ${mount_point}"
+    encfs "${root_dir}" "${mount_point}" && touch "${mount_file}"
+  fi
+}
+
+__encfs "$HOME/Dropbox/Storage" "$HOME/.storage"
+__encfs "$HOME/Library/.chrome" "$HOME/Library/Application Support/Google/Chrome"
+
 test -f "$HOME/.private/.profile" && source "$HOME/.private/.profile"
 
 source "$HOME/.functions/all"
 source "$HOME/.aliases"
 
-export GOPATH="$HOME/.go"
 export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 test -e /usr/libexec/java_home && export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"

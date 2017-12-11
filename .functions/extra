@@ -105,7 +105,7 @@ _org_cleanup() {
   find "$HOME/.org" -maxdepth 1 -not -name '*.org*' -not -name '.projectile' -type f -delete
 }
 
-godev() {
+gdv() {
   local org
   org="$(git config --get github.org | tr '[:upper:]' '[:lower:]')"
   cd "$GOPATH/src/github.com/${org}/$(basename "$(pwd)")"

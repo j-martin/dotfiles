@@ -20,7 +20,7 @@
   (fset 'evil-visual-update-x-selection 'ignore)
   (setq make-backup-files nil)
   (spacemacs/toggle-indent-guide-globally-on)
-  (spacemacs/toggle-camel-case-motion-globally-on)
+  ;; (spacemacs/toggle-camel-case-motion-globally-on)
   (spacemacs/toggle-evil-cleverparens-on)
   (spacemacs/toggle-smartparens-globally-on)
   (setq create-lockfiles nil)
@@ -126,7 +126,8 @@
 #+end_src
 * Modes
 #+begin_src emacs-lisp :results none
-(require 'helm-bookmark)
+  (require 'helm-bookmark)
+  (setq-default tab-width 2 standard-indent 2)
 #+end_src
 
 ** Terminal
@@ -307,6 +308,17 @@ anaconda_mode.main(sys.argv[1:])
 
   (unless (eq system-type 'windows-nt)
     (push 'company-dabbrev-code company-backends-sh-mode))
+#+end_src
+
+** Go
+#+begin_src emacs-lisp :results none
+  (defun jm/go-mode-config ()
+    (setq tab-width 2)
+    (setq go-tab-width 2)
+    (add-hook 'before-save-hook 'gofmt-before-save)
+    (setq indent-tabs-mode 1))
+
+  (add-hook 'go-mode-hook 'jm/go-mode-config)
 #+end_src
 
 ** EVIL
@@ -537,7 +549,7 @@ anaconda_mode.main(sys.argv[1:])
     (interactive)
     (let ((branch (jm/git-current-branch))
           (repo (jm/github-repository)))
-      (magit-push-current-to-pushremote nil)
+      (magit-push-current-to-pushremote t)
       (start-process "assigned" nil "~/.bin/env.sh" "_github_pr")))
 
 

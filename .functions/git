@@ -223,7 +223,7 @@ _github_pr() {
   local url
   local message
   message="$(_git_current_branch | sed "s/-/ /g; s/ /-/")"
-  message="${message}\n\n$(git log origin/master...HEAD --no-merges --pretty=format:"->%s\n%b\n")"
+  message="${message}\n\n$(git log master...HEAD --no-merges --pretty=format:"->%s\n%b\n")"
   url="$(hub pull-request -F <(printf "${message}") -r "${reviewers}")"
   if [[ ! -z "$url" ]]; then
     sleep 0.2
