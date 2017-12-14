@@ -2,6 +2,7 @@
 
 set -o errexit
 set -o pipefail
+set -x
 
 _macos_customizations () {
   defaults write com.apple.dock expose-animation-duration -float 0.1
@@ -12,7 +13,8 @@ _macos_customizations () {
   defaults write -g ApplePressAndHoldEnabled -bool false
   defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
   defaults write com.apple.finder QLEnableTextSelection -bool true
-  defaults write com.apple.finder autohide-delay -float 0; Killall finder
+  defaults write com.apple.finder autohide-delay -float 0
+  Killall finder || true
   defaults write -g com.apple.trackpad.scaling -float 12.0
   defaults write -g com.apple.mouse.scaling 2.5
   defaults write NSGlobalDomain AppleFontSmoothing -int 0
@@ -42,14 +44,14 @@ _macos_customizations () {
   defaults write -g KeyRepeat -int 2
 
   killall Dock
-  ln -s "$HOME" '/Users/jm'
+  ln -s "$HOME" '/Users/jm' || true
 
   # fix emacs ansi-term escape code
   tic -o ~/.terminfo "$(find /usr/local/Cellar -type f -name '*.ti' | head)"
 }
 
 _macos_apps () {
-  xcode-select --install
+  xcode-select --install || true
   brew bundle --global
 }
 
@@ -63,7 +65,7 @@ _linux_apps () {
 
 _general () {
   npm install -g vmd eslint
-  pip install -r requirements.txt
+  pip3 install -r requirements.txt
   chsh -s $(grep /zsh$ /etc/shells | tail -1)
 }
 

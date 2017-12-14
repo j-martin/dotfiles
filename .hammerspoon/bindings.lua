@@ -46,7 +46,7 @@ local hyperBindings = {
   { key = 'g', fn = windows.grid },
   { key = 'h', fn = applications.slack },
   { key = 'h', fn = applications.slackUnread, shift = true },
-  { key = 'i', name = 'iTerm2' },
+  { key = 'i', name = 'iterm' },
   { key = 'j', pos = { { 0.0, 0.0, 0.5, 1.0}, { 0.0, 0.0, 0.7, 1.0} } },
   { key = 'j', pos = { { 0.00, 0.00, 0.30, 1.00 }, { 0.00, 0.00, 0.70, 1.00 } }, shift = true },
   { key = 'k', pos = { { 0.5, 0.0, 0.5, 1.0}, { 0.3, 0.0, 0.7, 1.0} } },

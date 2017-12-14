@@ -105,18 +105,15 @@ _org_cleanup() {
   find "$HOME/.org" -maxdepth 1 -not -name '*.org*' -not -name '.projectile' -type f -delete
 }
 
-gdv() {
-  local org
-  org="$(git config --get github.org | tr '[:upper:]' '[:lower:]')"
-  cd "$GOPATH/src/github.com/${org}/$(basename "$(pwd)")"
-  pwd
-}
-
 # Workaround broken projectile import.
 _emacs_projectile_list() {
   printf '('
   ls -d -1 * \
-    | sed "s/\(.*\)/\"~\/Code\/\1\/\"/g" \
+    | sed "s/\(.*\)/\"~\/code\/\1\/\"/g" \
     | tr '\n' ' '
   printf ')'
+}
+
+pidof() {
+  ps axc | awk "{if (\$5==\"$1\") print \$1}"
 }
