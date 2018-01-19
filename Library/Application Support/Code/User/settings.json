@@ -1,0 +1,13 @@
+{
+    "editor.fontFamily": "Sauce Code Pro Powerline, Menlo, Monaco, 'Courier New', monospace",
+    "files.autoSave": "onFocusChange",
+    "vim.incsearch": true,
+    "vim.useSystemClipboard": true,
+    "vim.hlsearch": true,
+    "vim.insertModeKeyBindings": [
+        {
+            "before": ["j","k"],
+            "after": ["<Esc>"]
+        }
+    ]
+}
