@@ -30,7 +30,7 @@ def format_issue(issue):
     if issue.fields.status.name.upper() in {'DONE', 'DEPLOYED'}:
         status = 'DONE'
 
-    return f"""** {status} [[{issue.permalink()}][{issue.key} {issue.fields.summary}]]
+    return f"""** {status} [[{issue.permalink()}][{issue.key} {issue.fields.summary.replace('[', '').replace(']', '')}]]
 :PROPERTIES:
 :URL: {issue.permalink()}
 :ID: {issue.key}

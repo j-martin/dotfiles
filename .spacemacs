@@ -32,21 +32,21 @@ This function should only modify configuration layer settings."
    '(
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
-     ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
-     ;; <M-m f e R> (Emacs style) to install them.
+     ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
+     ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     (auto-completion :variables
-       auto-completion-tab-key-behavior 'cycle
-       auto-completion-return-key-behavior 'complete
+;;     (auto-completion :variables
+;;       auto-completion-tab-key-behavior 'cycle
+;;       auto-completion-return-key-behavior 'complete
        ;; auto-completion-complete-with-key-sequence "jk"
-       auto-completion-complete-with-key-sequence-delay 0.1
+;;       auto-completion-complete-with-key-sequence-delay 0.1
        ;; auto-completion-enable-sort-by-usage t
-       auto-completion-enable-help-tooltip t
+;;       auto-completion-enable-help-tooltip t
        ;; auto-completion-enable-snippets-in-popup t
-       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
+;;       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
-     clojure
-     csv
+     ;;clojure
+     ;; csv
      confluence
      docker
      emacs-lisp
@@ -56,14 +56,15 @@ This function should only modify configuration layer settings."
      gtags
      go
      ;; graphviz
-     haskell
+     ;;haskell
      helm
-     html
+     ;;html
      imenu-list
      javascript
      lua
      (markdown :variables markdown-live-preview-engine 'vmd)
-     org
+     (org :variables org-enable-github-support t)
+     neotree
      nginx
      ;; nlinum
      osx
@@ -73,11 +74,11 @@ This function should only modify configuration layer settings."
      rust
      ;; restclient
      scala
-     semantic
+     ;; semantic
      ;; search-engine
      shell
      shell-scripts
-     slack
+     ;; slack
      (spell-checking :variables
        enable-flyspell-auto-completion t
        spell-checking-enable-by-default nil)
@@ -88,7 +89,7 @@ This function should only modify configuration layer settings."
      ;; themes-megapack
      ;; vagrant
      version-control
-     vimscript
+     ;; vimscript
      yaml
      )
    ;; List of additional packages that will be installed without being

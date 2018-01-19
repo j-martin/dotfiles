@@ -8,29 +8,15 @@ local alert = require "hs.alert"
 
 local mod = {}
 
-alert.defaultStyle = {
-    fillColor = {
-      alpha = 0.75,
-      white = 0
-    },
-    radius = 10,
-    strokeColor = {
-      alpha = 0,
-      white = 0
-    },
-    strokeWidth = 5,
-    textColor = {
-      alpha = 1,
-      white = 1
-    },
-    textFont = "SauceCodePowerline-Regular",
-    textSize = 20
-}
-
 mod.name = {
   chrome = 'Google Chrome',
   inbox = 'Inbox - ', -- extra characters to be more specific
+  noisyTyper = 'NoisyTyper',
   slack  = 'Slack'
+}
+
+local states = {
+  noisyTyperEnabled = false
 }
 
 local function wait()
@@ -82,6 +68,26 @@ function mod.slackUnread()
   eventtap.keyStrokes('allunread')
   wait()
   eventtap.keyStroke({}, 'return')
+end
+
+function mod.toggleNoisyTyper()
+  return function()
+    local cb = nil
+    if not states.noisyTyperEnabled then
+      cb = function()
+        win = window.frontmostWindow()
+        hs.application.launchOrFocus(mod.name.noisyTyper)
+        wait()
+        wait()
+        eventtap.keyStroke({}, 'return')
+        win:focus()
+        states.noisyTyperEnabled = true
+      end
+    end
+    args = {'-f', mod.name.noisyTyper}
+    states.noisyTyperEnabled = false
+    hs.task.new('/usr/bin/pkill', cb, function() end, args):start()
+  end
 end
 
 function mod.chromeOmni()

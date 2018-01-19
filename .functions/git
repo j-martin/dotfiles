@@ -223,7 +223,7 @@ _github_pr() {
   local url
   local message
   message="$(_git_current_branch | sed "s/-/ /g; s/ /-/")"
-  message="${message}\n\n$(git log master...HEAD --no-merges --pretty=format:"->%s\n%b\n")"
+  message="${message}\n\n$(git log HEAD --not master --no-merges --pretty=format:"->%s\n%b\n")"
   url="$(hub pull-request -F <(printf "${message}") -r "${reviewers}")"
   if [[ ! -z "$url" ]]; then
     sleep 0.2
@@ -235,11 +235,11 @@ _github_pr() {
 
 _git_push_pr_if_commits() {
   local commit_count
-  commit_count="$(git log origin/master...HEAD --pretty=format:"%h" | wc -w | tr -d ' ')"
+  commit_count="$(git log HEAD --not origin/master "--pretty=format:%h" | wc -w | tr -d ' ')"
   echo "${commit_count}"
   if [[ "${commit_count}" != '0' ]]; then
     git push
-    _github_pr
+    bub w pr
   fi
 }
 
@@ -253,7 +253,7 @@ mass-prep() {
     echo 'No branch defined, stopping.'
     return 1
   fi
-  mass_master
+  mass-master
   mass "git checkout -b '${branch}'"
 }
 

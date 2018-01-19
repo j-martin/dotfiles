@@ -9,7 +9,8 @@
             "complex_modifications": {
                 "parameters": {
                     "basic.to_delayed_action_delay_milliseconds": 500,
-                    "basic.to_if_alone_timeout_milliseconds": 1000
+                    "basic.to_if_alone_timeout_milliseconds": 1000,
+                    "basic.to_if_held_down_threshold_milliseconds": 300
                 },
                 "rules": [
                     {
@@ -177,16 +178,9 @@
                         ]
                     },
                     {
-                        "description": "Quit application by pressing command-q twice",
+                        "description": "Quit application by holding command-q (Available with the latest beta version (Karabiner-Elements 11.4.4 or later)",
                         "manipulators": [
                             {
-                                "conditions": [
-                                    {
-                                        "name": "command-q",
-                                        "type": "variable_if",
-                                        "value": 1
-                                    }
-                                ],
                                 "from": {
                                     "key_code": "q",
                                     "modifiers": {
@@ -198,52 +192,15 @@
                                         ]
                                     }
                                 },
-                                "to": [
+                                "to_if_held_down": [
                                     {
                                         "key_code": "q",
-                                        "modifiers": "left_command"
-                                    }
-                                ],
-                                "type": "basic"
-                            },
-                            {
-                                "from": {
-                                    "key_code": "q",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "command"
+                                        "modifiers": [
+                                            "left_command"
                                         ],
-                                        "optional": [
-                                            "caps_lock"
-                                        ]
-                                    }
-                                },
-                                "to": [
-                                    {
-                                        "set_variable": {
-                                            "name": "command-q",
-                                            "value": 1
-                                        }
+                                        "repeat": false
                                     }
                                 ],
-                                "to_delayed_action": {
-                                    "to_if_canceled": [
-                                        {
-                                            "set_variable": {
-                                                "name": "command-q",
-                                                "value": 0
-                                            }
-                                        }
-                                    ],
-                                    "to_if_invoked": [
-                                        {
-                                            "set_variable": {
-                                                "name": "command-q",
-                                                "value": 0
-                                            }
-                                        }
-                                    ]
-                                },
                                 "type": "basic"
                             }
                         ]
@@ -272,6 +229,41 @@
                             }
                         }
                     ]
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": false,
+                        "product_id": 632,
+                        "vendor_id": 1452
+                    },
+                    "ignore": false,
+                    "manipulate_caps_lock_led": true,
+                    "simple_modifications": [
+                        {
+                            "from": {
+                                "key_code": "right_option"
+                            },
+                            "to": {
+                                "key_code": "right_control"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": false,
+                        "product_id": 34304,
+                        "vendor_id": 1452
+                    },
+                    "ignore": false,
+                    "manipulate_caps_lock_led": true,
+                    "simple_modifications": []
                 }
             ],
             "fn_function_keys": [

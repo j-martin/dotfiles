@@ -202,7 +202,7 @@ alias glgg='git log --graph --decorate'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gplush='git pull && git push'
 alias gmc='git commit -vnm'
-alias gms='_git_commit_with_issue_key'
+alias gms='bub workflow commit'
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
@@ -322,18 +322,20 @@ alias o='open $(pbpaste)'
 alias c2='open "https://console.aws.amazon.com/ec2/"'
 
 # Brew
-alias bdump='brew bundle --global dump'
+alias bdump='brew bundle --global dump --force && sed -i "s/, link: false//"  ~/.Brewfile'
 alias bcleanup='brew bundle --global cleanup' # --force
 
 # Bub
 alias b='bub'
+alias w='bub workflow'
+alias bwc='bub workflow commit'
 alias bsh='bub ec2'
 alias bj='bub jenkins'
 
 # JIRA
 alias j=jira
-alias jb='jira browse "$(_jira_current_issue_key_or_assigned)"'
-alias jbo='open "$JIRA_URL/secure/RapidBoard.jspa?rapidView=$JIRA_BOARD_ID"'
+alias jb='bub workflow open'
+alias jbo='bub workflow board'
 alias jbp='jira browse "$(pbpaste | _git_filter_issue_key)"'
 alias jc='jira create -p PL -o issuetype=Task'
 alias jcc='_jira_create'
@@ -341,7 +343,7 @@ alias jca='jira create -p PL -o issuetype=Task -o assignee="${JIRA_USER%@*}"'
 alias jclaim='_jira_claim'
 alias je='jira edit "$(_jira_current_issue_key_or_assigned)"'
 alias jj='jira "$(_jira_current_issue_key_or_assigned)"'
-alias jo='open "${JIRA_URL}/browse/$(_jira_current_issue_key_or_assigned)"'
+alias jo='bub workflow open'
 alias jcs='jira subtask "$(_jira_current_issue_key_or_assigned)"'
 jcss() { jira subtask "$(_jira_search "$1")" ;}
 alias jcsa='jira subtask "$(_jira_current_issue_key_or_assigned)" -o assignee="${JIRA_USER%@*}"'

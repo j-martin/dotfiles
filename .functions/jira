@@ -142,7 +142,7 @@ _jira_search() {
 }
 
 _jira_search_text() {
-  jira  ls -q "text ~ \"$1\"" | fzf -1 -0
+  __jira_search "text ~ \"$1\"" | fzf -1 -0
 }
 
 __jira_pick_issue_key() {

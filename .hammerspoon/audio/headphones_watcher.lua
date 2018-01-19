@@ -3,18 +3,22 @@
 
 local mod = {}
 
-local audio = require("hs.audiodevice")
+local audio = require "hs.audiodevice"
 local alert = require "hs.alert"
+local misc = require '../misc'
 local logger = hs.logger.new('headphones', 'debug')
 local devices = {}
 
 local previousAlert = nil
-local function dedupAlert(message)
+local function debounce(message, fn)
   logger.d(message)
   if message ~= previousAlert then
     alert(message)
+    previousAlert = message
   end
-  previousAlert = message
+  if fn then
+    fn()
+  end
 end
 
 -- Per-device watcher to detect headphones in/out
@@ -23,12 +27,9 @@ local function audiodevwatch(dev_uid, event_name, event_scope, event_element)
   local device = audio.findDeviceByUID(dev_uid)
   if event_name == 'jack' then
     if device:jackConnected() then
-      dedupAlert("Headphones plugged")
+      debounce("Headphones plugged")
     else
-      local outputDevice = audio.defaultOutputDevice()
-      dedupAlert("Headphones unplugged → External Speakers muted")
-      outputDevice:setVolume(0)
-      outputDevice:setMuted(true)
+      debounce("Headphones unplugged → External Speakers muted", misc.unplugLaptop)
     end
   end
 end

@@ -9,6 +9,9 @@ export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK"
 export VISUAL="emacsclient"
 export GPG_TTY="$(tty)"
 
+test -e "$TMPDIR/ssh-loaded" \
+  || ssh-add -A && touch "$TMPDIR/ssh-loaded"
+
 __encfs() {
   local root_dir="$1"
   local mount_point="$2"
@@ -19,7 +22,7 @@ __encfs() {
   fi
 }
 
-__encfs "$HOME/Dropbox/Storage" "$HOME/.storage"
+__encfs "$HOME/Sync/Storage" "$HOME/.storage"
 __encfs "$HOME/Library/.chrome" "$HOME/Library/Application Support/Google/Chrome"
 
 test -f "$HOME/.private/.profile" && source "$HOME/.private/.profile"
@@ -29,21 +32,31 @@ source "$HOME/.aliases"
 
 export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-test -e /usr/libexec/java_home && export JAVA_HOME="$(/usr/libexec/java_home -v 9)"
-test -e /usr/local/bin/nvim && export EDITOR='/usr/local/bin/nvim'
+test -e /usr/libexec/java_home \
+  && export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
 
-# export NODE_PATH="$NODE_PATH:/usr/local/lib/node_modules"
+test -e /usr/local/bin/nvim \
+  && export EDITOR='/usr/local/bin/nvim'
+
 export PAGER='less -SRi'
 export HOSTNAME="$HOST"
+
 # export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.agignore  -l -g ""'
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow -g "!{.git,node_modules}/*" 2> /dev/null'
 unset SSL_CERT_FILE
 
-export SDKMAN_DIR="/Users/jm/.sdkman"
-[[ -s "/Users/jm/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/jm/.sdkman/bin/sdkman-init.sh"
+export SDKMAN_DIR="$HOME/.sdkman"
+test -e "$HOME/.sdkman/bin/sdkman-init.sh" \
+  && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
   exec startx
 fi
 
 export PATH="$HOME/.cargo/bin:$PATH"
+
+if [ -n "$(pgrep gpg-agent)" ]; then
+  export GPG_AGENT_INFO
+else
+  eval $(gpg-agent --daemon)
+fi

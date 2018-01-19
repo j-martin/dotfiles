@@ -21,7 +21,7 @@
   (setq make-backup-files nil)
   (spacemacs/toggle-indent-guide-globally-on)
   ;; (spacemacs/toggle-camel-case-motion-globally-on)
-  (spacemacs/toggle-evil-cleverparens-on)
+  ;; (spacemacs/toggle-evil-cleverparens-on)
   (spacemacs/toggle-smartparens-globally-on)
   (setq create-lockfiles nil)
   (setq save-interprogram-paste-before-kill t)
@@ -48,6 +48,7 @@
   (golden-ratio-mode 0)
   (menu-bar-mode 1)
   (setq-default avy-all-windows 'all-frames)
+  (setq frame-title-format '("%b"))
 #+end_src
 ** Spaceline
 #+begin_src emacs-lisp :results none
@@ -147,12 +148,15 @@
   (setq-default abbrev-mode t)
   (setq save-abbrevs 'silently)
   (super-save-mode +1)
-  (require 'org-protocol)
-  (require 'org-mac-link)
 #+end_src
 ** Company
 #+begin_src emacs-lisp :results none
 (setq company-idle-delay 0.2)
+#+end_src
+** Smart-Jump
+#+begin_src emacs-lisp :results none
+(require 'smart-jump)
+(smart-jump-setup-default-registers)
 #+end_src
 
 ** Autorevert
@@ -327,6 +331,8 @@ anaconda_mode.main(sys.argv[1:])
   (setq-default evil-escape-key-sequence "jk")
   (evil-ex-define-cmd "WQ" 'evil-save-modified-and-close)
   (evil-ex-define-cmd "Wq" 'evil-save-modified-and-close)
+
+  (require 'evil-string-inflection)
 #+end_src
 
 ** Scala
@@ -345,7 +351,7 @@ anaconda_mode.main(sys.argv[1:])
 #+end_src
 ** Magit
 #+begin_src emacs-lisp :results none
-    (setq magit-repository-directories '("~/Work/"))
+    (setq magit-repository-directories '("~/code/"))
     (setq-default vc-follow-symlinks t)
     (setq magit-save-repository-buffers 'dontask)
     (setq magit-push-current-set-remote-if-missing t)
@@ -373,6 +379,14 @@ anaconda_mode.main(sys.argv[1:])
       (smartparens-mode)
       (linum-mode -1))
   #+end_src
+*** Extra packages
+#+begin_src emacs-lisp :results none
+  (require 'org-protocol)
+  (require 'org-mac-link)
+  (require 'ox-jira)
+  (require 'ox-confluence)
+#+end_src
+
 *** Babel
 #+begin_src emacs-lisp :results none
   (setq org-src-fontify-natively t)
@@ -452,18 +466,22 @@ anaconda_mode.main(sys.argv[1:])
   (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
   (define-key evil-normal-state-map (kbd "[s") 'flycheck-previous-error)
   (define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
+  (global-set-key (kbd "<f2>") 'flycheck-next-error)
   (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
-  (global-set-key (kbd "s-<left>") 'back-to-indentation)
-  (global-set-key (kbd "s-<right>") 'end-of-line)
-  (global-set-key (kbd "s-j") 'previous-buffer)
-  (global-set-key (kbd "s-k") 'next-buffer)
-  (global-set-key (kbd "s-t") 'neotree-find)
-  (global-set-key (kbd "s-[") 'evil-jump-backward)
-  (global-set-key (kbd "s-]") 'evil-jump-forward)
-  (global-set-key (kbd "C-s-g") 'evil-iedit-state/iedit-mode)
-  (global-set-key (kbd "s-d") 'mc/mark-next-like-this)
-  (global-set-key (kbd "s-D") 'mc/skip-to-next-like-this)
+  (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
+  (global-set-key (kbd "H-<left>") 'back-to-indentation)
+  (global-set-key (kbd "H-<right>") 'end-of-line)
+  (global-set-key (kbd "H-b") 'smart-jump-go)
+  (global-set-key (kbd "H-j") 'previous-buffer)
+  (global-set-key (kbd "H-k") 'next-buffer)
+  (global-set-key (kbd "H-t") 'neotree-find)
+  (global-set-key (kbd "H-[") 'evil-jump-backward)
+  (global-set-key (kbd "H-]") 'evil-jump-forward)
+  (global-set-key (kbd "C-H-g") 'evil-iedit-state/iedit-mode)
+  (global-set-key (kbd "H-d") 'mc/mark-next-like-this)
+  (global-set-key (kbd "H-D") 'mc/skip-to-next-like-this)
   (global-set-key (kbd "C-i") 'evil-jump-forward)
+  (global-set-key (kbd "C-M-H-I") 'jm/open-with-idea)
   ;; (global-set-key (kbd "C-SPC") 'helm-company)
   (global-set-key (kbd "C-M-SPC") 'helm-yas-complete)
 
@@ -473,7 +491,6 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
   (spacemacs/set-leader-keys-for-major-mode 'org-mode "o" 'org-edit-src-code)
 
-  ;; (spacemacs/set-leader-keys "ESC" 'spacemacs/alternate-buffer)
   (spacemacs/set-leader-keys "ac" 'jm/calc)
   (spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
   (spacemacs/set-leader-keys "ah" 'engine/search-github)
@@ -508,12 +525,11 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "ws" 'jm/split-window-below)
   (spacemacs/set-leader-keys "wv" 'jm/split-window)
 #+end_src
-
 ** Fixes
 *** Fix while https://github.com/syl20bnr/evil-iedit-state/pull/19 gets merged.
 #+begin_src emacs-lisp :results none
   (require 'evil-iedit-state)
-  (define-key evil-iedit-state-map "V"   'iedit-show/hide-unmatched-lines)
+  (define-key evil-iedit-state-map "V" 'iedit-show/hide-unmatched-lines)
 #+end_src
 
 * Functions

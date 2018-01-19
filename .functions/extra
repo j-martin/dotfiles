@@ -107,11 +107,7 @@ _org_cleanup() {
 
 # Workaround broken projectile import.
 _emacs_projectile_list() {
-  printf '('
-  ls -d -1 * \
-    | sed "s/\(.*\)/\"~\/code\/\1\/\"/g" \
-    | tr '\n' ' '
-  printf ')'
+  find "$HOME/code"  -mindepth 1 -maxdepth 2 -type d | sed "s/\(.*\)\(code\/.*\)/\"~\/\2\/\"/g"
 }
 
 pidof() {

@@ -9,6 +9,8 @@ local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
 local emacs = require 'emacs'
+local fs = require 'fs'
+local misc = require 'misc'
 local applications = require 'applications'
 local reminder = require 'reminder'
 local logger = hs.logger.new('bindings', 'debug')
@@ -29,6 +31,7 @@ local hyperBindings = {
   { key = '1', name = 'Activity Monitor' },
   { key = '2', name = 'Keybase' },
   { key = '0', name = 'aText' },
+  { key = '5', fn = applications.toggleNoisyTyper() },
   -- key = '6' reserved for aText
   { key = '7', name = 'Paw' },
   { key = '8', name = applications.name.slack },
@@ -39,7 +42,7 @@ local hyperBindings = {
   { key = 'b', fn = applications.openNotification },
   { key = 'b', fn = applications.openNotificationAction, shift = true },
   { key = 'd', fn = selection.actOn },
-  { key = 'e', name = 'Charles' },
+  { key = 'e', name = 'Bee' },
   { key = 'f', name = 'Finder' },
   { key = 'f', name = 'Preview', shift = true },
   { key = 'g', fn = windows.altGrid, shift = true },
@@ -56,7 +59,7 @@ local hyperBindings = {
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 } },
   { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 }, shift = true, targetScreen = 'current' },
   { key = 'n', pos = { { 0.30, 0.00, 0.40, 1.00 }, { 0.20, 0.00, 0.60, 1.00 } }, reversable = true },
-  { key = 'n', pos = { { 0.30, 0.05, 0.40, 0.60 }, { 0.20, 0.05, 0.60, 0.80 }, { 0.30, 0.05, 0.40, 0.30 } }, shift = true },
+  { key = 'n', pos = { { 0.30, 0.10, 0.40, 0.60 }, { 0.20, 0.10, 0.60, 0.80 } }, shift = true },
   { key = 'o', name = 'IntelliJ IDEA.app' },
   { key = 'p', name = 'Sublime Text' },
   { key = 'q', fn = hs.toggleConsole, shift = true },
@@ -70,7 +73,8 @@ local hyperBindings = {
   { key = 'v', fn = selection.paste, shift = true },
   { key = 'x', fn = windows.previousScreen },
   { key = 'y', fn = applications.inbox },
-  { key = 'z', fn = caffeinate.lockScreen },
+  { key = 'z', name = 'Charles' },
+  { key = 'z', fn = misc.unplugLaptop, shift = true },
   { key = 'up', fn = grid.resizeWindowShorter },
   { key = 'down', fn = grid.resizeWindowTaller },
   { key = 'left', fn = grid.resizeWindowThinner },
@@ -201,7 +205,6 @@ function mod.init()
 
   hotkey.bind({'cmd'}, 'h', applications.slack)
   hotkey.bind({'cmd'}, 'm', windows.cycleScreen)
-  hotkey.bind({'cmd', 'option'}, 'm', windows.cycleScreen)
 end
 
 return mod

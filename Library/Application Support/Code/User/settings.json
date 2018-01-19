@@ -1,5 +1,5 @@
 {
-    "editor.fontFamily": "Sauce Code Pro Powerline, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontFamily": "Source Code Pro for Powerline",
     "files.autoSave": "onFocusChange",
     "vim.incsearch": true,
     "vim.useSystemClipboard": true,

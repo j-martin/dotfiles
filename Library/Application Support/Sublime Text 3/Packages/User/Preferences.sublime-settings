@@ -45,14 +45,9 @@
 	"hot_exit": false,
 	"ignored_packages":
 	[
-		"nginx",
+		"A File Icon",
+		"SublimeLinter-contrib-scalastyle",
 		"Vintage"
-	],
-	"index_exclude_patterns":
-	[
-		"/Users/benchemployee/Work/milkman/target*",
-		"*.log",
-		"/Users/benchemployee/Work/ui-test/.idea*"
 	],
 	"itg_small_tabs": true,
 	"open_files_in_new_windows": false,
@@ -73,15 +68,6 @@
 				"{directory}"
 			],
 			"name": "Finder"
-		},
-		{
-			"command":
-			[
-				"/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim",
-				"{filename}",
-				"+{line}"
-			],
-			"name": "NeoVim"
 		},
 		{
 			"command":
@@ -117,7 +103,6 @@
 	"save_on_focus_lost": true,
 	"scroll_past_end": true,
 	"tabs_small": true,
-	"test_command": "nose2",
 	"theme": "Material-Theme.sublime-theme",
 	"translate_tabs_to_spaces": false,
 	"trim_trailing_white_space_on_save": true,

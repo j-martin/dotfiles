@@ -6,9 +6,9 @@ local audio = require "audio.headphones_watcher"
 local battery = require "battery"
 local schedule = require "schedule"
 local usb = require "usb"
-local ipc = require("hs.ipc")
+local ipc = require "hs.ipc"
 
-reload.init()
+-- reload.init()
 bindings.init()
 battery.init()
 audio.init()

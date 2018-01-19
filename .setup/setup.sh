@@ -5,6 +5,9 @@ set -o pipefail
 set -x
 
 _macos_customizations () {
+  sudo pmset -a standbydelay 86400
+  sudo pmset -a sms 0
+
   defaults write com.apple.dock expose-animation-duration -float 0.1
   defaults write com.apple.dock "expose-group-by-app" -bool true
   defaults write com.apple.dock autohide -bool true
@@ -14,7 +17,6 @@ _macos_customizations () {
   defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
   defaults write com.apple.finder QLEnableTextSelection -bool true
   defaults write com.apple.finder autohide-delay -float 0
-  Killall finder || true
   defaults write -g com.apple.trackpad.scaling -float 12.0
   defaults write -g com.apple.mouse.scaling 2.5
   defaults write NSGlobalDomain AppleFontSmoothing -int 0
@@ -24,8 +26,6 @@ _macos_customizations () {
   defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
   defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
   defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
-  sudo pmset -a standbydelay 86400
-  sudo pmset -a sms 0
   defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
   defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
   defaults write com.apple.terminal StringEncodings -array 4
@@ -34,7 +34,10 @@ _macos_customizations () {
   defaults write com.apple.dock springboard-show-duration -int 0
   defaults write com.apple.dock springboard-hide-duration -int 0
   defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
-  defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
+
+  # Disable the desktop
+  defaults write com.apple.finder CreateDesktop false
+  # defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
 
   # Disable relauching application.
   defaults write -g ApplePersistence -bool no
@@ -43,8 +46,9 @@ _macos_customizations () {
   defaults write -g InitialKeyRepeat -int 15
   defaults write -g KeyRepeat -int 2
 
-  killall Dock
-  ln -s "$HOME" '/Users/jm' || true
+  killall Dock || true
+  Killall Finder || true
+  # ln -s "$HOME" '/Users/jm' || true
 
   # fix emacs ansi-term escape code
   tic -o ~/.terminfo "$(find /usr/local/Cellar -type f -name '*.ti' | head)"
@@ -53,6 +57,9 @@ _macos_customizations () {
 _macos_apps () {
   xcode-select --install || true
   brew bundle --global
+
+  brew cleanup
+  brew cask cleanup
 }
 
 _linux_apps () {
