@@ -1,2 +1,31 @@
 set surround
+
+" Integrate with system clipboard
+set clipboard=unnamedplus,unnamed
+
+let mapleader=" "
+
+nmap <leader>ou :action Tool_External Tools_Emacs<CR>
+nmap <leader>oo :action Tool_External Tools_Emacs<CR>
+nmap <leader>op :action Tool_External Tools_Visual Studio Code<CR>
+nmap <leader>os :action Tool_External Tools_Sublime<CR>
+nmap <leader>ov :source ~/.ideavimrc<CR>
+
+nmap <leader>ij o<ESC>k
+nmap <leader>ik ko<ESC>j
+
+nmap <leader>/ :action FindModal<CR>
+
+nmap <leader>wd :action Unsplit<CR>
+nmap <leader>wm :action UnsplitAll<CR>
+nmap <leader>wv :action SplitVertically<CR>
+nmap <leader>wh :action SplitHorizontally<CR>
+
+nmap <leader><leader> :action GotoAction<CR>
+
+nmap gf :action GotoFile<CR>
+nmap gc :action GotoClass<CR>
+nmap gs :action GotoSymbol<CR>
+nmap gm :action GotoImplementation<CR>
+
 source ~/.vimrc

@@ -26,7 +26,7 @@
   (setq create-lockfiles nil)
   (setq save-interprogram-paste-before-kill t)
   (setq multi-term-program-switches "--login")
-  (setq gc-cons-threshold (* 800 1024))
+  (setq gc-cons-threshold 100000000)
 #+end_src
 ** GitHub related
 #+begin_src emacs-lisp :results none
@@ -151,7 +151,7 @@
 #+end_src
 ** Company
 #+begin_src emacs-lisp :results none
-(setq company-idle-delay 0.2)
+(setq company-idle-delay 0.5)
 #+end_src
 ** Smart-Jump
 #+begin_src emacs-lisp :results none
@@ -161,9 +161,9 @@
 
 ** Autorevert
 #+begin_src emacs-lisp :results none
-  (global-auto-revert-mode t)
+  ;; (global-auto-revert-mode t)
   (setq auto-revert-interval 0.25)
-  (setq auto-revert-verbose nil)
+  ;; (setq auto-revert-verbose nil)
   (setq revert-without-query '(".*"))
 #+end_src
 ** Markdown
@@ -247,9 +247,8 @@ anaconda_mode.main(sys.argv[1:])
 
 ** Projectile
 #+begin_src emacs-lisp :results none
-  (setq projectile-enable-caching t)
+  (setq projectile-enable-caching nil)
 #+end_src
-
 ** Linum
 #+begin_src emacs-lisp :results none
   (add-hook 'prog-mode-hook
@@ -263,7 +262,26 @@ anaconda_mode.main(sys.argv[1:])
 (setq tramp-default-method "ssh")
 #+end_src
 
-** Autofill
+** org-present
+#+begin_src emacs-lisp :results none
+    (eval-after-load "org-present"
+      '(progn
+         (add-hook 'org-present-mode-hook
+                   (lambda ()
+                     (org-present-big)
+                     (toggle-frame-fullscreen)
+                     (org-display-inline-images)
+                     (org-present-hide-cursor)
+                     (org-present-read-only)))
+         (add-hook 'org-present-mode-quit-hook
+                   (lambda ()
+                     (org-present-small)
+                     (org-remove-inline-images)
+                     (org-present-show-cursor)
+                     (toggle-frame-fullscreen)
+                     (org-present-read-write)))))
+#+end_src
+* Autofill
 #+begin_src emacs-lisp :results none
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
   (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
@@ -369,7 +387,8 @@ anaconda_mode.main(sys.argv[1:])
                                  "~/.org/calendar-work.org"))
     (setq org-refile-targets
           '(("inbox.org" :maxlevel . 1)
-            ("standup.org" :maxlevel . 1)))
+            ("standup.org" :maxlevel . 1)
+            (nil :maxlevel . 3)))
 
     (setq org-startup-folded t)
     (setq org-catch-invisible-edits 'error)
@@ -382,7 +401,7 @@ anaconda_mode.main(sys.argv[1:])
 *** Extra packages
 #+begin_src emacs-lisp :results none
   (require 'org-protocol)
-  (require 'org-mac-link)
+  ;; (require 'org-mac-link)
   (require 'ox-jira)
   (require 'ox-confluence)
 #+end_src
@@ -466,6 +485,8 @@ anaconda_mode.main(sys.argv[1:])
   (define-key evil-normal-state-map (kbd "M-<down>") 'er/contract-region)
   (define-key evil-normal-state-map (kbd "[s") 'flycheck-previous-error)
   (define-key evil-normal-state-map (kbd "]s") 'flycheck-next-error)
+  (define-key evil-normal-state-map (kbd "K") (lambda() (interactive) (progn (execute-kbd-macro "ciw"))))
+  (define-key evil-normal-state-map (kbd "H-/") 'evil-commentary)
   (global-set-key (kbd "<f2>") 'flycheck-next-error)
   (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
   (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
@@ -507,18 +528,18 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
   (spacemacs/set-leader-keys "oI" 'jm/org-github-in)
   (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
-  (spacemacs/set-leader-keys "oi" 'jm/open-with-idea)
+  (spacemacs/set-leader-keys "oi" 'jm/open-project-iterm)
+  (spacemacs/set-leader-keys "oo" 'jm/open-with-idea)
+  (spacemacs/set-leader-keys "op" 'jm/open-with-vscode)
   (spacemacs/set-leader-keys "ol" 'org-content)
   (spacemacs/set-leader-keys "om" 'jm/open-main)
   (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
-  (spacemacs/set-leader-keys "oo" 'jm/helm-org-dir)
-  (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
+  (spacemacs/set-leader-keys "od" 'jm/helm-org-dir)
+  (spacemacs/set-leader-keys "os" 'jm/open-with-sublime)
   (spacemacs/set-leader-keys "or" 'jm/open-references)
-  (spacemacs/set-leader-keys "os" 'jm/open-standup)
+  (spacemacs/set-leader-keys "ow" 'jm/open-standup)
   (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
   (spacemacs/set-leader-keys "oy" 'jm/test)
-  (spacemacs/set-leader-keys "ov" 'jm/open-with-vscode)
-  (spacemacs/set-leader-keys "ow" 'jm/helm-work-dir)
   (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
   (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
   (spacemacs/set-leader-keys "wa" 'jm/split-window-below-and-find-file)
@@ -565,9 +586,7 @@ anaconda_mode.main(sys.argv[1:])
     (interactive)
     (let ((branch (jm/git-current-branch))
           (repo (jm/github-repository)))
-      (magit-push-current-to-pushremote t)
-      (start-process "assigned" nil "~/.bin/env.sh" "_github_pr")))
-
+      (start-process "bub pr" nil "bub" "workflow" "pr")))
 
   (defun jm/git-current-branch ()
     (s-trim (shell-command-to-string "git symbolic-ref --short -q HEAD")))

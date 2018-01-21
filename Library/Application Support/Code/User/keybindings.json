@@ -1,0 +1,31 @@
+// Place your key bindings in this file to overwrite the defaults
+[
+  {
+    "key": "cmd+k cmd+b",
+    "command": "editor.action.goToDeclaration",
+    "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor"
+  },
+  {
+    "key": "cmd+b",
+    "command": "editor.action.goToDeclaration",
+    "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor"
+  },
+  {
+    "key": "f12",
+    "command": "-editor.action.goToDeclaration",
+    "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor"
+  },
+  {
+    "key": "cmd+k cmd+j",
+    "command": "workbench.action.joinTwoGroups"
+  },
+  {
+    "key": "cmd+p",
+    "command": "-workbench.action.quickOpenNavigateNextInFilePicker",
+    "when": "inFilesPicker && inQuickOpen"
+  },
+  {
+    "key": "cmd+o",
+    "command": "workbench.action.quickOpen"
+  }
+]

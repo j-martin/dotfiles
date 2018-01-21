@@ -8,6 +8,7 @@ local window = require "hs.window"
 local drawing = require "hs.drawing"
 local timer = require "hs.timer"
 local mouse = require "hs.mouse"
+local fs = require "hs.fs"
 local application = require "hs.application"
 local appfinder = require "hs.appfinder"
 local screen = require "hs.screen"
@@ -105,10 +106,8 @@ end
 -- @param  windows  list of hs.window or applicationName
 -- @param  window   instance of hs.window
 -- @return hs.window
-local function getNextWindow(windows, currentWindow)
-  if type(windows) == "string" then
-    windows = appfinder.appFromName(windows):allWindows()
-  end
+local function getNextWindow(currentWindow)
+  local windows = currentWindow:application():allWindows()
 
   windows = filter(windows, window.isStandard)
   -- windows = filter(windows, window.isVisible)
@@ -127,31 +126,36 @@ local function getNextWindow(windows, currentWindow)
 end
 
 -- Needed to enable cycling of application windows
-local lastToggledApplication = ''
+local lastToggledAppName = ''
 
 function mod.launchOrCycleFocus(applicationName)
   return function()
     local nextWindow = nil
     local targetWindow
     local focusedWindow = window.frontmostWindow()
-    focusedWindow:focus()
+    local app = focusedWindow:application()
 
-    lastToggledApplication = focusedWindow and focusedWindow:application():title()
+    focusedWindow:focus()
+    local currentAppName = focusedWindow and fs.displayName(app:path()):gsub('.app$', '')
+    lastToggledAppName = currentAppName
 
     if not focusedWindow then return nil end
 
     if applicationName == 'iTerm2' then
-      -- moving the cursor out the window, to preserve iTerm currently focussed split
+      -- moving the cursor out the window, to preserve iTerm currently focused split
       mouse.setAbsolutePosition(geometry.point(screen.mainScreen():fullFrame().w / 2, 5))
     end
 
-    local appName = applicationName:gsub('.app$', '')
-    logger.df('last: %s, current: %s', lastToggledApplication, appName)
-    if lastToggledApplication == appName then
-      nextWindow = getNextWindow(appName, focusedWindow)
+    local appName = applicationName
+    logger.df('last: %s, current: %s', currentAppName, appName)
+    if currentAppName == appName:gsub('[0-9]+', '') then
+      nextWindow = getNextWindow(focusedWindow)
       nextWindow:becomeMain()
     else
-      application.launchOrFocus(applicationName)
+      logger.df('launch or focus %s', app)
+      if not application.launchOrFocus(applicationName) then
+        application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
+      end
     end
 
     if nextWindow then

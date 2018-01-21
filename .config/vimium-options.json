@@ -1,0 +1,46 @@
+{
+  "settingsVersion": "1.62.4",
+  "exclusionRules": [
+    {
+      "pattern": "http*://mail.google.com/*",
+      "passKeys": "jk"
+    },
+    {
+      "pattern": "http*://inbox.google.com/*",
+      "passKeys": "jkxgio/?brpP[]"
+    },
+    {
+      "pattern": "https?://github.com/*",
+      "passKeys": "\\?t"
+    },
+    {
+      "pattern": "https?://*.atlassian.net/*",
+      "passKeys": "el[?/g"
+    },
+    {
+      "pattern": "https?://www.youtube.com/*",
+      "passKeys": "<space>"
+    },
+    {
+      "pattern": "https?://www.netflix.com/*",
+      "passKeys": "<space>"
+    }
+  ],
+  "filterLinkHints": false,
+  "waitForEnterForFilteredHints": true,
+  "hideHud": false,
+  "keyMappings": "map <space> LinkHints.activateMode\nmap T createTab\nmap t Vomnibar.activateTabSelection",
+  "linkHintCharacters": "fjkluiomghyner",
+  "linkHintNumbers": "0123456789",
+  "newTabUrl": "pages/blank.html",
+  "nextPatterns": "next,more,newer,>,›,→,»,≫,>>",
+  "previousPatterns": "prev,previous,back,older,<,‹,←,«,≪,<<",
+  "regexFindMode": true,
+  "ignoreKeyboardLayout": false,
+  "scrollStepSize": 600,
+  "smoothScroll": true,
+  "grabBackFocus": true,
+  "searchEngines": "w: http://www.wikipedia.org/w/index.php?title=Special:Search&search=%s Wikipedia\n\n# More examples.\n#\n# (Vimium supports search completion Wikipedia, as\n# above, and for these.)\n#\ng: http://www.google.com/search?q=%s Google\n# l: http://www.google.com/search?q=%s&btnI I'm feeling lucky...\ny: http://www.youtube.com/results?search_query=%s Youtube\n# gm: https://www.google.com/maps?q=%s Google maps\n# b: https://www.bing.com/search?q=%s Bing\n# d: https://duckduckgo.com/?q=%s DuckDuckGo\n# az: http://www.amazon.com/s/?field-keywords=%s Amazon",
+  "searchUrl": "https://www.google.com/search?q=",
+  "userDefinedLinkHintCss": "div > .vimiumHintMarker {\n/* linkhint boxes */\nbackground: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF785),\n  color-stop(100%,#FFC542));\nborder: 1px solid #E3BE23;\n}\n\ndiv > .vimiumHintMarker span {\n/* linkhint text */\ncolor: black;\nfont-weight: bold;\nfont-size: 12px;\n}\n\ndiv > .vimiumHintMarker > .matchingCharacter {\n}"
+}

@@ -9,6 +9,7 @@ local alert = require "hs.alert"
 local mod = {}
 
 mod.name = {
+  activityMonitor = 'Activity Monitor',
   chrome = 'Google Chrome',
   inbox = 'Inbox - ', -- extra characters to be more specific
   noisyTyper = 'NoisyTyper',
@@ -60,6 +61,13 @@ function mod.slack()
   eventtap.keyStroke({'cmd'}, '1')
   wait()
   eventtap.keyStroke({'cmd'}, 't')
+end
+
+function mod.activityMonitor()
+  windows.launchOrCycleFocus(mod.name.activityMonitor)()
+  wait()
+  eventtap.keyStroke({'cmd'}, '2')
+  eventtap.keyStroke({'cmd'}, '1')
 end
 
 function mod.slackUnread()

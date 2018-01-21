@@ -3,5 +3,5 @@
 # key: shell_
 # --
 #+begin_src shell :tangle yes
-$0
+${1:`(current-kill 0)`}$0
 #+end_src

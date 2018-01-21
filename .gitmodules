@@ -13,8 +13,8 @@
 [submodule ".vendor/org-protocol-handler"]
 	path = .vendor/org-protocol-handler
 	url = https://github.com/aaronbieber/org-protocol-handler.git
-[submodule "/Users/benchemployee/.emacs.dev"]
-	path = /Users/benchemployee/.emacs.dev
+[submodule ".emacs.dev"]
+	path = .emacs.dev
 	url = https://github.com/syl20bnr/spacemacs
 [submodule ".vendor/alfred-jira"]
 	path = .vendor/alfred-jira

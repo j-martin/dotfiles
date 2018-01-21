@@ -9,6 +9,8 @@ _macos_customizations () {
   sudo pmset -a sms 0
 
   defaults write com.apple.dock expose-animation-duration -float 0.1
+  defaults write com.apple.dock autohide-time-modifier -float 0
+  defaults write com.apple.dock autohide-delay -float 0
   defaults write com.apple.dock "expose-group-by-app" -bool true
   defaults write com.apple.dock autohide -bool true
   defaults write com.apple.dock autohide-delay -float 0
@@ -17,6 +19,7 @@ _macos_customizations () {
   defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
   defaults write com.apple.finder QLEnableTextSelection -bool true
   defaults write com.apple.finder autohide-delay -float 0
+  defaults write com.apple.dock launchanim -bool false
   defaults write -g com.apple.trackpad.scaling -float 12.0
   defaults write -g com.apple.mouse.scaling 2.5
   defaults write NSGlobalDomain AppleFontSmoothing -int 0

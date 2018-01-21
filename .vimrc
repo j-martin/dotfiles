@@ -68,6 +68,10 @@ highlight VertSplit cterm=none ctermbg=none ctermfg=247
 "========
 imap jk <Esc>
 
+
+" Change current word - kill
+noremap K ciw
+
 "Show nice tabs
 "===============
 set listchars=tab:>-,trail:~,extends:>,precedes:<
