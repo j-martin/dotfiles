@@ -67,6 +67,7 @@ function mod.activityMonitor()
   windows.launchOrCycleFocus(mod.name.activityMonitor)()
   wait()
   eventtap.keyStroke({'cmd'}, '2')
+  hs.window.focusedWindow():moveToUnit({ 0, 0.9, 0.1, 0.1 }, 0)
   eventtap.keyStroke({'cmd'}, '1')
 end
 

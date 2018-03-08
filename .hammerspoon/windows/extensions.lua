@@ -129,6 +129,10 @@ end
 local lastToggledAppName = ''
 
 function mod.launchOrCycleFocus(applicationName)
+  local function cleanupName(name)
+    return name:gsub('.app$', '')
+  end
+
   return function()
     local nextWindow = nil
     local targetWindow
@@ -136,7 +140,7 @@ function mod.launchOrCycleFocus(applicationName)
     local app = focusedWindow:application()
 
     focusedWindow:focus()
-    local currentAppName = focusedWindow and fs.displayName(app:path()):gsub('.app$', '')
+    local currentAppName = cleanupName(focusedWindow and fs.displayName(app:path()))
     lastToggledAppName = currentAppName
 
     if not focusedWindow then return nil end
@@ -146,7 +150,7 @@ function mod.launchOrCycleFocus(applicationName)
       mouse.setAbsolutePosition(geometry.point(screen.mainScreen():fullFrame().w / 2, 5))
     end
 
-    local appName = applicationName
+    local appName = cleanupName(applicationName)
     logger.df('last: %s, current: %s', currentAppName, appName)
     if currentAppName == appName:gsub('[0-9]+', '') then
       nextWindow = getNextWindow(focusedWindow)

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 _info() {
-  >&2 echo "[info] $@"
+  >&2 echo "[info] $*"
 }
 
 _warn() {
-  >&2 echo "[warn] $@"
+  >&2 echo "[warn] $*"
 }
 
 _error() {
-  >&2 echo "[error] $@"
+  >&2 echo "[error] $*"
 }
 
 _production() {
@@ -39,7 +39,10 @@ _trim() {
 
 _cached() {
   local ttl="${CACHE_TTL:-300}"
-  local ts="$(( $(date +'%s') / $ttl ))"
+
+  local ts
+  ts="$(( $(date +'%s') / ttl ))"
+
   local filename
   filename="${TMPDIR}${ts}-$(echo "$*" | shasum | cut -d' ' -f1)"
 
@@ -55,7 +58,8 @@ _cached() {
 _with_fzf() {
   local app="$1"
   local prefix="$2"
-  local file="$(_fzf "${prefix}" || echo "${prefix}")"
+  local file
+  file="$(_fzf_with_preview "${prefix}" || echo "${prefix}")"
   if [[ -f "$file" ]]; then
     eval "$app $file"
   else
@@ -64,7 +68,12 @@ _with_fzf() {
 }
 
 _fzf() {
-  fzf -1 -0 -q "$1"
+  fzf -1 -0 -q "$@"
+}
+
+_fzf_with_preview() {
+  # shellcheck disable=SC2016
+  fzf --preview '[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file || highlight -O ansi -l --force {}' -1 -0 -q "$@"
 }
 
 _prefix() {

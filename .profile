@@ -9,6 +9,8 @@ export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK"
 export VISUAL="emacsclient"
 export GPG_TTY="$(tty)"
 
+source "$HOME/.cargo/env"
+
 test -e "$TMPDIR/ssh-loaded" \
   || ssh-add -A && touch "$TMPDIR/ssh-loaded"
 

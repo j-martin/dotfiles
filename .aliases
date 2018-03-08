@@ -66,7 +66,7 @@ alias stt='subl ./' # Depends on the 'st' command in the ~/.bin dir.
 # Convenience
 agl() { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
 ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
-uu() { ag --color --before=2 --after=4 --literal --hidden --path-to-ignore ~/.agignore "$@" | less -SRi; }
+uu() { rg --color=always --line-number --after-context=4 --before-context=2 --smart-case "$@" | less -SRi; }
 agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
 alias cay='cal -y'
 alias clf='clf -c'
@@ -128,6 +128,7 @@ alias op='open "$(pbpaste)"'
 alias opd='open "$(basename "$(pbpaste)")"'
 alias pwdc='pwd | tr -d "\n" | pbcopy'
 alias pbclean='pbpaste | pbcopy'
+alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias rmq='rabbitmq-server'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'

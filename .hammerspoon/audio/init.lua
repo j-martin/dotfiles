@@ -44,6 +44,10 @@ end
 mod.next = callAndDisplay(spotify.next)
 mod.previous = callAndDisplay(spotify.previous)
 mod.current = spotify.displayCurrentTrack
-mod.playpause = spotify.playpause
+
+function mod.playpause()
+  alert.show('Play/Pause')
+  spotify.playpause()
+end
 
 return mod

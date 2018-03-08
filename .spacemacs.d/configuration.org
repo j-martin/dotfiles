@@ -17,7 +17,7 @@
   (setq confirm-kill-emacs 'y-or-n-p)
   (setq mac-emulate-three-button-mouse t)
   ;; (setq x-select-enable-clipboard nil)
-  (fset 'evil-visual-update-x-selection 'ignore)
+  (fset 'evil-visual-updateyour-team.vault-x-selection 'ignore)
   (setq make-backup-files nil)
   (spacemacs/toggle-indent-guide-globally-on)
   ;; (spacemacs/toggle-camel-case-motion-globally-on)
@@ -97,9 +97,12 @@
 
   (defun jm/test ()
     (interactive)
-    (let ((value (thing-at-point 'word)))
-      (search-forward "mode")
-      (message "%s" value)))
+    (end-of-line)
+    (open-line 1)
+    (forward-line)
+    (insert (jm/shell-command-to-string
+             (concat "bub jira workday --org --prefix '***** ' "
+                     (nth 0 (s-split " " (nth 4 (org-heading-components))))))))
 #+end_src
 
 ** Frame Size
@@ -281,12 +284,12 @@ anaconda_mode.main(sys.argv[1:])
                      (toggle-frame-fullscreen)
                      (org-present-read-write)))))
 #+end_src
-* Autofill
-#+begin_src emacs-lisp :results none
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
-  (add-hook 'org-mode-hook 'turn-on-auto-fill)
-#+end_src
+** Autofill
+ #+begin_src emacs-lisp :results none
+   (add-hook 'text-mode-hook 'turn-on-auto-fill)
+   (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
+   (add-hook 'org-mode-hook 'turn-on-auto-fill)
+ #+end_src
 ** Pretty symbols
 #+begin_src emacs-lisp :results none
   (defun jm/pretty-symbols ()
@@ -347,6 +350,7 @@ anaconda_mode.main(sys.argv[1:])
 #+begin_src emacs-lisp :results none
   (setq-default evil-escape-delay 0.2)
   (setq-default evil-escape-key-sequence "jk")
+  (evil-ex-define-cmd "E" 'revert-buffer)
   (evil-ex-define-cmd "WQ" 'evil-save-modified-and-close)
   (evil-ex-define-cmd "Wq" 'evil-save-modified-and-close)
 
@@ -379,15 +383,16 @@ anaconda_mode.main(sys.argv[1:])
 *** Basic setup
   #+begin_src emacs-lisp :results none
     (setq org-directory "~/.org/")
-    (setq org-default-notes-file "~/.org/inbox.org")
+    (setq org-default-notes-file "~/.org/main.org")
     (setq org-hide-emphasis-markers t)
-    (setq org-agenda-files (list "~/.org/inbox.org"
+    (setq org-agenda-files (list "~/.org/main.org"
+                                 "~/.org/work.org"
                                  "~/.org/todoist.org"
                                  "~/.org/calendar-personal.org"
                                  "~/.org/calendar-work.org"))
     (setq org-refile-targets
-          '(("inbox.org" :maxlevel . 1)
-            ("standup.org" :maxlevel . 1)
+          '(("main.org" :maxlevel . 1)
+            ("work.org" :maxlevel . 1)
             (nil :maxlevel . 3)))
 
     (setq org-startup-folded t)
@@ -397,6 +402,20 @@ anaconda_mode.main(sys.argv[1:])
     (defun jm/org-hooks ()
       (smartparens-mode)
       (linum-mode -1))
+
+    (setq org-todo-keywords
+          (quote ((sequence "TODO(d)" "|" "DONE(t)")
+                  (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+
+    (setq org-todo-state-tags-triggers
+          (quote (("CANCELLED" ("cancelled" . t))
+                  ("WAITING" ("waiting" . t))
+                  ("HOLD" ("waiting") ("HOLD" . t))
+                  (done ("waiting") ("hold"))
+                  ("TODO" ("waiting") ("cancelled") ("hold"))
+                  ("NEXT" ("waiting") ("cancelled") ("hold"))
+                  ("DONE" ("waiting") ("cancelled") ("hold")))))
+    (setq org-use-fast-todo-selection t)
   #+end_src
 *** Extra packages
 #+begin_src emacs-lisp :results none
@@ -417,32 +436,36 @@ anaconda_mode.main(sys.argv[1:])
   (add-hook 'org-capture-mode-hook 'evil-insert-state)
   (setq org-capture-templates '(("t" "Todo"
                                  entry
-                                 (file+headline "~/.org/inbox.org" "Tasks")
+                                 (file+headline "~/.org/main.org" "Inbox")
                                  "* TODO %?\nEntered on %U\n%i\n%a")
                                 ("T" "Todo with clipboard"
                                  entry
-                                 (file+headline "~/.org/inbox.org" "Tasks")
+                                 (file+headline "~/.org/main.org" "Inbox")
                                  "* TODO %?\nEntered on %U\n%i\n%c\n%a")
-                                ("w" "Todo for work"
+                                ("w" "Inbox for work"
                                  entry
-                                 (file+headline "~/.org/standup.org" "Tasks")
+                                 (file+headline "~/.org/work.org" "Inbox")
                                  "* TODO %?\nEntered on %U\n%i\n%a")
-                                ("W" "Todo with clipboard for work"
+                                ("W" "Inbox with clipboard for work"
                                  entry
-                                 (file+headline "~/.org/standup.org" "Tasks")
+                                 (file+headline "~/.org/work.org" "Inbox")
                                  "* TODO %?\nEntered on %U\n%i\n%c\n%a")
                                 ("c" "Todo with clipboard for work"
                                  entry
-                                 (file+headline "~/.org/standup.org" "Tasks")
+                                 (file+headline "~/.org/work.org" "Inbox")
                                  "* TODO %?\nEntered on %U\n%i\n%c\n%a\n[[file://%F::%(with-current-buffer (org-capture-get :original-buffer) (number-to-string (line-number-at-pos)))][%F]] ")
-                                ("s" "Add note to standup"
-                                 plain
-                                 (file "~/.org/standup.org")
-                                 "** TODO %?\nEntered on %U\n%i\n%a")
-                                ("S" "Add note to standup DONE"
-                                 plain
-                                 (file "~/.org/standup.org")
-                                 "** DONE %?\nEntered on %U\n%i\n%a")
+                                ("s" "Add journal entry to work"
+                                 entry
+                                 (file+datetree "~/.org/work.org" "Journal")
+                                 "* TODO %?\nEntered on %U\n%i\n%a")
+                                ("S" "Add journal entry to work DONE"
+                                 entry
+                                 (file+datetree "~/.org/work.org" "Journal")
+                                 "* DONE %?\nEntered on %U\n%i\n%a")
+                                ("e" "Add past journal entry to work DONE"
+                                 entry
+                                 (file+datetree+prompt "~/.org/work.org" "Journal")
+                                 "* DONE %?\nEntered on %U\n%i\n%a")
                                 ("r" "References / Research"
                                  entry
                                  (file+headline "~/.org/references.org" "Research")
@@ -502,10 +525,11 @@ anaconda_mode.main(sys.argv[1:])
   (global-set-key (kbd "H-d") 'mc/mark-next-like-this)
   (global-set-key (kbd "H-D") 'mc/skip-to-next-like-this)
   (global-set-key (kbd "C-i") 'evil-jump-forward)
+  (global-set-key (kbd "C-'") (lambda() (interactive) (insert "'")))
+  (global-set-key (kbd "C-\"") (lambda() (interactive) (insert "\"")))
   (global-set-key (kbd "C-M-H-I") 'jm/open-with-idea)
   ;; (global-set-key (kbd "C-SPC") 'helm-company)
   (global-set-key (kbd "C-M-SPC") 'helm-yas-complete)
-
   (define-key evil-insert-state-map (kbd "C-a") 'beginning-of-line)
   (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
@@ -537,9 +561,9 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "od" 'jm/helm-org-dir)
   (spacemacs/set-leader-keys "os" 'jm/open-with-sublime)
   (spacemacs/set-leader-keys "or" 'jm/open-references)
-  (spacemacs/set-leader-keys "ow" 'jm/open-standup)
+  (spacemacs/set-leader-keys "ow" 'jm/open-work)
   (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
-  (spacemacs/set-leader-keys "oy" 'jm/test)
+  (spacemacs/set-leader-keys "oy" 'jm/insert-jira-workday)
   (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
   (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
   (spacemacs/set-leader-keys "wa" 'jm/split-window-below-and-find-file)
@@ -626,6 +650,24 @@ anaconda_mode.main(sys.argv[1:])
     (evil-forward-char 1)
     (insert " ")
     (evil-backward-char 2))
+
+  (defun jm/shell-command-to-string (command)
+    (with-output-to-string
+      (with-current-buffer
+          standard-output
+        (process-file shell-file-name nil '(t nil)  nil shell-command-switch command))))
+#+end_src
+** Org
+#+begin_src emacs-lisp :results none
+  (defun jm/insert-jira-workday ()
+    (interactive)
+    (end-of-line)
+    (open-line 1)
+    (forward-line)
+    (insert (jm/shell-command-to-string
+             (concat "bub jira workday --org --prefix '***** ' "
+                     (nth 0 (s-split " " (nth 4 (org-heading-components))))))))
+
 #+end_src
 
 ** Window Management
@@ -669,15 +711,15 @@ anaconda_mode.main(sys.argv[1:])
 
   (defun jm/open-inbox ()
     (interactive)
-    (jm/open-file "~/.org/inbox.org"))
+    (jm/open-file "~/.org/main.org"))
 
   (defun jm/open-references ()
     (interactive)
     (jm/open-file "~/.org/references.org"))
 
-  (defun jm/open-standup ()
+  (defun jm/open-work ()
     (interactive)
-    (jm/open-file "~/.org/standup.org"))
+    (jm/open-file "~/.org/work.org"))
 
   (defun jm/helm-org-dir ()
     (interactive)
@@ -690,23 +732,6 @@ anaconda_mode.main(sys.argv[1:])
   (defun jm/helm-work-dir ()
     (interactive)
     (helm-find-files-1 (expand-file-name "~/Code/benchlabs/")))
-#+end_src
-
-** Standup
-#+begin_src emacs-lisp :results none
-  (defun jm/org-github-in ()
-    (interactive)
-    (jm/open-file "~/.org/standup.org")
-    (end-of-buffer)
-    (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh  2> /dev/null"))
-    ;; (insert (shell-command-to-string "$HOME/.bin/org-standup-in.sh"))
-    (org-content))
-
-  (defun jm/org-github-out ()
-    (interactive)
-    (jm/open-file "~/.org/standup.org")
-    (save-buffer)
-    (shell-command "$HOME/.bin/org-standup-out.sh  2> /dev/null"))
 #+end_src
 
 ** External Applications

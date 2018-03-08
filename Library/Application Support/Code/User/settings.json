@@ -664,5 +664,6 @@
     "suppressResultsExplorerNotice": false,
     "suppressUpdateNotice": false,
     "suppressWelcomeNotice": true
-  }
+  },
+  "gitlens.keymap": "alternate"
 }

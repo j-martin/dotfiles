@@ -13,7 +13,7 @@ local HOME = os.getenv('HOME')
 -- where pwd = ~/.bin
 local tasks = {
   { cmd = '/bin/bash', args = { 'org-calendar.sh' }},
-  { cmd = '/bin/bash', args = { 'org-pushbullet.sh' }},
+  { cmd = '~/.bin/org-pushbullet/target/release/org-pushbullet', args = { '~/.org/references/' }},
   { cmd = '/usr/local/bin/pipenv', args = { 'run', 'python', 'org-todoist.py' }}
 }
 
@@ -39,7 +39,10 @@ local function expand(path)
 end
 
 local function runTask(t)
-  logger.df('scheduling: %s', t.cmd)
+  local cmd = expand(t.cmd)
+  local args = t.args and t.args or {}
+  args = fnutils.map(args, expand)
+  logger.df('scheduling: %s %s', cmd, args[1])
   return function()
     local env = {
       PATH = '/usr/local/bin:/usr/bin:/bin',
@@ -48,9 +51,8 @@ local function runTask(t)
       HOME = HOME
     }
 
-    local args = t.args and t.args or {}
     local pwd = expand(t.pwd and t.pwd or '~/.bin')
-    local process = task.new(expand(t.cmd), returnCallback, streamCallback, args)
+    local process = task.new(cmd, returnCallback, streamCallback, args)
 
     logger.f('starting job %s %s in %s', t.cmd, args, pwd)
     process:setWorkingDirectory(pwd)

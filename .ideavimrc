@@ -9,12 +9,15 @@ nmap <leader>ou :action Tool_External Tools_Emacs<CR>
 nmap <leader>oo :action Tool_External Tools_Emacs<CR>
 nmap <leader>op :action Tool_External Tools_Visual Studio Code<CR>
 nmap <leader>os :action Tool_External Tools_Sublime<CR>
+nmap <leader>oi :action Tool_External Tools_iTerm<CR>
 nmap <leader>ov :source ~/.ideavimrc<CR>
 
 nmap <leader>ij o<ESC>k
 nmap <leader>ik ko<ESC>j
 
 nmap <leader>/ :action FindModal<CR>
+
+nmap <leader>pp :action ManageRecentProjects<CR>
 
 nmap <leader>wd :action Unsplit<CR>
 nmap <leader>wm :action UnsplitAll<CR>
@@ -23,9 +26,15 @@ nmap <leader>wh :action SplitHorizontally<CR>
 
 nmap <leader><leader> :action GotoAction<CR>
 
+nmap <leader>gs :action Vcs.QuickListPopupAction<CR>
+nmap ,r :action Refactorings.QuickListPopupAction<CR>
+nmap <leader>ji :action FileStructurePopup<CR>
+nmap <leader>ff :action GotoFile<CR>
 nmap gf :action GotoFile<CR>
 nmap gc :action GotoClass<CR>
 nmap gs :action GotoSymbol<CR>
 nmap gm :action GotoImplementation<CR>
+nmap [p ko<ESC>p
+nmap ]p o<ESC>p
 
 source ~/.vimrc

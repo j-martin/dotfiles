@@ -3,7 +3,7 @@
   "exclusionRules": [
     {
       "pattern": "http*://mail.google.com/*",
-      "passKeys": "jk"
+      "passKeys": "jko"
     },
     {
       "pattern": "http*://inbox.google.com/*",
@@ -29,7 +29,7 @@
   "filterLinkHints": false,
   "waitForEnterForFilteredHints": true,
   "hideHud": false,
-  "keyMappings": "map <space> LinkHints.activateMode\nmap T createTab\nmap t Vomnibar.activateTabSelection",
+  "keyMappings": "map <space><space> LinkHints.activateMode\nmap <space>t Vomnibar.activateTabSelection\nmap <space>o Vomnibar.activateInNewTab\nmap <space>j goBack\nmap <space>k goForward\nmap <space>x restoreTab\nmap <space>e duplicateTab\nmap <space>w moveTabToNewWindow",
   "linkHintCharacters": "fjkluiomghyner",
   "linkHintNumbers": "0123456789",
   "newTabUrl": "pages/blank.html",
