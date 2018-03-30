@@ -13,7 +13,7 @@ local HOME = os.getenv('HOME')
 -- where pwd = ~/.bin
 local tasks = {
   { cmd = '/bin/bash', args = { 'org-calendar.sh' }},
-  { cmd = '~/.bin/org-pushbullet/target/release/org-pushbullet', args = { '~/.org/references/' }},
+  { cmd = '~/code/j-martin/org-pushbullet/target/release/org-pushbullet', args = { '~/.org/references/' }},
   { cmd = '/usr/local/bin/pipenv', args = { 'run', 'python', 'org-todoist.py' }}
 }
 

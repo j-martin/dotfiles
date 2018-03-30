@@ -395,7 +395,7 @@ anaconda_mode.main(sys.argv[1:])
             ("work.org" :maxlevel . 1)
             (nil :maxlevel . 3)))
 
-    (setq org-startup-folded t)
+    (setq org-startup-folded nil)
     (setq org-catch-invisible-edits 'error)
     (add-hook 'org-mode-hook 'jm/org-hooks)
 
