@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -x
 
+BINPATH="$(dirname "$0")"
+
 _macos_customizations () {
   sudo pmset -a standbydelay 86400
   sudo pmset -a sms 0
@@ -63,6 +65,8 @@ _macos_apps () {
 
   brew cleanup
   brew cask cleanup
+
+  which zsh | head -n1 | sudo tee -a /etc/shells
 }
 
 _linux_apps () {
@@ -74,9 +78,13 @@ _linux_apps () {
 }
 
 _general () {
-  npm install -g vmd eslint
-  pip3 install -r requirements.txt
-  chsh -s $(grep /zsh$ /etc/shells | tail -1)
+  chmod 700 "$HOME/.gnupg"
+  chmod -R 600 "$HOME/.gnupg"
+
+  chsh -s "$(grep /zsh$ /etc/shells | tail -1)"
+  npm install -g vmd
+  pip3 install -r "$BINPATH/requirements.txt"
+  xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
 }
 
 _go_specific () {

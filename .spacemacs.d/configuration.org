@@ -27,6 +27,7 @@
   (setq save-interprogram-paste-before-kill t)
   (setq multi-term-program-switches "--login")
   (setq gc-cons-threshold 100000000)
+  (setq debug-on-error nil)
 #+end_src
 ** GitHub related
 #+begin_src emacs-lisp :results none
@@ -264,31 +265,10 @@ anaconda_mode.main(sys.argv[1:])
 #+begin_src emacs-lisp :results none
 (setq tramp-default-method "ssh")
 #+end_src
-
-** org-present
-#+begin_src emacs-lisp :results none
-    (eval-after-load "org-present"
-      '(progn
-         (add-hook 'org-present-mode-hook
-                   (lambda ()
-                     (org-present-big)
-                     (toggle-frame-fullscreen)
-                     (org-display-inline-images)
-                     (org-present-hide-cursor)
-                     (org-present-read-only)))
-         (add-hook 'org-present-mode-quit-hook
-                   (lambda ()
-                     (org-present-small)
-                     (org-remove-inline-images)
-                     (org-present-show-cursor)
-                     (toggle-frame-fullscreen)
-                     (org-present-read-write)))))
-#+end_src
 ** Autofill
  #+begin_src emacs-lisp :results none
    (add-hook 'text-mode-hook 'turn-on-auto-fill)
    (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
-   (add-hook 'org-mode-hook 'turn-on-auto-fill)
  #+end_src
 ** Pretty symbols
 #+begin_src emacs-lisp :results none
@@ -353,7 +333,6 @@ anaconda_mode.main(sys.argv[1:])
   (evil-ex-define-cmd "E" 'revert-buffer)
   (evil-ex-define-cmd "WQ" 'evil-save-modified-and-close)
   (evil-ex-define-cmd "Wq" 'evil-save-modified-and-close)
-
   (require 'evil-string-inflection)
 #+end_src
 
@@ -373,11 +352,19 @@ anaconda_mode.main(sys.argv[1:])
 #+end_src
 ** Magit
 #+begin_src emacs-lisp :results none
-    (setq magit-repository-directories '("~/code/"))
-    (setq-default vc-follow-symlinks t)
-    (setq magit-save-repository-buffers 'dontask)
-    (setq magit-push-current-set-remote-if-missing t)
-    (add-hook 'git-commit-mode-hook 'jm/magit-commit-message)
+  (setq magit-repository-directories '("~/code/"))
+  (setq-default vc-follow-symlinks t)
+  (setq magit-save-repository-buffers 'dontask)
+  (setq magit-push-current-set-remote-if-missing t)
+  (defun jm/git-commit-mode-config()
+    (setq-local fill-column 72)
+    (turn-on-auto-fill)
+    (jm/magit-commit-message))
+  (defun jm/git-status-mode-config()
+    (setq-local evil-escape-key-sequence nil))
+  (add-hook 'git-commit-mode-hook 'jm/git-commit-mode-config)
+  (add-hook 'magit-status-mode-hook 'jm/git-status-mode-config)
+
 #+end_src
 ** Org
 *** Basic setup
@@ -416,6 +403,9 @@ anaconda_mode.main(sys.argv[1:])
                   ("NEXT" ("waiting") ("cancelled") ("hold"))
                   ("DONE" ("waiting") ("cancelled") ("hold")))))
     (setq org-use-fast-todo-selection t)
+
+    (setq org-startup-with-inline-images t)
+    (setq org-export-with-section-numbers nil)
   #+end_src
 *** Extra packages
 #+begin_src emacs-lisp :results none
@@ -430,6 +420,8 @@ anaconda_mode.main(sys.argv[1:])
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
   (setq org-src-window-setup 'current-window)
+  ;; grep -o '/[a-zA-Z0-9\./]*/plantuml.jar'  /usr/local/bin/plantuml
+  (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.5/libexec/plantuml.jar")
 #+end_src
 *** Capture Templates
 #+begin_src emacs-lisp :results none
@@ -454,14 +446,18 @@ anaconda_mode.main(sys.argv[1:])
                                  entry
                                  (file+headline "~/.org/work.org" "Inbox")
                                  "* TODO %?\nEntered on %U\n%i\n%c\n%a\n[[file://%F::%(with-current-buffer (org-capture-get :original-buffer) (number-to-string (line-number-at-pos)))][%F]] ")
+                                ("n" "Todo with clipboard for work"
+                                 entry
+                                 (file+headline "~/.org/work.org" "Notes")
+                                 "* %?\nEntered on %U\n%i\n%c\n%a\n[[file://%F::%(with-current-buffer (org-capture-get :original-buffer) (number-to-string (line-number-at-pos)))][%F]] ")
                                 ("s" "Add journal entry to work"
                                  entry
                                  (file+datetree "~/.org/work.org" "Journal")
-                                 "* TODO %?\nEntered on %U\n%i\n%a")
+                                 "* %?\nEntered on %U\n%i\n%a")
                                 ("S" "Add journal entry to work DONE"
                                  entry
                                  (file+datetree "~/.org/work.org" "Journal")
-                                 "* DONE %?\nEntered on %U\n%i\n%a")
+                                 "* %?\nEntered on %U\n%i\n%a")
                                 ("e" "Add past journal entry to work DONE"
                                  entry
                                  (file+datetree+prompt "~/.org/work.org" "Journal")
@@ -500,6 +496,25 @@ anaconda_mode.main(sys.argv[1:])
                                  "* %?\nEntered on %U\n%i\n%c\n%a")))
 #+end_src
 
+*** org-present
+ #+begin_src emacs-lisp :results none
+     (eval-after-load "org-present"
+       '(progn
+          (add-hook 'org-present-mode-hook
+                    (lambda ()
+                      (org-present-big)
+                      (toggle-frame-fullscreen)
+                      (org-display-inline-images)
+                      (org-present-hide-cursor)
+                      (org-present-read-only)))
+          (add-hook 'org-present-mode-quit-hook
+                    (lambda ()
+                      (org-present-small)
+                      (org-remove-inline-images)
+                      (org-present-show-cursor)
+                      (toggle-frame-fullscreen)
+                      (org-present-read-write)))))
+ #+end_src
 * Keyboard Bindings
 #+begin_src emacs-lisp :results none
   (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
@@ -544,6 +559,7 @@ anaconda_mode.main(sys.argv[1:])
   (spacemacs/set-leader-keys "gc" 'magit-commit)
   (spacemacs/set-leader-keys "gn" 'jm/magit-branch-from-jira)
   (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
+  (spacemacs/set-leader-keys "gg" 'magit-status)
   (spacemacs/set-leader-keys "ih" 'jm/insert-left)
   (spacemacs/set-leader-keys "il" 'jm/insert-right)
   (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
@@ -656,6 +672,11 @@ anaconda_mode.main(sys.argv[1:])
       (with-current-buffer
           standard-output
         (process-file shell-file-name nil '(t nil)  nil shell-command-switch command))))
+
+  (defun jm/camel-to-snake-case ()
+    (interactive)
+    (progn (replace-regexp "\\([A-Z]\\)" "_\\1" nil (region-beginning) (region-end)
+                                         (downcase-region (region-beginning) (region-end)))))
 #+end_src
 ** Org
 #+begin_src emacs-lisp :results none

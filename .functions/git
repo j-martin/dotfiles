@@ -65,7 +65,8 @@ _git_commit_with_issue_key() {
 
 _git_new_branch() {
   local name="$1"
-  git checkout -b "$(echo "$name" | tr ' #:,.+^&*()`[]@$%/' '-' | sed -r 's/-+/-/g')"
+  git fetch 'origin'
+  git checkout -b "$(_github_user)/$(echo "$name" | tr ' #:,.+^&*()`[]@$%' '-' | sed -r 's/-+/-/g')" 'origin/master'
 }
 
 _git_new_branch_from_new_issue() {
@@ -78,6 +79,7 @@ _git_new_branch_and_commit_from_new_issue() {
   _git_new_branch_from_new_issue "${title}" "${desc}"
   git commit -n -m "$(_trim "$(_jira_current_issue_key_or_assigned) ${title}\n\n${desc}")" "${@:3}"
 }
+
 _github() {
   local endpoint="$1"
   curl --fail --silent -H "Authorization: token $(keyring get system github_token)" \
@@ -207,13 +209,22 @@ _github_events() {
   _github "users/$(_github_user)/events/orgs/$(_github_org)?page=[1-9]"
 }
 
+_git_root_dir() {
+  git rev-parse --show-toplevel
+}
+
 _git_switch_worktree() {
-  local cur_dir
-  cur_dir="$(basename "$(pwd)")"
-  if [[ "${cur_dir}" =~ .*bugfix ]]; then
-    cd "${cur_dir//\-bugfix//}"
+  local cur_repo
+  cur_repo="$(_git_root_dir)"
+  if [[ "${cur_repo}" =~ .*bugfix ]]; then
+    cd "${cur_repo//\-bugfix//}" || _error "Failed to switch to '${cur_repo}'"
   else
-    cd "${cur_dir}-bugfix"
+    new_dir="${cur_repo}-bugfix"
+    if [[ ! -d "${new_dir}" ]]; then
+      git worktree prune
+      git worktree add "${new_dir}" "origin/master"
+    fi
+    cd "${new_dir}" || _error "Failed to switch to '${new_dir}'"
   fi
 }
 
@@ -221,10 +232,7 @@ _github_pr() {
   local reviewers="${1:-$(git config --get github.reviewers)}"
 
   local url
-  local message
-  message="$(_git_current_branch | sed "s/-/ /g; s/ /-/")"
-  message="${message}\n\n$(git log HEAD --not master --no-merges --pretty=format:"->%s\n%b\n")"
-  url="$(hub pull-request -F <(printf "${message}") -r "${reviewers}")"
+  url="$(hub pull-request -F <(git log -1 --pretty=%B) -r "${reviewers}")"
   if [[ ! -z "$url" ]]; then
     sleep 0.2
     open "${url}"

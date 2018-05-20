@@ -5,6 +5,7 @@
 	],
 	"installed_packages":
 	[
+		"A File Icon",
 		"Anaconda",
 		"Awk",
 		"Better CoffeeScript",
@@ -20,7 +21,8 @@
 		"HTMLBeautify",
 		"LESS",
 		"lispindent",
-		"Markdown Preview",
+		"LSP",
+		"MarkdownPreview",
 		"Material Theme",
 		"Monokai JSON+",
 		"nginx",

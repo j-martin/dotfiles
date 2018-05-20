@@ -22,5 +22,5 @@ _get_calendar () {
   done
 }
 
-_get_calendar "personal" "${personal_url}"
-_get_calendar "work" "${work_url}" "${work_url2}"
+_get_calendar "personal" "${personal_calendar}"
+_get_calendar "work" "${work_calendar}"

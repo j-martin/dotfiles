@@ -22,7 +22,7 @@ _watchout() {
 }
 
 _safe() {
-  printf "\033]Ph103010\033\\"
+  echo -e "\033]1337;SetProfile=Default\a"
 }
 
 _pick_first_col() {
@@ -55,9 +55,17 @@ _cached() {
   fi
 }
 
+_case_sentence() {
+  sed -e 's/^\b\(.\)/\u\1/g' <<< "$*"
+}
+
 _with_fzf() {
   local app="$1"
   local prefix="$2"
+  if [[ -f "$prefix" ]]; then
+    eval "$app $prefix"
+    return
+  fi
   local file
   file="$(_fzf_with_preview "${prefix}" || echo "${prefix}")"
   if [[ -f "$file" ]]; then
@@ -73,7 +81,9 @@ _fzf() {
 
 _fzf_with_preview() {
   # shellcheck disable=SC2016
-  fzf --preview '[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file || highlight -O ansi -l --force {}' -1 -0 -q "$@"
+  fzf --height 90%  \
+      --preview '[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file || highlight -O ansi -l --force {}' -1 -0 -q "$@" \
+      --preview-window down:50
 }
 
 _prefix() {
@@ -95,4 +105,10 @@ _close_tunnel() {
   ssh -S my-ctrl-socket -O exit 'jump' || _warn 'The tunnel was already closed.'
   _info 'Tunnel closed.'
   _safe
+}
+
+_touch() {
+  local filepath="$1"
+  mkdir -p "$(dirname "$filepath")"
+  \touch "$filepath"
 }

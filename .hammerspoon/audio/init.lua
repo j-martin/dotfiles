@@ -2,6 +2,8 @@ local audio = require('hs.audiodevice')
 local spotify = require('hs.spotify')
 local alert = require('hs.alert')
 local application = require "hs.application"
+local watcher = require "hs.caffeinate.watcher"
+local headphones_watcher = require "audio/headphones_watcher"
 
 local mod = {}
 
@@ -48,6 +50,17 @@ mod.current = spotify.displayCurrentTrack
 function mod.playpause()
   alert.show('Play/Pause')
   spotify.playpause()
+end
+
+local function parseEvent(event)
+  if event == watcher.screensDidLock then
+    spotify.pause()
+  end
+end
+
+function mod.init()
+  watcher.new(parseEvent):start()
+  headphones_watcher.init()
 end
 
 return mod

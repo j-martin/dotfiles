@@ -83,11 +83,18 @@ urlencode() {
          "$1" "$urlencode_safe"
 }
 
+python() {
+  unset -f python
+  if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+  if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+  python "$@"
+}
+
 nvm() {
   node --version
   unset -f nvm
   export NVM_DIR=~/.nvm
-  [ -s /usr/local/opt/nvm/nvm.sh ] && source /usr/local/opt/nvm/nvm.sh  # This loads nvm
+  [[ -s /usr/local/opt/nvm/nvm.sh ]] && source /usr/local/opt/nvm/nvm.sh  # This loads nvm
   nvm "$@"
   node --version
 }

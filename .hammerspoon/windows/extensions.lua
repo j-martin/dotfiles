@@ -137,13 +137,15 @@ function mod.launchOrCycleFocus(applicationName)
     local nextWindow = nil
     local targetWindow
     local focusedWindow = window.frontmostWindow()
+    if not focusedWindow then
+      application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
+      return
+    end
     local app = focusedWindow:application()
 
     focusedWindow:focus()
     local currentAppName = cleanupName(focusedWindow and fs.displayName(app:path()))
     lastToggledAppName = currentAppName
-
-    if not focusedWindow then return nil end
 
     if applicationName == 'iTerm2' then
       -- moving the cursor out the window, to preserve iTerm currently focused split

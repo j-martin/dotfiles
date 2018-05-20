@@ -17,12 +17,12 @@ local function watchBattery()
   local source = battery.powerSource()
 
   local isLowerThanMin = currentPercentage <= state.min
-  local isBattery = source == 'Battery Power'
   local stateHasChanged = state.remaining ~= currentPercentage
+  local isDischarging = battery.amperage() < 0
   local isMutlipleOf = (currentPercentage % 5 == 0 )
 
   logger.df("Current percentage: %s", currentPercentage)
-  if isLowerThanMin and stateHasChanged and isBattery and isMutlipleOf then
+  if isLowerThanMin and stateHasChanged and isDischarging and isMutlipleOf then
     state.remaining = currentPercentage
     local message = {
       title = battery.title,

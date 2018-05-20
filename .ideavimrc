@@ -28,6 +28,7 @@ nmap <leader><leader> :action GotoAction<CR>
 
 nmap <leader>gs :action Vcs.QuickListPopupAction<CR>
 nmap ,r :action Refactorings.QuickListPopupAction<CR>
+nmap ,c :action Compile<CR>
 nmap <leader>ji :action FileStructurePopup<CR>
 nmap <leader>ff :action GotoFile<CR>
 nmap gf :action GotoFile<CR>

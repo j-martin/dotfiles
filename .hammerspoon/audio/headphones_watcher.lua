@@ -1,11 +1,8 @@
--- Based on Pause/unpause playing music
--- Diego Zamboni <diego@zzamboni.org>
-
 local mod = {}
 
 local audiodev = require "hs.audiodevice"
 local alert = require "hs.alert"
-local misc = require '../misc'
+local spotify = require "hs.spotify"
 local logger = hs.logger.new('headphones', 'debug')
 
 local devices = {}
@@ -23,23 +20,35 @@ local function debounce(message, fn)
   end
 end
 
--- Per-device watcher to detect headphones in/out
-local function audiodevwatch(dev_uid, event_name, event_scope, event_element)
+local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   logger.df("Audiodevwatch args: %s, %s, %s, %s", dev_uid, event_name, event_scope, event_element)
   local device = audiodev.findDeviceByUID(dev_uid)
   if event_name == 'jack' then
     if device:jackConnected() then
-      debounce("Headphones plugged")
+      debounce("Headphones plugged", mod.plugged)
     else
-      debounce("Headphones unplugged → External Speakers muted", misc.unplugLaptop)
+      debounce("Headphones unplugged → External Speakers muted", mod.unplugged)
     end
   end
+end
+
+function mod.plugged()
+  local outputDevice = audiodev.defaultOutputDevice()
+  outputDevice:setMuted(false)
+  outputDevice:setVolume(15)
+end
+
+function mod.unplugged()
+  local outputDevice = audiodev.defaultOutputDevice()
+  outputDevice:setVolume(0)
+  outputDevice:setMuted(true)
+  spotify.pause()
 end
 
 function mod.init()
   for _, device in ipairs(audiodev.allOutputDevices()) do
     logger.df("Setting up watcher for audiodev device %s (UID %s)", device:name(), device:uid())
-    devices[device:uid()] = device:watcherCallback(audiodevwatch)
+    devices[device:uid()] = device:watcherCallback(audioDeviceWatch)
     devices[device:uid()]:watcherStart()
   end
 end

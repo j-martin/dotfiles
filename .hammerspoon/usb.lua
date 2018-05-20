@@ -3,6 +3,8 @@ local inspect = require "hs.inspect"
 local fnutils = require "hs.fnutils"
 local logger = hs.logger.new('usb', 'debug')
 local audio = require "audio"
+local brightness = require "hs.brightness"
+local alert = require "hs.alert"
 
 local mod = {}
 
@@ -48,17 +50,21 @@ end
 local watchedEvents = {
   {
     eventType = "removed",
-    productName = "Kinesis Keyboard Hub",
-    productID = 129,
+    productName = "",
+    productID = 7,
     vendorID = 1523,
     fn = audio.setVolume(-100)
   },
   {
     eventType = "added",
-    productName = "Kinesis Keyboard Hub",
-    productID = 129,
+    productName = "",
+    productID = 7,
     vendorID = 1523,
-    fn = audio.setVolume(15)
+    fn = function()
+      alert.show('Resetting brightness and volume for the office do end.')
+      brightness.set(80)
+      audio.setVolume(15)()
+    end
   },
 }
 

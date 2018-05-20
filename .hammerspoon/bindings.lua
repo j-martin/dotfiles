@@ -3,16 +3,14 @@ local hotkey = require 'hs.hotkey'
 local grid = require 'hs.grid'
 local hints = require 'hs.hints'
 local caffeinate = require 'hs.caffeinate'
+local brightness = require 'hs.brightness'
 local windows = require 'windows'
 local layout = require 'hs.layout'
 local selection = require 'selection'
 local audio = require 'audio'
 local mode = require 'mode'
 local emacs = require 'emacs'
-local fs = require 'fs'
-local misc = require 'misc'
 local applications = require 'applications'
-local reminder = require 'reminder'
 local logger = hs.logger.new('bindings', 'debug')
 
 local hyper = { 'cmd', 'alt', 'ctrl' }
@@ -28,7 +26,8 @@ hotkey.bind({ 'ctrl' }, 'tab', hints.windowHints)
 
 local hyperBindings = {
   { key = '-', name = 'Sequel Pro' },
-  { key = '1', fn = applications.activityMonitor },
+  { key = '1', name = applications.name.activityMonitor },
+  { key = '1', fn = applications.activityMonitor, shift = true },
   { key = '2', name = 'Keybase' },
   { key = '0', name = 'aText' },
   { key = '5', fn = applications.toggleNoisyTyper() },
@@ -37,7 +36,7 @@ local hyperBindings = {
   { key = '8', name = applications.name.slack },
   { key = '9', name = 'Spotify' },
   { key = ';', name = 'Dash' },
-  { key = '\\', name = '1Password 6' },
+  { key = '\\', name = '1Password 7' },
   { key = 'a', fn = emacs.agenda },
   { key = 'b', fn = applications.openNotification },
   { key = 'b', fn = applications.openNotificationAction, shift = true },
@@ -74,7 +73,6 @@ local hyperBindings = {
   { key = 'x', fn = windows.previousScreen },
   { key = 'y', fn = applications.inbox },
   { key = 'z', name = 'Charles' },
-  { key = 'z', fn = misc.unplugLaptop, shift = true },
   { key = 'up', fn = grid.resizeWindowShorter },
   { key = 'down', fn = grid.resizeWindowTaller },
   { key = 'left', fn = grid.resizeWindowThinner },
@@ -90,9 +88,6 @@ local hyperBindings = {
 -------------------------
 
 local generalBindings = {
-  { key = 's', fn = reminder.stretches },
-  { key = 'd', fn = reminder.stop },
-  { key = 'r', fn = reminder.reset },
   { key = 'j', fn = audio.next },
   { key = 'k', fn = audio.previous },
   { key = 'h', fn = audio.current },
@@ -104,6 +99,7 @@ local generalBindings = {
   { key = ';', fn = audio.setVolume(50) },
   { key = '9', fn = audio.open },
   { key = 'l', fn = audio.playpause },
+  { key = '8', fn = function() brightness.set(80) end },
   { key = 'space', fn = audio.playpause },
 }
 
