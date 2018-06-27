@@ -20,8 +20,9 @@ local states = {
   noisyTyperEnabled = false
 }
 
-local function wait()
-  timer.usleep(10000)
+local function wait(n)
+  local n = n or 1
+  timer.usleep(10000 * n)
 end
 
 local previousTab = nil
@@ -90,8 +91,7 @@ function mod.toggleNoisyTyper()
       cb = function()
         win = window.frontmostWindow()
         hs.application.launchOrFocus(mod.name.noisyTyper)
-        wait()
-        wait()
+        wait(4)
         eventtap.keyStroke({}, 'return')
         win:focus()
         states.noisyTyperEnabled = true

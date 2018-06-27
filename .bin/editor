@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -u
+
+_main() {
+  local filepath="$1"
+  local line_number="${2:-}"
+  local column_number="${3:-}"
+
+  case "${filepath}" in
+    *.scala|*java|*.gradle|*.sbt|*pom.xml)
+      if [[ -n "${line_number}" ]]; then
+        _idea "${filepath}:${line_number}"
+      else
+        _idea "${filepath}"
+      fi
+      ;;
+    *)
+      if [[ -n "${line_number}" ]]; then
+        _emacs "+${line_number}:${column_number}" "${filepath}"
+      else
+        _emacs "${filepath}"
+      fi
+      ;;
+  esac
+}
+
+_emacs() {
+  exec /usr/local/bin/emacsclient --no-wait "$@"
+}
+
+_idea() {
+  exec /usr/local/bin/idea
+}
+
+_log() {
+  echo "$*" >> "$HOME/.editor.log"
+}
+
+_main "$@"

@@ -10,6 +10,7 @@ export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK:$GOPATH/src/github.com/
 export VISUAL="emacsclient"
 export GPG_TTY="$(tty)"
 
+# shellcheck source=.cargo/env
 source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
 
@@ -31,9 +32,13 @@ __encfs() {
 __encfs "$HOME/Sync/Storage" "$HOME/.storage"
 __encfs "$HOME/Library/.chrome" "$HOME/Library/Application Support/Google/Chrome"
 
-test -f "$HOME/.private/.profile" && source "$HOME/.private/.profile"
+# shellcheck source=.private/.profile"
+test -f "$HOME/.private/.profile" \
+  && source "$HOME/.private/.profile"
 
+# shellcheck source=.functions/all
 source "$HOME/.functions/all"
+# shellcheck source=.aliases
 source "$HOME/.aliases"
 
 export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:/usr/bin:/bin:/usr/sbin:/sbin"
@@ -47,11 +52,12 @@ test -e /usr/local/bin/nvim \
 export PAGER='less -SRi'
 export HOSTNAME="$HOST"
 
-# export FZF_DEFAULT_COMMAND='ag --hidden --path-to-ignore ~/.agignore  -l -g ""'
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow -g "!*{.git,node_modules,build,out}/*" 2> /dev/null'
-unset SSL_CERT_FILE
+export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep"
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore -g "!*{.git,node_modules,build,out}/*" 2> /dev/null'
+# unset SSL_CERT_FILE
 
 export SDKMAN_DIR="$HOME/.sdkman"
+# shellcheck source=.sdkman/bin/sdkman-init.sh
 test -e "$HOME/.sdkman/bin/sdkman-init.sh" \
   && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
@@ -62,6 +68,7 @@ fi
 if [ -n "$(pgrep gpg-agent)" ]; then
   export GPG_AGENT_INFO
 else
+  # shellcheck disable=SC2046
   eval $(gpg-agent --daemon)
 fi
 

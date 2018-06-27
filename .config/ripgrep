@@ -1,0 +1,8 @@
+--type-add=y:*.yml
+--type-add=y:*.yaml
+--type-add=sh:*.sh
+--type-add=o:.ore
+--type-add=o:ore
+--smart-case
+--follow
+--hidden

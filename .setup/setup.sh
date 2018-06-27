@@ -39,6 +39,7 @@ _macos_customizations () {
   defaults write com.apple.dock springboard-show-duration -int 0
   defaults write com.apple.dock springboard-hide-duration -int 0
   defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
+  defaults write com.extropy.oni ApplePressAndHoldEnabled -bool false
 
   # Disable the desktop
   defaults write com.apple.finder CreateDesktop false

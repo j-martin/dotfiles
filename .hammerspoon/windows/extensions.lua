@@ -144,7 +144,10 @@ function mod.launchOrCycleFocus(applicationName)
     local app = focusedWindow:application()
 
     focusedWindow:focus()
-    local currentAppName = cleanupName(focusedWindow and fs.displayName(app:path()))
+    local currentAppName
+    if app:path() then
+      currentAppName = cleanupName(focusedWindow and fs.displayName(app:path()))
+    end
     lastToggledAppName = currentAppName
 
     if applicationName == 'iTerm2' then

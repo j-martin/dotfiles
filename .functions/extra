@@ -83,18 +83,14 @@ urlencode() {
          "$1" "$urlencode_safe"
 }
 
-python() {
-  unset -f python
-  if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-  if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
-  python "$@"
-}
-
 nvm() {
   node --version
   unset -f nvm
   export NVM_DIR=~/.nvm
-  [[ -s /usr/local/opt/nvm/nvm.sh ]] && source /usr/local/opt/nvm/nvm.sh  # This loads nvm
+  if [[ -s /usr/local/opt/nvm/nvm.sh ]]; then
+    # Loading NVM.
+    source /usr/local/opt/nvm/nvm.sh
+  fi
   nvm "$@"
   node --version
 }
@@ -119,4 +115,10 @@ _emacs_projectile_list() {
 
 pidof() {
   ps axc | awk "{if (\$5==\"$1\") print \$1}"
+}
+
+_notify() {
+  local message="$*"
+  _info "${message}"
+  printf '\033]9;%s\033\\' "${message}"
 }
