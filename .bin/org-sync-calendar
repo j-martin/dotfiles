@@ -14,11 +14,12 @@ _header () {
 
 _get_calendar () {
   local tag="${1}"
-  local urls="${@:2}"
+  local urls="${*:2}"
   local output="${HOME}/.org/calendar-${tag}.org"
   _header "${tag}" > "${output}"
   for url in $urls; do
-    curl "${url}" | awk -f "${HOME}/.bin/ical2org.awk" >> "${output}"
+    curl --silent --fail "${url}" \
+      | awk -f "${HOME}/.bin/ical2org.awk" >> "${output}" 2> /dev/null
   done
 }
 

@@ -30,8 +30,8 @@ local hyperBindings = {
   { key = '1', fn = applications.activityMonitor, shift = true },
   { key = '2', name = 'Keybase' },
   { key = '0', name = 'aText' },
-  { key = '5', fn = applications.toggleNoisyTyper() },
-  -- key = '6' reserved for aText
+  { key = '4', fn = applications.toggleNoisyTyper() },
+  -- key = '5' reserved for snippets
   { key = '7', name = 'Paw' },
   { key = '8', name = applications.name.slack },
   { key = '9', name = 'Spotify' },
@@ -112,59 +112,6 @@ local commonLayout = {
   { name = "Slack", screenFn = windows.alternateScreen, pos = { 0.00, 0.30, 1.00, 0.70 } },
 }
 
-local modeLayouts = {
---                      x     y     w     h
-  { key = '1', pos = { 0.00, 0.00, 0.50, 0.50 } },
-  { key = '2', pos = { 0.50, 0.00, 0.50, 0.50 } },
-  { key = '3', pos = { 0.00, 0.00, 1.00, 0.50 } },
-  { key = 'q', pos = { 0.00, 0.50, 0.50, 0.50 } },
-  { key = 'a', pos = { 0.00, 0.00, 0.50, 1.00 } },
-  { key = 's', pos = { 0.50, 0.00, 0.50, 1.00 } },
-  { key = 'w', pos = { 0.50, 0.50, 0.50, 0.50 } },
-  { key = 'e', pos = { 0.00, 0.50, 1.00, 0.50 } },
-  { key = 'h', pos = { 0.00, 0.00, 0.70, 1.00 } },
-  { key = 'd', pos = { 0.10, 0.10, 0.80, 0.80 } },
-  { key = 'f', pos = { 0.20, 0.20, 0.60, 0.60 } },
-  { key = ';', pos = { 0.30, 0.00, 0.70, 1.00 } },
-  { key = 'j', pos = { 0.00, 0.00, 0.30, 1.00 } },
-  { key = 'k', pos = { 0.30, 0.00, 0.40, 1.00 } },
-  { key = 'l', pos = { 0.70, 0.00, 0.30, 1.00 } },
-  { key = '6', pos = { 0.00, 0.00, 0.70, 0.50 } },
-  { key = '7', pos = { 0.00, 0.00, 0.30, 0.50 } },
-  { key = '8', pos = { 0.30, 0.00, 0.40, 0.50 } },
-  { key = '9', pos = { 0.70, 0.00, 0.30, 0.50 } },
-  { key = '0', pos = { 0.30, 0.00, 0.70, 0.50 } },
-  { key = 'y', pos = { 0.00, 0.50, 0.70, 0.50 } },
-  { key = 'u', pos = { 0.00, 0.50, 0.30, 0.50 } },
-  { key = 'i', pos = { 0.30, 0.50, 0.40, 0.50 } },
-  { key = 'o', pos = { 0.70, 0.50, 0.30, 0.50 } },
-  { key = 'p', pos = { 0.30, 0.50, 0.70, 0.50 } },
-  { key = 'space', fn = hints.windowHints },
-  { key = '=', fn = grid.resizeWindowWider },
-  { key = '-', fn = grid.resizeWindowThinner },
-  { key = 'm', fn = windows.cycleScreenBack },
-  { key = 'n', fn = windows.cycleScreen },
-  { key = 'z', layout = {
-      { 'Emacs', layout.left50 },
-      { 'iTerm2', layout.right50 },
-      { 'Google Chrome', layout.right50 },
-      { 'IntelliJ IDEA', layout.right50 },
-      { 'Sublime Text', layout.right50 },
-    }},
-  { key = 'x', layout = {
-      { 'Emacs', layout.left70 },
-      { 'IntelliJ IDEA', layout.right70 },
-      { 'Google Chrome', layout.right30 },
-      { 'iTerm2', layout.right30 },
-    }},
-  { key = 'c', layout = {
-      { 'Emacs', layout.left30 },
-      { 'Google Chrome', layout.right70 },
-      { 'IntelliJ IDEA', layout.right70 },
-      { 'iTerm2', layout.right70 },
-    }},
-}
-
 local function buildBindFunction(binding)
   if binding.pos and binding.targetScreen then
     return windows.setPosition(binding.pos, binding.targetScreen, binding.reversable)
@@ -195,8 +142,6 @@ end
 
 function mod.init()
   fnutils.each(hyperBindings, bindToHyper)
-  local layoutBindings = fnutils.map(modeLayouts, buildLayoutBinding)
-  mode.create({'option'}, 'space', 'Layout', layoutBindings)
   mode.create(hyper, 'space', 'General', generalBindings)
 
   hotkey.bind({'cmd'}, 'h', applications.slack)

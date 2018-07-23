@@ -209,6 +209,10 @@ _github_events() {
   _github "users/$(_github_user)/events/orgs/$(_github_org)?page=[1-9]"
 }
 
+_github_open_current_branch() {
+  open "https://github.com/$(_git_repo)/tree/$(_git_current_branch)"
+}
+
 _git_root_dir() {
   git rev-parse --show-toplevel
 }

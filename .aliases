@@ -244,7 +244,7 @@ alias gsa='git stash apply'
 alias gsl='git stash list'
 alias gss='git stash save'
 alias gu='_github_open_url'
-alias gupd='git stash && git pull && git stash apply'
+alias gupd='git stash && git pull --rebase origin master && git stash apply && git stash drop'
 gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
 
 # Github
@@ -258,26 +258,6 @@ alias hb='open "$GITHUB_URL/$(_git_repo)/branches"'
 alias his='open "$GITHUB_URL/$(_git_repo)/issues"'
 alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
 alias hr='open "$GITHUB_URL/$(_git_repo)"'
-
-# Jenkins
-alias jenk='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)/job/$(_git_current_branch)/"'
-alias jenkm='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)/job/master/"'
-alias jenkmc='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)/job/master/lastBuild/console"'
-alias jenkj='open "$JENKINS/job/$GITHUB_ORG/job/$(_git_repo_name)"'
-
-# CicleCI
-alias cim='open "$CIRCLE_URL/$(_git_repo)"'
-alias cir='open "$CIRCLE_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
-alias cirb='_circle_branch'
-alias cirs='_circle_status'
-alias cirss='_circle_statuses'
-
-# MR
-alias mrs='mr status'
-alias mru='mr update' #Updates all repos
-alias mrus='mr update && mr status' # Syncs all repo
-alias mr-clear='mr run git stash clear'
-alias mr-clean='mr run git clean -fd'
 
 # General
 alias ic=imgcat
@@ -296,7 +276,6 @@ alias emacs-stop='kill -USR1 $(pgrep Emacs)'
 emacs-rebuild-eshell-alias() {
   alias | sed "s/='/ /; s/'$//; s/^/alias /" > ~/.emacs.d/.cache/eshell/alias
 }
-
 
 # Mac Specific
 if [[ "$(uname)" == 'Darwin' ]]; then
@@ -318,8 +297,11 @@ hadd() {
 }
 alias hcommit='home commit -m'
 alias hlog='home log -p'
+alias hdot='open https://github.com/j-martin/dotfiles'
 alias hs='home status'
-
+he() {
+  (cd "$HOME" && home ls-files | e "$@")
+}
 # Languages
 alias scal='scala -Dscala.color'
 agsbt() { agq "$@" -a --depth 2 ./*.{sbt,scala} ;}

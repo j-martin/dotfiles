@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -u
+
+_sync_external_services() {
+  pushd "$HOME/.bin"
+  ./org-sync-calendar
+  pipenv run python org-sync-todoist
+  ./org-pushbullet "$HOME/org/references/"
+  popd
+}
+
+_sync_repository() {
+  pushd "$HOME/.org"
+  git add '.'
+  git commit -m "Sync $(gdate --iso-8601)" \
+    || exit 0
+  git pull
+  git push
+  popd
+}
+
+_main() {
+  _sync_external_services
+  _sync_repository
+}
+
+_main

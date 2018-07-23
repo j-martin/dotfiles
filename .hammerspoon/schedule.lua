@@ -12,9 +12,7 @@ local HOME = os.getenv('HOME')
 -- using pipenv is also finicky.
 -- where pwd = ~/.bin
 local tasks = {
-  { cmd = '/bin/bash', args = { 'org-calendar.sh' }},
-  { cmd = '~/code/j-martin/org-pushbullet/target/release/org-pushbullet', args = { '~/.org/references/' }},
-  { cmd = '/usr/local/bin/pipenv', args = { 'run', 'python', 'org-todoist.py' }}
+  { cmd = '/bin/bash', args = { 'org-sync' }},
 }
 
 local function returnCallback(exitCode, stdOut, stdErr)
@@ -69,6 +67,7 @@ local function scheduleTask(t)
     interval = 1800
   end
   timer.doEvery(interval, runTask(t))
+  runTask(t)()
 end
 
 function mod.init()

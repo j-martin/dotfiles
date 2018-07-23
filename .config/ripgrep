@@ -1,8 +1,12 @@
---type-add=y:*.yml
---type-add=y:*.yaml
---type-add=sh:*.sh
+--type-add=j:*.aj
+--type-add=j:*.gradle
+--type-add=j:*.java
 --type-add=o:.ore
 --type-add=o:ore
+--type-add=p:*.py
+--type-add=sh:*.sh
+--type-add=y:*.yaml
+--type-add=y:*.yml
 --smart-case
 --follow
 --hidden

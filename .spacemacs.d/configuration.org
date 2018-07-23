@@ -12,8 +12,6 @@
 #+begin_src emacs-lisp :results none
   (setq exec-path (append exec-path '("/usr/local/bin")))
   (setenv "RIPGREP_CONFIG_PATH" (substitute-in-file-name "$HOME/.config/ripgrep"))
-  (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-  ;; (print (shell-command-to-string "printenv"))
 #+end_src
 
 ** Convenience
@@ -210,7 +208,7 @@
    #+end_src
 ** Python
    #+begin_src emacs-lisp :results none
-     (setq naconda-mode-server-command "
+     (setq anaconda-mode-server-command "
      import sys
      import anaconda_mode
      anaconda_mode.main(sys.argv[1:])
@@ -267,14 +265,6 @@
    #+begin_src emacs-lisp :results none
      (setq projectile-enable-caching nil)
    #+end_src
-** Linum
-   #+begin_src emacs-lisp :results none
-     ;; (add-hook 'prog-mode-hook
-     ;;           (lambda ()
-     ;;             (linum-mode (- (* 2000 80)
-     ;;                            (buffer-size)))))
-   #+end_src
-
 ** Tramp
    #+begin_src emacs-lisp :results none
      (setq tramp-default-method "ssh")
@@ -381,6 +371,15 @@
      (add-hook 'git-commit-mode-hook 'jm/git-commit-mode-config)
      (add-hook 'magit-status-mode-hook 'jm/git-status-mode-config)
    #+end_src
+** Kaleidoscope
+#+begin_src emacs-lisp :results none
+   (setq
+    kaleidoscope-device-port "/dev/tty.usbmodemCkbio011"
+    kaleidoscope-evil-state-flash-duration "3 sec")
+   (if (file-exists-p kaleidoscope-device-port)
+       ((kaleidoscope-start)
+  (kaleidoscope-evil-state-flash-setup)))
+#+end_src
 ** Org
 *** Basic setup
     #+begin_src emacs-lisp :results none
@@ -408,7 +407,7 @@
         )
 
       (setq org-todo-keywords
-            (quote ((sequence "TODO(d)" "|" "DONE(t)")
+            (quote ((sequence "TODO(T)" "|" "DONE(t)")
                     (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
       (setq org-todo-state-tags-triggers
@@ -427,9 +426,6 @@
 *** Extra packages
     #+begin_src emacs-lisp :results none
       (require 'org-protocol)
-      ;; (require 'org-mac-link)
-      (require 'ox-jira)
-      (require 'ox-confluence)
     #+end_src
 
 *** Babel
@@ -507,6 +503,10 @@
                                      entry
                                      (file+datetree "~/.org/journal.org")
                                      "* %?\nEntered on %U\n%i\n%a")
+                                    ("z" "Journal"
+                                     entry
+                                     (file+datetree+prompt "~/.org/tenancy-journal.org")
+                                     "* %?\nEntered on %U\n%i\n%a")
                                     ("J" "Journal with Clipboard"
                                      entry
                                      (file+datetree "~/.org/journal.org")
@@ -543,6 +543,7 @@
     (define-key evil-normal-state-map (kbd "]P") 'jm/append-clipboard)
     (define-key evil-normal-state-map (kbd "K") (lambda() (interactive) (progn (execute-kbd-macro "ciw"))))
     (define-key evil-normal-state-map (kbd "H-/") 'evil-commentary)
+    (global-set-key (kbd "M-SPC") 'hippie-expand)
     (global-set-key (kbd "<f2>") 'flycheck-next-error)
     (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
@@ -576,7 +577,6 @@
     (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
     (spacemacs/set-leader-keys "jj" 'helm-jump-in-buffer)
     (spacemacs/set-leader-keys "gc" 'magit-commit)
-    (spacemacs/set-leader-keys "gn" 'jm/magit-branch-from-jira)
     (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
     (spacemacs/set-leader-keys "gg" 'magit-status)
     (spacemacs/set-leader-keys "ih" 'jm/insert-left)
@@ -598,7 +598,6 @@
     (spacemacs/set-leader-keys "or" 'jm/open-references)
     (spacemacs/set-leader-keys "ow" 'jm/open-work)
     (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
-    (spacemacs/set-leader-keys "oy" 'jm/insert-jira-workday)
     (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
     (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
     (spacemacs/set-leader-keys "wa" 'jm/split-window-below-and-find-file)
@@ -621,16 +620,6 @@
       (when (> (length task-id) 3)
         (insert (concat task-id " "))))
     (evil-insert-state))
-
-  (defun jm/magit-branch-from-jira ()
-    (interactive)
-    (helm :sources (helm-build-async-source "Create branch from JIRA"
-                     :action 'jm/magit-branch
-                     :candidates-process 'jm/jira-assigned-issue-process)
-          :buffer "*helm jira tasks*"))
-
-  (defun jm/jira-assigned-issue-process ()
-    (start-process "assigned" nil "~/.bin/env.sh" "_jira_assigned_issues"))
 
   (defun jm/magit-branch (task)
     (magit-branch-and-checkout (jm/git-branch-name-sanitize task)
@@ -707,19 +696,6 @@
     (progn (replace-regexp "\\([A-Z]\\)" "_\\1" nil (region-beginning) (region-end)
                                          (downcase-region (region-beginning) (region-end)))))
 #+end_src
-** Org
-#+begin_src emacs-lisp :results none
-  (defun jm/insert-jira-workday ()
-    (interactive)
-    (end-of-line)
-    (open-line 1)
-    (forward-line)
-    (insert (jm/shell-command-to-string
-             (concat "bub jira workday --org --prefix '***** ' "
-                     (nth 0 (s-split " " (nth 4 (org-heading-components))))))))
-
-#+end_src
-
 ** Window Management
 #+begin_src emacs-lisp :results none
   (defun jm/split-window ()
@@ -815,7 +791,7 @@
 
   (defun jm/open-iterm ()
     (interactive)
-    (shell-command (concat "~/.bin/iterm-open.sh '" default-directory "'")))
+    (shell-command (concat "~/.bin/open-in-iterm '" default-directory "'")))
 
   (defun jm/open-project-iterm ()
     (interactive)
