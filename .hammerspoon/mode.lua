@@ -1,8 +1,12 @@
 local hotkey = require 'hs.hotkey'
 local alert = require('hs.alert')
 local fnutils = require "hs.fnutils"
+local application = require "hs.application"
 
 local mod = {}
+
+alert.defaultStyle['radius'] = 5
+alert.defaultStyle['textSize'] = 20
 
 -- bindings { { key = 'string', fn = fn } }
 function mod.create(modifiers, key, name, bindings)
@@ -28,8 +32,13 @@ function mod.create(modifiers, key, name, bindings)
   end
 
   local function bindFn(binding)
-    mode:bind({}, binding.key, binding.fn)
-    mode:bind(modifiers, binding.key, callAndExit(binding.fn))
+    local fn = binding.fn or function() application.open(binding.name) end
+    if binding.exitMode then
+      mode:bind(modifiers, binding.key, callAndExit(fn))
+    else
+      mode:bind(modifiers, binding.key, fn)
+    end
+    mode:bind({}, binding.key, callAndExit(fn))
   end
 
   fnutils.each(bindings, bindFn)

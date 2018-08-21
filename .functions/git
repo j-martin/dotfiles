@@ -63,10 +63,14 @@ _git_commit_with_issue_key() {
   git commit -n -m "$(_trim ${message})" "${@:2}"
 }
 
+_slugify() {
+  tr ' #:,.+^&*()`[]@$%' '-' | sed -r 's/-+/-/g'
+}
+
 _git_new_branch() {
   local name="$1"
   git fetch 'origin'
-  git checkout -b "$(_github_user)/$(echo "$name" | tr ' #:,.+^&*()`[]@$%' '-' | sed -r 's/-+/-/g')" 'origin/master'
+  git checkout -b "$(_github_user)/$(_slugify <<< "$name")" 'origin/master'
 }
 
 _git_new_branch_from_new_issue() {

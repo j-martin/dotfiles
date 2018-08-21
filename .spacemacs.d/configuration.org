@@ -394,6 +394,7 @@
       (setq org-refile-targets
             '(("main.org" :maxlevel . 1)
               ("work.org" :maxlevel . 1)
+              ("references.org" :maxlevel . 1)
               (nil :maxlevel . 3)))
 
       (setq org-startup-folded nil)
@@ -402,9 +403,7 @@
 
       (defun jm/org-hooks ()
         (smartparens-mode)
-        (setq evil-auto-indent nil)
-        ;; (linum-mode -1)
-        )
+        (setq evil-auto-indent nil))
 
       (setq org-todo-keywords
             (quote ((sequence "TODO(T)" "|" "DONE(t)")
@@ -553,6 +552,10 @@
     (global-set-key (kbd "H-j") 'previous-buffer)
     (global-set-key (kbd "H-k") 'next-buffer)
     (global-set-key (kbd "H-t") 'neotree-find)
+    (global-set-key (kbd "H-e") 'helm-projectile-switch-to-buffer)
+    (global-set-key (kbd "H-E") 'helm-mini)
+    (global-set-key (kbd "H-o") 'helm-projectile-find-file)
+    (global-set-key (kbd "H-g") 'magit-status)
     (global-set-key (kbd "H-[") 'evil-jump-backward)
     (global-set-key (kbd "H-]") 'evil-jump-forward)
     (global-set-key (kbd "C-H-g") 'evil-iedit-state/iedit-mode)
@@ -578,7 +581,6 @@
     (spacemacs/set-leader-keys "jj" 'helm-jump-in-buffer)
     (spacemacs/set-leader-keys "gc" 'magit-commit)
     (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
-    (spacemacs/set-leader-keys "gg" 'magit-status)
     (spacemacs/set-leader-keys "ih" 'jm/insert-left)
     (spacemacs/set-leader-keys "il" 'jm/insert-right)
     (spacemacs/set-leader-keys "oC" 'jm/open-config-private)

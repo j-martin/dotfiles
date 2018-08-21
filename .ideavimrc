@@ -40,7 +40,6 @@ nmap ,D :action ChooseDebugConfiguration<CR>
 nmap <leader>ji :action FileStructurePopup<CR>
 nmap <leader>ff :action GotoFile<CR>
 nmap gf :action GotoFile<CR>
-nmap gc :action GotoClass<CR>
 nmap gs :action GotoSymbol<CR>
 nmap gm :action GotoImplementation<CR>
 nmap [p ko<ESC>p

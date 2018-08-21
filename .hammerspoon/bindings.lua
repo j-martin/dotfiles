@@ -12,6 +12,8 @@ local mode = require 'mode'
 local emacs = require 'emacs'
 local applications = require 'applications'
 local logger = hs.logger.new('bindings', 'debug')
+local screen = require 'screen'
+local mounts = require 'mounts'
 
 local hyper = { 'cmd', 'alt', 'ctrl' }
 local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
@@ -70,6 +72,7 @@ local hyperBindings = {
   { key = 't', fn = emacs.inbox, shift = true },
   { key = 'u', name = 'Emacs' },
   { key = 'v', fn = selection.paste, shift = true },
+  { key = 'w', fn = emacs.workInbox, shift = true },
   { key = 'x', fn = windows.previousScreen },
   { key = 'y', fn = applications.inbox },
   { key = 'z', name = 'Charles' },
@@ -84,10 +87,10 @@ local hyperBindings = {
 }
 
 -------------------------
--- create general mode --
+-- create hyper mode --
 -------------------------
 
-local generalBindings = {
+local hyperModeBindings = {
   { key = 'j', fn = audio.next },
   { key = 'k', fn = audio.previous },
   { key = 'h', fn = audio.current },
@@ -99,8 +102,28 @@ local generalBindings = {
   { key = ';', fn = audio.setVolume(50) },
   { key = '9', fn = audio.open },
   { key = 'l', fn = audio.playpause },
-  { key = '8', fn = function() brightness.set(80) end },
-  { key = 'space', fn = audio.playpause },
+  { key = 'space', fn = audio.playpause, exitMode = true },
+}
+
+-------------------------
+-- create general mode --
+-------------------------
+
+local generalModeBindings = {
+  { key = 'e', fn = mounts.unmountAll },
+  { key = 'b', fn = screen.setBrightness(0.8) },
+  { key = 'j', fn = audio.next },
+  { key = 'k', fn = audio.previous },
+  { key = 'h', fn = audio.current },
+  { key = 'y', fn = audio.changeVolume(-100) },
+  { key = 'u', fn = audio.changeVolume(5) },
+  { key = 'i', fn = audio.changeVolume(-5) },
+  { key = 'o', fn = audio.setVolume(15) },
+  { key = 'p', fn = audio.setVolume(30) },
+  { key = ';', fn = audio.setVolume(50) },
+  { key = '9', fn = audio.open },
+  { key = 'l', fn = audio.playpause },
+  { key = 'space', name = 'Alfred 3', exitMode = true },
 }
 
 ------------------------
@@ -142,7 +165,8 @@ end
 
 function mod.init()
   fnutils.each(hyperBindings, bindToHyper)
-  mode.create(hyper, 'space', 'General', generalBindings)
+  mode.create(hyper, 'space', 'Hyper', hyperModeBindings)
+  mode.create({'cmd'}, 'space', 'General', generalModeBindings)
 
   hotkey.bind({'cmd'}, 'h', applications.slack)
   hotkey.bind({'cmd'}, 'm', windows.cycleScreen)

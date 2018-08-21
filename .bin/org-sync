@@ -8,14 +8,16 @@ _sync_external_services() {
   pushd "$HOME/.bin"
   ./org-sync-calendar
   pipenv run python org-sync-todoist
-  ./org-pushbullet "$HOME/org/references/"
+  ./org-pushbullet "$HOME/.org/references/"
   popd
 }
 
 _sync_repository() {
   pushd "$HOME/.org"
+  git status \
+    || sleep 1
   git add '.'
-  git commit -m "Sync $(gdate --iso-8601)" \
+  git commit -m "Sync $(gdate --iso-8601=minutes)" \
     || exit 0
   git pull
   git push

@@ -3,8 +3,8 @@ local inspect = require "hs.inspect"
 local fnutils = require "hs.fnutils"
 local logger = hs.logger.new('usb', 'debug')
 local audio = require "audio"
-local brightness = require "hs.brightness"
 local alert = require "hs.alert"
+local screen = require 'screen'
 
 local mod = {}
 
@@ -61,8 +61,8 @@ local watchedEvents = {
     productID = 7,
     vendorID = 1523,
     fn = function()
-      alert.show('Resetting brightness and volume for the office do end.')
-      brightness.set(80)
+      alert.show('Resetting brightness and volume for the office.')
+      screen.setBrightness(0.8)()
       audio.setVolume(15)()
     end
   },

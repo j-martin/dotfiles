@@ -19,3 +19,6 @@
 [submodule ".vendor/alfred-jira"]
 	path = .vendor/alfred-jira
 	url = git@github.com:steyep/alfred-jira.git
+[submodule ".oh-my-zsh-custom/plugins/pure"]
+	path = .oh-my-zsh-custom/plugins/pure
+	url = https://github.com/sindresorhus/pure
