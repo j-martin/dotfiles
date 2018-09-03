@@ -371,15 +371,6 @@
      (add-hook 'git-commit-mode-hook 'jm/git-commit-mode-config)
      (add-hook 'magit-status-mode-hook 'jm/git-status-mode-config)
    #+end_src
-** Kaleidoscope
-#+begin_src emacs-lisp :results none
-   (setq
-    kaleidoscope-device-port "/dev/tty.usbmodemCkbio011"
-    kaleidoscope-evil-state-flash-duration "3 sec")
-   (if (file-exists-p kaleidoscope-device-port)
-       ((kaleidoscope-start)
-  (kaleidoscope-evil-state-flash-setup)))
-#+end_src
 ** Org
 *** Basic setup
     #+begin_src emacs-lisp :results none
@@ -502,7 +493,7 @@
                                      entry
                                      (file+datetree "~/.org/journal.org")
                                      "* %?\nEntered on %U\n%i\n%a")
-                                    ("z" "Journal"
+                                    ("z" "Tenancy Journal"
                                      entry
                                      (file+datetree+prompt "~/.org/tenancy-journal.org")
                                      "* %?\nEntered on %U\n%i\n%a")

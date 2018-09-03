@@ -15,8 +15,27 @@
                 },
                 "rules": [
                     {
-                        "description": "Change caps_lock key to command+control+option. (Post escape key when pressed alone)",
+                        "description": "Change caps_lock key to command+control+option. (Post escape key when pressed alone). Command+Capslock to Capslock.",
                         "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "caps_lock",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "command"
+                                        ],
+                                        "optional": [
+                                            "caps_lock"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "caps_lock"
+                                    }
+                                ],
+                                "type": "basic"
+                            },
                             {
                                 "from": {
                                     "key_code": "caps_lock",
@@ -351,7 +370,7 @@
                         "product_id": 8961,
                         "vendor_id": 4617
                     },
-                    "ignore": true,
+                    "ignore": false,
                     "manipulate_caps_lock_led": false,
                     "simple_modifications": []
                 },
@@ -377,7 +396,20 @@
                         "product_id": 8961,
                         "vendor_id": 4617
                     },
-                    "ignore": true,
+                    "ignore": false,
+                    "manipulate_caps_lock_led": false,
+                    "simple_modifications": []
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": false,
+                        "product_id": 32823,
+                        "vendor_id": 9025
+                    },
+                    "ignore": false,
                     "manipulate_caps_lock_led": false,
                     "simple_modifications": []
                 }
@@ -480,7 +512,7 @@
                     }
                 }
             ],
-            "name": "Default profile",
+            "name": "Main",
             "selected": true,
             "simple_modifications": [],
             "virtual_hid_keyboard": {

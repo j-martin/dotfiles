@@ -246,6 +246,7 @@ alias gss='git stash save'
 alias gu='_github_open_url'
 alias gupd='git stash && git pull --rebase origin master && git stash apply && git stash drop'
 gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
+alias ge="emacsclient --no-wait --eval '(magit-status)'"
 
 # Github
 alias ha='open "$GITHUB_URL"'

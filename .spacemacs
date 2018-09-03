@@ -57,7 +57,7 @@ This function should only modify configuration layer settings."
      go
      helm
      imenu-list
-     (java :variables java-backend 'eclim)
+     (java :variables java-backend nil)
      javascript
      lua
      (markdown :variables markdown-live-preview-engine 'vmd)
@@ -96,8 +96,6 @@ This function should only modify configuration layer settings."
      editorconfig
      evil-string-inflection
      ;; groovy-mode
-     kaleidoscope
-     kaleidoscope-evil-state-flash
      org-jira
      ox-jira
      parinfer

@@ -5,7 +5,7 @@ local logger = hs.logger.new('mounts', 'debug')
 local mod = {}
 
 function mod.unmountAll()
-  logger.d('Unmounting volumes')
+  alert('Unmounting volumes')
   for volume_path, attributes in pairs(volume.allVolumes()) do
     if not attributes.NSURLVolumeIsInternalKey and attributes.NSURLVolumeIsLocalKey and not attributes.NSURLVolumeLocalizedFormatDescriptionKey:lower():match('fuse') then
       alert('Umounting: ' .. volume_path)
@@ -14,6 +14,7 @@ function mod.unmountAll()
       end
     end
   end
+  alert('Unmounting done.')
 end
 
 return mod

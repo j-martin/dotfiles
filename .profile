@@ -8,7 +8,8 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK:$GOPATH/src/github.com/j-martin/:$HOME/code/"
 export VISUAL="emacsclient"
-export GPG_TTY="$(tty)"
+GPG_TTY="$(tty)"
+export GPG_TTY
 
 # shellcheck source=.cargo/env
 source "$HOME/.cargo/env"

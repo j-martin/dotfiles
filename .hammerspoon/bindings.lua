@@ -27,11 +27,9 @@ local mod = {}
 hotkey.bind({ 'ctrl' }, 'tab', hints.windowHints)
 
 local hyperBindings = {
-  { key = '-', name = 'Sequel Pro' },
   { key = '1', name = applications.name.activityMonitor },
   { key = '1', fn = applications.activityMonitor, shift = true },
   { key = '2', name = 'Keybase' },
-  { key = '0', name = 'aText' },
   { key = '4', fn = applications.toggleNoisyTyper() },
   -- key = '5' reserved for snippets
   { key = '7', name = 'Paw' },
