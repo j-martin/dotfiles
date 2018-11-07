@@ -15,7 +15,7 @@ local tasks = {
   { cmd = '/bin/bash', args = { 'org-sync' }},
 }
 
-local function returnCallback(exitCode, stdOut, stdErr)
+function returnCallback(exitCode, stdOut, stdErr)
   if exitCode ~= 0 then
     alert.show('the process failed to run, see logs')
     logger.d(stdOut)
@@ -26,7 +26,7 @@ local function returnCallback(exitCode, stdOut, stdErr)
   return true
 end
 
-local function streamCallback(_, stdOut, stdErr)
+function streamCallback(_, stdOut, stdErr)
   logger.d(stdOut)
   logger.d(stdErr)
   return true
@@ -50,7 +50,7 @@ local function runTask(t)
     }
 
     local pwd = expand(t.pwd and t.pwd or '~/.bin')
-    local process = task.new(cmd, returnCallback, streamCallback, args)
+    process = task.new(cmd, returnCallback, streamCallback, args)
 
     logger.f('starting job %s %s in %s', t.cmd, args, pwd)
     process:setWorkingDirectory(pwd)
