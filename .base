@@ -16,7 +16,7 @@ source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
 
 test -e "$TMPDIR/ssh-loaded" \
-  || ssh-add -A && touch "$TMPDIR/ssh-loaded"
+  || /usr/bin/ssh-add -A && touch "$TMPDIR/ssh-loaded"
 
 __encfs() {
   local root_dir="$1"
