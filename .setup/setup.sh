@@ -22,8 +22,13 @@ _macos_customizations () {
   defaults write com.apple.finder QLEnableTextSelection -bool true
   defaults write com.apple.finder autohide-delay -float 0
   defaults write com.apple.dock launchanim -bool false
-  defaults write -g com.apple.trackpad.scaling -float 12.0
+
+  defaults write -g com.apple.trackpad.scaling -float 20.0
+  defaults write -g com.apple.scrollwheel.scaling -float 20.0
+  defaults write -g com.apple.trackpad.scrolling -float 20.0
+
   defaults write -g com.apple.mouse.scaling 2.5
+
   defaults write NSGlobalDomain AppleFontSmoothing -int 0
   defaults write com.apple.screensaver askForPassword -int 1
   defaults write com.apple.screensaver askForPasswordDelay -int 0
@@ -44,7 +49,6 @@ _macos_customizations () {
 
   # Disable the desktop
   defaults write com.apple.finder CreateDesktop false
-  # defaults write com.apple.LaunchServices LSHandlers -array-add '{LSHandlerContentType=public.plain-text;LSHandlerRoleAll=com.sublimetext.3;}'
 
   # Disable relauching application.
   defaults write -g ApplePersistence -bool no
@@ -55,10 +59,9 @@ _macos_customizations () {
 
   killall Dock || true
   Killall Finder || true
-  # ln -s "$HOME" '/Users/jm' || true
 
   # fix emacs ansi-term escape code
-  tic -o ~/.terminfo "$(find /usr/local/Cellar -type f -name '*.ti' | head)"
+  tic -o ~/.terminfo "$(find /usr/local/Cellar -type f -name '*.ti' | head -n 1)"
 }
 
 _macos_apps () {
@@ -68,7 +71,9 @@ _macos_apps () {
   brew cleanup
   brew cask cleanup
 
-  which zsh | head -n1 | sudo tee -a /etc/shells
+  which zsh \
+    | head -n1 \
+    | sudo tee -a /etc/shells
 }
 
 _linux_apps () {
@@ -96,7 +101,6 @@ _go_specific () {
   go get -u -v golang.org/x/tools/cmd/guru
   go get -u -v golang.org/x/tools/cmd/gorename
   go get -u -v golang.org/x/tools/cmd/goimports
-
 }
 
 if [[ "$(uname)" == 'Darwin' ]]; then

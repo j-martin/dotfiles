@@ -138,7 +138,11 @@
      (add-to-list 'default-frame-alist
                   '(ns-appearance . dark))
    #+end_src
-
+** Scrolling
+#+begin_src emacs-lisp :results none
+(setq jit-lock-defer-time 0)
+(setq fast-but-imprecise-scrolling t)
+#+end_src
 * Modes
   #+begin_src emacs-lisp :results none
     (require 'helm-bookmark)
@@ -241,6 +245,7 @@
 
 ** AutoMode
    #+begin_src emacs-lisp :results none
+     (add-to-list 'auto-mode-alist '("\\.ino\\'" . c-mode))
      (add-to-list 'auto-mode-alist '("\\.raml\\'" . yaml-mode))
      (add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
      (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
@@ -336,10 +341,12 @@
    #+begin_src emacs-lisp :results none
      (setq-default evil-escape-delay 0.2)
      (setq-default evil-escape-key-sequence "jk")
+     (setq-default evil-escape-unordered-key-sequence t)
      (evil-ex-define-cmd "E" 'revert-buffer)
      (evil-ex-define-cmd "WQ" 'evil-save-modified-and-close)
      (evil-ex-define-cmd "Wq" 'evil-save-modified-and-close)
      (require 'evil-string-inflection)
+     (require 'evil-textobj-syntax)
    #+end_src
 
 ** Scala
@@ -362,9 +369,17 @@
      (setq-default vc-follow-symlinks t)
      (setq magit-save-repository-buffers 'dontask)
      (setq magit-push-current-set-remote-if-missing t)
+
+     (defun jm/fill-then-insert-space ()
+       (interactive)
+       (fill-paragraph)
+       (insert " "))
+
      (defun jm/git-commit-mode-config()
        (setq-local fill-column 72)
        (turn-on-auto-fill)
+       ;; (local-set-key (kbd "SPC") #'jm/fill-then-insert-space)
+
        (jm/magit-commit-message))
      (defun jm/git-status-mode-config()
        (setq-local evil-escape-key-sequence nil))
@@ -374,6 +389,7 @@
 ** Org
 *** Basic setup
     #+begin_src emacs-lisp :results none
+      (require 'ox-clip)
       (setq org-directory "~/.org/")
       (setq org-default-notes-file "~/.org/main.org")
       (setq org-hide-emphasis-markers t)
@@ -413,6 +429,16 @@
       (setq org-startup-with-inline-images t)
       (setq org-export-with-section-numbers nil)
     #+end_src
+*** Org sync
+#+begin_src emacs-lisp :results none
+  (defun jm/org-sync ()
+    (interactive))
+    (message "Running org-sync")
+    (shell-command "~/.bin/org-sync &")
+
+  (run-with-timer 300 300 'jm/org-sync)
+#+end_src
+
 *** Extra packages
     #+begin_src emacs-lisp :results none
       (require 'org-protocol)
@@ -777,7 +803,7 @@
 
   (defun jm/open-project-iterm ()
     (interactive)
-    (shell-command (concat "~/.bin/iterm-open.sh \"$(git rev-parse --show-toplevel)\"")))
+    (shell-command (concat "~/.bin/open-in-iterm \"$(git rev-parse --show-toplevel)\"")))
 
   (defun jm/open-with-idea ()
     (interactive)

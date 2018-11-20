@@ -72,7 +72,7 @@ if [[ -z "${EMACS}" ]]; then
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 fi
 
-source "$HOME/.profile"
+source "$HOME/.base"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 

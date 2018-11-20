@@ -129,14 +129,13 @@ alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias op='open "$(pbpaste)"'
 alias opd='open "$(basename "$(pbpaste)")"'
 alias pwdc='pwd | tr -d "\n" | pbcopy'
-alias pbclean='pbpaste | pbcopy'
+alias pbclean='echo | pbcopy'
 alias rand='openssl rand -base64 128 | tr -d "\n/+="'
-alias rmq='rabbitmq-server'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 ssh() { _production && /usr/local/bin/ssh "$@"; _safe ;}
-s() { ssh "$@"  -t 'command; tmux -CC attach -t jm || tmux -CC new -s jm' ;}
-ss() { ssh "$@"  -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
+s() { ssh "$@" -t 'command; tmux -u -CC attach -t jm || tmux -u -CC new -s jm' ;}
+ss() { ssh "$@" -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
 alias tf='terraform'
@@ -146,22 +145,11 @@ alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules
 alias treef='tree -fa | grep -i'
 alias touch='_touch'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
-alias vg='vagrant'
-alias vgs='vagrant global-status'
-vghalt() { vagrant global-status | awk '{ if ((length($1) == 7) && ($4 == "running"))  print $1 }' | xargs vagrant halt ;}
-vgdestroyc() {  vagrant global-status | awk '{ if ((length($1) == 7) && ($5 ~ /chef-repo/))  print $1 }' | xargs vagrant destroy -f ;}
-vgdestroyall() { vagrant global-status | awk '{ if (length($1) == 7)  print $1 }' | xargs vagrant destroy -f ;}
+
 alias vimrc='vi $HOME/.vimrc'
 alias zshrc='vi $HOME/.zshrc'
 alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
 cb() { open "$(_chrome_parse_bookmarks | _fzf \"$1\" | cut -d '|' -f1)"; }
-
-# AWS
-alias ash='aws-shell'
-# alias s3='aws s3' # overriden by GCP
-alias s3uw='aws s3 --region us-west-2'
-alias s3ue='aws s3 --region us-east-1'
-alias s3ew='aws s3 --region eu-west-1'
 
 # GCP
 unalias gcp
@@ -172,13 +160,20 @@ alias s3='gsutil'
 alias kc=kubectl
 alias mk=minikube
 
+# Clubhouse
+alias c=club
+
 ## Git
 alias gl='git pull --tags'
+# TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | fzf -m | xargs git branch -D'
 alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | xargs git branch -D'
 alias gcml='git checkout master && git pull'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
+git-reflog-grep() {
+  git reflog | awk '{print $1}' | while read in; do echo "$in"; git show "$in" | grep "$@" ; done
+}
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
 alias gfo='git fetch origin && git fetch origin --tags'
@@ -320,6 +315,7 @@ alias r53="aws route53 list-hosted-zones | jq '.HostedZones[].Id' | xargs -n1 -P
 alias ipy='ipython3'
 alias ipyn='ipython3 notebook'
 alias py='python3'
+alias pr='pipenv run'
 
 # Website
 alias oo='open $(pbpaste)'
@@ -331,10 +327,7 @@ alias bcleanup='brew bundle --global cleanup' # --force
 
 # Bub
 alias b='bub'
-alias w='bub workflow'
-alias bwc='bub workflow commit'
-alias bsh='bub ec2'
-alias bj='bub jenkins'
+# alias w='bub workflow'
 
 # JIRA
 alias j=jira
