@@ -15,7 +15,6 @@ local engines = {
 }
 
 local function selectedTextFromClipboard(currentApp)
-
   local function getClipboard(initial, limit)
     if limit < 0 then return initial end
     eventtap.keyStroke({'cmd'}, 'c')
@@ -36,7 +35,7 @@ local function selectedTextFromClipboard(currentApp)
   return selection
 end
 
-local function selectedText()
+function mod.getSelectedText()
   local currentApp = window.focusedWindow():application():name()
   local selection  = uielement.focusedElement():selectedText()
   if not selection or currentApp == 'Emacs' then
@@ -55,11 +54,11 @@ local function query(url, text)
 end
 
 local function google(text)
-  query(engines['google'], text or selectedText())
+  query(engines['google'], text or mod.getSelectedText())
 end
 
 function mod.actOn()
-  local text = selectedText()
+  local text = mod.getSelectedText()
   if text:gmatch("https?://")() then
     openUrl(text)
   elseif text:gmatch("1%d%d%d%d%d%d%d%d%d+")() then
@@ -81,7 +80,7 @@ end
 
 function mod.epochSinceNow(text)
   local initial = timer.secondsSinceEpoch()
-  local selection = tonumber(text or selectedText())
+  local selection = tonumber(text or mod.getSelectedText())
 
   if selection > 1000000000000 then
     selection = selection / 1000

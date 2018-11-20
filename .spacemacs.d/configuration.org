@@ -423,84 +423,73 @@
       (setq org-src-fontify-natively t)
       (setq org-src-tab-acts-natively t)
       (setq org-src-window-setup 'current-window)
-      ;; grep -o '/[a-zA-Z0-9\./]*/plantuml.jar'  /usr/local/bin/plantuml
-      (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.5/libexec/plantuml.jar")
+      ;; Use: find /usr/local/Cellar/plantuml -name 'plantuml.jar'
+      (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.12/libexec/plantuml.jar")
+      (setq org-confirm-babel-evaluate nil)
     #+end_src
 *** Capture Templates
     #+begin_src emacs-lisp :results none
       (add-hook 'org-capture-mode-hook 'evil-insert-state)
+      (defun jm/org-common-template (prefix)
+        (format ""))
+
       (setq org-capture-templates '(("t" "Todo"
                                      entry
                                      (file+headline "~/.org/main.org" "Inbox")
-                                     "* TODO %?\nEntered on %U\n%i\n%a")
+                                     "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("T" "Todo with clipboard"
                                      entry
                                      (file+headline "~/.org/main.org" "Inbox")
-                                     "* TODO %?\nEntered on %U\n%i\n%c\n%a")
+                                      "* TODO %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("w" "Inbox for work"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %?\nEntered on %U\n%i\n%a")
+                                     "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("W" "Inbox with clipboard for work"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %?\nEntered on %U\n%i\n%c\n%a")
-                                    ("c" "Todo with clipboard for work"
-                                     entry
-                                     (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %?\nEntered on %U\n%i\n%c\n%a\n[[file://%F::%(with-current-buffer (org-capture-get :original-buffer) (number-to-string (line-number-at-pos)))][%F]] ")
-                                    ("n" "Todo with clipboard for work"
-                                     entry
-                                     (file+headline "~/.org/work.org" "Notes")
-                                     "* %?\nEntered on %U\n%i\n%c\n%a\n[[file://%F::%(with-current-buffer (org-capture-get :original-buffer) (number-to-string (line-number-at-pos)))][%F]] ")
+                                     "* TODO %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("s" "Add journal entry to work"
                                      entry
                                      (file+datetree "~/.org/work.org" "Journal")
-                                     "* %?\nEntered on %U\n%i\n%a")
+                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("S" "Add journal entry to work DONE"
                                      entry
                                      (file+datetree "~/.org/work.org" "Journal")
-                                     "* %?\nEntered on %U\n%i\n%a")
+                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("e" "Add past journal entry to work DONE"
                                      entry
                                      (file+datetree+prompt "~/.org/work.org" "Journal")
-                                     "* DONE %?\nEntered on %U\n%i\n%a")
+                                     "* DONE %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("r" "References / Research"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
-                                     "** %?%c\nEntered on %U\n%i\n\n%a")
+                                     "** %?%c\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
                                     ("R" "References / Research TODO"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
-                                     "** TODO %?\nEntered on %U\n%i\n\n%a")
+                                     "* TODO %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("y" "References / Temporary"
                                      entry
                                      (file+headline "~/.org/references.org" "Temporary")
-                                     "** %?%c\nEntered on %U\n%i\n\n%a")
+                                     "** %?%c\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
                                     ("b" "References / Books"
                                      entry
                                      (file+headline "~/.org/references.org" "Books")
-                                     "** %?%c\nEntered on %U\n%i\n\n%a")
-                                    ("p" "Protocol"
+                                     "** %?%c\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
+                                    ("p" "Protocol Link"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
-                                     "* %?\nSource: %u, %c\n #+begin_quote\n%i\n#+end_quote\n")
-                                    ("L" "Protocol Link"
-                                     entry
-                                     (file+headline "~/.org/references.org" "Research")
-                                     "* %?[[%:link][%:description]] \nCaptured On: %U")
+                                     (jm/org-common-template "*"))
                                     ("j" "Journal"
                                      entry
                                      (file+datetree "~/.org/journal.org")
-                                     "* %?\nEntered on %U\n%i\n%a")
+                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("z" "Tenancy Journal"
                                      entry
                                      (file+datetree+prompt "~/.org/tenancy-journal.org")
-                                     "* %?\nEntered on %U\n%i\n%a")
-                                    ("J" "Journal with Clipboard"
-                                     entry
-                                     (file+datetree "~/.org/journal.org")
-                                     "* %?\nEntered on %U\n%i\n%c\n%a")))
+                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
+                                    ))
     #+end_src
 
 *** org-present

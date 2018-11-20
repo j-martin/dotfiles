@@ -62,14 +62,15 @@ local hyperBindings = {
   { key = 'o', name = 'IntelliJ IDEA 2018.3 EAP.app' },
   { key = 'p', name = 'Visual Studio Code' },
   { key = 'q', fn = hs.toggleConsole, shift = true },
-  { key = 'r', fn = emacs.references },
-  { key = 'r', fn = hs.reload, shift = true },
+  { key = 'r', fn = emacs.orgCaptureProtocol('R') },
+  { key = 'r', fn = emacs.references, shift = true },
   { key = 's', name = 'Sublime Text' },
   { key = 's', fn = windows.snapAll, shift = true },
   { key = 't', fn = emacs.capture },
   { key = 't', fn = emacs.inbox, shift = true },
   { key = 'u', name = 'Emacs' },
   { key = 'v', fn = selection.paste, shift = true },
+  { key = 'w', fn = emacs.orgCaptureProtocol('W') },
   { key = 'w', fn = emacs.workInbox, shift = true },
   { key = 'x', fn = windows.previousScreen },
   { key = 'y', fn = applications.inbox },
@@ -89,39 +90,21 @@ local hyperBindings = {
 -------------------------
 
 local hyperModeBindings = {
-  { key = 'j', fn = audio.next },
-  { key = 'k', fn = audio.previous },
-  { key = 'h', fn = audio.current },
-  { key = 'y', fn = audio.changeVolume(-100) },
-  { key = 'u', fn = audio.changeVolume(5) },
-  { key = 'i', fn = audio.changeVolume(-5) },
-  { key = 'o', fn = audio.setVolume(15) },
-  { key = 'p', fn = audio.setVolume(30) },
-  { key = ';', fn = audio.setVolume(50) },
   { key = '9', fn = audio.open },
-  { key = 'l', fn = audio.playpause },
-  { key = 'space', fn = audio.playpause, exitMode = true },
-}
-
--------------------------
--- create general mode --
--------------------------
-
-local generalModeBindings = {
-  { key = 'e', fn = mounts.unmountAll },
+  { key = ';', fn = audio.setVolume(50) },
   { key = 'b', fn = screen.setBrightness(0.8) },
+  { key = 'e', fn = mounts.unmountAll },
+  { key = 'h', fn = audio.current },
+  { key = 'i', fn = audio.changeVolume(-5) },
   { key = 'j', fn = audio.next },
   { key = 'k', fn = audio.previous },
-  { key = 'h', fn = audio.current },
-  { key = 'y', fn = audio.changeVolume(-100) },
-  { key = 'u', fn = audio.changeVolume(5) },
-  { key = 'i', fn = audio.changeVolume(-5) },
+  { key = 'l', fn = audio.playpause },
   { key = 'o', fn = audio.setVolume(15) },
   { key = 'p', fn = audio.setVolume(30) },
-  { key = ';', fn = audio.setVolume(50) },
-  { key = '9', fn = audio.open },
-  { key = 'l', fn = audio.playpause },
-  { key = 'space', name = 'Alfred 3', exitMode = true },
+  { key = 'r', fn = hs.reload },
+  { key = 'space', fn = audio.playpause, exitMode = true },
+  { key = 'u', fn = audio.changeVolume(5) },
+  { key = 'y', fn = audio.changeVolume(-100) },
 }
 
 ------------------------
@@ -164,8 +147,6 @@ end
 function mod.init()
   fnutils.each(hyperBindings, bindToHyper)
   mode.create(hyper, 'space', 'Hyper', hyperModeBindings)
-  mode.create({'cmd'}, 'space', 'General', generalModeBindings)
-
   hotkey.bind({'cmd'}, 'h', applications.slack)
   hotkey.bind({'cmd'}, 'm', windows.cycleScreen)
 end

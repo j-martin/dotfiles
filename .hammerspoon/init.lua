@@ -12,7 +12,6 @@ local ipc = require "hs.ipc"
 bindings.init()
 battery.init()
 audio.init()
-schedule.init()
 usb.init()
 
 if not ipc.cliStatus() then
