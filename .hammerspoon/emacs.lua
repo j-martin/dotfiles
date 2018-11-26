@@ -73,6 +73,4 @@ function mod.orgCaptureProtocol(captureTemplate)
   end
 end
 
-process.start('ls')
-
 return mod

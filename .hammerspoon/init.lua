@@ -1,21 +1,14 @@
 local alert = require "hs.alert"
-
-local reload = require "utils/reload"
-local bindings = require "bindings"
 local audio = require "audio"
 local battery = require "battery"
-local schedule = require "schedule"
+local keybindings = require "keybindings"
+local reload = require "utils/reload"
 local usb = require "usb"
-local ipc = require "hs.ipc"
 
 -- reload.init()
-bindings.init()
+keybindings.init()
 battery.init()
 audio.init()
 usb.init()
-
-if not ipc.cliStatus() then
-  ipc.cliInstall()
-end
 
 alert.show("Config loaded")

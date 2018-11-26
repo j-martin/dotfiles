@@ -26,13 +26,22 @@ function mod.create(modifiers, key, name, bindings)
 
   local function callAndExit(fn)
     return function()
-      fn()
       exit()
+      fn()
     end
   end
 
   local function bindFn(binding)
-    local fn = binding.fn or function() application.open(binding.name) end
+    local message = binding.description or binding.name
+    local fn = function()
+      if message ~= nil then
+        alert.show(message, 0.75)
+      end
+      if binding.fn then
+        return binding.fn()
+      end
+      application.open(binding.name)()
+    end
     if binding.exitMode then
       mode:bind(modifiers, binding.key, callAndExit(fn))
     else

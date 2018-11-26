@@ -3,9 +3,8 @@ local grid = require "hs.grid"
 local layout = require "hs.layout"
 local screen = require "hs.screen"
 local fnutils = require "hs.fnutils"
-local logger = hs.logger.new('windows', 'debug')
-
 local ext = require "windows/extensions"
+local logger = hs.logger.new('windows', 'debug')
 
 local mod = {}
 

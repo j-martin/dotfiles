@@ -1,17 +1,17 @@
-local eventtap = require 'hs.eventtap'
-local window = require 'hs.window'
-local screen = require 'hs.screen'
-local mouse = require 'hs.mouse'
-local timer = require 'hs.timer'
-local windows = require 'windows'
 local alert = require "hs.alert"
+local eventtap = require 'hs.eventtap'
+local mouse = require 'hs.mouse'
+local screen = require 'hs.screen'
+local timer = require 'hs.timer'
+local window = require 'hs.window'
+local windows = require 'windows'
 
 local mod = {}
 
 mod.name = {
   activityMonitor = 'Activity Monitor',
   chrome = 'Google Chrome',
-  inbox = 'Inbox - ', -- extra characters to be more specific
+  inbox = ' Mail', -- extra characters to be more specific
   noisyTyper = 'NoisyTyper',
   slack  = 'Slack'
 }
@@ -26,6 +26,12 @@ local function wait(n)
 end
 
 local previousTab = nil
+
+function switchToAndType(application, modifier, keystroke)
+  windows.launchOrCycleFocus(application)()
+  wait()
+  eventtap.keyStroke(modifier, keyStroke)
+end
 
 local function switchTab()
   local tab = '1'
@@ -56,18 +62,30 @@ function mod.openNotificationAction()
   clickNotification(40)
 end
 
-function mod.slack()
-  windows.launchOrCycleFocus(mod.name.slack)()
-  wait()
-  eventtap.keyStroke({'cmd'}, '1')
+function mod.slackQuickSwitcher()
+  switchToAndType(mod.name.slack, {'cmd'}, '1')
   wait()
   eventtap.keyStroke({'cmd'}, 't')
 end
 
-function mod.activityMonitor()
-  windows.launchOrCycleFocus(mod.name.activityMonitor)()
+function mod.slackReactionEmoji(chars)
+  return function()
+    eventtap.keyStroke({'cmd', 'shift'}, '\\')
+    wait()
+    eventtap.keyStrokes(chars)
+    wait(20)
+    eventtap.keyStroke({}, 'return')
+  end
+end
+
+function mod.slackUnread()
+  switchToAndType(mod.name.slack, {'cmd'}, '1')
   wait()
-  eventtap.keyStroke({'cmd'}, '2')
+  eventtap.keyStroke({'cmd', 'shift'}, 'a')
+end
+
+function mod.activityMonitor()
+  switchToAndType(mod.name.activityMonitor, {'cmd'}, '2')
   local win = hs.window.focusedWindow()
   local laptopScreen = 'Color LCD'
 
@@ -76,19 +94,11 @@ function mod.activityMonitor()
   eventtap.keyStroke({'cmd'}, '1')
 end
 
-function mod.slackUnread()
-  mod.slack()
-  wait()
-  eventtap.keyStrokes('allunread')
-  wait()
-  eventtap.keyStroke({}, 'return')
-end
-
 function mod.toggleNoisyTyper()
   return function()
-    local cb = nil
+    local callBackFn = nil
     if not states.noisyTyperEnabled then
-      cb = function()
+      callBackFn = function()
         win = window.frontmostWindow()
         hs.application.launchOrFocus(mod.name.noisyTyper)
         wait(4)
@@ -99,14 +109,12 @@ function mod.toggleNoisyTyper()
     end
     args = {'-f', mod.name.noisyTyper}
     states.noisyTyperEnabled = false
-    hs.task.new('/usr/bin/pkill', cb, function() end, args):start()
+    hs.task.new('/usr/bin/pkill', callBackFn, function() end, args):start()
   end
 end
 
 function mod.chromeOmni()
-  windows.launchOrCycleFocus(mod.name.chrome)()
-  wait()
-  eventtap.keyStroke({'shift'}, 't')
+  switchToAndType(mod.name.chrome, {'shift'}, 't')
 end
 
 function mod.inbox()
