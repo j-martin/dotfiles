@@ -4,9 +4,9 @@ CIRCLE_URL="https://circleci.com/gh"
 GITHUB_URL='https://github.com'
 
 # Aliases Helpers
-alias sp='source $HOME/.profile'
+alias sp='source $HOME/.base'
 alias alia='ec $HOME/.aliases && sp'
-alias aliap='ec $HOME/.private/.profile && sp'
+alias aliap='ec $HOME/.private/profile && sp'
 ali() {
   sp
   ( alias
@@ -166,8 +166,8 @@ alias c=club
 ## Git
 alias gl='git pull --tags'
 # TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
-alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | fzf -m | xargs git branch -D'
-alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "master" | xargs git branch -D'
+alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^master$" | fzf -m | xargs git branch -D'
+alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^master$" | xargs git branch -D'
 alias gcml='git checkout master && git pull'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
@@ -329,26 +329,5 @@ alias bcleanup='brew bundle --global cleanup' # --force
 alias b='bub'
 # alias w='bub workflow'
 
-# JIRA
-alias j=jira
-alias jb='bub workflow open'
-alias jbo='bub workflow board'
-alias jbp='jira browse "$(pbpaste | _git_filter_issue_key)"'
-alias jc='jira create -p PL -o issuetype=Task'
-alias jcc='_jira_create'
-alias jca='jira create -p PL -o issuetype=Task -o assignee="${JIRA_USER%@*}"'
-alias jclaim='_jira_claim'
-alias je='jira edit "$(_jira_current_issue_key_or_assigned)"'
-alias jj='jira "$(_jira_current_issue_key_or_assigned)"'
-alias jo='bub workflow open'
-alias jcs='jira subtask "$(_jira_current_issue_key_or_assigned)"'
-jcss() { jira subtask "$(_jira_search "$1")" ;}
-alias jcsa='jira subtask "$(_jira_current_issue_key_or_assigned)" -o assignee="${JIRA_USER%@*}"'
-alias jt='jira ls -q "assignee = currentUser() and status != done"'
-alias jtd='_jira_transition "$(_jira_current_issue_key_or_assigned)" 41'
-alias jtblocked='_jira_transition "$(_jira_current_issue_key_or_assigned)" 81'
-alias jtde='_jira_transition "$(_jira_current_issue_key_or_assigned)" 91'
-alias jtp='_jira_transition "$(_jira_current_issue_key_or_assigned)" 31'
-alias jtr='_jira_transition "$(_jira_current_issue_key_or_assigned)" 51'
-js() { jira "$(_jira_search "$1")" ;}
-jsb() { jira browse "$(_jira_search "$1")" ;}
+# Ore
+alias w='o clubhouse'

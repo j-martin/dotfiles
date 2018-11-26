@@ -33,9 +33,9 @@ __encfs() {
 __encfs "$HOME/Sync/Storage" "$HOME/.storage"
 __encfs "$HOME/Library/.chrome" "$HOME/Library/Application Support/Google/Chrome"
 
-# shellcheck source=.private/.profile"
-test -f "$HOME/.private/.profile" \
-  && source "$HOME/.private/.profile"
+# shellcheck source=.private/profile"
+test -f "$HOME/.private/profile" \
+  && source "$HOME/.private/profile"
 
 # shellcheck source=.functions/all
 source "$HOME/.functions/all"

@@ -102,7 +102,6 @@ This function should only modify configuration layer settings."
      parinfer
      protobuf-mode
      smart-jump
-     string-inflection
      super-save
      writegood-mode
      )
