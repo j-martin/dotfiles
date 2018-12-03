@@ -466,7 +466,7 @@
                                     ("T" "Todo with clipboard"
                                      entry
                                      (file+headline "~/.org/main.org" "Inbox")
-                                      "* TODO %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("w" "Inbox for work"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
@@ -474,7 +474,7 @@
                                     ("W" "Inbox with clipboard for work"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+                                     "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("s" "Add journal entry to work"
                                      entry
                                      (file+datetree "~/.org/work.org" "Journal")
@@ -552,6 +552,8 @@
     (global-set-key (kbd "<f2>") 'flycheck-next-error)
     (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
+    (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
+    (global-set-key (kbd "H-<backspace>") (kbd "C-c C-k"))
     (global-set-key (kbd "H-<left>") 'back-to-indentation)
     (global-set-key (kbd "H-<right>") 'end-of-line)
     (global-set-key (kbd "H-b") 'smart-jump-go)

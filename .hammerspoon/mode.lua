@@ -32,7 +32,7 @@ function mod.create(modifiers, key, name, bindings)
   end
 
   local function bindFn(binding)
-    local message = binding.description or binding.name
+    local message = binding.desc or binding.name
     local fn = function()
       if message ~= nil then
         alert.show(message, 0.75)

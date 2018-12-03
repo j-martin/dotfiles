@@ -38,6 +38,12 @@ _git_pick_branch_no_origin() {
     | sed 's/origin\///g'
 }
 
+_git_pick_any_branches() {
+  git branch --all \
+    | sed 's#remotes/origin/##; s#^. ##' \
+    | fzf "$@"
+}
+
 _git_pick_branch() {
   local filter="$1"
   git for-each-ref \

@@ -29,6 +29,12 @@ _pick_first_col() {
   cut -d ' ' -f1
 }
 
+_copy() {
+  tr -d '\n' \
+     | pbcopy
+  _info 'The output in your clipboard'
+}
+
 cached() {
   _cached "$@"
 }
