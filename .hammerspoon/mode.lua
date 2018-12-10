@@ -40,7 +40,9 @@ function mod.create(modifiers, key, name, bindings)
       if binding.fn then
         return binding.fn()
       end
-      application.open(binding.name)()
+      if binding.name then
+        return application.open(binding.name)()
+      end
     end
     if binding.exitMode then
       mode:bind(modifiers, binding.key, callAndExit(fn))

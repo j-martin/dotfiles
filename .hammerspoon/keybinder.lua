@@ -5,6 +5,7 @@ local hotkey = require 'hs.hotkey'
 local inspect = require "hs.inspect"
 local logger = hs.logger.new('keybinder', 'info')
 local windows = require 'windows'
+local chrome = require 'chrome'
 
 local hyper = { 'cmd', 'alt', 'ctrl' }
 local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
@@ -37,6 +38,8 @@ local function buildBindFunction(binding)
     return windows.setPosition(binding.pos, 'primary', binding.reversable)
   elseif binding.name then
     return windows.launchOrCycleFocus(binding.name)
+  elseif binding.tab then
+    return chrome.activateTab(binding.tab)
   elseif binding.fn then
     return binding.fn
   end

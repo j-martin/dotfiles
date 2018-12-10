@@ -1,4 +1,4 @@
-local applications = require 'applications'
+local apps = require 'apps'
 local audio = require 'audio'
 local keybinder = require 'keybinder'
 local brightness = require 'hs.brightness'
@@ -11,6 +11,8 @@ local mounts = require 'mounts'
 local screen = require 'screen'
 local selection = require 'selection'
 local windows = require 'windows'
+local chrome = require 'chrome'
+local reload = require 'utils/reload'
 
 local cmd = keybinder.cmd
 local hyper = keybinder.hyper
@@ -26,34 +28,34 @@ local mod = {}
 local bindings = {
   { name = keybinder.globalBindings,
     bindings = {
-      { modifiers = cmd, key = 'h', fn = applications.slackQuickSwitcher, desc = 'Slack - Quick Switcher' },
+      { modifiers = cmd, key = 'h', fn = chrome.slackQuickSwitcher, desc = 'Slack - Quick Switcher' },
       { modifiers = cmd, key = 'm', fn = windows.cycleScreen, desc = 'Cycle window across screens' },
-      { key = '1', name = applications.name.activityMonitor },
-      { key = '1', fn = applications.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph' },
+      { key = '1', name = apps.name.activityMonitor },
+      { key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph' },
       { key = '2', name = 'Keybase' },
-      { key = '4', fn = applications.toggleNoisyTyper(), desc = 'Toggle Noisy Typer' },
+      { key = '4', fn = apps.toggleNoisyTyper(), desc = 'Toggle Noisy Typer' },
       -- key = '5' reserved for snippets
-      { key = '8', name = applications.name.slack },
+      { key = '8', tab = chrome.tab.slack },
       { key = '9', name = 'Spotify' },
       { key = ';', name = 'Dash' },
       { key = '\\', name = '1Password 7' },
       { key = 'a', fn = emacs.agenda, desc = 'Org Agenda' },
-      { key = 'b', fn = applications.openNotification, desc = 'Notification - Open' },
-      { key = 'b', fn = applications.openNotificationAction, shift = true, desc = 'Notification - Action' },
+      { key = 'b', fn = apps.openNotification, desc = 'Notification - Open' },
+      { key = 'b', fn = apps.openNotificationAction, shift = true, desc = 'Notification - Action' },
       { key = 'd', fn = selection.actOn, desc = 'Search selection' },
       { key = 'f', name = 'Finder' },
       { key = 'f', name = 'Preview', shift = true },
       { key = 'g', fn = windows.grid, desc = 'Grid - Normal' },
       { key = 'g', fn = windows.altGrid, shift = true, desc = 'Grid - Alt' },
-      { key = 'h', fn = applications.slackQuickSwitcher, desc = 'Slack - Quick Switcher' },
-      { key = 'h', fn = applications.slackUnread, shift = true, desc = 'Slack - Show unread' },
+      { key = 'h', fn = chrome.slackQuickSwitcher, desc = 'Slack - Quick Switcher' },
+      { key = 'h', fn = chrome.slackUnread, shift = true, desc = 'Slack - Show unread' },
       { key = 'i', name = 'iTerm2' },
       { key = 'j', pos = { { 0.0, 0.0, 0.5, 1.0}, { 0.0, 0.0, 0.7, 1.0} }, desc = 'Window - Left 50% <-> 30%' },
       { key = 'j', pos = { { 0.00, 0.00, 0.30, 1.00 }, { 0.00, 0.00, 0.70, 1.00 } }, shift = true, desc = 'Window - Left 30% <-> 70%' },
       { key = 'k', pos = { { 0.5, 0.0, 0.5, 1.0}, { 0.3, 0.0, 0.7, 1.0} }, desc = 'Window - Right 50% <-> 30%' },
       { key = 'k', pos = { { 0.70, 0.00, 0.30, 1.00 }, { 0.30, 0.00, 0.70, 1.00 } }, shift = true, desc = 'Window - Right 30% <-> 70%' },
-      { key = 'l', name = applications.name.chrome },
-      { key = 'l', fn = applications.chromeOmni, shift = true, desc = 'Google Chrome - Omni Tab' },
+      { key = 'l', name = chrome.name },
+      { key = 'l', fn = chrome.openOmni, shift = true, desc = 'Google Chrome - Omni Tab' },
       { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 }, desc = 'Full Screen (Primary)' },
       { key = 'm', pos = { 0.00, 0.00, 1.00, 1.00 }, shift = true, targetScreen = 'current', desc = 'Full Screen (Current)' },
       { key = 'n', pos = { { 0.25, 0.00, 0.50, 1.00 }, { 0.20, 0.00, 0.60, 1.00 } }, reversable = true, desc = 'Window - Center 50% <-> 60%' },
@@ -72,8 +74,10 @@ local bindings = {
       { key = 'v', fn = selection.paste, shift = true, desc = 'Paste - Type' },
       { key = 'w', fn = emacs.orgCaptureProtocol('W'), desc = 'Org - Capture selection to Work' },
       { key = 'w', fn = emacs.workInbox, shift = true, desc = 'Org - Show work' },
+      { key = 'x', fn = windows.previousScreen, shift = true, desc = 'Return to previous screen' },
       { key = 'x', fn = windows.previousScreen, desc = 'Return to previous screen' },
-      { key = 'y', fn = applications.inbox, desc = 'Switch to Inbox' },
+      { key = 'y', tab = chrome.tab.mail.work, desc = 'Switch to Inbox' },
+      { key = 'y', tab = chrome.tab.mail.personal, shift = true, desc = 'Switch to Inbox' },
       { key = 'z', name = 'Charles' },
       { key = 'up', fn = grid.resizeWindowShorter, desc = 'Windows - Shorter' },
       { key = 'down', fn = grid.resizeWindowTaller, desc = 'Windows - Taller' },
@@ -85,10 +89,10 @@ local bindings = {
       { key = 'right', fn = grid.pushWindowRight, shift = true, desc = 'Windows - Right' },
     }
   },
-  { name = applications.name.slack,
+  { name = chrome.name,
     bindings = {
-      { modifiers = cmd, key = 'u', fn = applications.slackReactionEmoji('thup'), desc = 'Thumbs up' },
-      { modifiers = cmd, key = 's', fn = applications.slackReactionEmoji('slighsm'), desc = 'Smiling Face' },
+      { modifiers = cmd, key = 'u', fn = chrome.slackReactionEmoji('thup'), desc = 'Thumbs up' },
+      { modifiers = cmd, key = 's', fn = chrome.slackReactionEmoji('slighsm'), desc = 'Smiling Face' },
     }
   }
 }
@@ -107,7 +111,7 @@ local hyperModeBindings = {
   { key = 'k', fn = audio.previous, desc = 'Previous song' },
   { key = 'o', fn = audio.setVolume(15), desc = 'Default volume level' },
   { key = 'p', fn = audio.setVolume(30), desc = 'High volume level' },
-  { key = 'r', fn = hs.reload, desc = 'Reloading configuration ...' },
+  { key = 'r', fn = reload.reload, desc = 'Reloading configuration ...' },
   { key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Spotify' },
   { key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%' },
   { key = 'y', fn = audio.changeVolume(-100), desc = 'Mute'},

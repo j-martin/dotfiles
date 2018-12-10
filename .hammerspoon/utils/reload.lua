@@ -1,3 +1,4 @@
+local alert = require "hs.alert"
 local pathwatcher = require "hs.pathwatcher"
 local logger = hs.logger.new('windows.ext', 'debug')
 local fnutils = require 'hs.fnutils'
@@ -15,12 +16,17 @@ local function reloadConfig(files)
     end
   end
   if doReload then
-    hs.reload()
+    mod.reload()
   end
 end
 
 function mod.init()
   pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", reloadConfig):start()
+end
+
+function mod.reload()
+  alert.show('Reloading ...')
+  hs.reload()
 end
 
 return mod
