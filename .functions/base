@@ -15,10 +15,14 @@ _error() {
 _production() {
   # iTerm escape code to turn the terminal red.
   printf "\033]Ph501010\033\\"
+  trap _safe EXIT
+  "$@"
 }
 
 _watchout() {
   printf "\033]Ph403010\033\\"
+  trap _safe EXIT
+  "$@"
 }
 
 _safe() {
@@ -102,13 +106,13 @@ _open_tunnel() {
   local local_port="${3:-$port}"
   local jump_host="${4:-jump}"
   _production
-  ssh -M -S my-ctrl-socket -fnNT -L "${local_port}:${host}:${port}" "${jump_host}"
-  ssh -S my-ctrl-socket -O check 'jump'
+  ssh -M -S ctrl-socket -fnNT -L "${local_port}:${host}:${port}" "${jump_host}"
+  ssh -S ctrl-socket -O check 'jump'
   _info "Tunnel to '${host}:${port}' open on '127.0.0.1:${local_port}'"
 }
 
 _close_tunnel() {
-  ssh -S my-ctrl-socket -O exit 'jump' || _warn 'The tunnel was already closed.'
+  ssh -S ctrl-socket -O exit 'jump' || _warn 'The tunnel was already closed.'
   _info 'Tunnel closed.'
   _safe
 }
@@ -117,4 +121,24 @@ _touch() {
   local filepath="$1"
   mkdir -p "$(dirname "$filepath")"
   \touch "$filepath"
+}
+
+_pipenv_run() {
+  local path_file='.python_path'
+  if [[ ! -f Pipfile ]]; then
+    _info 'There is no Pipfile in the directory.'
+    return 1
+  fi
+
+  if [[ ! -f "${path_file}" ]]; then
+    pipenv --venv > "${path_file}"
+  fi
+  "$(cat "${path_file}")/bin/$1" "${@:2}"
+}
+
+_temp() {
+  local location
+  location="$(mktemp)"
+  > "${location}"
+  _info "Saved to: ${location}"
 }

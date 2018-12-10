@@ -8,7 +8,7 @@ _sync_external_services() {
   pushd "$HOME/.bin"
   ./org-sync-calendar
   pipenv run python org-sync-todoist
-  ./org-pushbullet "$HOME/.org/references/"
+  ./org-pushbullet "$HOME/.org/reading/"
   popd
 }
 

@@ -133,7 +133,7 @@ alias pbclean='echo | pbcopy'
 alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
-ssh() { _production && /usr/local/bin/ssh "$@"; _safe ;}
+alias ssh='_production /usr/local/bin/ssh'
 s() { ssh "$@" -t 'command; tmux -u -CC attach -t jm || tmux -u -CC new -s jm' ;}
 ss() { ssh "$@" -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
 alias mtmp='cd "$(mktemp -d -t 3)"'
@@ -153,7 +153,7 @@ cb() { open "$(_chrome_parse_bookmarks | _fzf \"$1\" | cut -d '|' -f1)"; }
 
 # GCP
 unalias gcp
-alias gcp='gcloud'
+alias gg='gcloud'
 alias s3='gsutil'
 
 # K8s

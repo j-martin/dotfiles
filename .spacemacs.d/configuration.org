@@ -413,7 +413,7 @@
         (setq evil-auto-indent nil))
 
       (setq org-todo-keywords
-            (quote ((sequence "TODO(T)" "|" "DONE(t)")
+            (quote ((sequence "TODO(o)" "|" "DONE(t)")
                     (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
       (setq org-todo-state-tags-triggers
@@ -436,9 +436,8 @@
     (message "Running org-sync")
     (shell-command "~/.bin/org-sync &")
 
-  (run-with-timer 300 300 'jm/org-sync)
+  (run-with-timer 0 (* 10 60) 'jm/org-sync)
 #+end_src
-
 *** Extra packages
     #+begin_src emacs-lisp :results none
       (require 'org-protocol)
@@ -494,7 +493,7 @@
                                     ("R" "References / Research TODO"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
-                                     "* TODO %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+                                     "* %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("y" "References / Temporary"
                                      entry
                                      (file+headline "~/.org/references.org" "Temporary")
@@ -553,7 +552,7 @@
     (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
     (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
-    (global-set-key (kbd "H-<backspace>") (kbd "C-c C-k"))
+    (global-set-key (kbd "H-q") (kbd "C-c C-k"))
     (global-set-key (kbd "H-<left>") 'back-to-indentation)
     (global-set-key (kbd "H-<right>") 'end-of-line)
     (global-set-key (kbd "H-b") 'smart-jump-go)

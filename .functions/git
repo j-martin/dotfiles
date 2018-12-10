@@ -7,6 +7,12 @@ _git_repo() {
     | head -n1
 }
 
+_git_org_name() {
+  git config --get remote.origin.url \
+    | cut -d/ -f2 \
+    | cut -d. -f1
+}
+
 _git_repo_name() {
   git config --get remote.origin.url \
     | cut -d/ -f2 \
@@ -95,8 +101,9 @@ _git_new_branch_and_commit_from_new_issue() {
 
 _github() {
   local endpoint="$1"
-  curl --fail --silent -H "Authorization: token $(keyring get system github_token)" \
-       "https://api.github.com/$endpoint"
+  curl --fail --silent --header "Authorization: token $(keyring get api github)" \
+       "https://api.github.com/$endpoint" \
+       "${@:2}"
 }
 
 _github_post() {
@@ -139,6 +146,17 @@ _github_pick_repo() {
   _github_repos \
     | jq -r '.[].git_url' \
     | _fzf "$1"
+}
+
+_github_current_branch_pr_number() {
+  _github_current_branch_pr \
+      | jq -r '.[0].number'
+}
+
+_github_current_branch_pr() {
+  _github "repos/$(_git_repo)/pulls" \
+          --get \
+          --data-urlencode head="$(dirname "$(_git_repo)"):$(_git_current_branch)" \
 }
 
 _github_open_url() {
@@ -226,6 +244,18 @@ _github_open_current_branch() {
   open "https://github.com/$(_git_repo)/tree/$(_git_current_branch)"
 }
 
+_github_current_branch_pr_comments() {
+  local pr_number="$1"
+  if [[ -z "${pr_number}" ]]; then
+    pr_number="$(_github_current_branch_pr_number)"
+  fi
+  _github "repos/alloytech/alloy/pulls/${pr_number}/comments" \
+    | jq '.[] | "\(.in_reply_to_id // .id) \(.created_at) \(.user.login)\n\(.body)\n"' \
+    | sort \
+    | jq -r . \
+    | fold -w 80 -s
+}
+
 _git_root_dir() {
   git rev-parse --show-toplevel
 }
@@ -255,6 +285,7 @@ _github_pr() {
     open "${url}"
   else
     _warn 'Failed to create PR.'
+    open "$(_github_current_branch_pr | jq -r ".[0].html_url")"
   fi
 }
 

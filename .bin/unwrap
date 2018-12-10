@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+paragraph = []
+
+for line in sys.stdin:
+    line = line.strip()
+    if line:
+        paragraph.append(line)
+    else:
+        print(' '.join(paragraph).replace('  ', ' ') + "\n")
+        paragraph = []
+
+if paragraph:
+    print(' '.join(paragraph).replace(' ', ' '))
