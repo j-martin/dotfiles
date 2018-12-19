@@ -6,7 +6,7 @@ set -o pipefail
 # osascript -e 'tell application "Emacs" to activate'
 if [[ "$1" == '+' ]]; then
   # workaround iTerm semantic opening.
-  exec /usr/local/bin/emacsclient --no-wait "${@:2}"
+  exec /usr/local/bin/emacsclient --no-wait "${@:2}" > /dev/null 2>&1
 else
-  exec /usr/local/bin/emacsclient --no-wait "$@"
+  exec /usr/local/bin/emacsclient --no-wait "$@" > /dev/null 2>&1
 fi
