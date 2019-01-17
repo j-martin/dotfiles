@@ -1,9 +1,5 @@
 local application = require "hs.application"
-local logger = hs.logger.new('emacs', 'debug')
 local osascript = require "hs.osascript"
-local pasteboard = require "hs.pasteboard"
-local task = require "hs.task"
-local uielement = require "hs.uielement"
 local window = require "hs.window"
 local selection = require "selection"
 local http = require "hs.http"
@@ -12,13 +8,17 @@ local process = require "utils/process"
 local mod = {}
 
 local function eval(sexp)
-  process.start('/usr/local/bin/emacsclient', {'--no-wait', '--quiet' , '--eval', sexp})
+  process.start('~/.bin/ec', {'--quiet' , '--eval', sexp})
   application.launchOrFocus('Emacs')
 end
 
 local function open(url)
-  process.start('/usr/local/bin/emacsclient', {'--no-wait', '--quiet' , url})
+  process.start('~/.bin/ec', {'--quiet' , url})
   application.launchOrFocus('Emacs')
+end
+
+function mod.helmBuffers()
+  eval('(helm-mini)')
 end
 
 function mod.capture()
@@ -47,18 +47,19 @@ end
 
 function mod.orgCaptureProtocol(captureTemplate)
   return function()
-    local focussedApplication = window.focusedWindow():application()
+    local focusedWindow = window.focusedWindow()
+    local focusedApplication = focusedWindow:application()
 
-    local title = "(from " .. focussedApplication:name() .. ")"
-    local url = focussedApplication:path()
+    local title = focusedWindow:title() .. " - " .. focusedApplication:name()
+    local url = focusedApplication:path()
     local body = selection.getSelectedText()
 
-    if focussedApplication:name() == 'Google Chrome' then
+    if focusedApplication:name() == 'Google Chrome' then
       _, title, _ = osascript.javascript("Application('Google Chrome').windows[0].activeTab().title()")
       _, url, _ = osascript.javascript("Application('Google Chrome').windows[0].activeTab().url()")
     end
 
-    if focussedApplication:name() == 'Finder' then
+    if focusedApplication:name() == 'Finder' then
       _, title, _ = osascript.javascript("Application('Finder').selection()[0].name()")
       _, url, _ = osascript.javascript("Application('Finder').selection()[0].url()")
     end

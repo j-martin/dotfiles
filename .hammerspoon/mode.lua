@@ -1,5 +1,5 @@
 local hotkey = require 'hs.hotkey'
-local alert = require('hs.alert')
+local alert = require 'hs.alert'
 local fnutils = require "hs.fnutils"
 local application = require "hs.application"
 

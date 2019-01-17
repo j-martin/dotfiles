@@ -1,5 +1,5 @@
-local alert = require 'hs.alert'
 local application = require 'hs.application'
+local window = require 'hs.window'
 local fnutils = require 'hs.fnutils'
 local hotkey = require 'hs.hotkey'
 local inspect = require "hs.inspect"
@@ -9,7 +9,7 @@ local chrome = require 'chrome'
 
 local hyper = { 'cmd', 'alt', 'ctrl' }
 local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
-local globalBindings = 'globalBindings'
+local globalBindings = '*'
 
 hotkey.alertDuration = 2.5
 
@@ -19,15 +19,15 @@ local mod = {
   globalBindings = globalBindings
 }
 
-function enableBindings(bindings)
+function enableBindings(bindings, window)
   for _, binding in pairs(bindings) do
-    binding:enable()
+    binding.hotkey:enable()
   end
 end
 
 function disableBindings(bindings)
   for _, binding in pairs(bindings) do
-    binding:disable()
+    binding.hotkey:disable()
   end
 end
 
@@ -55,9 +55,10 @@ local function bind(binding)
   end
   local fn = buildBindFunction(binding)
   if fn == nil then
-    logger.df('Binding: %s', inspect(binding))
+    logger.ef('Missing binding function for: %s', inspect(binding))
   end
-  return hotkey.new(modifiers, binding.key, fn, message)
+  binding.hotkey = hotkey.new(modifiers, binding.key, fn, message)
+  return binding
 end
 
 function initWatcher(appBindingMap)
@@ -77,7 +78,7 @@ function initWatcher(appBindingMap)
 
         if activated[event] ~= nil then
           logger.df('Enabling for %s', appName)
-          enableBindings(bindings)
+          enableBindings(bindings, window.focusedWindow())
           return
         end
 

@@ -2,9 +2,7 @@ local timer = require "hs.timer"
 local alert = require "hs.alert"
 local fnutils = require "hs.fnutils"
 local watcher = require "hs.caffeinate.watcher"
-local logger = require "hs.logger"
 local sound = require "hs.sound"
-local log = logger.new('reminder', 'debug')
 
 local mod = {}
 

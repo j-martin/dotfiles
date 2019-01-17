@@ -1,6 +1,6 @@
-local audio = require('hs.audiodevice')
-local spotify = require('hs.spotify')
-local alert = require('hs.alert')
+local audio = require 'hs.audiodevice'
+local spotify = require 'hs.spotify'
+local alert = require 'hs.alert'
 local application = require "hs.application"
 local watcher = require "hs.caffeinate.watcher"
 local headphones_watcher = require "audio/headphones_watcher"

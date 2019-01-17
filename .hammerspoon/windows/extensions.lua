@@ -10,7 +10,6 @@ local timer = require "hs.timer"
 local mouse = require "hs.mouse"
 local fs = require "hs.fs"
 local application = require "hs.application"
-local appfinder = require "hs.appfinder"
 local screen = require "hs.screen"
 local logger = hs.logger.new('windows.ext', 'debug')
 

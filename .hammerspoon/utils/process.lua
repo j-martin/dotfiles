@@ -56,7 +56,7 @@ function mod.start(cmd, args, pwd)
   args = fnutils.map(args or {}, expand)
   pwd = expand(pwd or '~/.bin')
 
-  process = task.new(cmd, returnCallback, streamCallback, args)
+  process = task.new(cmd, nil, function() end, args)
   table.insert(running_processes, process)
 
   logger.f('starting %s %s in %s', cmd, args, pwd)

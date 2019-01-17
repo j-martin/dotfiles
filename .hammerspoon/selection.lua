@@ -6,15 +6,18 @@ local task = require "hs.task"
 local eventtap = require "hs.eventtap"
 local alert = require "hs.alert"
 local window = require "hs.window"
+local osascript = require "hs.osascript"
 local logger = hs.logger.new('selection', 'debug')
 
 local mod = {}
 
 local engines = {
-  google = 'https://www.google.ca/search?q='
+  google = 'https://www.google.ca/search?q=',
+  googleLucky = 'https://www.google.ca/search?btnI&q='
 }
 
 local function selectedTextFromClipboard(currentApp)
+  local selection
   local function getClipboard(initial, limit)
     if limit < 0 then return initial end
     eventtap.keyStroke({'cmd'}, 'c')
@@ -29,7 +32,7 @@ local function selectedTextFromClipboard(currentApp)
   end
 
   local initial = pasteboard.readString()
-  local selection = getClipboard(initial, 10)
+  selection = getClipboard(initial, 10)
   logger.df('clipboard: %s', selection)
   pasteboard:setContents(initial)
   return selection
@@ -46,25 +49,28 @@ function mod.getSelectedText()
 end
 
 local function openUrl(url)
-  task.new('/usr/bin/open', nil, logger.d, {url}):start()
+  task.new('/usr/bin/open', nil, function() end, {url}):start()
 end
 
 local function query(url, text)
   openUrl(url .. http.encodeForQuery(text))
 end
 
-local function google(text)
-  query(engines['google'], text or mod.getSelectedText())
+local function google(text, engine)
+  query(engines[engine], text or mod.getSelectedText())
 end
 
-function mod.actOn()
-  local text = mod.getSelectedText()
-  if text:gmatch("https?://")() then
-    openUrl(text)
-  elseif text:gmatch("1%d%d%d%d%d%d%d%d%d+")() then
-    mod.epochSinceNow(text)
-  else
-    google(text)
+function mod.actOn(engine)
+  return function()
+    local text = mod.getSelectedText()
+    if text:gmatch("https?://")() then
+      openUrl(text)
+    -- TODO: Cleanup silly regex
+    elseif text:gmatch("1%d%d%d%d%d%d%d%d%d+")() then
+      mod.epochSinceNow(text)
+    else
+      google(text, engine)
+    end
   end
 end
 

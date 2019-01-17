@@ -1,6 +1,5 @@
 local alert = require "hs.alert"
 local volume = require "hs.fs.volume"
-local logger = hs.logger.new('mounts', 'debug')
 
 local mod = {}
 

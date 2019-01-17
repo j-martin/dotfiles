@@ -1,4 +1,3 @@
-local alert = require "hs.alert"
 local eventtap = require 'hs.eventtap'
 local timer = require 'hs.timer'
 local apps = require 'apps'
@@ -9,7 +8,7 @@ local mod = {}
 mod.name = 'Google Chrome'
 
 mod.tab = {
-  slack  = 'Slack',
+  slack  = ' Alloy Slack',
   mail = {
     work = 'Alloy, Inc. Mail',
     personal = 'jmartin.ca Mail'

@@ -1,6 +1,6 @@
 local alert = require "hs.alert"
 local pathwatcher = require "hs.pathwatcher"
-local logger = hs.logger.new('windows.ext', 'debug')
+local logger = hs.logger.new('reload', 'debug')
 local fnutils = require 'hs.fnutils'
 
 local mod = {}
