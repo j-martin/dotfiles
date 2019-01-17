@@ -42,9 +42,9 @@ This function should only modify configuration layer settings."
       auto-completion-tab-key-behavior 'cycle
       auto-completion-return-key-behavior 'complete
       auto-completion-complete-with-key-sequence "jk"
-      auto-completion-idle-delay 0.1
+      auto-completion-idle-delay 0.4
       auto-completion-complete-with-key-sequence-delay 0.2
-      auto-completion-enable-help-tooltip t
+      auto-completion-enable-help-tooltip nil
       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
      c-c++
