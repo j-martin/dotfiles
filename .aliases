@@ -114,7 +114,7 @@ alias lcf='_with_fzf "lc"'
 alias le='less -SRi'
 alias lf='_with_fzf cat | less -SRi'
 alias ler='less README.md'
-alias vir="$EDITOR README.md"
+alias vir='$EDITOR README.md'
 vme() { $EDITOR "$1" & vmd "$1"; }
 alias vms='EDITOR=subl vme'
 alias vmr='EDITOR=subl vme README.md'
@@ -134,8 +134,8 @@ alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 alias ssh='_production /usr/local/bin/ssh'
-s() { ssh "$@" -t 'command; tmux -u -CC attach -t jm || tmux -u -CC new -s jm' ;}
-ss() { ssh "$@" -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
+s() { \ssh "$@" -t 'command; tmux -u -CC attach -t jm || tmux -u -CC new -s jm' ;}
+ss() { \ssh "$@" -t 'command; tmux -S /tmp/shared -CC attach -t shared || tmux -S /tmp/shared -CC new -s shared' ;}
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
 alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
