@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp -*-
+;; -*- mode: emacs-lisp; lexical-binding: t -*-
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
@@ -131,8 +131,8 @@ It should only modify the values of Spacemacs settings."
 
    ;; File path pointing to emacs 27.1 executable compiled with support
    ;; for the portable dumper (this is currently the branch pdumper).
-   ;; (default "emacs")
-   dotspacemacs-emacs-pdumper-executable-file "emacs"
+   ;; (default "emacs-27.0.50")
+   dotspacemacs-emacs-pdumper-executable-file "emacs-27.0.50"
 
    ;; Name of the Spacemacs dump file. This is the file will be created by the
    ;; portable dumper in the cache directory under dumps sub-directory.
@@ -269,21 +269,6 @@ It should only modify the values of Spacemacs settings."
    ;; works in the GUI. (default nil)
    dotspacemacs-distinguish-gui-tab t
 
-   ;; If non-nil `Y' is remapped to `y$' in Evil states. (default nil)
-   dotspacemacs-remap-Y-to-y$ nil
-
-   ;; If non-nil, the shift mappings `<' and `>' retain visual state if used
-   ;; there. (default t)
-   dotspacemacs-retain-visual-state-on-shift t
-
-   ;; If non-nil, `J' and `K' move lines up and down when in visual mode.
-   ;; (default nil)
-   dotspacemacs-visual-line-move-text nil
-
-   ;; If non-nil, inverse the meaning of `g' in `:substitute' Evil ex-command.
-   ;; (default nil)
-   dotspacemacs-ex-substitute-global nil
-
    ;; Name of the default layout (default "Default")
    dotspacemacs-default-layout-name "Default"
 
@@ -302,7 +287,7 @@ It should only modify the values of Spacemacs settings."
    ;; Size (in MB) above which spacemacs will prompt to open the large file
    ;; literally to avoid performance issues. Opening a file literally means that
    ;; no major mode or minor modes are active. (default is 1)
-   dotspacemacs-large-file-size 1
+   dotspacemacs-large-file-size 10
 
    ;; Location where to auto-save files. Possible values are `original' to
    ;; auto-save the file in-place, `cache' to auto-save the file to another
@@ -467,8 +452,15 @@ It should only modify the values of Spacemacs settings."
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
    ;; (default nil)
-   dotspacemacs-pretty-docs nil
-   ))
+   dotspacemacs-pretty-docs nil))
+
+(defun dotspacemacs/user-env ()
+  "Environment variables setup.
+This function defines the environment variables for your Emacs session. By
+default it calls `spacemacs/load-spacemacs-env' which loads the environment
+variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
+See the header of this file for more information."
+  (spacemacs/load-spacemacs-env))
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
@@ -512,7 +504,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (winum tide pyvenv orgit org-brain meghanada magithub lsp-ui lsp-java live-py-mode google-translate git-timemachine evil-magit evil-goggles editorconfig doom-modeline diff-hl counsel-projectile counsel swiper ivy company-lsp ccls auto-yasnippet iedit flycheck flyspell-correct request rtags helm helm-core typescript-mode lsp-mode magit git-commit ghub with-editor dumb-jump treemacs avy which-key use-package org-plus-contrib hydra yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode writegood-mode web-beautify volatile-highlights vmd-mode vi-tilde-fringe uuidgen unfill treepy treemacs-projectile treemacs-evil toml-mode toc-org symon super-save sql-indent spaceline-all-the-icons smeargle smart-jump shrink-path shell-pop rjsx-mode reveal-in-osx-finder restart-emacs rainbow-delimiters racer pytest pyenv-mode py-isort protobuf-mode prettier-js popwin plantuml-mode pippel pipenv pip-requirements pfuture persp-mode pcre2el password-generator parinfer paradox ox-gfm ox-clip overseer osx-trash osx-dictionary org-present org-pomodoro org-mime org-download org-clubhouse org-bullets open-junk-file noflet nginx-mode nameless mwim mvn multi-term move-text mmm-mode maven-test-mode markdown-toc magit-svn magit-gitflow magit-gh-pulls macrostep lsp-rust lsp-python lsp-javascript-typescript lsp-go lorem-ipsum livid-mode link-hint launchctl json-navigator js2-refactor js-doc insert-shebang indent-guide importmagic hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-mode-manager helm-make helm-gtags helm-gitignore helm-git-grep helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag groovy-mode groovy-imports graphql gradle-mode google-c-style golden-ratio godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc gnuplot gitignore-templates github-search github-clone gitconfig-mode gitattributes-mode git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist ghub+ gh-md ggtags fuzzy font-lock+ flyspell-popup flyspell-correct-helm flycheck-rust flycheck-rtags flycheck-pos-tip flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-syntax evil-surround evil-string-inflection evil-org evil-numbers evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-commentary evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime elisp-slime-nav eldoc-eval dotenv-mode dockerfile-mode docker disaster diminish cython-mode csv-mode cquery company-terraform company-tern company-statistics company-shell company-rtags company-quickhelp company-lua company-go company-emacs-eclim company-c-headers company-anaconda column-enforce-mode clean-aindent-mode clang-format centered-cursor-mode cargo browse-at-remote bind-key auto-highlight-symbol auto-dictionary auto-compile atomic-chrome aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
+    (treemacs-projectile treemacs-evil treemacs tide typescript-mode pyvenv plantuml-mode org-brain magithub ghub lsp-ui lsp-java ggtags eyebrowse evil-matchit eshell-prompt-extras editorconfig doom-modeline eldoc-eval docker counsel-projectile counsel ivy company-lsp ccls cargo auto-compile aggressive-indent smartparens flyspell-correct projectile helm helm-core lsp-mode markdown-mode flycheck company magit git-commit dumb-jump spaceline powerline evil goto-chg async org-plus-contrib yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode writegood-mode with-editor winum which-key web-beautify volatile-highlights vmd-mode vi-tilde-fringe uuidgen use-package unfill undo-tree treepy toml-mode toc-org tablist symon swiper super-save sql-indent spaceline-all-the-icons smeargle smart-jump shrink-path shell-pop rjsx-mode reveal-in-osx-finder restart-emacs rainbow-delimiters racer pytest pyenv-mode py-isort protobuf-mode prettier-js popwin pippel pipenv pip-requirements pfuture persp-mode pcre2el password-generator parinfer paradox packed ox-gfm ox-clip overseer osx-trash osx-dictionary orgit org-present org-pomodoro org-mime org-download org-clubhouse org-bullets open-junk-file noflet nginx-mode nameless mwim mvn multi-term move-text mmm-mode meghanada maven-test-mode markdown-toc magit-svn magit-gitflow magit-gh-pulls macrostep lsp-go lorem-ipsum livid-mode live-py-mode link-hint launchctl json-navigator json-mode js2-refactor js-doc insert-shebang indent-guide importmagic hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-mode-manager helm-make helm-gtags helm-gitignore helm-git-grep helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag groovy-mode groovy-imports graphql gradle-mode google-translate google-c-style golden-ratio godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc gnuplot gitignore-templates github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist ghub+ gh-md fuzzy font-lock+ flyspell-popup flyspell-correct-helm flycheck-rust flycheck-rtags flycheck-pos-tip flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-syntax evil-surround evil-string-inflection evil-org evil-numbers evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-commentary evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z esh-help ensime elisp-slime-nav dotenv-mode dockerfile-mode docker-tramp disaster diminish diff-hl cython-mode csv-mode cquery company-terraform company-tern company-statistics company-shell company-rtags company-quickhelp company-lua company-go company-emacs-eclim company-c-headers company-anaconda column-enforce-mode clean-aindent-mode clang-format centered-cursor-mode browse-at-remote auto-yasnippet auto-highlight-symbol auto-dictionary atomic-chrome ace-window ace-link ace-jump-helm-line ac-ispell)))
  '(spacemacs-centered-buffer-mode-fringe-color "#292b2e")
  '(spacemacs-theme-custom-colors
    (quote

@@ -12,7 +12,7 @@ _main() {
   local column_number="${3:-}"
 
   case "${filepath}" in
-    *.scala|*.java|*.sbt|*pom.xml)
+    *.scala|*.java|*.sbt|*pom.xml|*.tsx)
       if [[ -n "${line_number}" ]]; then
         _idea "${filepath}:${line_number}"
       else
@@ -31,12 +31,12 @@ _main() {
 
 _emacs() {
   _log emacs "$@"
-  exec /usr/local/bin/emacsclient --no-wait "$@"
+  exec /usr/local/bin/emacsclient --no-wait "$@" &
 }
 
 _idea() {
   _log idea "$@"
-  exec /usr/local/bin/idea "$@" 2>&1
+  exec /usr/local/bin/idea "$@" 2>&1 &
 }
 
 _log() {

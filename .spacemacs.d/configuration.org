@@ -348,6 +348,11 @@
      (require 'evil-string-inflection)
      (require 'evil-textobj-syntax)
    #+end_src
+*** Center on fold commands
+#+begin_src emacs-lisp :results none
+(defun jm/recenter (&rest anything) (interactive) (recenter))
+(advice-add 'evil-fold-action :after 'jm/recenter)
+#+end_src
 
 ** Scala
    #+begin_src emacs-lisp :results none
@@ -429,6 +434,11 @@
       (setq org-startup-with-inline-images t)
       (setq org-export-with-section-numbers nil)
     #+end_src
+***** Always save archived subtrees
+#+begin_src emacs-lisp :results none
+(advice-add 'org-archive-subtree :after #'org-save-all-org-buffers)
+#+end_src
+
 *** Org sync
 #+begin_src emacs-lisp :results none
   (defun jm/org-sync ()
@@ -437,6 +447,7 @@
     (shell-command "~/.bin/org-sync &")
 
   (run-with-timer 0 (* 10 60) 'jm/org-sync)
+  (run-with-idle-timer (* 10 60) t 'jm/org-sync)
 #+end_src
 *** Extra packages
     #+begin_src emacs-lisp :results none
@@ -452,6 +463,7 @@
       (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.12/libexec/plantuml.jar")
       (setq org-confirm-babel-evaluate nil)
     #+end_src
+
 *** Capture Templates
     #+begin_src emacs-lisp :results none
       (add-hook 'org-capture-mode-hook 'evil-insert-state)
@@ -493,7 +505,7 @@
                                     ("R" "References / Research TODO"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
-                                     "* %?%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+                                     "* %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("y" "References / Temporary"
                                      entry
                                      (file+headline "~/.org/references.org" "Temporary")
@@ -536,6 +548,19 @@
                        (toggle-frame-fullscreen)
                        (org-present-read-write)))))
     #+end_src
+
+*** Export tree to markdown
+#+begin_src emacs-lisp :results none
+  (defun jm/org-md-export ()
+    (interactive)
+    (setq org-export-show-temporary-export-buffer nil)
+    (org-mark-subtree)
+    (org-md-export-as-markdown)
+
+    (spacemacs/copy-whole-buffer-to-clipboard)
+    (spacemacs/kill-this-buffer))
+#+end_src
+
 * Keyboard Bindings
   #+begin_src emacs-lisp :results none
     (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
@@ -549,10 +574,9 @@
     (define-key evil-normal-state-map (kbd "H-/") 'evil-commentary)
     (global-set-key (kbd "M-SPC") 'hippie-expand)
     (global-set-key (kbd "<f2>") 'flycheck-next-error)
-    (define-key evil-normal-state-map (kbd "zr") 'jm/open-folds)
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
     (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
-    (global-set-key (kbd "H-q") (kbd "C-c C-k"))
+    (global-set-key (kbd "H-C-w") (kbd "C-c C-k"))
     (global-set-key (kbd "H-<left>") 'back-to-indentation)
     (global-set-key (kbd "H-<right>") 'end-of-line)
     (global-set-key (kbd "H-b") 'smart-jump-go)
@@ -607,6 +631,7 @@
     (spacemacs/set-leader-keys "or" 'jm/open-references)
     (spacemacs/set-leader-keys "ow" 'jm/open-work)
     (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
+    (spacemacs/set-leader-keys "ox" 'jm/org-md-export)
     (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
     (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
     (spacemacs/set-leader-keys "wa" 'jm/split-window-below-and-find-file)
@@ -670,11 +695,6 @@
 
 ** Utils
 #+begin_src emacs-lisp :results none
-  (defun jm/open-folds ()
-    (interactive)
-    (evil-open-folds)
-    (recenter))
-
   (defun jm/calc ()
     (interactive)
     (quick-calc)
@@ -820,45 +840,3 @@
     (jm/open-with-line-column-vim "/usr/local/Cellar/neovim-dot-app/HEAD/bin/gnvim"))
 #+end_src
 ** Vendors
-*** Endless Autocorrect
- Per [[http://endlessparentheses.com/ispell-and-abbrev-the-perfect-auto-correct.html][Endless parentheses]] copied on 2016-05-17
- #+begin_src emacs-lisp :results none
-   (define-key ctl-x-map "\C-i"
-     #'endless/ispell-word-then-abbrev)
-
-   (defun endless/simple-get-word ()
-     (car-safe (save-excursion (ispell-get-word nil))))
-
-   (defun endless/ispell-word-then-abbrev (p)
-     "Call `ispell-word', then create an abbrev for it.
-   With prefix P, create local abbrev. Otherwise it will
-   be global.
-   If there's nothing wrong with the word at point, keep
-   looking for a typo until the beginning of buffer. You can
-   skip typos you don't want to fix with `SPC', and you can
-   abort completely with `C-g'."
-     (interactive "P")
-     (let (bef aft)
-       (save-excursion
-         (while (if (setq bef (endless/simple-get-word))
-                    ;; Word was corrected or used quit.
-                    (if (ispell-word nil 'quiet)
-                        nil ; End the loop.
-                      ;; Also end if we reach `bob'.
-                      (not (bobp)))
-                  ;; If there's no word at point, keep looking
-                  ;; until `bob'.
-                  (not (bobp)))
-           (backward-word)
-           (backward-char))
-         (setq aft (endless/simple-get-word)))
-       (if (and aft bef (not (equal aft bef)))
-           (let ((aft (downcase aft))
-                 (bef (downcase bef)))
-             (define-abbrev
-               (if p local-abbrev-table global-abbrev-table)
-               bef aft)
-             (message "\"%s\" now expands to \"%s\" %sally"
-                      bef aft (if p "loc" "glob")))
-         (user-error "No typo at or before point"))))
- #+end_src

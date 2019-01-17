@@ -138,7 +138,6 @@ s() { ssh "$@" -t 'command; tmux -u -CC attach -t jm || tmux -u -CC new -s jm' ;
 ss() { ssh "$@" -t 'command; tmux -S /tmp/shared attach -t shared || tmux -S /tmp/shared new -s shared' ;}
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
-alias tf='terraform'
 alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
 alias tfl='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" | less -SRI'
 alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" "src"'
@@ -164,6 +163,8 @@ alias mk=minikube
 alias c=club
 
 ## Git
+magit() { emacsclient -n -e '(magit-status)' && osascript -e 'tell application "Emacs" to activate'; }
+
 alias gl='git pull --tags'
 # TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^master$" | fzf -m | xargs git branch -D'
@@ -182,6 +183,7 @@ alias gdff='git icdiff | less -SRi'
 alias gdfff='git diff --color | diff-so-fancy | less -SRi'
 alias gdf='git diff -- "$(fzf)"'
 alias gpom='git pull --rebase origin master'
+alias gpomtheirs='git pull --rebase --strategy recursive --strategy-option theirs origin master'
 alias gw='_git_switch_worktree'
 alias gwf='$(git worktree list | fzf | _pick_first_col)'
 gcof() { git checkout "$(_git_pick_branch_no_origin "'$1")"; }
@@ -193,6 +195,7 @@ alias gci='_github_create_issue'
 alias gshowf='git show "$(_git_pick_commit):$(fzf)" | pygmentize | less -SRi'
 gshow() { git show "$1:$2" | vi - ;}
 gshowm() { git show "origin/master:$1" | vi - ;}
+alias gclone='_git_clone'
 alias gwip='(git log --oneline master..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias gcp='git add -p && git commit' # Commiting part of a file.
@@ -326,9 +329,6 @@ alias c2='open "https://console.aws.amazon.com/ec2/"'
 alias bdump='brew bundle --global dump --force && sed -i "s/, link: false//"  ~/.Brewfile'
 alias bcleanup='brew bundle --global cleanup' # --force
 
-# Bub
-alias b='bub'
-# alias w='bub workflow'
-
 # Ore
 alias w='o clubhouse'
+alias tf='o b tf'

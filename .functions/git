@@ -85,7 +85,7 @@ _slugify() {
 _git_new_branch() {
   local name="$1"
   git fetch 'origin'
-  git checkout -b "$(_github_user)/$(_slugify <<< "$name")" 'origin/master'
+  git checkout -b "$(git config --get clubhouse.user)/$(_slugify <<< "$name")" 'origin/master'
 }
 
 _git_new_branch_from_new_issue() {
@@ -156,7 +156,7 @@ _github_current_branch_pr_number() {
 _github_current_branch_pr() {
   _github "repos/$(_git_repo)/pulls" \
           --get \
-          --data-urlencode head="$(dirname "$(_git_repo)"):$(_git_current_branch)" \
+          --data-urlencode head="$(dirname "$(_git_repo)"):$(_git_current_branch)"
 }
 
 _github_open_url() {
@@ -275,6 +275,11 @@ _git_switch_worktree() {
   fi
 }
 
+_git_commit_individual_files() {
+  git diff --name-only \
+    | xargs -I{} git commit -m '{}' '{}'
+}
+
 _github_pr() {
   local reviewers="${1:-$(git config --get github.reviewers)}"
 
@@ -297,6 +302,18 @@ _git_push_pr_if_commits() {
     git push
     bub w pr
   fi
+}
+
+_git_clone() {
+  local repository="$1"
+  git clone "${repository}"
+  cd "$(basename "${repository}" | sed 's/\.git$//')" \
+    || _info 'Failed to change dir...'
+}
+
+_git_delete_commit() {
+  local commit="$1"
+  git rebase --onto "${commit}^" "${commit}"
 }
 
 mass-master() {
