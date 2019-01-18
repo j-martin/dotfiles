@@ -473,60 +473,33 @@
       (setq org-capture-templates '(("t" "Todo"
                                      entry
                                      (file+headline "~/.org/main.org" "Inbox")
-                                     "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ("T" "Todo with clipboard"
+                                     "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
+                                    ("T" "Todo (Quote)"
                                      entry
-                                     (file+headline "~/.org/main.org" "Inbox")
-                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-                                    ("w" "Inbox for work"
+                                     (file+headline "~/.org/main.org" "Inbox"
+                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n"))
+                                    ("w" "Inbox for Work"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ("W" "Inbox with clipboard for work"
+                                     "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
+                                    ("W" "Inbox for Work (Quote)"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-                                    ("s" "Add journal entry to work"
-                                     entry
-                                     (file+datetree "~/.org/work.org" "Journal")
-                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ("S" "Add journal entry to work DONE"
-                                     entry
-                                     (file+datetree "~/.org/work.org" "Journal")
-                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ("e" "Add past journal entry to work DONE"
-                                     entry
-                                     (file+datetree+prompt "~/.org/work.org" "Journal")
-                                     "* DONE %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("r" "References / Research"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
-                                     "** %?%c\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
-                                    ("R" "References / Research TODO"
+                                     "** %? %:annotation \n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
+                                    ("R" "References / Research (Quote)"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
                                      "* %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-                                    ("y" "References / Temporary"
-                                     entry
-                                     (file+headline "~/.org/references.org" "Temporary")
-                                     "** %?%c\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
-                                    ("b" "References / Books"
-                                     entry
-                                     (file+headline "~/.org/references.org" "Books")
-                                     "** %?%c\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
-                                    ("p" "Protocol Link"
-                                     entry
-                                     (file+headline "~/.org/references.org" "Research")
-                                     (jm/org-common-template "*"))
-                                    ("j" "Journal"
-                                     entry
-                                     (file+datetree "~/.org/journal.org")
-                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("z" "Tenancy Journal"
                                      entry
                                      (file+datetree+prompt "~/.org/tenancy-journal.org")
-                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ))
+                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")))
+
+
     #+end_src
 
 *** org-present
