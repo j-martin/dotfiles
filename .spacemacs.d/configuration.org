@@ -535,6 +535,11 @@
 #+end_src
 
 * Keyboard Bindings
+*** Map escape to abort seq
+#+begin_src emacs-lisp :results none
+  (which-key-define-key-recursively global-map [escape] 'ignore)
+#+end_src
+*** Normal
   #+begin_src emacs-lisp :results none
     (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
     (define-key evil-insert-state-map (kbd "M-<down>") 'er/contract-region)
@@ -612,12 +617,6 @@
     (spacemacs/set-leader-keys "wv" 'jm/split-window)
 #+end_src
 ** Fixes
-*** Fix while https://github.com/syl20bnr/evil-iedit-state/pull/19 gets merged.
-#+begin_src emacs-lisp :results none
-  (require 'evil-iedit-state)
-  (define-key evil-iedit-state-map "V" 'iedit-show/hide-unmatched-lines)
-#+end_src
-
 * Functions
 ** Git
 #+begin_src emacs-lisp :results none
