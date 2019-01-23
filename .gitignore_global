@@ -8,6 +8,8 @@ Session.vim
 ._*
 .Spotlight-V100
 .Trashes
+*.temp
+*.tmp
 
 # Python VirtualEnnv
 venv/
