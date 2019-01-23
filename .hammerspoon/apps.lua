@@ -67,23 +67,4 @@ function mod.activityMonitor()
   eventtap.keyStroke({'cmd'}, '1')
 end
 
-function mod.toggleNoisyTyper()
-  return function()
-    local callBackFn = nil
-    if not states.noisyTyperEnabled then
-      callBackFn = function()
-        win = window.frontmostWindow()
-        hs.application.launchOrFocus(mod.name.noisyTyper)
-        wait(4)
-        eventtap.keyStroke({}, 'return')
-        win:focus()
-        states.noisyTyperEnabled = true
-      end
-    end
-    args = {'-f', mod.name.noisyTyper}
-    states.noisyTyperEnabled = false
-    hs.task.new('/usr/bin/pkill', callBackFn, function() end, args):start()
-  end
-end
-
 return mod

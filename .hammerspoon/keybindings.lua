@@ -30,7 +30,6 @@ local bindings = {
       { key = '1', name = apps.name.activityMonitor },
       { key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph' },
       { key = '2', name = 'Keybase' },
-      { key = '4', fn = apps.toggleNoisyTyper(), desc = 'Toggle Noisy Typer' },
       -- key = '5' reserved for snippets
       { key = '8', tab = chrome.tab.slack },
       { key = '9', name = 'Spotify' },
