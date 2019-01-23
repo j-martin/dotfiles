@@ -476,8 +476,8 @@
                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
                                     ("T" "Todo (Quote)"
                                      entry
-                                     (file+headline "~/.org/main.org" "Inbox"
-                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n"))
+                                     (file+headline "~/.org/main.org" "Inbox")
+                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("w" "Inbox for Work"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
