@@ -7,18 +7,21 @@ set -o pipefail
 _main() {
   osascript -e 'tell application "Emacs" to activate' > /dev/null 2>&1 &
   if [[ "$1" == '+' ]]; then
-    # workaround iTerm semantic opening.
-    exec emacsclient --no-wait "${@:2}" > /dev/null 2>&1 &
+    # Workaround iTerm semantic opening.
+    _emacs "${@:2}"
   elif [[ "$1" == '-' ]]; then
-    tempfile="$(mktemp emacs-stdin-$USER.XXXXXXX)"
+    # Support piping text to emacs.
+    local tempfile
+    tempfile="$(mktemp -t "emacs-stdin-$USER")"
     cat - > "${tempfile}"
-    exec emacsclient -e "(progn (find-file \"${tempfile}\")
-                             (set-visited-file-name nil)
-                             (rename-buffer \"*stdin*\" t))
-                 " 2>&1 > /dev/null
+    _emacs "${tempfile}"
   else
-    exec emacsclient --no-wait "$@" > /dev/null 2>&1 &
+    _emacs "$@"
   fi
+}
+
+_emacs() {
+  exec emacsclient --no-wait "$@" > /dev/null 2>&1 &
 }
 
 _main "$@"
