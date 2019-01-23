@@ -316,6 +316,11 @@ _git_delete_commit() {
   git rebase --onto "${commit}^" "${commit}"
 }
 
+_git_list_files_not_under_source_control() {
+  local dir="$1"
+  find "${dir}" \( -type d -exec test -d '{}'/.git \; -prune \) -o -print
+}
+
 mass-master() {
   mass 'git status && git checkout master && git pull && git pull --tags'
 }
