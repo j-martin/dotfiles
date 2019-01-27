@@ -1,7 +1,7 @@
 [user]
   name = Jean-Martin Archer
   email = jm@jmartin.ca
-	signingkey = <change-me>
+  signingkey = <change-me>
 [pull]
   rebase = true
 [push]
@@ -13,8 +13,8 @@
   org =
 [core]
   commentChar = ";"
-  excludesfile = /Users/jma/.gitignore_global
+  excludesfile = /Users/jm/.gitignore_global
 [url "git@github.com:"]
   insteadOf = "https://github.com/"
 [commit]
-	gpgsign = true
+  gpgsign = true
