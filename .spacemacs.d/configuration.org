@@ -547,7 +547,7 @@
 * Keyboard Bindings
 *** Map escape to abort seq
 #+begin_src emacs-lisp :results none
-  (which-key-define-key-recursively global-map [escape] 'ignore)
+  (which-key-define-key-recursively global-map [escape] 'keyboard-quit)
 #+end_src
 *** Normal
   #+begin_src emacs-lisp :results none
