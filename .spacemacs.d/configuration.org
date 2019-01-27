@@ -39,6 +39,11 @@
                  (lambda ()
                    (shell-command "open -a \"Google Chrome\""))))
    #+end_src
+** Generate link with the commit sha instead of the branch
+#+begin_src emacs-lisp :results none
+(setq git-link-use-commit t)
+#+end_src
+
 * UI/Visual
   #+begin_src emacs-lisp :results none
     (spacemacs/toggle-syntax-checking-on)
