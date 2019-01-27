@@ -396,6 +396,11 @@
      (add-hook 'git-commit-mode-hook 'jm/git-commit-mode-config)
      (add-hook 'magit-status-mode-hook 'jm/git-status-mode-config)
    #+end_src
+*** Prevent magit from exiting with esc
+#+begin_src emacs-lisp :results none
+(evil-define-key* evil-magit-state magit-mode-map [escape] nil)
+#+end_src
+
 ** Org
 *** Basic setup
     #+begin_src emacs-lisp :results none
