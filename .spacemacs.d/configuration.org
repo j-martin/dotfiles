@@ -148,6 +148,11 @@
 (setq jit-lock-defer-time 0)
 (setq fast-but-imprecise-scrolling t)
 #+end_src
+** Follow focus
+#+begin_src emacs-lisp :results none
+(setq mouse-autoselect-window t)
+#+end_src
+
 * Modes
   #+begin_src emacs-lisp :results none
     (require 'helm-bookmark)
@@ -564,7 +569,7 @@
     (global-set-key (kbd "<f2>") 'flycheck-next-error)
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
     (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
-    (global-set-key (kbd "H-C-w") (kbd "C-c C-k"))
+    (global-set-key (kbd "H-<escape>") (kbd "C-c C-k"))
     (global-set-key (kbd "H-<left>") 'back-to-indentation)
     (global-set-key (kbd "H-<right>") 'end-of-line)
     (global-set-key (kbd "H-b") 'smart-jump-go)
