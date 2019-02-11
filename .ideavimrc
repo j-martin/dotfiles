@@ -35,7 +35,9 @@ nmap <leader><leader> :action GotoAction<CR>
 
 nmap <leader>gs :action Vcs.QuickListPopupAction<CR>
 nmap ,r :action Refactorings.QuickListPopupAction<CR>
+nmap ,R :action Git.ResolveConflicts<CR>
 nmap ,c :action Compile<CR>
+nmap ,C :action CompileProject<CR>
 nmap ,d :action Debug<CR>
 nmap ,D :action ChooseDebugConfiguration<CR>
 nmap <leader>ji :action FileStructurePopup<CR>
