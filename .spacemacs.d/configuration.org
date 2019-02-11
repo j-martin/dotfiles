@@ -491,30 +491,18 @@
       (defun jm/org-common-template (prefix)
         (format ""))
 
-      (setq org-capture-templates '(("t" "Todo"
+      (setq org-capture-templates '(("t" "Inbox (Main)"
                                      entry
                                      (file+headline "~/.org/main.org" "Inbox")
-                                     "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ("T" "Todo (Quote)"
-                                     entry
-                                     (file+headline "~/.org/main.org" "Inbox")
-                                      "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-                                    ("w" "Inbox for Work"
+                                      "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+                                    ("w" "Inbox (Work)"
                                      entry
                                      (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ("W" "Inbox for Work (Quote)"
-                                     entry
-                                     (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+                                     "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("r" "References / Research"
                                      entry
                                      (file+headline "~/.org/references.org" "Research")
-                                     "** %? %:annotation \n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n\n%a")
-                                    ("R" "References / Research (Quote)"
-                                     entry
-                                     (file+headline "~/.org/references.org" "Research")
-                                     "* %? %:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+                                     "* %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
                                     ("z" "Tenancy Journal"
                                      entry
                                      (file+datetree+prompt "~/.org/tenancy-journal.org")
