@@ -544,10 +544,6 @@
 #+end_src
 
 * Keyboard Bindings
-*** Map escape to abort seq
-#+begin_src emacs-lisp :results none
-  (which-key-define-key-recursively global-map [escape] 'keyboard-quit)
-#+end_src
 *** Normal
   #+begin_src emacs-lisp :results none
     (define-key evil-insert-state-map (kbd "M-<up>") 'er/expand-region)
@@ -562,8 +558,6 @@
     (global-set-key (kbd "M-SPC") 'hippie-expand)
     (global-set-key (kbd "<f2>") 'flycheck-next-error)
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
-    (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
-    (global-set-key (kbd "H-<escape>") (kbd "C-c C-k"))
     (global-set-key (kbd "H-<left>") 'back-to-indentation)
     (global-set-key (kbd "H-<right>") 'end-of-line)
     (global-set-key (kbd "H-b") 'smart-jump-go)
@@ -591,33 +585,36 @@
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "o" 'org-edit-src-code)
 
-    (spacemacs/set-leader-keys "ac" 'jm/calc)
-    (spacemacs/set-leader-keys "ag" 'org-mac-grab-link)
+
     (spacemacs/set-leader-keys "ah" 'engine/search-github)
     (spacemacs/set-leader-keys "by" 'spacemacs/copy-whole-buffer-to-clipboard)
     (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
-    (spacemacs/set-leader-keys "jj" 'helm-jump-in-buffer)
     (spacemacs/set-leader-keys "gc" 'magit-commit)
     (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
     (spacemacs/set-leader-keys "ih" 'jm/insert-left)
     (spacemacs/set-leader-keys "il" 'jm/insert-right)
+    (spacemacs/set-leader-keys "jj" 'helm-jump-in-buffer)
     (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
-    (spacemacs/set-leader-keys "oO" 'jm/org-github-out)
-    (spacemacs/set-leader-keys "oc" 'jm/open-config)
-    (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
     (spacemacs/set-leader-keys "oI" 'jm/org-github-in)
+    (spacemacs/set-leader-keys "oO" 'jm/org-github-out)
+    (spacemacs/set-leader-keys "oS" 'jm/langtool)
+    (spacemacs/set-leader-keys "oc" 'jm/open-config)
+    (spacemacs/set-leader-keys "od" 'jm/helm-org-dir)
+    (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
     (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
     (spacemacs/set-leader-keys "oi" 'jm/open-project-iterm)
-    (spacemacs/set-leader-keys "oo" 'jm/open-with-idea)
-    (spacemacs/set-leader-keys "op" 'jm/open-with-vscode)
     (spacemacs/set-leader-keys "ol" 'org-content)
     (spacemacs/set-leader-keys "om" 'jm/open-main)
     (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
-    (spacemacs/set-leader-keys "od" 'jm/helm-org-dir)
-    (spacemacs/set-leader-keys "os" 'jm/open-with-sublime)
+    (spacemacs/set-leader-keys "oo" 'jm/open-with-idea)
+    (spacemacs/set-leader-keys "o0" 'langtool-check-done)
+    (spacemacs/set-leader-keys "o8" 'langtool-check)
+    (spacemacs/set-leader-keys "o9" 'langtool-correct-buffer)
+    (spacemacs/set-leader-keys "op" 'jm/open-with-vscode)
     (spacemacs/set-leader-keys "or" 'jm/open-references)
-    (spacemacs/set-leader-keys "ow" 'jm/open-work)
+    (spacemacs/set-leader-keys "os" 'jm/open-with-sublime)
     (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
+    (spacemacs/set-leader-keys "ow" 'jm/open-work)
     (spacemacs/set-leader-keys "ox" 'jm/org-md-export)
     (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
     (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
@@ -625,6 +622,16 @@
     (spacemacs/set-leader-keys "ws" 'jm/split-window-below)
     (spacemacs/set-leader-keys "wv" 'jm/split-window)
 #+end_src
+*** Map escape to abort seq
+#+begin_src emacs-lisp :results none
+  (which-key-define-key-recursively global-map [escape] 'keyboard-quit)
+#+end_src
+*** Remap C-c C-c and C-c C-k
+#+begin_src emacs-lisp :results none
+    (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
+    (global-set-key (kbd "H-<escape>") (kbd "C-c C-k"))
+#+end_src
+
 ** Fixes
 * Functions
 ** Git
