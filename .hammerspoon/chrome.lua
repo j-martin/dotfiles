@@ -2,6 +2,7 @@ local eventtap = require 'hs.eventtap'
 local timer = require 'hs.timer'
 local apps = require 'apps'
 local window = require 'hs.window'
+local logger = hs.logger.new('chrome', 'debug')
 
 local mod = {}
 

@@ -12,6 +12,7 @@ local chrome = require 'chrome'
 local reload = require 'utils/reload'
 
 local cmd = keybinder.cmd
+local cmdCtrl = { 'cmd', 'ctrl' }
 local hyper = keybinder.hyper
 
 local mod = {}
@@ -30,7 +31,8 @@ local bindings = {
       { key = '1', name = apps.name.activityMonitor },
       { key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph' },
       { key = '2', name = 'Keybase' },
-      -- key = '5' reserved for snippets
+      -- key = '3', reserved for Trailer
+      -- key = '5' reserved for Alfred snippets
       { key = '8', tab = chrome.tab.slack },
       { key = '9', name = 'Spotify' },
       { key = ';', name = 'Dash' },
@@ -92,9 +94,9 @@ local bindings = {
   {
     name = chrome.name,
     bindings = {
-      { tab = 'Slack', modifiers = cmd, key = 'u', fn = chrome.slackReactionEmoji('thup'), desc = 'Thumbs up' },
-      { tab = 'Slack', modifiers = cmd, key = 's', fn = chrome.slackReactionEmoji('slighsm'), desc = 'Smiling Face' },
-      { tab = 'Slack', modifiers = cmd, key = 'e', fn = chrome.slackReactionEmoji('heart'), desc = 'Heart' },
+      { modifiers = cmdCtrl, key = 'u', fn = chrome.slackReactionEmoji('thup'), desc = 'Thumbs up' },
+      { modifiers = cmdCtrl, key = 's', fn = chrome.slackReactionEmoji('slighsm'), desc = 'Smiling Face' },
+      { modifiers = cmdCtrl, key = 'e', fn = chrome.slackReactionEmoji('heart'), desc = 'Heart' },
     }
   }
 }

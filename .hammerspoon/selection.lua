@@ -40,7 +40,13 @@ end
 
 function mod.getSelectedText()
   local currentApp = window.focusedWindow():application():name()
-  local selection  = uielement.focusedElement():selectedText()
+  local element  = uielement.focusedElement()
+  local selection
+
+  if element then
+    selection = element:selectedText()
+  end
+
   if not selection or currentApp == 'Emacs' then
     return selectedTextFromClipboard(currentApp)
   end
