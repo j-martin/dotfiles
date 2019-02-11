@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: shell
-# key: <sh
+# key: <src
 # --
-#+begin_src shell :tangle yes
+#+begin_src $1 :tangle yes
 $0
 #+end_src
