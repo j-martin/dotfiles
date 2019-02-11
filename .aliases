@@ -179,6 +179,7 @@ git-reflog-grep() {
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
 alias gfo='git fetch origin && git fetch origin --tags'
+alias gdpb='git diff | pbcopy'
 alias gdff='git icdiff | less -SRi'
 alias gdfff='git diff --color | diff-so-fancy | less -SRi'
 alias gdf='git diff -- "$(fzf)"'
