@@ -38,17 +38,18 @@ This function should only modify configuration layer settings."
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-    (auto-completion :variables
-      auto-completion-tab-key-behavior 'cycle
-      auto-completion-return-key-behavior 'complete
-      auto-completion-complete-with-key-sequence "jk"
-      auto-completion-idle-delay 0.4
-      auto-completion-complete-with-key-sequence-delay 0.2
-      auto-completion-enable-help-tooltip nil
-      auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
+     (auto-completion :variables
+                      auto-completion-tab-key-behavior 'cycle
+                      auto-completion-return-key-behavior 'complete
+                      auto-completion-complete-with-key-sequence "jk"
+                      auto-completion-idle-delay 0.4
+                      auto-completion-complete-with-key-sequence-delay 0.2
+                      auto-completion-enable-help-tooltip nil
+                      auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
      c-c++
      csv
+     dash
      docker
      emacs-lisp
      evil-commentary
@@ -74,8 +75,8 @@ This function should only modify configuration layer settings."
      shell
      shell-scripts
      (spell-checking :variables
-       enable-flyspell-auto-completion t
-       spell-checking-enable-by-default nil)
+                     enable-flyspell-auto-completion t
+                     spell-checking-enable-by-default nil)
      sql
      syntax-checking
      terraform
@@ -90,12 +91,13 @@ This function should only modify configuration layer settings."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
-    '(
+   '(
      all-the-icons
      atomic-chrome
      editorconfig
      evil-string-inflection
      evil-textobj-syntax
+     langtool
      (org-clubhouse :location (recipe :fetcher github :repo "urbint/org-clubhouse"))
      ox-clip
      parinfer

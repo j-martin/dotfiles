@@ -213,6 +213,12 @@
    #+begin_src emacs-lisp :results none
      (atomic-chrome-start-server)
    #+end_src
+** LanguageTool
+#+begin_src emacs-lisp :results none
+  (setq langtool-language-tool-server-jar "/usr/local/Cellar/languagetool/4.4/libexec/languagetool-server.jar")
+  (setq langtool-server-user-arguments '("-p" "8637"))
+  (require 'langtool)
+#+end_src
 
 ** Parinfer
    #+begin_src emacs-lisp :results none
