@@ -21,10 +21,6 @@ function mod.helmBuffers()
   eval('(helm-mini)')
 end
 
-function mod.capture()
-  eval('(org-capture)')
-end
-
 function mod.inbox()
   eval('(jm/open-inbox)')
 end
@@ -45,7 +41,7 @@ function mod.agenda()
   eval('(org-agenda-list)')
 end
 
-function mod.orgCaptureProtocol(captureTemplate)
+function mod.capture(captureTemplate)
   return function()
     local focusedWindow = window.focusedWindow()
     local focusedApplication = focusedWindow:application()
@@ -65,10 +61,12 @@ function mod.orgCaptureProtocol(captureTemplate)
     end
 
     local protocolUrl = 'org-protocol://capture?' ..
-      'template=' .. captureTemplate ..
-      '&title=' .. http.encodeForQuery(title) ..
+      'title=' .. http.encodeForQuery(title) ..
       '&url=' .. http.encodeForQuery(url) ..
       '&body=' .. http.encodeForQuery(body or '')
+    if captureTemplate then
+      protocolUrl = protocolUrl .. '&template=' .. captureTemplate
+    end
     -- logger.df("URL: %s", protocolUrl)
     open(protocolUrl)
   end
