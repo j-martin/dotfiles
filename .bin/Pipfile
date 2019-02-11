@@ -1,5 +1,4 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
@@ -7,18 +6,14 @@ verify_ssl = true
 python_version = "3.7"
 
 [packages]
-
+clubhouse = "==0.2.1"
 readability-lxml = "*"
 breadability = "*"
 todoist-python = "*"
-ipython = "*"
 keyring = "*"
-jira = "==1.0.10"
-
+click = "*"
 
 [dev-packages]
-
 bpython = "*"
 
 [scripts]
-foo = "ls"
