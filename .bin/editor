@@ -30,13 +30,16 @@ _main() {
 }
 
 _emacs() {
-  _log emacs "$@"
-  exec /usr/local/bin/emacsclient --no-wait "$@" &
+  _exec /usr/local/bin/emacsclient --no-wait "$@"
 }
 
 _idea() {
-  _log idea "$@"
-  exec /usr/local/bin/idea "$@" 2>&1 &
+  _exec /usr/local/bin/idea "$@"
+}
+
+_exec() {
+  _log "$@"
+  exec "$@" 2>&1 &
 }
 
 _log() {
