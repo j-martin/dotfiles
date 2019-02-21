@@ -1,15 +1,21 @@
 local application = require "hs.application"
-local osascript = require "hs.osascript"
-local window = require "hs.window"
-local selection = require "selection"
+local eventtap = require 'hs.eventtap'
 local http = require "hs.http"
+local logger = hs.logger.new('emacs', 'debug')
+local osascript = require "hs.osascript"
 local process = require "utils/process"
+local selection = require "selection"
+local window = require "hs.window"
 
 local mod = {}
 
 local function eval(sexp)
   process.start('~/.bin/ec', {'--quiet' , '--eval', sexp})
   application.launchOrFocus('Emacs')
+end
+
+local function evalInCurrentBuffer(sexp)
+  eval('(with-current-buffer (window-buffer (selected-window)) ' .. sexp ..')')
 end
 
 local function open(url)
@@ -29,8 +35,8 @@ function mod.references()
   eval('(jm/open-references)')
 end
 
-function mod.orgSearchView()
-  eval('(org-search-view)')
+function mod.orgRifle()
+  eval('(helm-org-rifle)')
 end
 
 function mod.workInbox()
@@ -45,6 +51,11 @@ function mod.capture(captureTemplate)
   return function()
     local focusedWindow = window.focusedWindow()
     local focusedApplication = focusedWindow:application()
+
+    if focusedApplication:name() == 'Emacs' then
+      evalInCurrentBuffer('(org-capture)')
+      return
+    end
 
     local title = focusedWindow:title() .. " - " .. focusedApplication:name()
     local url = focusedApplication:path()
@@ -67,7 +78,8 @@ function mod.capture(captureTemplate)
     if captureTemplate then
       protocolUrl = protocolUrl .. '&template=' .. captureTemplate
     end
-    -- logger.df("URL: %s", protocolUrl)
+
+    logger.df("URL: %s", protocolUrl)
     open(protocolUrl)
   end
 end
