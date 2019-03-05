@@ -76,4 +76,3 @@ fi
 # Work
 export HBASE_CONF_DIR="/usr/local/var/hbase/conf"
 export PYENV_ROOT="$HOME/.pyenv"
-export PIPENV_PYTHON="$PYENV_ROOT/shims/python"
