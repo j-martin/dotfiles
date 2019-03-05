@@ -18,16 +18,6 @@ grid.MARGINX = 0
 grid.MARGINY = 0
 window.animationDuration = 0
 
-function mod.grid()
-  grid.setGrid('10x4')
-  grid.show()
-end
-
-function mod.altGrid()
-  grid.setGrid('8x4')
-  grid.show()
-end
-
 function mod.applyLayout(commonLayout, selectedLayout)
   local function expandLayout(entry)
     local scr

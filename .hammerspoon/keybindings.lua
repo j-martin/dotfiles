@@ -44,8 +44,6 @@ local bindings = {
       { key = 'd', fn = selection.actOn('googleLucky'), shift = true, desc = 'Search selection' },
       { key = 'f', name = 'Finder' },
       { key = 'f', name = 'Preview', shift = true },
-      { key = 'g', fn = windows.grid, desc = 'Grid - Normal' },
-      { key = 'g', fn = windows.altGrid, shift = true, desc = 'Grid - Alt' },
       { key = 'h', fn = chrome.slackQuickSwitcher, desc = 'Slack - Quick Switcher' },
       { key = 'h', fn = chrome.slackUnread, shift = true, desc = 'Slack - Show unread' },
       { key = 'i', name = 'iTerm2' },
