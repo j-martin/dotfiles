@@ -43,10 +43,6 @@ cached() {
   _cached "$@"
 }
 
-_trim() {
-  echo "$@" | sed 's,^ *,,; s, *$,,'
-}
-
 _cached() {
   local ttl="${CACHE_TTL:-300}"
 

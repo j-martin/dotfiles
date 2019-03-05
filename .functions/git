@@ -53,9 +53,10 @@ _git_pick_any_branches() {
 _git_pick_branch() {
   local filter="$1"
   git for-each-ref \
-      --sort=committerdate refs/heads/ \
+      --sort=-committerdate refs/heads/ \
       --format='%(HEAD) %(refname:short) - %(objectname:short) - %(contents:subject) - %(authorname) (%(committerdate:relative))' \
-    | fzf --no-sort -q "$filter" \
+    | grep -v '^\*' \
+    | fzf --no-sort -q "${filter}" \
     | awk '{print $1}'
 }
 
@@ -68,12 +69,12 @@ _git_pick_commit() {
 
 _git_commit_with_issue_key() {
   local message="$1"
-  local issue_key
-  issue_key="$(echo "${message}" | _git_filter_issue_key)"
-  if [[ -z "${issue_key}" ]]; then
-    message="$(_jira_current_issue_key_or_assigned) ${message}"
-  fi
-  git commit -n -m "$(_trim ${message})" "${@:2}"
+  git commit -n -m "$(_git_format_commit_message ${message})" "${@:2}"
+}
+
+_git_format_commit_message() {
+  fold -w 80 -s <<< "${@}" \
+    | sed 's,^ *,,; s, *$,,'
 }
 
 _slugify() {
@@ -96,7 +97,14 @@ _git_new_branch_and_commit_from_new_issue() {
   local title="$1"
   local desc="$2"
   _git_new_branch_from_new_issue "${title}" "${desc}"
-  git commit -n -m "$(_trim "$(_jira_current_issue_key_or_assigned) ${title}\n\n${desc}")" "${@:3}"
+  git commit -n -m "$(_git_format_commit_message "$(_jira_current_issue_key_or_assigned) ${title}\n\n${desc}")" "${@:3}"
+}
+
+
+_git_new_branch_and_commit() {
+  local message="$1"
+  _git_new_branch "$(head -n1 <<< "${message}")"
+  git commit -n -m "$(_git_format_commit_message "${message}")" "${@:2}"
 }
 
 _github() {
