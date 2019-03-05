@@ -414,6 +414,8 @@
       (setq org-directory "~/.org/")
       (setq org-default-notes-file "~/.org/main.org")
       (setq org-hide-emphasis-markers t)
+      (setq org-ellipsis " ⤸")
+      (setq org-src-tab-acts-natively t)
       (setq org-agenda-files (list "~/.org/main.org"
                                    "~/.org/work.org"
                                    "~/.org/todoist.org"
