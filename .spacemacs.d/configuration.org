@@ -460,9 +460,9 @@
 *** Org sync
 #+begin_src emacs-lisp :results none
   (defun jm/org-sync ()
-    (interactive))
+    (interactive)
     (message "Running org-sync")
-    (shell-command "~/.bin/org-sync &")
+    (shell-command "~/.bin/org-sync > /dev/null 2>&1 & disown"))
 
   (run-with-timer 0 (* 10 60) 'jm/org-sync)
   (run-with-idle-timer (* 10 60) t 'jm/org-sync)
