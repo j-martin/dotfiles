@@ -218,14 +218,12 @@ alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%
 alias gplush='git pull && git push'
 alias gmc='git commit -vnm'
 # alias gms='bub workflow commit'
-gms() { git commit -n -m "$(_case_sentence "$1")" "${@:2}" ;}
-gmss() { git commit -n -m "SQUISHME $(_case_sentence "$1")" "${@:2}" ;}
+alias gms="_git_commit_with_issue_key"
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
 alias gnew='_git_new_branch'
-gnewc() { _git_new_branch "$(head -n1 <<< "$1")" && git commit -n -m "$@" ;}
-alias gnewj='_git_new_branch_from_new_issue'
+alias gnewc='_git_new_branch_and_commit'
 alias gnewp='_git_new_branch "$(pbpaste)"'
 alias mg='mass git'
 alias gnewic='_git_new_branch_and_commit_from_new_issue'
