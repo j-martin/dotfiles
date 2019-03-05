@@ -39,11 +39,6 @@
                  (lambda ()
                    (shell-command "open -a \"Google Chrome\""))))
    #+end_src
-** Generate link with the commit sha instead of the branch
-#+begin_src emacs-lisp :results none
-(setq git-link-use-commit t)
-#+end_src
-
 * UI/Visual
   #+begin_src emacs-lisp :results none
     (spacemacs/toggle-syntax-checking-on)
@@ -542,6 +537,12 @@
     (spacemacs/copy-whole-buffer-to-clipboard)
     (spacemacs/kill-this-buffer))
 #+end_src
+
+** Git Link
+*** Generate link with the commit sha instead of the branch
+ #+begin_src emacs-lisp :results none
+ (setq git-link-use-commit t)
+ #+end_src
 
 * Keyboard Bindings
 *** Normal
