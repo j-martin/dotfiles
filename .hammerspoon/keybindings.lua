@@ -62,7 +62,7 @@ local bindings = {
       { key = 'o', fn = apps.ideaOmni, shift = true },
       { key = 'p', name = 'Visual Studio Code' },
       { key = 'q', fn = hs.toggleConsole, shift = true, desc = 'HS - Console' },
-      { key = 'r', fn = emacs.capture('R'), desc = 'Org - Capture selection to Resources' },
+      { key = 'r', fn = emacs.orgRifle, desc = 'Org - Capture selection to Resources' },
       { key = 'r', fn = emacs.references, shift = true, desc = 'Org - Show Resources' },
       { key = 's', name = 'Sublime Text' },
       { key = 's', fn = windows.snapAll, shift = true, desc = 'Windows - Snap' },
@@ -72,7 +72,7 @@ local bindings = {
       { key = 'u', fn = emacs.helmBuffers, shift = true },
       -- key v, reserved for Alfred paste
       { key = 'v', fn = selection.paste, shift = true, desc = 'Paste - Type' },
-      { key = 'w', fn = emacs.capture('W'), desc = 'Org - Capture selection to Work' },
+      { key = 'w', fn = emacs.capture('w'), desc = 'Org - Capture selection to Work' },
       { key = 'w', fn = emacs.workInbox, shift = true, desc = 'Org - Show work' },
       { key = 'x', fn = windows.previousScreen, shift = true, desc = 'Return to previous screen' },
       { key = 'x', fn = windows.previousScreen, desc = 'Return to previous screen' },

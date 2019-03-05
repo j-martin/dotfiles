@@ -18,21 +18,21 @@ local engines = {
 
 local function selectedTextFromClipboard(currentApp)
   local selection
-  local function getClipboard(initial, limit)
-    if limit < 0 then return initial end
-    eventtap.keyStroke({'cmd'}, 'c')
+  local function getClipboard(initial, retries)
+    if retries < 0 then return initial end
     timer.usleep(0.1 * 1000000)
     local selection = pasteboard.readString()
     if selection == initial and currentApp ~= 'Google Chrome' then
       logger.d('Same result. Retrying')
-      return getClipboard(initial, limit - 1)
+      return getClipboard(initial, retries - 1)
     else
       return selection
     end
   end
 
   local initial = pasteboard.readString()
-  selection = getClipboard(initial, 10)
+  eventtap.keyStroke({'cmd'}, 'c')
+  selection = getClipboard(initial, 3)
   logger.df('clipboard: %s', selection)
   pasteboard:setContents(initial)
   return selection
