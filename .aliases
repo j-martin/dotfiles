@@ -36,6 +36,7 @@ ea() {
 
 # ZSH Specific
 if [ -n "$ZSH_VERSION" ]; then
+  alias -g G='| grep -i'
   alias -g F='"$(fzf)"'
   alias -g L='| less -SRi'
   alias -g LL='2>&1 | less -SRi'
