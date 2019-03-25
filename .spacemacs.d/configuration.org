@@ -456,6 +456,12 @@
 #+begin_src emacs-lisp :results none
 (advice-add 'org-archive-subtree :after #'org-save-all-org-buffers)
 #+end_src
+***** Keep images not too wide                                       :ATTACH:
+#+begin_src emacs-lisp :results none
+(setq org-image-actual-width 800)
+(setq org-download-screenshot-method "screencapture %s")
+#+end_src
+
 
 *** Org sync
 #+begin_src emacs-lisp :results none
