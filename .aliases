@@ -40,7 +40,6 @@ if [ -n "$ZSH_VERSION" ]; then
   alias -g F='"$(fzf)"'
   alias -g L='| less -SRi'
   alias -g LL='2>&1 | less -SRi'
-  alias -g JI='$(_jira_current_issue_key_or_assigned)'
 fi
 
 # Quick edit
@@ -228,8 +227,6 @@ alias gnewc='_git_new_branch_and_commit'
 alias gnewp='_git_new_branch "$(pbpaste)"'
 alias mg='mass git'
 alias gnewic='_git_new_branch_and_commit_from_new_issue'
-alias gnewa='_git_new_branch "$(_jira_assigned_issues | fzf)"'
-gnews() { _git_new_branch "$(_jira_search_text "$1")" ;}
 alias gnewh='_github_new_branch'
 alias gnewm='git checkout master && git pull && gnew'
 alias gra='git rebase --abort'
