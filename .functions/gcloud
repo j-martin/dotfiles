@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+_gcp_pick_project() {
+  gcloud projects list \
+    | fzf -0 -1 --header-lines=1 \
+    | awk '{print $1}'
+}
+_gcp_change_project() {
+  local project
+  project="$(_gcp_pick_project)"
+  gcloud config set project "${project}"
+  _info "Now using ${project}"
+}
