@@ -391,11 +391,10 @@
        (fill-paragraph)
        (insert " "))
 
-     (defun jm/git-commit-mode-config()
+     (defun jm/git-commit-mode-config ()
        (setq-local fill-column 72)
        (turn-on-auto-fill)
        ;; (local-set-key (kbd "SPC") #'jm/fill-then-insert-space)
-
        (jm/magit-commit-message))
      (defun jm/git-status-mode-config()
        (setq-local evil-escape-key-sequence nil))
@@ -406,7 +405,6 @@
 #+begin_src emacs-lisp :results none
 (evil-define-key* evil-magit-state magit-mode-map [escape] nil)
 #+end_src
-
 ** Org
 *** Basic setup
     #+begin_src emacs-lisp :results none
@@ -462,7 +460,6 @@
 (setq org-download-screenshot-method "screencapture %s")
 #+end_src
 
-
 *** Org sync
 #+begin_src emacs-lisp :results none
   (defun jm/org-sync ()
@@ -490,36 +487,78 @@
 
 *** Capture Templates
     #+begin_src emacs-lisp :results none
-      (add-hook 'org-capture-mode-hook 'evil-insert-state)
-      (defun jm/org-common-template (prefix)
-        (format ""))
+            (add-hook 'org-capture-mode-hook 'evil-insert-state)
 
-      (setq org-capture-templates '(
-                                    ("t" "Inbox (Main)"
-                                     entry
-                                     (file+headline "~/.org/main.org" "Inbox")
-                                     "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-                                    ("T" "Inbox without selection (Main)"
-                                     entry
-                                     (file+headline "~/.org/main.org" "Inbox")
-                                     "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
-                                    ("w" "Inbox (Work)"
-                                     entry
-                                     (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-                                    ("W" "Inbox without selection (Work)"
-                                     entry
-                                     (file+headline "~/.org/work.org" "Inbox")
-                                     "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
-                                    ("r" "References / Research"
-                                     entry
-                                     (file+headline "~/.org/references.org" "Research")
-                                     "* %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-                                    ("z" "Tenancy Journal"
-                                     entry
-                                     (file+datetree+prompt "~/.org/tenancy-journal.org")
-                                     "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-                                    ))
+            (defun jm/execute-in-previous-buffer (fn)
+            "This is required for org-capture-template function because some commands,
+            e.g. git would be run from the org file which is in a different repo."
+              (let ((initial-buffer (current-buffer)))
+                (set-buffer (car (buffer-list)))
+                (let ((output (funcall fn)))
+                  (set-buffer initial-buffer) output)))
+
+            (defun jm/org-set-property (property value)
+              (if value (org-set-property property value)))
+
+            (defun jm/org-branch-header ()
+            "Custom function to be used with org-template file+function.
+            Creates a note under the branch name heading in an heading called 'Branch Notes'.
+            The 'Branch Note' heading must be created in advance."
+
+              (let ((branch-name (jm/execute-in-previous-buffer 'jm/git-current-branch))
+                    (repository-name (jm/execute-in-previous-buffer 'jm/git-repository)))
+                (let ((marker (org-find-exact-headline-in-buffer branch-name)))
+                  (if marker
+                      (progn
+                        (print "Branch found. Appending.")
+                        (goto-char marker))
+                    (progn
+                      (print "No branch found. Creating new one.")
+                      (goto-char (org-find-exact-headline-in-buffer "Branch Notes"))
+                      (forward-line 1)
+                      (org-insert-heading "")
+                      (insert branch-name)
+                      (jm/org-set-property "REPOSITORY" repository-name)
+                      (jm/org-set-property "BRANCH" branch-name)
+                      (jm/org-set-property "REPOSITORY_URL" (jm/github-repository-url repository-name))
+                      (jm/org-set-property "REPOSITORY_COMPARE_URL" (jm/github-compare-url repository-name branch-name))
+                      (jm/org-set-property "CLUBHOUSE_ID" (jm/clubhouse-story-id-from-branch-name branch-name))
+                      (jm/org-set-property "CLUBHOUSE_URL" (jm/clubhouse-story-url (jm/clubhouse-story-id-from-branch-name branch-name)))
+                      )))))
+
+            (setq
+             org-capture-templates
+             '(
+               ("t" "Inbox (Main)"
+                entry
+                (file+headline "~/.org/main.org" "Inbox")
+                "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+               ("T" "Inbox without selection (Main)"
+                entry
+                (file+headline "~/.org/main.org" "Inbox")
+                "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
+               ("w" "Inbox (Work)"
+                entry
+                (file+headline "~/.org/work.org" "Inbox")
+                "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+               ("W" "Inbox without selection (Work)"
+                entry
+                (file+headline "~/.org/work.org" "Inbox")
+                "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
+               ("b" "Branch (Work)"
+                entry
+                (file+function "~/.org/work.org" jm/org-branch-header)
+                "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+
+               ("r" "References / Research"
+                entry
+                (file+headline "~/.org/references.org" "Research")
+                "* %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+               ("z" "Tenancy Journal"
+                entry
+                (file+datetree+prompt "~/.org/tenancy-journal.org")
+                "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
+               ))
 
 
     #+end_src
@@ -604,7 +643,6 @@
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "o" 'org-edit-src-code)
 
-
     (spacemacs/set-leader-keys "ah" 'engine/search-github)
     (spacemacs/set-leader-keys "by" 'spacemacs/copy-whole-buffer-to-clipboard)
     (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
@@ -656,10 +694,10 @@
 ** Git
 #+begin_src emacs-lisp :results none
   (defun jm/magit-commit-message ()
-    (let ((task-id (car (s-match "^[A-Z]+-[0-9]+"
-                                 (jm/git-current-branch)))))
-      (when (> (length task-id) 3)
-        (insert (concat task-id " "))))
+    (let ((story-id (jm/clubhouse-story-id-from-branch-name)))
+      (when (> (length story-id) 1)
+        (insert (jm/clubhouse-story-link story-id))))
+    (beginning-of-buffer)
     (evil-insert-state))
 
   (defun jm/magit-branch (task)
@@ -667,14 +705,17 @@
                                "origin/master"))
 
   (defun jm/git-branch-name-sanitize (name)
-    (replace-regexp-in-string "-$" ""
-                              (replace-regexp-in-string "-+" "-"
-                                                        (replace-regexp-in-string "[^a-zA-Z0-9]" "-" name))))
+    (replace-regexp-in-string
+     "-$" ""
+     (replace-regexp-in-string
+      "-+" "-"
+      (replace-regexp-in-string
+       "[^a-zA-Z0-9]" "-" name))))
 
   (defun jm/github-open-pr ()
     (interactive)
     (let ((branch (jm/git-current-branch))
-          (repo (jm/github-repository)))
+          (repo (jm/github-repository-url)))
       (start-process "bub pr" nil "bub" "workflow" "pr")))
 
   (defun jm/git-current-branch ()
@@ -683,13 +724,37 @@
   (defun jm/git-current-origin ()
     (s-trim (shell-command-to-string "git config --get remote.origin.url")))
 
-  (defun jm/github-repository ()
-    (concat "https://github.com/"
-            (s-chop-suffix ".git"
-                           (replace-regexp-in-string "^.*github\.com."
-                                                     ""
-                                                     (jm/git-current-origin)))))
+  (defun jm/git-repository ()
+    (s-chop-suffix
+     ".git"
+     (replace-regexp-in-string
+      "^.*github\.com." "" (jm/git-current-origin))))
+
+  (defun jm/github-repository-url (&optional name)
+    (concat "https://github.com/" (if name name (jm/git-repository))))
+
+  (defun jm/github-compare-url (&optional repository-name branch-name)
+    (concat (jm/github-repository-url repository-name) "/compare/master..." (if branch-name branch-name (jm/git-current-branch))))
+
 #+end_src
+** Clubhouse
+#+begin_src emacs-lisp :results none
+  (defun jm/clubhouse-story-id-from-branch-name (&optional branch-name)
+    (car (cdr (s-match "/ch\\([0-9]+\\)/" (if branch-name branch-name (jm/git-current-branch))))))
+
+  (defun jm/clubhouse-story-link (story-id)
+    (if story-id
+        (let ((workspace (if org-clubhouse-team-name (concat org-clubhouse-team-name "/") "")))
+          (concat "\n[ch" story-id "](" (jm/clubhouse-story-url story-id) ")"))))
+
+  (defun jm/clubhouse-story-url (story-id)
+    (if story-id
+        (let ((workspace (if org-clubhouse-team-name (concat org-clubhouse-team-name "/") "")))
+          (concat "https://app.clubhouse.io/" workspace "story/" story-id ))))
+
+
+#+end_src
+
 ** Editing
 #+begin_src emacs-lisp :results none
   (defun jm/append-clipboard ()
