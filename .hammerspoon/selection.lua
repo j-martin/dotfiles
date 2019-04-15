@@ -13,7 +13,6 @@ local mod = {}
 
 local engines = {
   google = 'https://www.google.ca/search?q=',
-  googleLucky = 'https://www.google.ca/search?btnI&q='
 }
 
 local function selectedTextFromClipboard(currentApp)

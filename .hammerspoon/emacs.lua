@@ -10,7 +10,7 @@ local window = require "hs.window"
 local mod = {}
 
 local function eval(sexp)
-  process.start('~/.bin/ec', {'--quiet' , '--eval', sexp})
+  process.start('~/.bin/ec', { '--quiet', '--suppress-output', '--eval', sexp })
   application.launchOrFocus('Emacs')
 end
 
@@ -19,7 +19,7 @@ local function evalInCurrentBuffer(sexp)
 end
 
 local function open(url)
-  process.start('~/.bin/ec', {'--quiet' , url})
+  process.start('~/.bin/ec', { '--quiet', '--suppress-output', url })
   application.launchOrFocus('Emacs')
 end
 

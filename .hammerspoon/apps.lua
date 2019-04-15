@@ -9,9 +9,10 @@ local mod = {}
 
 mod.name = {
   activityMonitor = 'Activity Monitor',
-  noisyTyper = 'NoisyTyper',
   iTerm = 'iTerm2',
-  idea = 'IntelliJ IDEA'
+  idea = 'IntelliJ IDEA',
+  noisyTyper = 'NoisyTyper',
+  ripcord = 'Ripcord',
 }
 
 local states = {
@@ -36,6 +37,12 @@ end
 
 function mod.iTermOmni()
   mod.switchToAndType(mod.name.iTerm, {'cmd'}, 'o')
+end
+
+function mod.ripcordQuickSwitcher()
+  windows.launchOrCycleFocus(mod.name.ripcord)()
+  wait(2)
+  eventtap.keyStroke({'cmd'}, 'k')
 end
 
 local function clickNotification(offset)
