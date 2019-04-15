@@ -97,6 +97,7 @@ This function should only modify configuration layer settings."
      editorconfig
      evil-string-inflection
      evil-textobj-syntax
+     jsonnet-mode
      langtool
      (org-clubhouse :location (recipe :fetcher github :repo "urbint/org-clubhouse"))
      ox-clip

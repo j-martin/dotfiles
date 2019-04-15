@@ -665,5 +665,6 @@
     "suppressUpdateNotice": false,
     "suppressWelcomeNotice": true
   },
-  "gitlens.keymap": "alternate"
+  "gitlens.keymap": "alternate",
+  "jsonnet.executablePath": "/usr/local/bin/jsonnet"
 }
