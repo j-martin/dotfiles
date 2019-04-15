@@ -122,3 +122,37 @@ _notify() {
   _info "${message}"
   printf '\033]9;%s\033\\' "${message}"
 }
+
+_rsync_watch() {
+  local local_path="$1"
+  local remote_path="$2"
+
+  _info "Syncing files: '${local_path}', Syncing to: '${remote_path}'"
+  _rsync "${local_path}" "${remote_path}"
+  _info "Watching: '${local_path}', Syncing to: '${remote_path}'"
+
+  fswatch \
+    "${local_path}" \
+    --one-per-batch \
+    --exclude 'build'\
+    --exclude 'out' \
+    --exclude '.git' \
+    --exclude 'node_modules' \
+    | while read count; do
+    _rsync "${local_path}" "${remote_path}"
+    _notify "Synced ${count} file(s)"
+  done
+}
+_rsync() {
+  local local_path="$1"
+  local remote_path="$2"
+  rsync --archive \
+        --verbose \
+        --delete \
+        --exclude '.git' \
+        --exclude 'out' \
+        --exclude 'build' \
+        --exclude 'node_modules' \
+        "${local_path}" \
+        "${remote_path}"
+}
