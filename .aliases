@@ -196,6 +196,7 @@ alias gci='_github_create_issue'
 alias gshowf='git show "$(_git_pick_commit):$(fzf)" | pygmentize | less -SRi'
 gshow() { git show "$1:$2" | vi - ;}
 gshowm() { git show "origin/master:$1" | vi - ;}
+alias gcleanx='git clean --force -dx --exclude .idea --exclude "*.iml"'
 alias gclone='_git_clone'
 alias gwip='(git log --oneline master..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
