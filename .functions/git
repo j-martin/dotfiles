@@ -329,6 +329,23 @@ _git_list_files_not_under_source_control() {
   find "${dir}" \( -type d -exec test -d '{}'/.git \; -prune \) -o -print
 }
 
+_git_compare_releases() {
+  git log -p "$(git tag \
+| sort -r \
+| tail -n +2 \
+| fzf --no-sort --prompt 'Pick the older release'
+)..$(git tag \
+| sort -r \
+| fzf --no-sort --prompt 'Pick the last release'
+)"
+}
+
+_git_copy_last_commit() {
+  git log --pretty='%B' HEAD^.. \
+    | pbcopy
+  _info 'The last commit message is now in your clipboard.'
+}
+
 mass-master() {
   mass 'git status && git checkout master && git pull && git pull --tags'
 }
