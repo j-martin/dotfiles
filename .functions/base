@@ -87,7 +87,7 @@ _fzf() {
 
 _fzf_with_preview() {
   # shellcheck disable=SC2016
-  fzf --height 90%  \
+  fzf --height 70%  \
       --preview '[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file || highlight --out-format ansi -l --force {}' -1 -0 -q "$@" \
       --preview-window down:50
 }
