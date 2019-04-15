@@ -22,4 +22,5 @@
 --follow
 --hidden
 
---iglob=!.git
+--iglob=!/{.git,node_modules,build,out}/*
+--iglob=!*.lock
