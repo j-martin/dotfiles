@@ -397,7 +397,8 @@
        (setq-local fill-column 72)
        (turn-on-auto-fill)
        ;; (local-set-key (kbd "SPC") #'jm/fill-then-insert-space)
-       (jm/magit-commit-message))
+       (if (jm/current-line-empty-p)
+           (jm/magit-commit-message)))
      (defun jm/git-status-mode-config()
        (setq-local evil-escape-key-sequence nil))
      (add-hook 'git-commit-mode-hook 'jm/git-commit-mode-config)
@@ -793,6 +794,11 @@
       (with-current-buffer
           standard-output
         (process-file shell-file-name nil '(t nil)  nil shell-command-switch command))))
+
+  (defun jm/current-line-empty-p ()
+    (save-excursion
+      (beginning-of-line)
+      (looking-at "[[:space:]]*$")))
 
   (defun jm/camel-to-snake-case ()
     (interactive)
