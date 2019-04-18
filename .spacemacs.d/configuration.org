@@ -490,82 +490,80 @@
 
 *** Capture Templates
     #+begin_src emacs-lisp :results none
-            (add-hook 'org-capture-mode-hook 'evil-insert-state)
+      (add-hook 'org-capture-mode-hook 'evil-insert-state)
 
-            (defun jm/execute-in-previous-buffer (fn)
-            "This is required for org-capture-template function because some commands,
-            e.g. git would be run from the org file which is in a different repo."
-              (let ((initial-buffer (current-buffer)))
-                (set-buffer (car (buffer-list)))
-                (let ((output (funcall fn)))
-                  (set-buffer initial-buffer) output)))
+      (defun jm/execute-in-previous-buffer (fn)
+      "This is required for org-capture-template function because some commands,
+      e.g. git would be run from the org file which is in a different repo."
+        (let ((initial-buffer (current-buffer)))
+          (set-buffer (car (buffer-list)))
+          (let ((output (funcall fn)))
+            (set-buffer initial-buffer) output)))
 
-            (defun jm/org-set-property (property value)
-              (if value (org-set-property property value)))
+      (defun jm/org-set-property (property value)
+        (if value (org-set-property property value)))
 
-            (defun jm/org-branch-header ()
-            "Custom function to be used with org-template file+function.
-            Creates a note under the branch name heading in an heading called 'Branch Notes'.
-            The 'Branch Note' heading must be created in advance."
+      (defun jm/org-branch-header ()
+      "Custom function to be used with org-template file+function.
+      Creates a note under the branch name heading in an heading called 'Branch Notes'.
+      The 'Branch Note' heading must be created in advance."
 
-              (let ((branch-name (jm/execute-in-previous-buffer 'jm/git-current-branch))
-                    (repository-name (jm/execute-in-previous-buffer 'jm/git-repository)))
-                (let ((marker (org-find-exact-headline-in-buffer branch-name)))
-                  (if marker
-                      (progn
-                        (print "Branch found. Appending.")
-                        (goto-char marker))
-                    (progn
-                      (print "No branch found. Creating new one.")
-                      (goto-char (org-find-exact-headline-in-buffer "Branch Notes"))
-                      (forward-line 1)
-                      (org-insert-heading "")
-                      (insert branch-name)
-                      (jm/org-set-property "REPOSITORY" repository-name)
-                      (jm/org-set-property "BRANCH" branch-name)
-                      (jm/org-set-property "REPOSITORY_URL" (jm/github-repository-url repository-name))
-                      (jm/org-set-property "REPOSITORY_COMPARE_URL" (jm/github-compare-url repository-name branch-name))
-                      (jm/org-set-property "CLUBHOUSE_ID" (jm/clubhouse-story-id-from-branch-name branch-name))
-                      (jm/org-set-property "CLUBHOUSE_URL" (jm/clubhouse-story-url (jm/clubhouse-story-id-from-branch-name branch-name)))
-                      )))))
+        (let ((branch-name (jm/execute-in-previous-buffer 'jm/git-current-branch))
+              (repository-name (jm/execute-in-previous-buffer 'jm/git-repository)))
+          (let ((marker (org-find-exact-headline-in-buffer branch-name)))
+            (if marker
+                (progn
+                  (print "Branch found. Appending.")
+                  (goto-char marker))
+              (progn
+                (print "No branch found. Creating new one.")
+                (goto-char (org-find-exact-headline-in-buffer "Branch Notes"))
+                (forward-line 1)
+                (org-insert-heading "")
+                (insert branch-name)
+                (jm/org-set-property "REPOSITORY" repository-name)
+                (jm/org-set-property "BRANCH" branch-name)
+                (jm/org-set-property "REPOSITORY_URL" (jm/github-repository-url repository-name))
+                (jm/org-set-property "REPOSITORY_COMPARE_URL" (jm/github-compare-url repository-name branch-name))
+                (jm/org-set-property "CLUBHOUSE_ID" (jm/clubhouse-story-id-from-branch-name branch-name))
+                (jm/org-set-property "CLUBHOUSE_URL" (jm/clubhouse-story-url (jm/clubhouse-story-id-from-branch-name branch-name)))
+                )))))
 
-            (setq
-             org-capture-templates
-             '(
-               ("t" "Inbox (Main)"
-                entry
-                (file+headline "~/.org/main.org" "Inbox")
-                "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-               ("T" "Inbox without selection (Main)"
-                entry
-                (file+headline "~/.org/main.org" "Inbox")
-                "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
-               ("w" "Inbox (Work)"
-                entry
-                (file+headline "~/.org/work.org" "Inbox")
-                "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-               ("W" "Inbox without selection (Work)"
-                entry
-                (file+headline "~/.org/work.org" "Inbox")
-                "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
-               ("b" "Branch (Work)"
-                entry
-                (file+function "~/.org/work.org" jm/org-branch-header)
-                "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-
-               ("r" "References / Research"
-                entry
-                (file+headline "~/.org/references.org" "Research")
-                "* %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-               ("z" "Tenancy Journal"
-                entry
-                (file+datetree+prompt "~/.org/tenancy-journal.org")
-                "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
-               ))
+      (setq
+       org-capture-templates
+       '(
+         ("t" "Inbox (Main)"
+          entry
+          (file+headline "~/.org/main.org" "Inbox")
+          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+         ("T" "Inbox without selection (Main)"
+          entry
+          (file+headline "~/.org/main.org" "Inbox")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
+         ("w" "Inbox (Work)"
+          entry
+          (file+headline "~/.org/work.org" "Inbox")
+          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+         ("W" "Inbox without selection (Work)"
+          entry
+          (file+headline "~/.org/work.org" "Inbox")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
+         ("b" "Branch (Work)"
+          entry
+          (file+function "~/.org/work.org" jm/org-branch-header)
+          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+         ("r" "References / Research"
+          entry
+          (file+headline "~/.org/references.org" "Research")
+          "* %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+         ("z" "Tenancy Journal"
+          entry
+          (file+datetree+prompt "~/.org/tenancy-journal.org")
+          "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%i\n%a")
+         ))
 
 
     #+end_src
-
 *** org-present
     #+begin_src emacs-lisp :results none
       (eval-after-load "org-present"
