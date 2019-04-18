@@ -911,7 +911,7 @@
 
   (defun jm/open-with-vscode ()
     (interactive)
-    (jm/open-with-line-column "/usr/local/bin/code -g"))
+    (jm/open-with-line-column "/usr/local/bin/code --goto"))
 
   (defun jm/open-with-nvim ()
     (interactive)
