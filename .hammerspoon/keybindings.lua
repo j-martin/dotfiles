@@ -33,7 +33,8 @@ local bindings = {
       { key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph' },
       { key = '2', name = 'Keybase' },
       -- key = '5' reserved for Alfred snippets
-      -- { key = '8', tab = chrome.tab.slack },
+      { key = '8', name = apps.name.ripcord },
+      { key = '8', fn = apps.ripcordQuickSwitcher, shift = true },
       { key = '9', name = 'Spotify' },
       { key = ';', name = 'Dash' },
       { key = '\\', name = '1Password 7' },
@@ -44,8 +45,6 @@ local bindings = {
       { key = 'd', fn = selection.actOn('google'), desc = 'Search selection' },
       { key = 'f', name = 'Finder' },
       { key = 'f', name = 'Preview', shift = true },
-      { key = 'h', name = apps.name.ripcord },
-      { key = 'h', fn = apps.ripcordQuickSwitcher, shift = true },
       { key = 'i', name = 'iTerm2' },
       { key = 'i', fn = apps.iTermOmni, shift = true },
       { key = 'j', pos = { { 0.0, 0.0, 0.5, 1.0}, { 0.0, 0.0, 0.7, 1.0} }, desc = 'Window - Left 50% <-> 30%' },
