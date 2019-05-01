@@ -40,7 +40,15 @@ if [ -n "$ZSH_VERSION" ]; then
   alias -g F='"$(fzf)"'
   alias -g L='| less -SRi'
   alias -g LL='2>&1 | less -SRi'
+
+  compdef _s s
 fi
+
+# Auto-completion for s()
+_s () {
+  local service=ssh
+  _ssh "$@"
+}
 
 # Quick edit
 alias eco='_with_fzf "ec" ".conf$" '
