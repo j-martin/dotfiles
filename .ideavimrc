@@ -35,6 +35,8 @@ nmap <leader>jj :action FileStructurePopup<CR>
 nmap <leader><leader> :action GotoAction<CR>
 
 nmap <leader>gs :action Vcs.QuickListPopupAction<CR>
+nmap ,l :action LocalHistory.ShowHistory<CR>
+nmap ,L :action LocalHistory.ShowSelectionHistory<CR>
 nmap ,r :action Refactorings.QuickListPopupAction<CR>
 nmap ,R :action Git.ResolveConflicts<CR>
 nmap ,c :action Compile<CR>
