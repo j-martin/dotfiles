@@ -60,7 +60,7 @@ alias esh='_with_fzf "ec" ".sh$" '
 alias ejs='_with_fzf "ec" ".js$" '
 alias ejo='_with_fzf "ec" ".json$" '
 alias exm='_with_fzf "ec" ".xml$" '
-alias eo='ee "(jm/helm-org-dir)"'
+alias eo='ec --eval "(jm/helm-org-dir)"'
 
 # Navigation
 alias cw='cd $WORK'
@@ -239,6 +239,7 @@ alias gnewic='_git_new_branch_and_commit_from_new_issue'
 alias gnewh='_github_new_branch'
 alias gnewm='git checkout master && git pull && gnew'
 alias gra='git rebase --abort'
+alias grl='git reflog --date=iso'
 alias grc='git rebase --continue'
 alias greset='git fetch origin && git reset --hard origin/master'
 alias gri='git rebase -i'
@@ -258,7 +259,7 @@ alias ha='open "$GITHUB_URL"'
 alias hp='open "$GITHUB_URL/$(_git_repo)/pulls"'
 alias hc='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
 alias ht='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
-alias hbp='open "$GITHUB_URL/$(_git_repo)/compare/master...$(_git_current_branch_url)"'
+alias hbp='open "$GITHUB_URL/$(_git_repo)/pull/new/$(_git_current_branch_url)"'
 alias hpr='_github_pr'
 alias hb='open "$GITHUB_URL/$(_git_repo)/branches"'
 alias his='open "$GITHUB_URL/$(_git_repo)/issues"'
@@ -288,6 +289,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
   alias which='where'
   # Fixes keyring access to the keychain.
   alias sign-venv='codesign -f -s - "$(pipenv --venv)/bin/python"'
+  alias remove-attrs="find . -exec xattr -c '{}' \;"
 fi
 
 alias da='date && date -u'
@@ -320,6 +322,9 @@ alias gr='./gradlew'
 alias ec2d='aws ec2 describe-instances | jq -C . | less -SRi'
 ec2ip() { jq ".Reservations[].Instances[] | select((.PrivateIpAddress == \"$1\" or .PublicIpAddress == \"$1\"))" ;}
 alias r53="aws route53 list-hosted-zones | jq '.HostedZones[].Id' | xargs -n1 -P0 aws route53 list-resource-record-sets --hosted-zone-id --output text | grep"
+
+# GCP
+alias gmachine='gcloud compute machine-types list'
 
 # Python Aliases
 alias ipy='ipython3'
