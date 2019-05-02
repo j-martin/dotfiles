@@ -531,14 +531,14 @@ From http://akrl.sdf.org/.
 
         (let ((branch-name (jm/execute-in-previous-buffer 'jm/git-current-branch))
               (repository-name (jm/execute-in-previous-buffer 'jm/git-repository)))
-          (let ((marker (org-find-exact-headline-in-buffer branch-name)))
+          (let ((marker (org-find-property "BRANCH" branch-name)))
             (if marker
                 (progn
                   (print "Branch found. Appending.")
                   (goto-char marker))
               (progn
                 (print "No branch found. Creating new one.")
-                (goto-char (org-find-exact-headline-in-buffer "Branch Notes"))
+                (goto-char (org-find-exact-headline-in-buffer "Active Projects"))
                 (forward-line 1)
                 (org-insert-heading "")
                 (insert branch-name)
