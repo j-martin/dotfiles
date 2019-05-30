@@ -11,6 +11,11 @@ export VISUAL="emacsclient"
 GPG_TTY="$(tty)"
 export GPG_TTY
 
+HISTFILESIZE=1000000
+HISTSIZE=1000000
+HISTCONTROL=ignoreboth
+HISTIGNORE='ls:bg:fg:history'
+
 # shellcheck source=.cargo/env
 source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
