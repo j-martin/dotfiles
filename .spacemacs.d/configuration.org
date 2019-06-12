@@ -712,8 +712,10 @@ From http://akrl.sdf.org/.
 #+end_src
 *** Remap C-c C-c and C-c C-k
 #+begin_src emacs-lisp :results none
-    (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
-    (global-set-key (kbd "H-<escape>") (kbd "C-c C-k"))
+  (define-key org-mode-map (kbd "C-c C-k") nil)
+  (define-key org-mode-map (kbd "C-c C-k") nil)
+  (global-set-key (kbd "H-<return>") (kbd "C-c C-c"))
+  (global-set-key (kbd "H-<escape>") (kbd "C-c C-k"))
 #+end_src
 
 ** Fixes
