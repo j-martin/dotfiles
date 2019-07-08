@@ -171,7 +171,6 @@ alias mk=minikube
 alias c=club
 
 ## Git
-magit() { emacsclient -n -e '(magit-status)' && osascript -e 'tell application "Emacs" to activate'; }
 
 alias gl='git pull --tags'
 # TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
@@ -252,7 +251,8 @@ alias gss='git stash save'
 alias gu='_github_open_url'
 alias gupd='git stash && git pull --rebase origin master && git stash apply && git stash drop'
 gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
-alias ge="emacsclient --no-wait --eval '(magit-status)'"
+alias ge="emacsclient --no-wait --eval '(magit-status)' && osascript -e 'tell application \"Emacs\" to activate'"
+
 
 # Github
 alias ha='open "$GITHUB_URL"'
