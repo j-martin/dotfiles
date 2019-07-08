@@ -6,14 +6,16 @@
 --type-add=t:*.ts
 --type-add=t:*.js
 
---type-add=o:.ore
---type-add=o:ore
+--type-add=f:*.tf
 
 --type-add=p:*.py
 
 --type-add=sh:*.sh
 --type-add=sh:.ore
 --type-add=sh:ore
+
+--type-add=o:.ore
+--type-add=o:ore
 
 --type-add=y:*.yaml
 --type-add=y:*.yml
