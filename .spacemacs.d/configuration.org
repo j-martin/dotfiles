@@ -382,11 +382,21 @@ From http://akrl.sdf.org/.
      (require 'evil-string-inflection)
      (require 'evil-textobj-syntax)
    #+end_src
+
 *** Center on fold commands
 #+begin_src emacs-lisp :results none
 (defun jm/recenter (&rest anything) (interactive) (recenter))
 (advice-add 'evil-fold-action :after 'jm/recenter)
 #+end_src
+
+*** Evil-Owl
+ #+begin_src emacs-lisp :results none
+   (setq evil-owl-extra-posframe-args '(:width 50 :height 20)
+         evil-owl-register-char-limit 50
+         evil-owl-idle-delay 0.5)
+   (evil-owl-mode)
+ #+end_src
+
 
 ** Scala
    #+begin_src emacs-lisp :results none

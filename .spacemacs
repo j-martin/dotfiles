@@ -95,6 +95,7 @@ This function should only modify configuration layer settings."
      all-the-icons
      atomic-chrome
      editorconfig
+     evil-owl
      evil-string-inflection
      evil-textobj-syntax
      jq-mode
