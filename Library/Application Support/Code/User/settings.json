@@ -21,7 +21,6 @@
   "materialTheme.cache.workbench.settings": {
     "themeColours": "Default"
   },
-  "workbench.iconTheme": "eq-material-theme-icons",
   "editor.tabSize": 2,
   "editor.renderWhitespace": "boundary",
   "editor.multiCursorModifier": "ctrlCmd",

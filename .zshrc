@@ -49,7 +49,7 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 
-plugins=(brew common-aliases dircycle dirhistory docker git github node osx tmux zsh-autosuggestions)
+plugins=(brew common-aliases dircycle dirhistory docker git gitfast github node osx tmux zsh-autosuggestions)
 
 source "$ZSH/oh-my-zsh.sh"
 
