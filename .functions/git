@@ -73,7 +73,7 @@ _git_commit_with_issue_key() {
 }
 
 _git_format_commit_message() {
-  fold -w 80 -s <<< "${@}" \
+  fold -w 64 -s <<< "${@}" \
     | sed 's,^ *,,; s, *$,,'
 }
 
@@ -261,7 +261,7 @@ _github_current_branch_pr_comments() {
     | jq '.[] | "\(.in_reply_to_id // .id) \(.created_at) \(.user.login)\n\(.body)\n"' \
     | sort \
     | jq -r . \
-    | fold -w 80 -s
+    | fold -w 64 -s
 }
 
 _git_root_dir() {
