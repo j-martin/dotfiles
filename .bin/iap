@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -u
+
+_show_command() {
+  _info "Executing: $*"
+  "$@"
+}
+
+_info() {
+  echo >&2 "[info] $*"
+}
+
+_get_instance() {
+  local instance_name="$1"
+  gcloud compute instances list --filter "${instance_name}" \
+    | fzf -0 -1 --header-lines=1 \
+    | awk '{ print "--zone " $2 " " $1}'
+}
+
+_usage() {
+  cat >&2 << EOF
+SSH via GCP IAP
+
+  $0 INSTANCE_NAME [SSH ARGS]
+
+Example:
+  $ rsync -ave $0 local-path instance-name:remote-path'
+  $ $0 instance-name -T <<< 'hostname'
+
+EOF
+}
+
+_main() {
+  local instance_name="${1:-}"
+  if [[ -z "${instance_name}" ]]; then
+    _usage
+    exit 255
+  fi
+
+  shift
+  # shellcheck disable=SC2046
+  # We want to expand unquoted arguments from _get_instance here.
+  _show_command exec gcloud compute ssh --tunnel-through-iap $(_get_instance "${instance_name}") -- "$@"
+}
+
+_main "$@"
