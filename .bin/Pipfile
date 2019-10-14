@@ -22,4 +22,4 @@ bpython = "*"
 black = "==19.3b0"
 
 [scripts]
-fmt = "black ."
+fmt = "bash -c \"grep  -Flr '#!/usr/bin/env python3' -r . | xargs black\""

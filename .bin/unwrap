@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+
 paragraph = []
 
 for line in sys.stdin:
@@ -9,8 +10,8 @@ for line in sys.stdin:
     if line:
         paragraph.append(line)
     else:
-        print(' '.join(paragraph).replace('  ', ' ') + "\n")
+        print(" ".join(paragraph).replace("  ", " ") + "\n")
         paragraph = []
 
 if paragraph:
-    print(' '.join(paragraph).replace(' ', ' '))
+    print(" ".join(paragraph).replace(" ", " "))
