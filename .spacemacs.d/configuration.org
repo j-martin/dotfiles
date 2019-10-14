@@ -425,7 +425,7 @@ From http://akrl.sdf.org/.
        (insert " "))
 
      (defun jm/git-commit-mode-config ()
-       (setq-local fill-column 72)
+       (setq-local fill-column 64)
        (turn-on-auto-fill)
        ;; (local-set-key (kbd "SPC") #'jm/fill-then-insert-space)
        (if (jm/current-line-empty-p)
