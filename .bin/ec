@@ -21,7 +21,7 @@ _main() {
 }
 
 _emacs() {
-  exec emacsclient --no-wait "$@" > /dev/null 2>&1 &
+  exec /usr/local/bin/emacsclient --no-wait "$@" > /dev/null 2>&1 &
 }
 
 _main "$@"
