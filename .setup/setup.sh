@@ -45,7 +45,8 @@ _macos_customizations () {
   defaults write com.apple.dock springboard-hide-duration -int 0
   defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
   defaults write com.extropy.oni ApplePressAndHoldEnabled -bool false
-  sudo defaults write /Library/Preferences/com.apple.TimeMachine MaxSize -integer 276480
+  sudo defaults write /Library/Preferences/com.apple.TimeMachine MaxSize -integer 204800
+  defaults write com.apple.systempreferences TMShowUnsupportedNetworkVolumes 1
 
   # Disable the desktop
   defaults write com.apple.finder CreateDesktop false
