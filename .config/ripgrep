@@ -10,6 +10,8 @@
 
 --type-add=p:*.py
 
+--type-add=sql:*.sql
+
 --type-add=sh:*.sh
 --type-add=sh:.ore
 --type-add=sh:ore
