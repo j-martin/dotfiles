@@ -24,11 +24,11 @@ _consul_list_services_dns() {
 
 _chrome_parse_bookmarks() {
   jq -r \
-     '.roots.bookmark_bar
+    '.roots.bookmark_bar
       | recurse(.children[]?)
       | select(.type == "url")
       | "\(.url) | \(.name)"' \
-     "$HOME/Library/Application Support/Google/Chrome/Default/Bookmarks"
+    "$HOME/Library/Application Support/Google/Chrome/Default/Bookmarks"
 }
 
 _circle() {
@@ -57,7 +57,7 @@ _circle_format_status() {
       "https://circleci.com/gh/\(.username)/\(.reponame)/\(.build_num)",
       .branch[0:40], .subject[0:40], .author_email, .outcome // .lifecycle
     ] | join("¶")' \
-  | column -s '¶' -t
+    | column -s '¶' -t
 }
 
 _circle_branch() {
@@ -80,7 +80,7 @@ _circle_detail_build() {
 
 urlencode() {
   python -c 'import urllib, sys; print urllib.quote(sys.argv[1], sys.argv[2])' \
-         "$1" "$urlencode_safe"
+    "$1" "$urlencode_safe"
 }
 
 nvm() {
@@ -98,10 +98,10 @@ nvm() {
 _todoist() {
   local resource_types="$1"
   curl --fail --silent https://todoist.com/API/v7/sync \
-       -d token=$(keyring get system todoist) \
-       -d sync_token='*' \
-       -d resource_types="[\"${resource_types}\"]" \
-       | jq ".${resource_types}[]"
+    -d token=$(keyring get system todoist) \
+    -d sync_token='*' \
+    -d resource_types="[\"${resource_types}\"]" \
+    | jq ".${resource_types}[]"
 }
 
 _org_cleanup() {
@@ -110,7 +110,7 @@ _org_cleanup() {
 
 # Workaround broken projectile import.
 _emacs_projectile_list() {
-  find "$HOME/code"  -mindepth 1 -maxdepth 2 -type d | sed "s/\(.*\)\(code\/.*\)/\"~\/\2\/\"/g"
+  find "$HOME/code" -mindepth 1 -maxdepth 2 -type d | sed "s/\(.*\)\(code\/.*\)/\"~\/\2\/\"/g"
 }
 
 pidof() {
@@ -134,25 +134,29 @@ _rsync_watch() {
   fswatch \
     "${local_path}" \
     --one-per-batch \
-    --exclude 'build'\
+    --exclude 'build' \
     --exclude 'out' \
     --exclude '.git' \
     --exclude 'node_modules' \
     | while read count; do
-    _rsync "${local_path}" "${remote_path}"
-    _notify "Synced ${count} file(s)"
-  done
+      _rsync "${local_path}" "${remote_path}"
+      _notify "Synced ${count} file(s)"
+    done
 }
 _rsync() {
   local local_path="$1"
   local remote_path="$2"
   rsync --archive \
-        --verbose \
-        --delete \
-        --exclude '.git' \
-        --exclude 'out' \
-        --exclude 'build' \
-        --exclude 'node_modules' \
-        "${local_path}" \
-        "${remote_path}"
+    --verbose \
+    --delete \
+    --exclude '.git' \
+    --exclude '.awcache/' \
+    --exclude '.gradle/' \
+    --exclude '.idea/' \
+    --exclude '.terraform' \
+    --exclude 'out' \
+    --exclude 'build' \
+    --exclude 'node_modules' \
+    "${local_path}" \
+    "${remote_path}"
 }

@@ -10,11 +10,11 @@ _rds_pick_instance() {
   aws rds describe-db-instances | jq -r '.DBInstances[].DBInstanceIdentifier' | fzf
 }
 
-rds_logs(){
+rds_logs() {
   local db_identifier="${1:-_rds_pick_instance}"
   aws rds describe-db-log-files --db-instance-identifier "$db_identifier" \
     | jq -r '.DescribeDBLogFiles[].LogFileName' \
-    | xargs -n1 -P0 -r aws rds download-db-log-file-portion --db-instance-identifier "$db_identifier"  --log-file-name \
+    | xargs -n1 -P0 -r aws rds download-db-log-file-portion --db-instance-identifier "$db_identifier" --log-file-name \
     | jq -r '.LogFileData' \
     | grep -v 'LOG:  checkpoint' \
     | sort \
@@ -24,22 +24,22 @@ rds_logs(){
 _eb_get_latest_version() {
   local application="$1"
   aws elasticbeanstalk describe-application-versions \
-      --application-name "$application" \
+    --application-name "$application" \
     | jq -r '.ApplicationVersions[0].VersionLabel'
 }
 
 _eb_upgrade_to_latest() {
   local application="$1"
   aws elasticbeanstalk update-environment \
-      --environment-name "staging-$application" \
-      --version-label "$(_eb_get_latest_version "$application")"
+    --environment-name "staging-$application" \
+    --version-label "$(_eb_get_latest_version "$application")"
 }
 
 _eb_upgrade_production_to_latest() {
-    local application="$1"
-    aws elasticbeanstalk update-environment \
-        --environment-name "prod-$application" \
-        --version-label "$(_eb_get_latest_version "$application")"
+  local application="$1"
+  aws elasticbeanstalk update-environment \
+    --environment-name "prod-$application" \
+    --version-label "$(_eb_get_latest_version "$application")"
 }
 
 _ecr_list_images() {

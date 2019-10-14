@@ -53,8 +53,8 @@ _git_pick_any_branches() {
 _git_pick_branch() {
   local filter="$1"
   git for-each-ref \
-      --sort=-committerdate refs/heads/ \
-      --format='%(HEAD) %(refname:short) - %(objectname:short) - %(contents:subject) - %(authorname) (%(committerdate:relative))' \
+    --sort=-committerdate refs/heads/ \
+    --format='%(HEAD) %(refname:short) - %(objectname:short) - %(contents:subject) - %(authorname) (%(committerdate:relative))' \
     | grep -v '^\*' \
     | fzf --no-sort -q "${filter}" \
     | awk '{print $1}'
@@ -100,7 +100,6 @@ _git_new_branch_and_commit_from_new_issue() {
   git commit -n -m "$(_git_format_commit_message "$(_jira_current_issue_key_or_assigned) ${title}\n\n${desc}")" "${@:3}"
 }
 
-
 _git_new_branch_and_commit() {
   local message="$1"
   _git_new_branch "$(head -n1 <<< "${message}")"
@@ -110,15 +109,15 @@ _git_new_branch_and_commit() {
 _github() {
   local endpoint="$1"
   curl --fail --silent --header "Authorization: token $(keyring get api github)" \
-       "https://api.github.com/$endpoint" \
-       "${@:2}"
+    "https://api.github.com/$endpoint" \
+    "${@:2}"
 }
 
 _github_post() {
   local endpoint="$1"
   local payload="$2"
   curl --fail --silent -XPOST -H "Authorization: token $(keyring get system github_token)" \
-       "https://api.github.com/$endpoint" --data "$payload"
+    "https://api.github.com/$endpoint" --data "$payload"
 }
 
 _github_search_issues() {
@@ -158,13 +157,13 @@ _github_pick_repo() {
 
 _github_current_branch_pr_number() {
   _github_current_branch_pr \
-      | jq -r '.[0].number'
+    | jq -r '.[0].number'
 }
 
 _github_current_branch_pr() {
   _github "repos/$(_git_repo)/pulls" \
-          --get \
-          --data-urlencode head="$(dirname "$(_git_repo)"):$(_git_current_branch)"
+    --get \
+    --data-urlencode head="$(dirname "$(_git_repo)"):$(_git_current_branch)"
 }
 
 _github_open_url() {
@@ -193,8 +192,8 @@ _github_issues_search() {
 }
 
 _github_involved_issues() {
-    _github "search/issues?q=is:open+involves:$(_github_user)+user:$(_github_org)&sort=updated&order=desc&per_page=300" \
-        | jq '.items[]'
+  _github "search/issues?q=is:open+involves:$(_github_user)+user:$(_github_org)&sort=updated&order=desc&per_page=300" \
+    | jq '.items[]'
 }
 
 _github_format_issues() {
@@ -208,7 +207,7 @@ _github_format_issue() {
 _github_format_search_issues() {
   jq -r '.items[] | [(.repository_url | sub(".*/"; "")) + "#" + (.number | tostring),
     .title, .state, ([.labels[].name] | join(", ")), .assignee.login] | join("¡")' \
-      | column -s '¡' -t
+    | column -s '¡' -t
 }
 
 _github_user() {
@@ -330,14 +329,16 @@ _git_list_files_not_under_source_control() {
 }
 
 _git_compare_releases() {
-  git log -p "$(git tag \
-| sort -r \
-| tail -n +2 \
-| fzf --no-sort --prompt 'Pick the older release'
-)..$(git tag \
-| sort -r \
-| fzf --no-sort --prompt 'Pick the last release'
-)"
+  git log -p "$(
+    git tag \
+      | sort -r \
+      | tail -n +2 \
+      | fzf --no-sort --prompt 'Pick the older release'
+  )..$(
+    git tag \
+      | sort -r \
+      | fzf --no-sort --prompt 'Pick the last release'
+  )"
 }
 
 _git_copy_last_commit() {
@@ -370,7 +371,7 @@ mass-done() {
   mass _git_push_pr_if_commits
 }
 
-mass () {
+mass() {
   find . -maxdepth 2 -type d -name '.git' \
     | _mass "$@"
 }

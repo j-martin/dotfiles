@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 _info() {
-  >&2 echo "[info] $*"
+  echo >&2 "[info] $*"
 }
 
 _warn() {
-  >&2 echo "[warn] $*"
+  echo >&2 "[warn] $*"
 }
 
 _error() {
-  >&2 echo "[error] $*"
+  echo >&2 "[error] $*"
 }
 
 _production() {
@@ -35,7 +35,7 @@ _pick_first_col() {
 
 _copy() {
   tr -d '\n' \
-     | pbcopy
+    | pbcopy
   _info 'The output in your clipboard'
 }
 
@@ -47,7 +47,7 @@ _cached() {
   local ttl="${CACHE_TTL:-300}"
 
   local ts
-  ts="$(( $(date +'%s') / ttl ))"
+  ts="$(($(date +'%s') / ttl))"
 
   local filename
   filename="${TMPDIR}${ts}-$(echo "$*" | shasum | cut -d' ' -f1)"
@@ -87,9 +87,9 @@ _fzf() {
 
 _fzf_with_preview() {
   # shellcheck disable=SC2016
-  fzf --height 70%  \
-      --preview '[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file || highlight --out-format ansi -l --force {}' -1 -0 -q "$@" \
-      --preview-window down:50
+  fzf --height 70% \
+    --preview '[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file || highlight --out-format ansi -l --force {}' -1 -0 -q "$@" \
+    --preview-window down:50
 }
 
 _prefix() {

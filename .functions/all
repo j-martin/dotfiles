@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 for file in $(find "$HOME/.functions" -iname '*' -type f \
-                   -not -path '*all' -not -path '*.projectile'); do
+  -not -path '*all' -not -path '*.projectile'); do
   source $file
 done

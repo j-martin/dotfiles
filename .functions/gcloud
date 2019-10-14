@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
 _gcp_pick_project() {
+  local query="$1"
   gcloud projects list \
-    | fzf -0 -1 --header-lines=1 \
+    | fzf -0 -1 --header-lines=1 --query "${query}" \
     | awk '{print $1}'
 }
 _gcp_change_project() {
+  local query="$1"
+
   local project
-  project="$(_gcp_pick_project)"
+  project="$(_gcp_pick_project "${query}")"
   gcloud config set project "${project}"
   _info "Now using ${project}"
 }
