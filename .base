@@ -11,11 +11,6 @@ export VISUAL="emacsclient"
 GPG_TTY="$(tty)"
 export GPG_TTY
 
-HISTFILESIZE=1000000
-HISTSIZE=1000000
-HISTCONTROL=ignoreboth
-HISTIGNORE='ls:bg:fg:history'
-
 # shellcheck source=.cargo/env
 source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -36,7 +31,7 @@ __encfs() {
 }
 
 __encfs "$HOME/Sync/Storage" "$HOME/.storage"
-__encfs "$HOME/Library/.chrome" "$HOME/Library/Application Support/Google/Chrome"
+# __encfs "$HOME/Library/.chrome" "$HOME/Library/Application Support/Google/Chrome"
 
 # shellcheck source=.private/profile"
 test -f "$HOME/.private/profile" \

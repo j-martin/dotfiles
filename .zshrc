@@ -49,7 +49,30 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 
-plugins=(brew common-aliases dircycle dirhistory docker git gitfast github node osx tmux zsh-autosuggestions)
+plugins=(
+  autojump
+  # brew
+  # cargo
+  common-aliases
+  # dircycle
+  # dirhistory
+  docker
+  # gradle
+  git
+  gitfast
+  # github
+  # kubectl
+  # man
+  # fd
+  # fzf
+  # node
+  osx
+  ripgrep
+  # terraform
+  # vault
+  zsh-autosuggestions
+  # z
+)
 
 source "$ZSH/oh-my-zsh.sh"
 
@@ -57,7 +80,18 @@ source "$ZSH/oh-my-zsh.sh"
 export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=5
 unset zle_bracketed_paste
 
-setopt histignoredups
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+
+export HISTFILESIZE=1000000
+export HISTSIZE=1000000
+export HISTCONTROL=ignoreboth
+export HISTIGNORE='ls:bg:fg:history'
 
 # User configuration
 bindkey -e
