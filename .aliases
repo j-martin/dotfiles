@@ -40,6 +40,12 @@ if [ -n "$ZSH_VERSION" ]; then
   alias -g F='"$(fzf)"'
   alias -g L='| less -SRi'
   alias -g LL='2>&1 | less -SRi'
+  alias -g T='"${TMPDIR}temp"'
+  alias -g P='pbpaste |'
+  alias -g C='| pbcopy'
+
+  # Wrap line with "$()"
+  bindkey -s '\es' '^a" $(^e)"^a'
 
   compdef _s s
 fi
@@ -142,8 +148,7 @@ alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 alias ssh='_production /usr/local/bin/ssh'
-s() { \ssh "$@" -t 'command; tmux -u -CC attach -t jm || tmux -u -CC new -s jm' ;}
-ss() { \ssh "$@" -t 'command; tmux -S /tmp/shared -CC attach -t shared || tmux -S /tmp/shared -CC new -s shared' ;}
+s() { \ssh "$@" -t 'command; tmux -CC new-session -A -s jm' ;}
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
 alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
@@ -157,6 +162,9 @@ alias vimrc='vi $HOME/.vimrc'
 alias zshrc='vi $HOME/.zshrc'
 alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
 cb() { open "$(_chrome_parse_bookmarks | _fzf \"$1\" | cut -d '|' -f1)"; }
+
+# Formatting
+alias shfmt='shfmt -i 2 -bn -l -d -ci -sr -w'
 
 # GCP
 unalias gcp
@@ -207,6 +215,7 @@ alias gcleanx='git clean --force -dx --exclude .idea --exclude "*.iml"'
 alias gclone='_git_clone'
 alias gwip='(git log --oneline master..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
+alias groo='groot'
 alias gcp='git add -p && git commit' # Commiting part of a file.
 alias gpp='git push --no-verify --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && hbp'
@@ -227,6 +236,7 @@ alias gplush='git pull && git push'
 alias gmc='git commit -vnm'
 # alias gms='bub workflow commit'
 alias gms="_git_commit_with_issue_key"
+gmss() { git commit --message "merge with $1" "${@:2}" ;}
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
@@ -303,7 +313,7 @@ alias hdf='home icdiff'
 hadd() {
   echo "$*" | grep -vi '.org\|.config\|.private\|work\|Dropbox' && home add -f "$@"
 }
-alias hcommit='home commit -m'
+alias hms='home commit -m'
 alias hlog='home log -p'
 alias hdot='open https://github.com/j-martin/dotfiles'
 alias hs='home status'
