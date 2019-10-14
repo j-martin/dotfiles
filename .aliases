@@ -9,9 +9,10 @@ alias alia='ec $HOME/.aliases && sp'
 alias aliap='ec $HOME/.private/profile && sp'
 ali() {
   sp
-  ( alias
-    typeset -f | grep '^\w.*() {' | sed 's/ () {//' \
- ) | grep "$@" | sort
+  (
+    alias
+    typeset -f | grep '^\w.*() {' | sed 's/ () {//'
+  ) | grep "$@" | sort
 }
 
 # Editor
@@ -31,7 +32,7 @@ ett() {
 }
 
 ea() {
-  ec $(ag "$@" | fzf -0 -1 |  awk -F: '{print "+" $2 " " $1}')
+  ec $(ag "$@" | fzf -0 -1 | awk -F: '{print "+" $2 " " $1}')
 }
 
 # ZSH Specific
@@ -51,7 +52,7 @@ if [ -n "$ZSH_VERSION" ]; then
 fi
 
 # Auto-completion for s()
-_s () {
+_s() {
   local service=ssh
   _ssh "$@"
 }
@@ -90,20 +91,20 @@ alias cf='cd "$(dirname "$(fzf)")"'
 alias comp='_notify "Done!"'
 alias dk='docker'
 alias dkp='docker ps'
-dki() { docker images | awk '{print $1 ":" $2}' | sort -u ;}
+dki() { docker images | awk '{print $1 ":" $2}' | sort -u; }
 alias dc='docker-compose'
 alias dm='docker-machine'
 dbuild() {
-    local name="$(basename "$(pwd)")"
-    local image="$(_docker_pick_images ${name:0:5} || _docker_pick_images)"
-    docker build -t "$image" . && docker run -it "$image"
+  local name="$(basename "$(pwd)")"
+  local image="$(_docker_pick_images ${name:0:5} || _docker_pick_images)"
+  docker build -t "$image" . && docker run -it "$image"
 }
-dlog() { docker logs -f "$(_docker_pick_container $1)" ;}
-drun() { docker run -it "$(_docker_pick_images $1)" bash ;}
-drunb() { docker run --entrypoint='/bin/bash' -it "$(_docker_pick_images $1)" ;}
-dbash() { docker exec -it "$(_docker_pick_container $1)" bash ;}
-dsh() { docker exec -it "$(_docker_pick_container $1)" sh ;}
-dkill() { docker kill "$(_docker_pick_container $1)" ;}
+dlog() { docker logs -f "$(_docker_pick_container $1)"; }
+drun() { docker run -it "$(_docker_pick_images $1)" bash; }
+drunb() { docker run --entrypoint='/bin/bash' -it "$(_docker_pick_images $1)"; }
+dbash() { docker exec -it "$(_docker_pick_container $1)" bash; }
+dsh() { docker exec -it "$(_docker_pick_container $1)" sh; }
+dkill() { docker kill "$(_docker_pick_container $1)"; }
 alias dkillall='docker ps -q | xargs -r docker kill'
 alias drmiall='docker images -q | xargs -r docker rmi -f'
 alias dtest='docker build -t $(basename $(pwd)) . && docker run -it $(basename $(pwd))'
@@ -121,15 +122,18 @@ jqx() { jq . -C "$@" | less -SRi; }
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
 alias ip='ifconfig | grep "inet 1"'
-idiff() { icdiff "$1" "$2" | less -SRi ; }
-idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi ; }
+idiff() { icdiff "$1" "$2" | less -SRi; }
+idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
 lc() { pygmentize $@ | less -SRi; }
 alias lcf='_with_fzf "lc"'
 alias le='less -SRi'
 alias lf='_with_fzf cat | less -SRi'
 alias ler='less README.md'
 alias vir='$EDITOR README.md'
-vme() { $EDITOR "$1" & vmd "$1"; }
+vme() {
+  $EDITOR "$1" &
+  vmd "$1"
+}
 alias vms='EDITOR=subl vme'
 alias vmr='EDITOR=subl vme README.md'
 alias yml2json="python3 -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' <"
@@ -148,7 +152,7 @@ alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 alias ssh='_production /usr/local/bin/ssh'
-s() { \ssh "$@" -t 'command; tmux -CC new-session -A -s jm' ;}
+s() { \ssh "$@" -t 'command; tmux -CC new-session -A -s jm'; }
 alias mtmp='cd "$(mktemp -d -t 3)"'
 alias tailf='tail -F'
 alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
@@ -189,7 +193,10 @@ alias gcml='git checkout master && git pull'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
 git-reflog-grep() {
-  git reflog | awk '{print $1}' | while read in; do echo "$in"; git show "$in" | grep "$@" ; done
+  git reflog | awk '{print $1}' | while read in; do
+    echo "$in"
+    git show "$in" | grep "$@"
+  done
 }
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
@@ -209,8 +216,8 @@ alias gdp='git diff "$(_git_pick_branch)" -- "$(fzf)"'
 alias gdcf='git diff "$(_git_pick_commit)" -- "$(fzf)"'
 alias gci='_github_create_issue'
 alias gshowf='git show "$(_git_pick_commit):$(fzf)" | pygmentize | less -SRi'
-gshow() { git show "$1:$2" | vi - ;}
-gshowm() { git show "origin/master:$1" | vi - ;}
+gshow() { git show "$1:$2" | vi -; }
+gshowm() { git show "origin/master:$1" | vi -; }
 alias gcleanx='git clean --force -dx --exclude .idea --exclude "*.iml"'
 alias gclone='_git_clone'
 alias gwip='(git log --oneline master..HEAD | grep -ei wip) || echo "ok"'
@@ -236,7 +243,7 @@ alias gplush='git pull && git push'
 alias gmc='git commit -vnm'
 # alias gms='bub workflow commit'
 alias gms="_git_commit_with_issue_key"
-gmss() { git commit --message "merge with $1" "${@:2}" ;}
+gmss() { git commit --message "merge with $1" "${@:2}"; }
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
@@ -260,9 +267,8 @@ alias gsl='git stash list'
 alias gss='git stash save'
 alias gu='_github_open_url'
 alias gupd='git stash && git pull --rebase origin master && git stash apply && git stash drop'
-gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt ; }
+gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt; }
 alias ge="emacsclient --no-wait --eval '(magit-status)' && osascript -e 'tell application \"Emacs\" to activate'"
-
 
 # Github
 alias ha='open "$GITHUB_URL"'
@@ -278,12 +284,12 @@ alias hr='open "$GITHUB_URL/$(_git_repo)"'
 
 # General
 alias ic=imgcat
-fn() { find . -iname "*$@*" ;}
-fne() { find . -iname "*.$@" ;}
+fn() { find . -iname "*$@*"; }
+fne() { find . -iname "*.$@"; }
 alias cpb='cd $(dirname "$(pbpaste)")'
 alias kb='keybase'
 alias psa='ps aux | grep -i'
-whichl() { ls -lha "$(where $1)" ;}
+whichl() { ls -lha "$(where $1)"; }
 alias listen='osqueryi "select l.address, l.port, p.pid, p.path from listening_ports l, processes p where l.pid = p.pid order by p.name"'
 alias ports='lsof -nP +c 15 | grep LISTEN'
 
@@ -322,7 +328,7 @@ he() {
 }
 # Languages
 alias scal='scala -Dscala.color'
-agsbt() { agq "$@" -a --depth 2 ./*.{sbt,scala} ;}
+agsbt() { agq "$@" -a --depth 2 ./*.{sbt,scala}; }
 alias groov="groovyConsole > /dev/null &"
 alias yar='nvm install && yarn'
 
@@ -330,7 +336,7 @@ alias gr='./gradlew'
 
 # AWS
 alias ec2d='aws ec2 describe-instances | jq -C . | less -SRi'
-ec2ip() { jq ".Reservations[].Instances[] | select((.PrivateIpAddress == \"$1\" or .PublicIpAddress == \"$1\"))" ;}
+ec2ip() { jq ".Reservations[].Instances[] | select((.PrivateIpAddress == \"$1\" or .PublicIpAddress == \"$1\"))"; }
 alias r53="aws route53 list-hosted-zones | jq '.HostedZones[].Id' | xargs -n1 -P0 aws route53 list-resource-record-sets --hosted-zone-id --output text | grep"
 
 # GCP
