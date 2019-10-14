@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import logging
+import os
+from dataclasses import dataclass
+from typing import List
+
+import keyring
+import requests
+from orgparse import load
+from pushbullet import Pushbullet
+from pypandoc import convert_text
+from readability import Document
+from slugify import slugify
+
+PROPERTY_MODIFIED_ON = "MODIFIED_ON"
+
+INDEX_PATH = os.path.expanduser("~/.org/reading.org")
+PAGE_DIR = os.path.expanduser("~/.org/reading")
+
+logging.basicConfig(format="%(asctime)-15s %(message)s", level="INFO")
+LOGGER = logging.getLogger("org")
+
+
+@dataclass
+class Push:
+    active: bool
+    guid: str
+    created: float
+    direction: str
+    dismissed: bool
+    iden: str
+    source_device_iden: str
+    awake_app_guids: List[str]
+    modified: float
+    receiver_email: str
+    receiver_email_normalized: str
+    receiver_iden: str
+    sender_email: str
+    sender_email_normalized: str
+    sender_iden: str
+    sender_name: str
+    title: str
+    type: str
+    body: str = ""
+    url: str = ""
+    file_path: str = ""
+
+
+def _main():
+    api_key = keyring.get_keyring().get_password("pushbullet", "api-key")
+    encryption_key = keyring.get_keyring().get_password("pushbullet", "encryption-key")
+
+    pb = Pushbullet(api_key=api_key, encryption_password=encryption_key)
+
+    parsed_org_file = load(INDEX_PATH)
+    last_page = parsed_org_file[-1]
+    last_push = float(last_page.properties[PROPERTY_MODIFIED_ON])
+    logging.info(f"Latest push: {last_page.get_heading()} {last_push}")
+
+    pushes = reversed(pb.get_pushes(modified_after=last_push + 1))
+
+    with open(INDEX_PATH, "a") as fp:
+        for push_dict in pushes:
+            push: Push = Push(**push_dict)
+            try:
+                if push.direction != "self" or not push.url:
+                    continue
+                LOGGER.info(f"Push: {push.url}")
+                push.file_path = os.path.join(PAGE_DIR, f"{slugify(push.title)}.org")
+                _process_push(push)
+                fp.write(_format(push))
+            except Exception:
+                LOGGER.exception("Error")
+
+
+def _process_push(push: Push):
+    response = requests.get(push.url)
+    response.raise_for_status()
+    page = Document(response.text)
+    readable_text = page.summary()
+    org_content = convert_text(
+        readable_text, "org", format="html", extra_args=["--columns", "100"]
+    )
+    with open(push.file_path, "w") as fp:
+        fp.write(org_content)
+
+
+def _format(push: Push):
+    rel_path = os.path.relpath(push.file_path, os.path.dirname(INDEX_PATH))
+    return f"""
+** [[file:{rel_path}][{push.title}]]
+:PROPERTIES:
+:URL: [[{push.url}][url]]
+:CREATED_AT: {push.created}
+:{PROPERTY_MODIFIED_ON}: {push.modified}
+:END:
+"""
+
+
+if __name__ == "__main__":
+    _main()

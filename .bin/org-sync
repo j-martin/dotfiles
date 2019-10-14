@@ -9,7 +9,7 @@ _sync_external_services() {
 
   ./org-sync-calendar
   pipenv run python org-sync-todoist
-  ./org-pushbullet "$HOME/.org/reading/"
+  pipenv run python org-sync-pushbullet
 
   popd
 }

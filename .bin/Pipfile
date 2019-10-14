@@ -8,12 +8,18 @@ python_version = "3.7"
 [packages]
 clubhouse = "==0.2.1"
 readability-lxml = "*"
-breadability = "*"
 todoist-python = "*"
 keyring = "*"
 click = "*"
+cryptography = "*"
+"pushbullet.py" = "*"
+orgparse = "*"
+pypandoc = "*"
+python-slugify = "*"
 
 [dev-packages]
 bpython = "*"
+black = "==19.3b0"
 
 [scripts]
+fmt = "black ."
