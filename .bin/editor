@@ -12,7 +12,7 @@ _main() {
   local column_number="${3:-}"
 
   case "${filepath}" in
-    *.scala|*.java|*.sbt|*pom.xml|*.tsx|*.tf)
+    *.scala|*.java|*.sbt|*pom.xml|*.tsx|*.tf|*.py)
       if [[ -n "${line_number}" ]]; then
         _idea "${filepath}:${line_number}"
       else
