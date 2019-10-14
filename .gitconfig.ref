@@ -18,3 +18,27 @@
   insteadOf = "https://github.com/"
 [commit]
   gpgsign = true
+[diff]
+  colorMoved = true
+  renameLimit = 900
+[alias]
+  clean-all = clean --force -dx --exclude .idea
+  co = checkout
+  cp = cherry-pick
+  cpa = cherry-pick --abort
+  cpc = cherry-pick --continue
+  m = merge
+  r = rebase
+  rf = reflog
+  ref = reflog
+  re = reset
+  res = reset
+  st = stash
+[magithub]
+  online = false
+[magithub "status"]
+  includeStatusHeader = false
+  includePullRequestsSection = false
+  includeIssuesSection = false
+[log]
+  follow = true
