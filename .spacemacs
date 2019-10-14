@@ -44,7 +44,8 @@ This function should only modify configuration layer settings."
                       auto-completion-complete-with-key-sequence "jk"
                       auto-completion-idle-delay 0.4
                       auto-completion-complete-with-key-sequence-delay 0.2
-                      auto-completion-enable-help-tooltip nil
+                      auto-completion-enable-help-tooltip t
+                      auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
      c-c++
