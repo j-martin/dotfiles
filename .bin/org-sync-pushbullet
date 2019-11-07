@@ -3,7 +3,7 @@
 
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 import keyring
@@ -31,20 +31,26 @@ class Push:
     direction: str
     dismissed: bool
     iden: str
-    source_device_iden: str
-    awake_app_guids: List[str]
     modified: float
     receiver_email: str
     receiver_email_normalized: str
     receiver_iden: str
     sender_email: str
     sender_email_normalized: str
-    sender_iden: str
     sender_name: str
-    title: str
     type: str
+    sender_iden: str = ""
+    source_device_iden: str = ""
+    awake_app_guids: List[str] = field(default=list)
+    title: str = ""
     body: str = ""
+    image_width: int = 0
+    image_height: int = 0
+    image_url: str = 0
     url: str = ""
+    file_name: str = ""
+    file_type: str = ""
+    file_url: str = ""
     file_path: str = ""
 
 
@@ -59,7 +65,7 @@ def _main():
     last_push = float(last_page.properties[PROPERTY_MODIFIED_ON])
     logging.info(f"Latest push: {last_page.get_heading()} {last_push}")
 
-    pushes = reversed(pb.get_pushes(modified_after=last_push + 1))
+    pushes = reversed(pb.get_pushes(modified_after=last_push + 1, limit=25))
 
     with open(INDEX_PATH, "a") as fp:
         for push_dict in pushes:
