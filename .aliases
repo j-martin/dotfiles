@@ -44,18 +44,7 @@ if [ -n "$ZSH_VERSION" ]; then
   alias -g T='"${TMPDIR}temp"'
   alias -g P='pbpaste |'
   alias -g C='| pbcopy'
-
-  # Wrap line with "$()"
-  bindkey -s '\es' '^a" $(^e)"^a'
-
-  compdef _s s
 fi
-
-# Auto-completion for s()
-_s() {
-  local service=ssh
-  _ssh "$@"
-}
 
 # Quick edit
 alias eco='_with_fzf "ec" ".conf$" '
@@ -152,9 +141,8 @@ alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 alias ssh='_production /usr/local/bin/ssh'
-s() { \ssh "$@" -t 'command; tmux -CC new-session -A -s jm'; }
-alias mtmp='cd "$(mktemp -d -t 3)"'
-alias tailf='tail -F'
+alias s='iap -t'
+alias tmp='cd "$(mktemp -d -t 3)"'
 alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
 alias tfl='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" | less -SRI'
 alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" "src"'
