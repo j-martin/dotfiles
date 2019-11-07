@@ -86,11 +86,12 @@ _slugify() {
 _git_new_branch() {
   local name="$1"
   git fetch 'origin'
-  git checkout -b "$(git config --get clubhouse.user)/$(_slugify <<< "$name")" 'origin/master'
+  __git_new_branch "$name" 'origin/master'
 }
-
-_git_new_branch_from_new_issue() {
-  _git_new_branch "$(_jira_create "$@")"
+__git_new_branch() {
+  local name="$1"
+  local base_ref="${2:-}"
+  git checkout -b "$(git config --get clubhouse.user)/$(_slugify <<< "$name")" "${base_ref}"
 }
 
 _git_new_branch_and_commit_from_new_issue() {
