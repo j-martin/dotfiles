@@ -344,6 +344,5 @@ alias c2='open "https://console.aws.amazon.com/ec2/"'
 alias bdump='brew bundle --global dump --force && sed -i "s/, link: false//"  ~/.Brewfile'
 alias bcleanup='brew bundle --global cleanup' # --force
 
-# Ore
-alias w='o clubhouse'
-alias tf='o b tf'
+# macOS
+alias fixsound='sudo killall coreaudiod'
