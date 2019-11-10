@@ -15,6 +15,7 @@ export GPG_TTY
 source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
 
+# Use /usr/bin/ssh-add -K ~/.ssh/* to add existing keys
 test -e "$TMPDIR/ssh-loaded" \
   || /usr/bin/ssh-add -A && touch "$TMPDIR/ssh-loaded"
 
