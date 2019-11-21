@@ -55,7 +55,7 @@ export PAGER='less -SRi'
 export HOSTNAME="$HOST"
 
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep"
-export FZF_DEFAULT_COMMAND='rg --hidden --files --iglob "!*{.git,node_modules,build,out}/*" 2> /dev/null'
+export FZF_DEFAULT_COMMAND='rg --files 2> /dev/null'
 # unset SSL_CERT_FILE
 
 export SDKMAN_DIR="$HOME/.sdkman"
