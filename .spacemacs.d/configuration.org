@@ -303,6 +303,7 @@ From http://akrl.sdf.org/.
 ** Projectile
    #+begin_src emacs-lisp :results none
      (setq projectile-enable-caching nil)
+     (setq projectile-globally-ignored-directories '(".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "node_modules", "mod"))
    #+end_src
 ** Tramp
    #+begin_src emacs-lisp :results none
