@@ -83,6 +83,14 @@ _slugify() {
     | sed -r 's/-+/-/g; s/^-//; s/-$//'
 }
 
+_git_new_branch_from_commit() {
+  local object="$1"
+  local title
+  title="$(git log --format=%s -n 1 "${object}")"
+  _git_new_branch "${title}"
+  git cherry-pick "${object}"
+}
+
 _git_new_branch() {
   local name="$1"
   git fetch 'origin'
