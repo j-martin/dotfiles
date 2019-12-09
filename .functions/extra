@@ -160,3 +160,22 @@ _rsync() {
     "${local_path}" \
     "${remote_path}"
 }
+
+format_xml() {
+  local filepath="$1"
+
+  # For some reason tidy is more configuratble with a config file than with CLI arguments.
+  local config='
+indent: yes
+indent-attributes: yes
+indent-spaces: 2
+wrap: 72
+input-xml: yes
+output-xml: yes
+'
+
+  tidy -quiet -config <(echo "${config}") "${filepath}" > "${filepath}.tmp"
+  mv "${filepath}"{.tmp,}
+
+  _info "Reformatted '${filepath}'"
+}
