@@ -179,6 +179,11 @@ _github_open_url() {
   open "$(_github_pick_url $@)"
 }
 
+_github_open_commit() {
+  local commit="$1"
+  open "https://github.com/$(_git_repo)/commit/${commit}"
+}
+
 _github_pick_url() {
   CACHE_TTL=86400 _cached _github_repo_urls \
     | _fzf "https://github.com//$@"
