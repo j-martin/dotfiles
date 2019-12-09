@@ -58,6 +58,7 @@ This function should only modify configuration layer settings."
      github
      gtags
      go
+     graphviz
      helm
      imenu-list
      (java :variables java-backend nil)
