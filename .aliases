@@ -229,6 +229,7 @@ alias glgg='git log --graph --decorate'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gplush='git pull && git push'
 alias gmc='git commit -vnm'
+alias gmcp='_git_copy_last_commit'
 # alias gms='bub workflow commit'
 alias gms="_git_commit_with_issue_key"
 gmss() { git commit --message "merge with $1" "${@:2}"; }
