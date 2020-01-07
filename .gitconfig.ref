@@ -1,44 +1,10 @@
+[include]
+  path = ~/.gitconfig.base
 [user]
-  name = Jean-Martin Archer
-  email = jm@jmartin.ca
   signingkey = <change-me>
-[pull]
-  rebase = true
-[push]
-  default = current
 [github]
-  user = j-martin
-  oauth-token =
-  team =
-  org =
-[core]
-  commentChar = ";"
-  excludesfile = /Users/jm/.gitignore_global
-[url "git@github.com:"]
-  insteadOf = "https://github.com/"
-[commit]
-  gpgsign = true
-[diff]
-  colorMoved = true
-  renameLimit = 900
-[alias]
-  clean-all = clean --force -dx --exclude .idea
-  co = checkout
-  cp = cherry-pick
-  cpa = cherry-pick --abort
-  cpc = cherry-pick --continue
-  m = merge
-  r = rebase
-  rf = reflog
-  ref = reflog
-  re = reset
-  res = reset
-  st = stash
-[magithub]
-  online = false
-[magithub "status"]
-  includeStatusHeader = false
-  includePullRequestsSection = false
-  includeIssuesSection = false
-[log]
-  follow = true
+  oauth-token = <change-me>
+  team = <change-me>
+  org = <change-me>
+[clubhouse]
+  user = <change-me>

@@ -1,0 +1,42 @@
+[user]
+  name = Jean-Martin Archer
+  email = jm@jmartin.ca
+[pull]
+  rebase = true
+[push]
+  default = current
+[github]
+  user = j-martin
+[core]
+  commentChar = ";"
+  excludesfile = ~/.gitignore_global
+[url "git@github.com:"]
+  insteadOf = "https://github.com/"
+[commit]
+  gpgsign = true
+[diff]
+  colorMoved = true
+  renameLimit = 900
+[alias]
+  clean-all = clean --force -dx --exclude .idea
+  co = checkout
+  cp = cherry-pick
+  cpa = cherry-pick --abort
+  cpc = cherry-pick --continue
+  m = merge
+  r = rebase
+  rf = reflog
+  ref = reflog
+  re = reset
+  rs = reset
+  st = stash
+[magithub]
+  online = false
+[magithub "status"]
+  includeStatusHeader = false
+  includePullRequestsSection = false
+  includeIssuesSection = false
+[clubhouse]
+  user = jm
+[log]
+  follow = true
