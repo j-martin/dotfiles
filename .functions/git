@@ -84,7 +84,8 @@ _slugify() {
 }
 
 _git_new_branch_from_commit() {
-  local object="$1"
+  # Removing the ] that appears next to the commit hash depending on the operation.
+  local object="${1//]/}"
   local title
   title="$(git log --format=%s -n 1 "${object}")"
   _git_new_branch "${title}"
