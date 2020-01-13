@@ -100,10 +100,11 @@ This function should only modify configuration layer settings."
      evil-owl
      evil-string-inflection
      evil-textobj-syntax
+     ivy
      jq-mode
      jsonnet-mode
      langtool
-     (org-clubhouse :location (recipe :fetcher github :repo "urbint/org-clubhouse"))
+     (org-clubhouse :location (recipe :fetcher github :repo "glittershark/org-clubhouse"))
      ox-clip
      parinfer
      protobuf-mode
