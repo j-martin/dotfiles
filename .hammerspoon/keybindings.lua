@@ -36,6 +36,7 @@ local bindings = {
       { key = '8', name = apps.name.ripcord },
       { key = '8', fn = apps.ripcordQuickSwitcher, shift = true },
       { key = '9', name = 'Spotify' },
+      { key = '9', name = 'Soundcleod', shift = true},
       { key = ';', name = 'Dash' },
       { key = '\\', name = '1Password 7' },
       -- key = ';' reserved for Dash
