@@ -2,9 +2,9 @@
 --type-add=j:*.gradle
 --type-add=j:*.java
 
---type-add=t:*.tsx
---type-add=t:*.ts
---type-add=t:*.js
+--type-add=s:*.tsx
+--type-add=s:*.ts
+--type-add=s:*.js
 
 --type-add=f:*.tf
 
