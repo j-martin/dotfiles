@@ -233,6 +233,7 @@ alias gmcp='_git_copy_last_commit'
 # alias gms='bub workflow commit'
 alias gms="_git_commit_with_issue_key"
 gmss() { git commit --message "merge with $1" "${@:2}"; }
+gmsf() { git commit --message "merge with $1" "${@}"; }
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
