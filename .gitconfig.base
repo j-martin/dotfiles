@@ -9,7 +9,7 @@
   user = j-martin
 [core]
   commentChar = ";"
-  excludesfile = ~/.gitignore_global
+  excludesfile = ~/.gitignore.global
 [url "git@github.com:"]
   insteadOf = "https://github.com/"
 [commit]
