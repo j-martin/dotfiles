@@ -1,5 +1,9 @@
 " https://github.com/JetBrains/ideavim/blob/master/doc/set-commands.md
 
+source ~/.vendor/intellimacs/spacemacs.vim
+source ~/.vendor/intellimacs/extra.vim
+source ~/.vendor/intellimacs/major.vim
+
 set surround
 set commentary
 set multiple-cursors

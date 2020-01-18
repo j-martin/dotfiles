@@ -22,3 +22,6 @@
 [submodule ".oh-my-zsh-custom/plugins/pure"]
 	path = .oh-my-zsh-custom/plugins/pure
 	url = https://github.com/sindresorhus/pure
+[submodule ".vendor/intellimacs"]
+	path = .vendor/intellimacs
+	url = git@github.com:MarcoIeni/intellimacs.git
