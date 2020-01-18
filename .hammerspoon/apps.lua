@@ -15,9 +15,7 @@ mod.name = {
   ripcord = 'Ripcord',
 }
 
-local states = {
-  noisyTyperEnabled = false
-}
+local states = {noisyTyperEnabled = false}
 
 local function wait(n)
   local n = n or 1
@@ -49,7 +47,7 @@ local function clickNotification(offset)
   local currentScreen = mouse.getCurrentScreen()
   local currentPos = mouse.getRelativePosition()
   local targetScreen = screen.primaryScreen()
-  local targetPos = { x = targetScreen:frame().w - offset, y = 40 }
+  local targetPos = {x = targetScreen:frame().w - offset, y = 40}
 
   mouse.setRelativePosition(targetPos, targetScreen)
   eventtap.leftClick(targetPos)
@@ -70,7 +68,7 @@ function mod.activityMonitor()
   local laptopScreen = 'Color LCD'
 
   win:moveToScreen(laptopScreen)
-  win:moveToUnit({ 0.85, 0.9, 0.1, 0.1 }, 0)
+  win:moveToUnit({0.85, 0.9, 0.1, 0.1}, 0)
   eventtap.keyStroke({'cmd'}, '1')
 end
 

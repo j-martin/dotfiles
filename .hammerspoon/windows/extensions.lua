@@ -1,5 +1,4 @@
 -- initially from https://raw.githubusercontent.com/oskarols/dotfiles/0bd44443d00108e3c1a8d01520489e2d165f70ff/hammerspoon/extensions.lua
-
 local fnutils = require "hs.fnutils"
 local indexOf = fnutils.indexOf
 local filter = fnutils.filter
@@ -27,7 +26,9 @@ end
 -- gets propery or method value
 -- on a table
 local function result(obj, property)
-  if not obj then return nil end
+  if not obj then
+    return nil
+  end
 
   if isFunction(property) then
     return property(obj)
@@ -75,7 +76,7 @@ function mod.mouseHighlight()
 
   local circle = geometry.rect(mousepoint.x - 20, mousepoint.y - 20, 40, 40)
 
-  local fillColor = { red = 0.5, blue = 0.5, green = 0.5, alpha = 0.5 }
+  local fillColor = {red = 0.5, blue = 0.5, green = 0.5, alpha = 0.5}
 
   mouseCircle = drawing.circle(circle)
   mouseCircle:setFillColor(fillColor)
@@ -92,7 +93,6 @@ function mod.centerOnTitle(rect)
   local point = geometry.point(rect.x + 70, rect.y + 15)
   mouse.setAbsolutePosition(point)
 end
-
 
 ---------------------------------------------------------
 -- Application / window

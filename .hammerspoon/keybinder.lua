@@ -7,17 +7,13 @@ local logger = hs.logger.new('keybinder', 'info')
 local windows = require 'windows'
 local chrome = require 'chrome'
 
-local hyper = { 'cmd', 'alt', 'ctrl' }
-local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
+local hyper = {'cmd', 'alt', 'ctrl'}
+local hyperShift = {'cmd', 'alt', 'ctrl', 'shift'}
 local globalBindings = '*'
 
 hotkey.alertDuration = 2.5
 
-local mod = {
-  cmd = { 'cmd' },
-  hyper = hyper,
-  globalBindings = globalBindings
-}
+local mod = {cmd = {'cmd'}, hyper = hyper, globalBindings = globalBindings}
 
 function enableBindings(bindings, window)
   for _, binding in pairs(bindings) do
@@ -68,23 +64,21 @@ function initWatcher(appBindingMap)
   activated[application.watcher.launching] = true
   activated[application.watcher.unhidden] = true
 
-  return
-    application.watcher.new(
-      function(appName, event, appObj)
-        local bindings = appBindingMap[appName]
-        if bindings == nil then
-          return
-        end
+  return application.watcher.new(function(appName, event, appObj)
+    local bindings = appBindingMap[appName]
+    if bindings == nil then
+      return
+    end
 
-        if activated[event] ~= nil then
-          logger.df('Enabling for %s', appName)
-          enableBindings(bindings, window.focusedWindow())
-          return
-        end
+    if activated[event] ~= nil then
+      logger.df('Enabling for %s', appName)
+      enableBindings(bindings, window.focusedWindow())
+      return
+    end
 
-        logger.df('Disabling for %s', appName)
-        disableBindings(bindings)
-    end)
+    logger.df('Disabling for %s', appName)
+    disableBindings(bindings)
+  end)
 end
 
 function mod.init(appBindingList)

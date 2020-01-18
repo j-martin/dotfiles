@@ -1,16 +1,12 @@
 -- strongly inspired from
 -- https://github.com/dharmapoudel/hammerspoon-config/blob/master/battery.lua
-
 local battery = require "hs.battery"
 local notify = require "hs.notify"
 local logger = hs.logger.new('battery', 'debug')
 
 local mod = {}
 
-local state = {
-  min = 40,
-  remaining = 0
-}
+local state = {min = 40, remaining = 0}
 
 local function watchBattery()
   local currentPercentage = battery.percentage()
@@ -19,14 +15,14 @@ local function watchBattery()
   local isLowerThanMin = currentPercentage <= state.min
   local stateHasChanged = state.remaining ~= currentPercentage
   local isDischarging = battery.powerSource() == 'Battery Power' or battery.amperage() < 0
-  local isMutlipleOf = (currentPercentage % 5 == 0 )
+  local isMutlipleOf = (currentPercentage % 5 == 0)
 
   logger.df("Current percentage: %s", currentPercentage)
   if isLowerThanMin and stateHasChanged and isDischarging and isMutlipleOf then
     state.remaining = currentPercentage
     local message = {
       title = battery.title,
-      informativeText = 'Battery left: ' .. state.remaining .. "%\nPower Source: " .. source
+      informativeText = 'Battery left: ' .. state.remaining .. "%\nPower Source: " .. source,
     }
     notify.new(message):send()
   end

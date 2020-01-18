@@ -8,13 +8,7 @@ local mod = {}
 
 mod.name = 'Google Chrome'
 
-mod.tab = {
-  slack  = ' Alloy Slack',
-  mail = {
-    work = 'Alloy, Inc. Mail',
-    personal = 'jmartin.ca Mail'
-  }
-}
+mod.tab = {slack = ' Alloy Slack', mail = {work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail'}}
 
 local function wait(n)
   local n = n or 1

@@ -26,7 +26,7 @@ function mod.applyLayout(commonLayout, selectedLayout)
     else
       scr = screen.primaryScreen():name()
     end
-    return { entry.name, nil, scr, entry.pos, nil, nil }
+    return {entry.name, nil, scr, entry.pos, nil, nil}
   end
 
   return function()
@@ -41,15 +41,12 @@ local function toUnitRect(win)
   end
 
   local unitRect = fnutils.map(win:screen():toUnitRect(win:frame()), round)
-  return { unitRect._x, unitRect._y, unitRect._w, unitRect._h }
+  return {unitRect._x, unitRect._y, unitRect._w, unitRect._h}
 end
 
 local function isSamePos(currentPos, previousPos)
-  return
-    currentPos[0] == previousPos[0] and
-    currentPos[1] == previousPos[1] and
-    currentPos[2] == previousPos[2] and
-    currentPos[3] == previousPos[3]
+  return currentPos[0] == previousPos[0] and currentPos[1] == previousPos[1] and currentPos[2] == previousPos[2]
+           and currentPos[3] == previousPos[3]
 end
 
 local function inPostions(currentPos, positions)
@@ -86,7 +83,7 @@ function mod.moveWindowTo(pos, targetScreen)
       previousStates[winKey] = nil
       logger.d('reverted to previousState')
     else
-      previousStates[winKey] = { screen = win:screen(), pos = winPos }
+      previousStates[winKey] = {screen = win:screen(), pos = winPos}
       win:move(pos, resolveTargetScreen(targetScreen))
       logger.d('saved previousState')
     end
@@ -201,7 +198,7 @@ function mod.cycleScreenBack()
   ext.centerOnTitle(win:frame())
 end
 
- function mod.alternateScreen()
+function mod.alternateScreen()
   local laptopScreen = 'Color LCD'
   local extraScreen = 'SMS24A850'
   if screen.find(extraScreen) then

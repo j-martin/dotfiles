@@ -7,12 +7,7 @@ local mod = {}
 
 local running_processes = {}
 local HOME = os.getenv('HOME')
-local env = {
-  PATH = '/usr/local/bin:/usr/bin:/bin',
-  LC_ALL = 'en_US.UTF-8',
-  LANG = 'en_US.UTF-8',
-  HOME = HOME
-}
+local env = {PATH = '/usr/local/bin:/usr/bin:/bin', LC_ALL = 'en_US.UTF-8', LANG = 'en_US.UTF-8', HOME = HOME}
 
 local function returnCallback(exitCode, stdOut, stdErr)
   if exitCode ~= 0 then
@@ -31,11 +26,15 @@ local function streamCallback(_, stdOut, stdErr)
   return true
 end
 
-function getn (t)
-  if type(t.n) == "number" then return t.n end
+function getn(t)
+  if type(t.n) == "number" then
+    return t.n
+  end
   local max = 0
   for i, _ in t do
-    if type(i) == "number" and i>max then max=i end
+    if type(i) == "number" and i > max then
+      max = i
+    end
   end
   return max
 end
@@ -56,7 +55,8 @@ function mod.start(cmd, args, pwd)
   args = fnutils.map(args or {}, expand)
   pwd = expand(pwd or '~/.bin')
 
-  process = task.new(cmd, nil, function() end, args)
+  process = task.new(cmd, nil, function()
+  end, args)
   table.insert(running_processes, process)
 
   logger.f('starting %s %s in %s', cmd, args, pwd)

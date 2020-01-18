@@ -13,7 +13,7 @@ function Stack:Create()
     if ... then
       local targs = {...}
       -- add values
-      for _,v in ipairs(targs) do
+      for _, v in ipairs(targs) do
         table.insert(self._et, v)
       end
     end
@@ -50,7 +50,7 @@ function Stack:Create()
 
   -- list values
   function t:list()
-    for i,v in pairs(self._et) do
+    for i, v in pairs(self._et) do
       print(i, v)
     end
   end

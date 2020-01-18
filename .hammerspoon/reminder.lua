@@ -10,7 +10,7 @@ local isAwake = {
   watcher.screensaverDidStop,
   watcher.sessionDidBecomeActive,
   watcher.systemDidWake,
-  watcher.screensDidUnlock
+  watcher.screensDidUnlock,
 }
 
 -- System Sounds
@@ -24,22 +24,13 @@ local function notice(message, duration)
   return function()
     local padding = '           '
     local style = {
-      fillColor = {
-        alpha = 0.25,
-        white = 0
-      },
+      fillColor = {alpha = 0.25, white = 0},
       radius = 10,
-      strokeColor = {
-        alpha = 0,
-        white = 0
-      },
+      strokeColor = {alpha = 0, white = 0},
       strokeWidth = 5,
-      textColor = {
-        alpha = 0.25,
-        white = 1
-      },
+      textColor = {alpha = 0.25, white = 1},
       textFont = "SauceCodePowerline-Regular",
-      textSize = 100
+      textSize = 100,
     }
 
     alert('\n' .. padding .. message .. padding .. '\n', duration or 10, style)
@@ -49,7 +40,7 @@ local function notice(message, duration)
 end
 
 local function noticeActions(action)
-  return function ()
+  return function()
     local counter = 0
     local defaultInterval = 30
 
@@ -84,17 +75,14 @@ local function setReminders(reminders)
   fnutils.each(reminders, setReminder)
 end
 
+local stretchesList = {{name = ''}}
 
-local stretchesList = {
-  { name = '' },
-}
-
-local reminders = {
-  { name = 'Break', freq = 1200, fn = noticeActions(stretchesList) }
-}
+local reminders = {{name = 'Break', freq = 1200, fn = noticeActions(stretchesList)}}
 
 local function parseEvent(event)
-  if fnutils.contains(isAwake, event) then setReminders(reminders) end
+  if fnutils.contains(isAwake, event) then
+    setReminders(reminders)
+  end
 end
 
 mod.stretches = noticeActions(stretchesList)

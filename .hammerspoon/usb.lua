@@ -25,7 +25,7 @@ local mod = {}
 
 local function buildHandlers(watchedEvents)
   local function buildHandler(watchedEvent)
-    return function (event)
+    return function(event)
       logger.d(inspect(event))
 
       local isEventType = event.eventType == watchedEvent.eventType
@@ -43,18 +43,14 @@ local function buildHandlers(watchedEvents)
   local handlers = fnutils.map(watchedEvents, buildHandler)
 
   return function(event)
-    fnutils.each(handlers, function (handler) handler(event) end)
+    fnutils.each(handlers, function(handler)
+      handler(event)
+    end)
   end
 end
 
 local watchedEvents = {
-  {
-    eventType = "removed",
-    productName = "",
-    productID = 7,
-    vendorID = 1523,
-    fn = audio.setVolume(-100)
-  },
+  {eventType = "removed", productName = "", productID = 7, vendorID = 1523, fn = audio.setVolume(-100)},
   {
     eventType = "added",
     productName = "",
@@ -64,7 +60,7 @@ local watchedEvents = {
       alert.show('Resetting brightness and volume for the office.')
       screen.setBrightness(0.8)()
       audio.setVolume(15)()
-    end
+    end,
   },
 }
 

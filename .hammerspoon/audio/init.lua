@@ -25,7 +25,7 @@ function mod.muteSpeakers()
 end
 
 function mod.changeVolume(inc)
-  return function ()
+  return function()
     local device = audiodevice.defaultOutputDevice()
     local value = math.ceil(device:volume() + inc)
     if value <= 0 then
@@ -35,17 +35,17 @@ function mod.changeVolume(inc)
     else
       device:setMuted(false)
       device:setVolume(value)
-      alert.show('Volume: ' .. tostring(value) .. ' %' )
+      alert.show('Volume: ' .. tostring(value) .. ' %')
     end
   end
 end
 
 function mod.setVolume(value)
-  return function ()
+  return function()
     local device = audiodevice.defaultOutputDevice()
     device:setMuted(false)
     device:setVolume(value)
-    alert.show('Volume: ' .. tostring(value) .. ' %' )
+    alert.show('Volume: ' .. tostring(value) .. ' %')
   end
 end
 
@@ -54,7 +54,7 @@ function mod.open()
 end
 
 local function callAndDisplay(fn)
-  return function ()
+  return function()
     fn()
     spotify.displayCurrentTrack()
   end

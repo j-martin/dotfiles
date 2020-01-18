@@ -35,7 +35,6 @@ local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   end
 end
 
-
 function mod.init(pluggedFn, unpluggedFn)
   mod.pluggedFn = pluggedFn
   mod.unpluggedFn = unpluggedFn

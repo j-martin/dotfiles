@@ -10,16 +10,16 @@ local window = require "hs.window"
 local mod = {}
 
 local function eval(sexp)
-  process.start('~/.bin/ec', { '--quiet', '--suppress-output', '--eval', sexp })
+  process.start('~/.bin/ec', {'--quiet', '--suppress-output', '--eval', sexp})
   application.launchOrFocus('Emacs')
 end
 
 local function evalInCurrentBuffer(sexp)
-  eval('(with-current-buffer (window-buffer (selected-window)) ' .. sexp ..')')
+  eval('(with-current-buffer (window-buffer (selected-window)) ' .. sexp .. ')')
 end
 
 local function open(url)
-  process.start('~/.bin/ec', { '--quiet', '--suppress-output', url })
+  process.start('~/.bin/ec', {'--quiet', '--suppress-output', url})
   application.launchOrFocus('Emacs')
 end
 
@@ -71,10 +71,8 @@ function mod.capture(captureTemplate)
       _, url, _ = osascript.javascript("Application('Finder').selection()[0].url()")
     end
 
-    local protocolUrl = 'org-protocol://capture?' ..
-      'title=' .. http.encodeForQuery(title) ..
-      '&url=' .. http.encodeForQuery(url) ..
-      '&body=' .. http.encodeForQuery(body or '')
+    local protocolUrl = 'org-protocol://capture?' .. 'title=' .. http.encodeForQuery(title) .. '&url='
+                          .. http.encodeForQuery(url) .. '&body=' .. http.encodeForQuery(body or '')
     if captureTemplate then
       protocolUrl = protocolUrl .. '&template=' .. captureTemplate
     end

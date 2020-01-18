@@ -11,14 +11,14 @@ local logger = hs.logger.new('selection', 'debug')
 
 local mod = {}
 
-local engines = {
-  google = 'https://www.google.ca/search?q=',
-}
+local engines = {google = 'https://www.google.ca/search?q='}
 
 local function selectedTextFromClipboard(currentApp)
   local selection
   local function getClipboard(initial, retries)
-    if retries < 0 then return initial end
+    if retries < 0 then
+      return initial
+    end
     timer.usleep(0.1 * 1000000)
     local selection = pasteboard.readString()
     if selection == initial and currentApp ~= 'Google Chrome' then
@@ -39,7 +39,7 @@ end
 
 function mod.getSelectedText()
   local currentApp = window.focusedWindow():application():name()
-  local element  = uielement.focusedElement()
+  local element = uielement.focusedElement()
   local selection
 
   if element then
@@ -54,7 +54,8 @@ function mod.getSelectedText()
 end
 
 local function openUrl(url)
-  task.new('/usr/bin/open', nil, function() end, {url}):start()
+  task.new('/usr/bin/open', nil, function()
+  end, {url}):start()
 end
 
 local function query(url, text)
@@ -70,7 +71,7 @@ function mod.actOn(engine)
     local text = mod.getSelectedText()
     if text:gmatch("https?://")() then
       openUrl(text)
-    -- TODO: Cleanup silly regex
+      -- TODO: Cleanup silly regex
     elseif text:gmatch("1%d%d%d%d%d%d%d%d%d+")() then
       mod.epochSinceNow(text)
     else
@@ -98,12 +99,8 @@ function mod.epochSinceNow(text)
   end
 
   local diff = initial - selection
-  alert.show(
-    round(diff / 60) .. ' mins / ' ..
-      round(diff / 60 / 60) .. ' hours / ' ..
-      round(diff / 60 / 60 / 24) .. ' days / ' ..
-      round(diff / 60 / 60 / 24 / 30) .. ' months ago'
-  )
+  alert.show(round(diff / 60) .. ' mins / ' .. round(diff / 60 / 60) .. ' hours / ' .. round(diff / 60 / 60 / 24)
+               .. ' days / ' .. round(diff / 60 / 60 / 24 / 30) .. ' months ago')
 end
 
 return mod
