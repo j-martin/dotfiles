@@ -1,11 +1,14 @@
 local mod = {}
 
-local audiodev = require "hs.audiodevice"
+local audiodevice = require "hs.audiodevice"
 local alert = require "hs.alert"
 local spotify = require "hs.spotify"
 local logger = hs.logger.new('headphones', 'debug')
 
-local devices = {}
+local watchedDevices = {}
+
+local pluggedFn = nil
+local unpluggedFn = nil
 
 local previousAlert
 
@@ -22,35 +25,24 @@ end
 
 local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   logger.df("Audiodevwatch args: %s, %s, %s, %s", dev_uid, event_name, event_scope, event_element)
-  local device = audiodev.findDeviceByUID(dev_uid)
+  local device = audiodevice.findDeviceByUID(dev_uid)
   if event_name == 'jack' then
     if device:jackConnected() then
-      debounce("Headphones plugged", mod.plugged)
+      debounce("Headphones plugged", pluggedFn)
     else
-      debounce("Headphones unplugged → External Speakers muted", mod.unplugged)
+      debounce("Headphones unplugged → External Speakers muted", unpluggedFn)
     end
   end
 end
 
-function mod.plugged()
-  local outputDevice = audiodev.defaultOutputDevice()
-  outputDevice:setMuted(false)
-  outputDevice:setVolume(15)
-end
 
-function mod.unplugged()
-  local outputDevice = audiodev.defaultOutputDevice()
-  outputDevice:setVolume(0)
-  outputDevice:setMuted(true)
-  spotify.pause()
-end
-
-function mod.init()
-  for _, device in ipairs(audiodev.allOutputDevices()) do
-    logger.df("Setting up watcher for audiodev device %s (UID %s)", device:name(), device:uid())
-    devices[device:uid()] = device:watcherCallback(audioDeviceWatch)
-    devices[device:uid()]:watcherStart()
-  end
+function mod.init(pluggedFn, unpluggedFn)
+  mod.pluggedFn = pluggedFn
+  mod.unpluggedFn = unpluggedFn
+  local device = audiodevice.findOutputByName('Built-in Output')
+  logger.df("Setting up watcher for audiodevice device %s (UID %s)", device:name(), device:uid())
+  watchedDevices[device:uid()] = device:watcherCallback(audioDeviceWatch)
+  watchedDevices[device:uid()]:watcherStart()
 end
 
 return mod

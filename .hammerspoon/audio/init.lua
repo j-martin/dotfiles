@@ -1,4 +1,4 @@
-local audio = require 'hs.audiodevice'
+local audiodevice = require 'hs.audiodevice'
 local spotify = require 'hs.spotify'
 local alert = require 'hs.alert'
 local application = require "hs.application"
@@ -7,13 +7,30 @@ local headphones_watcher = require "audio/headphones_watcher"
 
 local mod = {}
 
+function mod.workSetup()
+  local dac = audiodevice.findOutputByName('FiiO USB DAC-E10')
+  dac:setDefaultOutputDevice()
+  dac:setMuted(false)
+  dac:setVolume(50)
+  mod.muteSpeakers()
+end
+
+function mod.muteSpeakers()
+  local speakers = audiodevice.findOutputByName('Built-in Output')
+  if not speakers then
+    return
+  end
+  speakers:setVolume(0)
+  speakers:setMuted(true)
+end
+
 function mod.changeVolume(inc)
   return function ()
-    local device = audio.defaultOutputDevice()
+    local device = audiodevice.defaultOutputDevice()
     local value = math.ceil(device:volume() + inc)
     if value <= 0 then
-      device:setMuted(true)
       device:setVolume(0)
+      device:setMuted(true)
       alert.show('Muted')
     else
       device:setMuted(false)
@@ -25,7 +42,7 @@ end
 
 function mod.setVolume(value)
   return function ()
-    local device = audio.defaultOutputDevice()
+    local device = audiodevice.defaultOutputDevice()
     device:setMuted(false)
     device:setVolume(value)
     alert.show('Volume: ' .. tostring(value) .. ' %' )
@@ -59,8 +76,20 @@ local function parseEvent(event)
 end
 
 function mod.init()
+  function plugged()
+    mod.muteSpeakers()
+    local outputDevice = audiodevice.defaultOutputDevice()
+    outputDevice:setMuted(false)
+    outputDevice:setVolume(15)
+  end
+
+  function unplugged()
+    mod.muteSpeakers()
+    spotify.pause()
+  end
+
   watcher.new(parseEvent):start()
-  headphones_watcher.init()
+  headphones_watcher.init(plugged, unplugged)
 end
 
 return mod
