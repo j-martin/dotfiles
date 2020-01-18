@@ -25,11 +25,12 @@
   cpc = cherry-pick --continue
   m = merge
   r = rebase
-  rf = reflog
-  ref = reflog
+  rf = reflog --date=iso
   re = reset
   rs = reset
-  st = stash
+  s = status
+  st = status
+  sta = stash
 [magithub]
   online = false
 [magithub "status"]
