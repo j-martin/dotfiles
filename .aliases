@@ -27,7 +27,7 @@ alias etf='_with_fzf "emacsclient --tty"'
 
 ett() {
   local file="$1"
-  touch "${file}"
+  _touch "${file}"
   ec "${file}"
 }
 
