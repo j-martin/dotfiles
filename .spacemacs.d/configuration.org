@@ -568,11 +568,11 @@ From http://akrl.sdf.org/.
          ("T" "Inbox without selection (Main)"
           entry
           (file+headline "~/.org/main.org" "Inbox")
-          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n\n:DESCRIPTION:\n:END:\n")
          ("w" "Inbox (Work)"
           entry
           (file+headline "~/.org/work.org" "Inbox")
-          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n:DESCRIPTION:\n:END:\n")
          ("W" "Inbox without selection (Work)"
           entry
           (file+headline "~/.org/work.org" "Inbox")
