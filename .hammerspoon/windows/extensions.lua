@@ -90,7 +90,7 @@ function mod.mouseHighlight()
 end
 
 function mod.centerOnTitle(rect)
-  local point = geometry.point(rect.x + 70, rect.y + 15)
+  local point = geometry.point(rect.x + 75, rect.y + 15)
   mouse.setAbsolutePosition(point)
 end
 
