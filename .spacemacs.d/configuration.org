@@ -185,7 +185,7 @@ From http://akrl.sdf.org/.
      (delete-selection-mode 1)
      (editorconfig-mode 1)
      (spacemacs/toggle-smartparens-globally-on)
-     (global-company-mode 1)
+     (global-company-mode 0)
      (ws-butler-global-mode 1)
      (setq-default abbrev-mode t)
      (setq save-abbrevs 'silently)
