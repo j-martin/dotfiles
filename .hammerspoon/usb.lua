@@ -23,6 +23,14 @@ local mod = {}
 --   vendorName = "Realtek"
 -- }
 
+function mod.workSetup()
+  audio.workSetup()
+
+  -- Keep at the bottom, because it's slow.
+  alert.show('Resetting brightness and volume for the office.')
+  screen.setBrightness(0.8)()
+end
+
 local function buildHandlers(watchedEvents)
   local function buildHandler(watchedEvent)
     return function(event)
@@ -50,18 +58,8 @@ local function buildHandlers(watchedEvents)
 end
 
 local watchedEvents = {
-  {eventType = "removed", productName = "", productID = 7, vendorID = 1523, fn = audio.setVolume(-100)},
-  {
-    eventType = "added",
-    productName = "",
-    productID = 7,
-    vendorID = 1523,
-    fn = function()
-      alert.show('Resetting brightness and volume for the office.')
-      screen.setBrightness(0.8)()
-      audio.setVolume(15)()
-    end,
-  },
+  {eventType = "removed", productName = "", productID = 7, vendorID = 1523, fn = audio.muteSpeakers},
+  {eventType = "added", productName = "", productID = 7, vendorID = 1523, fn = mod.workSetup},
 }
 
 function mod.init()
