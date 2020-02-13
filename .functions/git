@@ -362,6 +362,12 @@ _git_copy_last_commit() {
   _info 'The last commit message is now in your clipboard.'
 }
 
+_git_set_upstream() {
+  local branch
+  branch="$(_git_current_branch)"
+  git branch "--set-upstream-to=origin/${branch}" "${branch}"
+}
+
 mass-master() {
   mass 'git status && git checkout master && git pull && git pull --tags'
 }
