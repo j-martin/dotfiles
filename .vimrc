@@ -47,7 +47,7 @@ au FocusLost * :wa "save on focus lost
 au FileType python setl ts=4 sts=4 sw=4
 au FileType json setl ts=2 sts=2 sw=2
 au FileType scala setl ts=2 sts=2 sw=2
-au FileType gitcommit setl spell "spell git commit messages
+au FileType gitcommit setlocal tw=72 spell "spell git commit messages
 au FileType md setl spell "spell git commit messages
 
 au bufwritepost .vimrc source $MYVIMRC
