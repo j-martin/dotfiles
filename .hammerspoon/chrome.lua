@@ -42,7 +42,7 @@ function mod.slackUnread()
 end
 
 function mod.openOmni()
-  apps.switchToAndType(mod.name, {'shift'}, 't')
+  apps.switchToAndType(mod.name, {'shift'}, 'o')
 end
 
 function mod.activateTab(name)
