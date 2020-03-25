@@ -43,6 +43,7 @@ class Push:
     source_device_iden: str = ""
     awake_app_guids: List[str] = field(default=list)
     title: str = ""
+    target_device_iden: str = ""
     body: str = ""
     image_width: int = 0
     image_height: int = 0
