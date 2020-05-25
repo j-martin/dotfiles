@@ -110,8 +110,4 @@ source "$HOME/.base"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="${HOME}/.sdkman"
-[[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
-
 [[ -s "${HOME}/Library/Preferences/org.dystroy.broot/launcher/bash/br" ]] && source "${HOME}/Library/Preferences/org.dystroy.broot/launcher/bash/br"
