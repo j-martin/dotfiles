@@ -23,7 +23,7 @@ _fatal() {
 _get_instance() {
   local instance_name="$1"
   gcloud compute instances list --filter "${instance_name}" \
-    | fzf -0 -1 --header-lines=1 \
+    | fzf -0 -1 --header-lines=1 --query "'${instance_name}" \
     | awk '{ print "--zone " $2 " " $1}'
 }
 
