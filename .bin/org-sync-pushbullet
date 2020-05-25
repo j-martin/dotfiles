@@ -3,7 +3,7 @@
 
 import logging
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import List
 
 import keyring
@@ -53,6 +53,12 @@ class Push:
     file_type: str = ""
     file_url: str = ""
     file_path: str = ""
+
+    def __init__(self, **kwargs):
+       names = set([f.name for f in fields(self)])
+       for k, v in kwargs.items():
+           if k in names:
+               setattr(self, k, v)
 
 
 def _main():
