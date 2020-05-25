@@ -437,6 +437,15 @@ From http://akrl.sdf.org/.
 #+begin_src emacs-lisp :results none
 (evil-define-key* evil-magit-state magit-mode-map [escape] nil)
 #+end_src
+*** Explicit bin path
+
+According to
+https://www.reddit.com/r/emacs/comments/fhr72q/solution_performance_problem_with_magit_on_macos/
+it makes magit a fair bit faster.
+#+begin_src emacs-lisp :results none
+(setq magit-git-executable "/usr/local/bin/git")
+#+end_src
+
 ** Org
 *** Basic setup
     #+begin_src emacs-lisp :results none
