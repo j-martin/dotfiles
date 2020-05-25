@@ -17,6 +17,7 @@ grid.GRIDHEIGHT = 4
 grid.MARGINX = 0
 grid.MARGINY = 0
 window.animationDuration = 0
+window.timeout(1)
 
 function mod.applyLayout(commonLayout, selectedLayout)
   local function expandLayout(entry)
