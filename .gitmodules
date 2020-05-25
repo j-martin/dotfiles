@@ -25,3 +25,6 @@
 [submodule ".vendor/intellimacs"]
 	path = .vendor/intellimacs
 	url = git@github.com:MarcoIeni/intellimacs.git
+[submodule ".intellimacs"]
+	path = .intellimacs
+	url = git@github.com:MarcoIeni/intellimacs.git

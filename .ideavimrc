@@ -1,14 +1,16 @@
 " https://github.com/JetBrains/ideavim/blob/master/doc/set-commands.md
 
-source ~/.vendor/intellimacs/spacemacs.vim
-source ~/.vendor/intellimacs/extra.vim
-source ~/.vendor/intellimacs/major.vim
+" https://github.com/MarcoIeni/intellimacs/blob/master/docs/KEYBINDINGS.org
+
+source ~/.intellimacs/spacemacs.vim
+source ~/.intellimacs/extra.vim
+source ~/.intellimacs/major.vim
 
 set surround
 set commentary
 set multiple-cursors
 set ideajoin
-set idearefactormode keep
+set idearefactormode select
 set selectmode ideaselection
 
 " actionlist <item>
@@ -34,11 +36,7 @@ nmap <leader>/ :action FindModal<CR>
 
 nmap <leader>pp :action ManageRecentProjects<CR>
 
-nmap <leader>wd :action Unsplit<CR>
 nmap <leader>wm :action UnsplitAll<CR>
-nmap <leader>wv :action SplitVertically<CR>
-nmap <leader>wh :action SplitHorizontally<CR>
-nmap <leader>ws :action SplitHorizontally<CR>
 
 nmap <leader>ji :action FileStructurePopup<CR>
 nmap <leader>jj :action FileStructurePopup<CR>
