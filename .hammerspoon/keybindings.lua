@@ -93,7 +93,7 @@ local bindings = {
       {key = 'w', fn = emacs.capture('w'), desc = 'Org - Capture selection to Work'},
       {key = 'w', fn = emacs.workInbox, shift = true, desc = 'Org - Show work'},
       {key = 'y', tab = chrome.tab.mail.work, desc = 'Switch to Inbox'},
-      {key = 'z', name = 'Charles'},
+      {key = 'z', name = 'Zoom.us'},
       {key = '-', fn = grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter'},
       {key = '=', fn = grid.resizeWindowTaller, shift = true, desc = 'Windows - Taller'},
       {key = '-', fn = grid.resizeWindowThinner, desc = 'Windows - Thinner'},
