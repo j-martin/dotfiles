@@ -41,7 +41,7 @@
 ** Garbage Collection
 From http://akrl.sdf.org/.
 #+begin_src emacs-lisp :results none
-  (setq garbage-collection-messages t)
+  (setq garbage-collection-messages nil)
   (defmacro jm/k-time (&rest body)
     "Measure and return the time it takes evaluating BODY."
     `(let ((time (current-time)))
