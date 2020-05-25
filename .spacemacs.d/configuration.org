@@ -573,27 +573,27 @@ it makes magit a fair bit faster.
          ("t" "Inbox (Main)"
           entry
           (file+headline "~/.org/main.org" "Inbox")
-          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%:annotation\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
          ("T" "Inbox without selection (Main)"
           entry
           (file+headline "~/.org/main.org" "Inbox")
-          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n\n:DESCRIPTION:\n:END:\n")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
          ("w" "Inbox (Work)"
           entry
           (file+headline "~/.org/work.org" "Inbox")
-          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n:DESCRIPTION:\n:END:\n")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n\n%:annotation\n\n:DESCRIPTION:\n%i\n:END:\n")
          ("W" "Inbox without selection (Work)"
           entry
           (file+headline "~/.org/work.org" "Inbox")
-          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n\n:DESCRIPTION:\n:END:\n")
          ("b" "Branch (Work)"
           entry
           (file+function "~/.org/work.org" jm/org-branch-header)
-          "* TODO %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+          "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n\n%:annotation\n\n:DESCRIPTION:\n%i\n:END:\n")
          ("r" "References / Research"
           entry
           (file+headline "~/.org/references.org" "Research")
-          "* %?\n%:annotation\n:PROPERTIES:\n:ENTERED: %U\n:END:\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
+          "* %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%:annotation\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
          ("z" "Tenancy Journal"
           entry
           (file+datetree+prompt "~/.org/tenancy-journal.org")
