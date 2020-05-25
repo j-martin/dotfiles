@@ -44,6 +44,14 @@ _git_pick_branch_no_origin() {
     | sed 's/origin\///g'
 }
 
+_git_extract_commit() {
+  local path="$1"
+  local ref="${2:-HEAD}"
+  git checkout "${ref}" -- "${path}"
+  git commit -m 'merge with previous commit' .
+  git revert HEAD
+}
+
 _git_pick_any_branches() {
   git branch --all \
     | sed 's#remotes/origin/##; s#^. ##' \
@@ -177,17 +185,28 @@ _github_current_branch_pr() {
 }
 
 _github_open_url() {
-  open "$(_github_pick_url $@)"
+  open "$(_github_pick_url "$@")"
+}
+
+_github_commit_url() {
+  local commit="$1"
+  echo "https://github.com/$(_git_repo)/commit/${commit}"
+}
+
+_github_copy_commit_url() {
+  local commit="$1"
+  _github_commit_url "${commit}" \
+    | _pbcopy
 }
 
 _github_open_commit() {
   local commit="$1"
-  open "https://github.com/$(_git_repo)/commit/${commit}"
+  open "$(_github_commit_url "${commit}")"
 }
 
 _github_pick_url() {
   CACHE_TTL=86400 _cached _github_repo_urls \
-    | _fzf "https://github.com//$@"
+    | _fzf "https://github.com//$*"
 }
 
 _github_repo_issues() {
