@@ -63,6 +63,7 @@ This function should only modify configuration layer settings."
      imenu-list
      (java :variables java-backend nil)
      javascript
+     kubernetes
      lua
      lsp
      (markdown :variables markdown-live-preview-engine 'vmd)
