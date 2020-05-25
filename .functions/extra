@@ -179,3 +179,12 @@ output-xml: yes
 
   _info "Reformatted '${filepath}'"
 }
+
+_track_shipment() {
+  local tracking_code="$1"
+  curl \
+    --fail \
+    --silent \
+    "https://www.canadapost.ca/trackweb/rs/track/json/package?pins=${tracking_code}" \
+    | jq .
+}
