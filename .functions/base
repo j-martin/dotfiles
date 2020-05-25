@@ -135,6 +135,14 @@ _pipenv_run() {
 _temp() {
   local location
   location="$(mktemp)"
-  > "${location}"
+  cat > "${location}"
   _info "Saved to: ${location}"
+}
+
+_pbcopy() {
+  local content
+  content="$(cat)"
+
+  _info "Clipboard set to:\\n${content}"
+  pbcopy <<< "${content}"
 }
