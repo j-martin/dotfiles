@@ -65,7 +65,37 @@
                         ]
                     },
                     {
-                        "description": "Change return_or_enter key to right_shift on Kinesis Advantage. (Post return_or_enter key when pressed alone)",
+                        "description": "Change tab key to command+control+option. (Post tab key when pressed alone)",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "tab",
+                                    "modifiers": {
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "left_command",
+                                        "modifiers": [
+                                            "left_control",
+                                            "left_option"
+                                        ]
+                                    }
+                                ],
+                                "to_if_alone": [
+                                    {
+                                        "key_code": "tab"
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Change return_or_enter key to right_shift on Kinesis Advantage or TEK. (Post return_or_enter key when pressed alone)",
                         "manipulators": [
                             {
                                 "conditions": [
@@ -75,6 +105,11 @@
                                                 "description": "Kinesis Advantage",
                                                 "product_id": 7,
                                                 "vendor_id": 1523
+                                            },
+                                            {
+                                                "description": "Truly Ergonomic Computer Keyboard",
+                                                "product_id": 780,
+                                                "vendor_id": 3690
                                             }
                                         ],
                                         "type": "device_if"
@@ -103,7 +138,7 @@
                         ]
                     },
                     {
-                        "description": "Change return_or_enter key to command+control+option on non-Kinesis Advantage. (Post return_or_enter key when pressed alone)",
+                        "description": "Change return_or_enter key to command+control+option on non-Kinesis Advantage or TEK. (Post return_or_enter key when pressed alone)",
                         "manipulators": [
                             {
                                 "conditions": [
@@ -435,6 +470,19 @@
                         "is_pointing_device": false,
                         "product_id": 32823,
                         "vendor_id": 9025
+                    },
+                    "ignore": false,
+                    "manipulate_caps_lock_led": false,
+                    "simple_modifications": []
+                },
+                {
+                    "disable_built_in_keyboard_if_exists": false,
+                    "fn_function_keys": [],
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": false,
+                        "product_id": 780,
+                        "vendor_id": 3690
                     },
                     "ignore": false,
                     "manipulate_caps_lock_led": false,
