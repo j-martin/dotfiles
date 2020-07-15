@@ -438,14 +438,12 @@ From http://akrl.sdf.org/.
 (evil-define-key* evil-magit-state magit-mode-map [escape] nil)
 #+end_src
 *** Explicit bin path
-
 According to
 https://www.reddit.com/r/emacs/comments/fhr72q/solution_performance_problem_with_magit_on_macos/
 it makes magit a fair bit faster.
 #+begin_src emacs-lisp :results none
 (setq magit-git-executable "/usr/local/bin/git")
 #+end_src
-
 ** Org
 *** Basic setup
     #+begin_src emacs-lisp :results none
@@ -511,6 +509,13 @@ it makes magit a fair bit faster.
   (run-with-timer 0 (* 10 60) 'jm/org-sync)
   (run-with-idle-timer (* 10 60) t 'jm/org-sync)
 #+end_src
+
+*** Org Roam
+#+begin_src emacs-lisp :results none
+(setq org-roam-directory "~/.org/roam")
+(add-hook 'after-init-hook 'org-roam-mode)
+#+end_src
+
 *** Extra packages
     #+begin_src emacs-lisp :results none
       (require 'org-protocol)
@@ -720,6 +725,10 @@ it makes magit a fair bit faster.
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "o" 'org-edit-src-code)
+    (spacemacs/set-leader-keys-for-major-mode 'org-mode "mm" 'org-roam)
+    (spacemacs/set-leader-keys-for-major-mode 'org-mode "mf" 'org-roam-find-file)
+    (spacemacs/set-leader-keys-for-major-mode 'org-mode "mg" 'org-roam-graph)
+    (spacemacs/set-leader-keys-for-major-mode 'org-mode "mi" 'org-roam-insert)
 #+end_src
 
 *** Map escape to abort seq

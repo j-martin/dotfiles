@@ -106,6 +106,7 @@ This function should only modify configuration layer settings."
      jsonnet-mode
      langtool
      (org-clubhouse :location (recipe :fetcher github :repo "glittershark/org-clubhouse"))
+     org-roam
      ox-clip
      parinfer
      protobuf-mode
