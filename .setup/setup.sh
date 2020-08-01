@@ -47,6 +47,7 @@ _macos_customizations () {
   defaults write com.extropy.oni ApplePressAndHoldEnabled -bool false
   sudo defaults write /Library/Preferences/com.apple.TimeMachine MaxSize -integer 204800
   defaults write com.apple.systempreferences TMShowUnsupportedNetworkVolumes 1
+  defaults write com.google.Chrome ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
 
   # Disable the desktop
   defaults write com.apple.finder CreateDesktop false
