@@ -188,3 +188,8 @@ _track_shipment() {
     "https://www.canadapost.ca/trackweb/rs/track/json/package?pins=${tracking_code}" \
     | jq .
 }
+
+_exif() {
+  local url="$1"
+  curl --silent --fail "${url}" "${@:2}" | exiftool - -fast
+}
