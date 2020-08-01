@@ -106,14 +106,14 @@ alias hey="growlnotify 'Command Done!' -m 'Yes!'"
 alias hi='history | grep '
 alias hosts='sudo vi /etc/hosts'
 alias hsl='grep key "$HOME/.hammerspoon/bindings.lua"'
-alias jql='jq -C . | less -SRi'
 jqx() { jq . -C "$@" | less -SRi; }
+jql() { fzf --print-query --preview "jq {q} $*" <<< '' };
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
 alias ip='ifconfig | grep "inet 1"'
 idiff() { icdiff "$1" "$2" | less -SRi; }
 idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
-lc() { pygmentize $@ | less -SRi; }
+alias lc=bat
 alias lcf='_with_fzf "lc"'
 alias le='less -SRi'
 alias lf='_with_fzf cat | less -SRi'
@@ -171,12 +171,13 @@ alias c=club
 
 ## Git
 
-alias gl='git pull --tags'
+alias gl='git pull --tags --force'
 # TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^master$" | fzf -m | xargs git branch -D'
 alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^master$" | xargs git branch -D'
 alias gbp='_git_pick_any_branches | _copy'
 alias gcml='git checkout master && git pull'
+alias gc-='git checkout -'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
 git-reflog-grep() {
@@ -187,7 +188,7 @@ git-reflog-grep() {
 }
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
-alias gfo='git fetch origin && git fetch origin --tags'
+alias gfo='git fetch origin --tags --force'
 alias gdpb='git diff | pbcopy'
 alias gdff='git icdiff | less -SRi'
 alias gdfff='git diff --color | diff-so-fancy | less -SRi'
@@ -232,8 +233,8 @@ alias gmc='git commit -vnm'
 alias gmcp='_git_copy_last_commit'
 # alias gms='bub workflow commit'
 alias gms="_git_commit_with_issue_key"
-gmss() { git commit --message "merge with $1" "${@:2}"; }
-gmsf() { git commit --message "merge with $1" "${@}"; }
+gmss() { git commit --message "squashme $1" "${@:2}"; }
+gmsm() { git commit --message "merge with $1" "${@}"; }
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/master'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
