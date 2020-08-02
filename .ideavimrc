@@ -37,6 +37,8 @@ nmap <leader>/ :action FindModal<CR>
 nmap <leader>pp :action ManageRecentProjects<CR>
 
 nmap <leader>wm :action UnsplitAll<CR>
+nnoremap <leader>1       <C-w>h
+nnoremap <leader>2       <C-w>l
 
 nmap <leader>ji :action FileStructurePopup<CR>
 nmap <leader>jj :action FileStructurePopup<CR>
