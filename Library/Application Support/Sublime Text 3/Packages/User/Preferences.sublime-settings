@@ -1,114 +1,115 @@
 {
-	"anaconda_linting": true,
-	"anaconda_linting_behaviour": "always",
-	"color_scheme": "Packages/Material Theme/schemes/Material-Theme.tmTheme",
-	"draw_white_space": "all",
-	"ensure_newline_at_eof_on_save": true,
-	"extra_file_exclude_patterns":
-	[
-		"*.pyc",
-		"*.pyo",
-		"*.exe",
-		"*.dll",
-		"*.obj",
-		"*.o",
-		"*.a",
-		"*.lib",
-		"*.so",
-		"*.dylib",
-		"*.ncb",
-		"*.sdf",
-		"*.suo",
-		"*.pdb",
-		"*.idb",
-		".DS_Store",
-		"*.class",
-		"*.psd",
-		"*.db",
-		"*.sublime-workspace"
-	],
-	"extra_folder_exclude_patterns":
-	[
-		".svn",
-		".git",
-		".hg",
-		"CVS"
-	],
-	"font_face": "Source Code Pro for Powerline",
-	"font_options":
-	[
-		"light"
-	],
-	"font_size": 12,
-	"highlight_line": true,
-	"highlight_modified_tabs": true,
-	"hot_exit": false,
-	"ignored_packages":
-	[
-		"A File Icon",
-		"SublimeLinter-contrib-scalastyle",
-		"Vintage"
-	],
-	"itg_small_tabs": true,
-	"open_files_in_new_windows": false,
-	"open_with":
-	[
-		{
-			"command":
-			[
-				"/usr/local/bin/idea",
-				"{filename}:{line}"
-			],
-			"name": "IntelliJ IDEA"
-		},
-		{
-			"command":
-			[
-				"open",
-				"{directory}"
-			],
-			"name": "Finder"
-		},
-		{
-			"command":
-			[
-				"/usr/local/bin/emacsclient",
-				"+{line}:{column}",
-				"{filename}",
-				"--no-wait"
-			],
-			"name": "Emacs"
-		},
-		{
-			"command":
-			[
-				"/usr/local/bin/vmd",
-				"{filename}"
-			],
-			"name": "VMD"
-		}
-	],
-	"pep257": false,
-	"pep8_ignore":
-	[
-		"E501",
-		"W391"
-	],
-	"pep8_max_line_length": 180,
-	"remember_open_files": false,
-	"rulers":
-	[
-		120
-	],
-	"save_on_focus_lost": true,
-	"scroll_past_end": true,
-	"tabs_small": true,
-	"theme": "Material-Theme.sublime-theme",
-	"translate_tabs_to_spaces": false,
-	"trim_trailing_white_space_on_save": true,
-	"use_pylint": false,
-	"validate_imports": true,
-	"vintage_start_in_command_mode": true,
-	"vintageous_use_ctrl_keys": true,
-	"word_wrap": true
+  "anaconda_linting": true,
+  "anaconda_linting_behaviour": "always",
+  "color_scheme": "Packages/Material Theme/schemes/Material-Theme.tmTheme",
+  "draw_white_space": "all",
+  "ensure_newline_at_eof_on_save": true,
+  "extra_file_exclude_patterns":
+  [
+    "*.pyc",
+    "*.pyo",
+    "*.exe",
+    "*.dll",
+    "*.obj",
+    "*.o",
+    "*.a",
+    "*.lib",
+    "*.so",
+    "*.dylib",
+    "*.ncb",
+    "*.sdf",
+    "*.suo",
+    "*.pdb",
+    "*.idb",
+    ".DS_Store",
+    "*.class",
+    "*.psd",
+    "*.db",
+    "*.sublime-workspace"
+  ],
+  "extra_folder_exclude_patterns":
+  [
+    ".svn",
+    ".git",
+    ".hg",
+    "CVS"
+  ],
+  "font_face": "Source Code Pro for Powerline",
+  "font_options":
+  [
+    "light"
+  ],
+  "font_size": 12,
+  "highlight_line": true,
+  "highlight_modified_tabs": true,
+  "hot_exit": false,
+  "ignored_packages":
+  [
+    "Six",
+    "Vintage",
+    "Vintageous"
+  ],
+  "itg_small_tabs": true,
+  "neovintageous_build_version": 11100,
+  "open_files_in_new_windows": false,
+  "open_with":
+  [
+    {
+      "command":
+      [
+        "/usr/local/bin/idea",
+        "{filename}:{line}"
+      ],
+      "name": "IntelliJ IDEA"
+    },
+    {
+      "command":
+      [
+        "open",
+        "{directory}"
+      ],
+      "name": "Finder"
+    },
+    {
+      "command":
+      [
+        "/usr/local/bin/emacsclient",
+        "+{line}:{column}",
+        "{filename}",
+        "--no-wait"
+      ],
+      "name": "Emacs"
+    },
+    {
+      "command":
+      [
+        "/usr/local/bin/vmd",
+        "{filename}"
+      ],
+      "name": "VMD"
+    }
+  ],
+  "pep257": false,
+  "pep8_ignore":
+  [
+    "E501",
+    "W391"
+  ],
+  "pep8_max_line_length": 180,
+  "remember_open_files": false,
+  "rulers":
+  [
+    120
+  ],
+  "save_on_focus_lost": true,
+  "scroll_past_end": true,
+  "tabs_small": true,
+  "theme": "Material-Theme.sublime-theme",
+  "translate_tabs_to_spaces": false,
+  "trim_trailing_white_space_on_save": true,
+  "use_pylint": false,
+  "validate_imports": true,
+  "vintage_start_in_command_mode": true,
+  "vintageous_use_ctrl_keys": true,
+  "word_wrap": true
 }
