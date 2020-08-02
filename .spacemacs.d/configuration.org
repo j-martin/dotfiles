@@ -661,6 +661,7 @@ it makes magit a fair bit faster.
 
     (global-set-key (kbd "M-SPC") 'hippie-expand)
     (global-set-key (kbd "<f2>") 'flycheck-next-error)
+    (global-set-key (kbd "H-<f12>") 'spacemacs/helm-jump-in-buffer)
     (global-set-key (kbd "H-<left>") 'back-to-indentation)
     (global-set-key (kbd "H-<right>") 'end-of-line)
     (global-set-key (kbd "H-b") 'smart-jump-go)
