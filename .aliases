@@ -78,6 +78,7 @@ alias ca='_with_fzf "cat"'
 alias cdp='cd "$(dirname "$(pbpaste)")"'
 alias cf='cd "$(dirname "$(fzf)")"'
 alias comp='_notify "Done!"'
+alias digg='dig +noall +answer'
 alias dk='docker'
 alias dkp='docker ps'
 dki() { docker images | awk '{print $1 ":" $2}' | sort -u; }
