@@ -325,7 +325,7 @@ _github_pr() {
   local reviewers="${1:-$(git config --get github.reviewers)}"
 
   local url
-  url="$(hub pull-request -F <(git log -1 --pretty=%B) -r "${reviewers}")"
+  url="$(hub pull-request -F <(git log -1 --pretty=%B | _unfill) -r "${reviewers}")"
   if [[ ! -z "$url" ]]; then
     sleep 0.2
     open "${url}"

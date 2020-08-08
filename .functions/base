@@ -147,3 +147,10 @@ _pbcopy() {
   _info "Clipboard set to:\\n${content}"
   pbcopy <<< "${content}"
 }
+
+_unfill() {
+  # Unfill (reflow) text to be full length.
+  sed -E 's/^ +//' \
+    | awk -vRS= -vORS= '{gsub("\n"," ")}{print $0 RT}' \
+    | sed -E 's/ +$//'
+}
