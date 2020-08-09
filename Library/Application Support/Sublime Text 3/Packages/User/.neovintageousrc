@@ -1,0 +1,6 @@
+" Type :help nv for help.
+
+let mapleader=<space>
+nnoremap <leader><leader> :ShowOverlay overlay=command_palette<CR>
+nnoremap <leader>ou :OpenWith name=Emacs<CR>
+nnoremap <leader>oo :OpenWith name=IntelliJ<CR>
