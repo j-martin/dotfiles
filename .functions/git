@@ -88,7 +88,7 @@ _git_format_commit_message() {
 _slugify() {
   tr \'' "#:,.+^&*()`[]@$%' '-' \
     | tr '[:upper:]' '[:lower:]' \
-    | sed -r 's/-+/-/g; s/^-//; s/-$//'
+    | sed -E 's/-+/-/g; s/^-//; s/-$//'
 }
 
 _git_new_branch_from_commit() {
