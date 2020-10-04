@@ -108,7 +108,7 @@ alias hi='history | grep '
 alias hosts='sudo vi /etc/hosts'
 alias hsl='grep key "$HOME/.hammerspoon/bindings.lua"'
 jqx() { jq . -C "$@" | less -SRi; }
-jql() { fzf --print-query --preview "jq {q} $*" <<< '' };
+jql() { fzf --no-mouse --print-query --preview "jq {q} $*" <<< '' };
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
 alias ip='ifconfig | grep "inet 1"'
