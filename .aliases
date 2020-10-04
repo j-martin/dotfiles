@@ -285,6 +285,7 @@ alias cpb='cd $(dirname "$(pbpaste)")'
 alias kb='keybase'
 alias psa='ps aux | grep -i'
 whichl() { ls -lha "$(where $1)"; }
+wh=which
 alias listen='osqueryi "select l.address, l.port, p.pid, p.path from listening_ports l, processes p where l.pid = p.pid order by p.name"'
 alias ports='lsof -nP +c 15 | grep LISTEN'
 
