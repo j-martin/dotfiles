@@ -95,6 +95,20 @@ nvm() {
   node --version
 }
 
+_with_nvm() {
+  nvm use
+  unset -f yarn
+  "$@"
+}
+
+yarn() {
+  _with_nvm yarn "$@"
+}
+
+npm() {
+  _with_nvm npm "$@"
+}
+
 _todoist() {
   local resource_types="$1"
   curl --fail --silent https://todoist.com/API/v7/sync \
