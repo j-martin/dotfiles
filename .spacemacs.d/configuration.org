@@ -172,6 +172,15 @@ From http://akrl.sdf.org/.
     (setq-default tab-width 2 standard-indent 2)
   #+end_src
 
+** Iedit
+Workaround until https://github.com/syl20bnr/evil-iedit-state/issues/27 is merged.
+
+#+begin_src emacs-lisp :results none
+(defalias 'iedit-cleanup 'iedit-lib-cleanup)
+(defalias 'iedit-show/hide-unmatched-lines 'iedit-show/hide-context-lines)
+#+end_src
+
+
 ** Terminal
    #+begin_src emacs-lisp :results none
      (setq ansi-term-color-vector [term term-color-black term-color-red term-color-green
@@ -226,15 +235,6 @@ From http://akrl.sdf.org/.
    #+begin_src emacs-lisp :results none
      (atomic-chrome-start-server)
    #+end_src
-** LanguageTool
-#+begin_src emacs-lisp :results none
-  (setq langtool-language-tool-server-jar
-        (s-trim
-         (shell-command-to-string "find /usr/local/Cellar/languagetool -name languagetool-server.jar")))
-  (setq langtool-server-user-arguments '("-p" "8637"))
-  (require 'langtool)
-#+end_src
-
 ** Parinfer
    #+begin_src emacs-lisp :results none
      (require 'parinfer)
@@ -387,19 +387,6 @@ From http://akrl.sdf.org/.
 (advice-add 'evil-fold-action :after 'jm/recenter)
 #+end_src
 
-*** Evil-Owl
- #+begin_src emacs-lisp :results none
-   (setq evil-owl-extra-posframe-args '(:width 50 :height 20)
-         evil-owl-register-char-limit 50
-         evil-owl-idle-delay 0.5)
-   (evil-owl-mode)
- #+end_src
-
-
-** Scala
-   #+begin_src emacs-lisp :results none
-     (setq ensime-startup-snapshot-notification nil)
-   #+end_src
 ** Java
    #+begin_src emacs-lisp :results none
      (add-hook 'java-mode-hook
@@ -725,11 +712,13 @@ it makes magit a fair bit faster.
 #+begin_src emacs-lisp :results none
     (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
-    (spacemacs/set-leader-keys-for-major-mode 'org-mode "o" 'org-edit-src-code)
+    (spacemacs/set-leader-keys-for-major-mode 'org-mode "oo" 'org-edit-src-code)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "mm" 'org-roam)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "mf" 'org-roam-find-file)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "mg" 'org-roam-graph)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "mi" 'org-roam-insert)
+    (spacemacs/set-leader-keys-for-major-mode 'org-mode "oc" 'org-clubhouse-create-story)
+    (spacemacs/set-leader-keys-for-major-mode 'org-mode "ou" 'org-clubhouse-update-description)
 #+end_src
 
 *** Map escape to abort seq
