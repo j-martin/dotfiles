@@ -74,7 +74,7 @@ function mod.moveWindowTo(pos, targetScreen)
   end
 
   return function()
-    local win = window:focusedWindow()
+    local win = window:frontmostWindow()
     local winKey = buildKey(win)
     local winPos = toUnitRect(win)
     local previousState = previousStates[winKey]

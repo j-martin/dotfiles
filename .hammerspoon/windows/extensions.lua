@@ -107,7 +107,11 @@ end
 local function getNextWindow(currentWindow)
   local windows = currentWindow:application():allWindows()
 
-  windows = filter(windows, window.isStandard)
+  local function filterStd(win)
+    return win:isStandard()
+  end
+
+  windows = filter(windows, filterStd)
   -- windows = filter(windows, window.isVisible)
 
   -- need to sort by ID, since the default order of the window
@@ -119,7 +123,6 @@ local function getNextWindow(currentWindow)
   end)
 
   local lastIndex = indexOf(windows, currentWindow)
-
   return windows[getNextIndex(windows, lastIndex)]
 end
 
@@ -161,7 +164,8 @@ function mod.launchOrCycleFocus(applicationName)
     else
       logger.df('launch or focus %s', app)
       if not application.launchOrFocus(applicationName) then
-        application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
+        local sanitizedName = applicationName:gsub('[0-9]+', '')
+        application.launchOrFocus(sanitizedName)
       end
     end
 
