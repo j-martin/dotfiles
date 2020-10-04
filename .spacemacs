@@ -48,7 +48,6 @@ This function should only modify configuration layer settings."
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
-     c-c++
      csv
      dash
      docker
@@ -70,11 +69,9 @@ This function should only modify configuration layer settings."
      (org :variables org-enable-github-support t)
      nginx
      osx
-     plantuml
      python
      react
      rust
-     scala
      shell
      shell-scripts
      (spell-checking :variables
@@ -98,13 +95,11 @@ This function should only modify configuration layer settings."
      all-the-icons
      atomic-chrome
      editorconfig
-     evil-owl
      evil-string-inflection
      evil-textobj-syntax
      ivy
      jq-mode
      jsonnet-mode
-     langtool
      (org-clubhouse :location (recipe :fetcher github :repo "glittershark/org-clubhouse"))
      org-roam
      ox-clip
@@ -112,7 +107,6 @@ This function should only modify configuration layer settings."
      protobuf-mode
      smart-jump
      super-save
-     writegood-mode
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '(org-projectile)
