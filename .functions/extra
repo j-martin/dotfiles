@@ -96,8 +96,8 @@ nvm() {
 }
 
 _with_nvm() {
+  unset -f "$1"
   nvm use
-  unset -f yarn
   "$@"
 }
 
