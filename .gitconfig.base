@@ -10,6 +10,7 @@
 [core]
   commentChar = ";"
   excludesfile = ~/.gitignore.global
+  attributesfile = ~/.gitattributes
 [url "git@github.com:"]
   insteadOf = "https://github.com/"
 [commit]
