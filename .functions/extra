@@ -92,6 +92,7 @@ nvm() {
     source /usr/local/opt/nvm/nvm.sh
   fi
   nvm "$@"
+  npm config delete prefix || true
   node --version
 }
 
