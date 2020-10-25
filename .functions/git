@@ -139,8 +139,8 @@ _github_post() {
 }
 
 _github_search_issues() {
-  local label="$1"
-  _github "search/issues?q=label:$label&per_page=300"
+  local query="$1"
+  _github search/issues --get --data-urlencode "q=${query}"
 }
 
 _github_repos() {
