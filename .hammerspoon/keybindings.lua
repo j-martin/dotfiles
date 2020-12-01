@@ -33,8 +33,8 @@ local bindings = {
       {key = '1', name = apps.name.activityMonitor},
       {key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph'},
       {key = '2', name = 'Keybase'}, -- key = '5' reserved for Alfred snippets
-      {key = '8', name = 'Slack'},
-      {key = '8', fn = apps.ripcordQuickSwitcher, shift = true},
+      {key = '8', name = 'Ripcord'},
+      {key = '8', name = 'Slack', shift = true},
       {key = '9', name = 'Spotify'},
       {key = '9', name = 'Soundcleod', shift = true},
       {key = ';', name = 'Dash'},
