@@ -160,6 +160,9 @@ alias shfmt='shfmt -i 2 -bn -l -d -ci -sr -w'
 
 # GCP
 unalias gcp
+alias gcloud='PATH="~/.pyenv/versions/3.7.8/bin/:$PATH" \gcloud'
+alias gsutil='PATH="~/.pyenv/versions/3.7.8/bin/:$PATH" \gsutil'
+alias bq='PATH="~/.pyenv/versions/3.7.8/bin/:$PATH" \bq'
 alias gg='gcloud'
 alias s3='gsutil'
 
