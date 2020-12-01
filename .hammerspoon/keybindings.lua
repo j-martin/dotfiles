@@ -41,7 +41,7 @@ local bindings = {
       {key = '\\', name = '1Password 7'}, -- key = ';' reserved for Dash
       {key = 'a', fn = emacs.agenda, desc = 'Org Agenda'},
       {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
-      {key = 'b', fn = apps.openNotificationAction, shift = true, desc = 'Notification - Action'},
+      {key = 'b', fn = apps.closeNotification, shift = true, desc = 'Notification - Action'},
       {key = 'd', fn = selection.actOn('google'), desc = 'Search selection'},
       {key = 'f', name = 'Finder'},
       {key = 'f', name = 'Preview', shift = true},

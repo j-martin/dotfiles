@@ -43,23 +43,24 @@ function mod.ripcordQuickSwitcher()
   eventtap.keyStroke({'cmd'}, 'k')
 end
 
-local function clickNotification(offset)
+local function clickNotification(offset_x, offset_y)
   local currentScreen = mouse.getCurrentScreen()
   local currentPos = mouse.getRelativePosition()
   local targetScreen = screen.primaryScreen()
-  local targetPos = {x = targetScreen:frame().w - offset, y = 40}
+  local targetPos = {x = targetScreen:frame().w - offset_x, y = offset_y}
 
   mouse.setRelativePosition(targetPos, targetScreen)
+  wait(1)
   eventtap.leftClick(targetPos)
   mouse.setRelativePosition(currentPos, currentScreen)
 end
 
 function mod.openNotification()
-  clickNotification(160)
+  clickNotification(60, 80)
 end
 
-function mod.openNotificationAction()
-  clickNotification(40)
+function mod.closeNotification()
+  clickNotification(355, 20)
 end
 
 function mod.activityMonitor()
