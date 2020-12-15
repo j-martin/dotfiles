@@ -50,13 +50,13 @@ local function clickNotification(offset_x, offset_y)
   local targetPos = {x = targetScreen:frame().w - offset_x, y = offset_y}
 
   mouse.setRelativePosition(targetPos, targetScreen)
-  wait(1)
+  wait(5)
   eventtap.leftClick(targetPos)
   mouse.setRelativePosition(currentPos, currentScreen)
 end
 
 function mod.openNotification()
-  clickNotification(60, 80)
+  clickNotification(120, 40)
 end
 
 function mod.closeNotification()
