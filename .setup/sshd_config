@@ -1,0 +1,7 @@
+PermitRootLogin no
+AuthorizedKeysFile	.ssh/authorized_keys
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UsePAM no
+AcceptEnv LANG LC_*
