@@ -63,6 +63,9 @@ alias cw='cd $WORK'
 alias cj='$HOME/code/j-martin'
 alias co='$HOME/code/others'
 
+# macOS arm64 workarounds
+alias brew='arch -x86_64 brew'
+
 # Sublime
 alias st='subl'
 alias stt='subl ./' # Depends on the 'st' command in the ~/.bin dir.
