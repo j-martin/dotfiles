@@ -1,5 +1,7 @@
 [include]
   path = ~/.gitconfig.base
+[commit]
+  gpgsign = true
 [user]
   signingkey = <change-me>
 [github]
