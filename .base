@@ -47,7 +47,7 @@ source "$HOME/.aliases"
 export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:$HOME/.local/bin:$PATH"
 
 test -e /usr/libexec/java_home \
-  && export JAVA_HOME="$(/usr/libexec/java_home -v 14 || true)"
+  && export JAVA_HOME="$(/usr/libexec/java_home -v 14 2> /dev/null || true)"
 test -e /usr/local/bin/nvim \
   && export EDITOR='/usr/local/bin/nvim'
 
