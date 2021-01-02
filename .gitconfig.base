@@ -13,8 +13,6 @@
   attributesfile = ~/.gitattributes
 [url "git@github.com:"]
   insteadOf = "https://github.com/"
-[commit]
-  gpgsign = true
 [diff]
   colorMoved = true
   renameLimit = 900
