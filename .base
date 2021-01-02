@@ -12,8 +12,10 @@ GPG_TTY="$(tty)"
 export GPG_TTY
 
 # shellcheck source=.cargo/env
-source "$HOME/.cargo/env"
-export PATH="$HOME/.cargo/bin:$PATH"
+test -f "$HOME/.cargo/env" && {
+  source "$HOME/.cargo/env"
+  export PATH="$HOME/.cargo/bin:$PATH"
+}
 
 # Use /usr/bin/ssh-add -K ~/.ssh/* to add existing keys
 test -e "$TMPDIR/ssh-loaded" \
