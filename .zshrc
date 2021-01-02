@@ -109,5 +109,3 @@ fi
 source "$HOME/.base"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-[[ -s "${HOME}/Library/Preferences/org.dystroy.broot/launcher/bash/br" ]] && source "${HOME}/Library/Preferences/org.dystroy.broot/launcher/bash/br"
