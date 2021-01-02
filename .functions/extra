@@ -87,6 +87,7 @@ nvm() {
   node --version
   unset -f nvm
   export NVM_DIR=~/.nvm
+  setopt no_aliases
   if [[ -s /usr/local/opt/nvm/nvm.sh ]]; then
     # Loading NVM.
     source /usr/local/opt/nvm/nvm.sh
@@ -94,6 +95,7 @@ nvm() {
   nvm "$@"
   npm config delete prefix || true
   node --version
+  setopt aliases
 }
 
 _with_nvm() {
