@@ -710,7 +710,6 @@ it makes magit a fair bit faster.
 #+end_src
 *** Org-mode
 #+begin_src emacs-lisp :results none
-    (evil-define-key 'normal evil-org-mode-map "t" 'org-todo)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "r" 'org-refile)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "oo" 'org-edit-src-code)
     (spacemacs/set-leader-keys-for-major-mode 'org-mode "mm" 'org-roam)
