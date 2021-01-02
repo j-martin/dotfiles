@@ -41,6 +41,9 @@ __encfs() {
   fi
 }
 
+__source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
+__source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
+
 # __encfs "$HOME/Sync/Storage" "$HOME/.storage"
 
 __source "$HOME/.private/profile"
