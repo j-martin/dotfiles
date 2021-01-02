@@ -26,6 +26,9 @@ end
 
 local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   logger.df("Audiodevwatch args: %s, %s, %s, %s", dev_uid, event_name, event_scope, event_element)
+  if dev_uid == 'dev#' then
+    return
+  end
   local device = audiodevice.findDeviceByUID(dev_uid)
   if device and device:jackConnected() then
     debounce("Headphones plugged", mod.pluggedFn)
