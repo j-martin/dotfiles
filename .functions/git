@@ -44,6 +44,31 @@ _git_pick_branch_no_origin() {
     | sed 's/origin\///g'
 }
 
+_git_pick_unstaged_files() {
+  {
+    echo '.'
+    git diff --name-only
+    git ls-files --others --exclude-standard
+  } \
+    | fzf -1 --multi --literal --query "${1:-}" "${@:2}"
+}
+
+_git_command_with_fzf() {
+  local command="$1"
+  local query="$2"
+  if [[ -e "${query}" ]] || [[ -z "${query}" ]] || [[ "${query}" == -* ]]; then
+    git "${command}" "${@:2}"
+  else
+    (
+      IFS=$'\n\t'
+      git "${command}" $(_git_pick_unstaged_files "${query}") "${@:3}"
+    )
+  fi
+}
+
+alias gd='_git_command_with_fzf diff'
+alias ga='_git_command_with_fzf add'
+
 _git_extract_commit() {
   local path="$1"
   local ref="${2:-HEAD}"
@@ -103,7 +128,7 @@ _git_new_branch_from_commit() {
 _git_new_branch() {
   local name="$1"
   git fetch 'origin'
-  __git_new_branch "$name" 'origin/master'
+  __git_new_branch "$name" 'origin/main'
 }
 __git_new_branch() {
   local name="$1"
@@ -126,7 +151,9 @@ _git_new_branch_and_commit() {
 
 _github() {
   local endpoint="$1"
-  curl --fail --silent --header "Authorization: token $(keyring get api github)" \
+  curl --fail --silent --show-error \
+       --header "Authorization: token $(keyring get api github)" \
+       --header "Accept: application/vnd.github.groot-preview+json" \
     "https://api.github.com/$endpoint" \
     "${@:2}"
 }
@@ -134,7 +161,7 @@ _github() {
 _github_post() {
   local endpoint="$1"
   local payload="$2"
-  curl --fail --silent -XPOST -H "Authorization: token $(keyring get system github_token)" \
+  curl --fail --silent --show-error -XPOST -H "Authorization: token $(keyring get system github_token)" \
     "https://api.github.com/$endpoint" --data "$payload"
 }
 
@@ -195,13 +222,24 @@ _github_commit_url() {
 
 _github_copy_commit_url() {
   local commit="$1"
-  _github_commit_url "${commit}" \
+  _github_commit_url  "${commit}" \
+    | _pbcopy
+}
+
+_github_copy_pr_url_for_commit() {
+  local commit="$1"
+  _github_pull_request_for_commit  "${commit}" \
     | _pbcopy
 }
 
 _github_open_commit() {
   local commit="$1"
   open "$(_github_commit_url "${commit}")"
+}
+
+_github_open_pr_for_commit() {
+  local commit="$1"
+  open "$(_github_pull_request_for_commit "${commit}")"
 }
 
 _github_pick_url() {
@@ -290,11 +328,17 @@ _github_current_branch_pr_comments() {
   if [[ -z "${pr_number}" ]]; then
     pr_number="$(_github_current_branch_pr_number)"
   fi
-  _github "repos/alloytech/alloy/pulls/${pr_number}/comments" \
+  _github "repos/$(_git_repo)/pulls/${pr_number}/comments" \
     | jq '.[] | "\(.in_reply_to_id // .id) \(.created_at) \(.user.login)\n\(.body)\n"' \
     | sort \
     | jq -r . \
     | fold -w 64 -s
+}
+
+_github_pull_request_for_commit() {
+  local commit_hash="$1"
+  _github "repos/$(_git_repo)/commits/${commit_hash}/pulls" \
+    | jq -r ".[].html_url"
 }
 
 _git_root_dir() {
@@ -310,7 +354,7 @@ _git_switch_worktree() {
     new_dir="${cur_repo}-bugfix"
     if [[ ! -d "${new_dir}" ]]; then
       git worktree prune
-      git worktree add "${new_dir}" "origin/master"
+      git worktree add "${new_dir}" "origin/main"
     fi
     cd "${new_dir}" || _error "Failed to switch to '${new_dir}'"
   fi
@@ -337,7 +381,7 @@ _github_pr() {
 
 _git_push_pr_if_commits() {
   local commit_count
-  commit_count="$(git log HEAD --not origin/master "--pretty=format:%h" | wc -w | tr -d ' ')"
+  commit_count="$(git log HEAD --not origin/main "--pretty=format:%h" | wc -w | tr -d ' ')"
   echo "${commit_count}"
   if [[ "${commit_count}" != '0' ]]; then
     git push
@@ -387,8 +431,8 @@ _git_set_upstream() {
   git branch "--set-upstream-to=origin/${branch}" "${branch}"
 }
 
-mass-master() {
-  mass 'git status && git checkout master && git pull && git pull --tags'
+mass-main() {
+  mass 'git status && git checkout main && git pull && git pull --tags'
 }
 
 mass-prep() {
@@ -397,7 +441,7 @@ mass-prep() {
     echo 'No branch defined, stopping.'
     return 1
   fi
-  mass-master
+  mass-main
   mass "git checkout -b '${branch}'"
 }
 

@@ -94,6 +94,7 @@ This function should only modify configuration layer settings."
    '(
      all-the-icons
      atomic-chrome
+     dash-functional ;; fixing loading babel config. Not sure why.
      editorconfig
      evil-string-inflection
      evil-textobj-syntax
@@ -109,7 +110,7 @@ This function should only modify configuration layer settings."
      super-save
      )
    ;; A list of packages and/or extensions that will not be install and loaded.
-   dotspacemacs-excluded-packages '(org-projectile)
+   dotspacemacs-excluded-packages '(org-projectile spinner)
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
    ;; `used-only' installs only explicitly used packages and deletes any unused
