@@ -17,6 +17,7 @@ orgparse = "*"
 pypandoc = "*"
 python-slugify = "*"
 cron-descriptor = "==1.2.24"
+semgrep = "*"
 
 [dev-packages]
 bpython = "*"

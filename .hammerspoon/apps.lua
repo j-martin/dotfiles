@@ -56,11 +56,13 @@ local function clickNotification(offset_x, offset_y)
 end
 
 function mod.openNotification()
-  clickNotification(120, 40)
+  -- Use y=40 if hiding menu bar
+  clickNotification(120, 70)
 end
 
 function mod.closeNotification()
-  clickNotification(355, 20)
+  -- Use y=20 if hiding menu bar
+  clickNotification(355, 50)
 end
 
 function mod.activityMonitor()

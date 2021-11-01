@@ -25,26 +25,12 @@ export GPG_TTY
 __source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Use /usr/bin/ssh-add -K ~/.ssh/* to add existing keys
+# Use '/usr/bin/ssh-add --apple-use-keychain ~/.ssh/*' to add existing keys
 test -e "$TMPDIR/ssh-loaded" \
-  || /usr/bin/ssh-add -A && touch "$TMPDIR/ssh-loaded"
-
-__encfs() {
-  local root_dir="$1"
-  local mount_point="$2"
-  local mount_file="${mount_point}/.mounted"
-  if [[ ! -f "${mount_file}" ]]; then
-    echo "Mounting: ${mount_point}"
-    encfs "${root_dir}" "${mount_point}" \
-      && touch "${mount_file}" \
-      || (echo 'Failed to mount encrypted volume... Retrying' && __encfs "$@")
-  fi
-}
+  || /usr/bin/ssh-add --apple-load-keychain && touch "$TMPDIR/ssh-loaded"
 
 __source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
 __source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
-
-# __encfs "$HOME/Sync/Storage" "$HOME/.storage"
 
 __source "$HOME/.private/profile"
 
@@ -56,7 +42,7 @@ source "$HOME/.aliases"
 export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:$HOME/.local/bin:$PATH"
 
 test -e /usr/libexec/java_home \
-  && export JAVA_HOME="$(/usr/libexec/java_home -v 14 2> /dev/null || true)"
+  && export JAVA_HOME="$(/usr/libexec/java_home -v 16 2> /dev/null || true)"
 test -e /usr/local/bin/nvim \
   && export EDITOR='/usr/local/bin/nvim'
 

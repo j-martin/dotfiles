@@ -109,3 +109,5 @@ fi
 source "$HOME/.base"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export "ALLOY_REPOSITORY=/Users/jm/code/alloy"
+test -f '/Users/jm/code/alloy/libraries/shell/profile.sh' && source '/Users/jm/code/alloy/libraries/shell/profile.sh'

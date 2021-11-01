@@ -91,7 +91,7 @@ end
 
 function mod.centerOnTitle(rect)
   local point = geometry.point(rect.x + 5, rect.y + 20)
-  mouse.setAbsolutePosition(point)
+  mouse.absolutePosition(point)
 end
 
 ---------------------------------------------------------
@@ -153,7 +153,7 @@ function mod.launchOrCycleFocus(applicationName)
 
     if applicationName == 'iTerm2' then
       -- moving the cursor out the window, to preserve iTerm currently focused split
-      mouse.setAbsolutePosition(geometry.point(screen.mainScreen():fullFrame().w / 2, 5))
+      mouse.absolutePosition(geometry.point(screen.mainScreen():fullFrame().w / 2, 5))
     end
 
     local appName = cleanupName(applicationName)

@@ -172,15 +172,6 @@ From http://akrl.sdf.org/.
     (setq-default tab-width 2 standard-indent 2)
   #+end_src
 
-** Iedit
-Workaround until https://github.com/syl20bnr/evil-iedit-state/issues/27 is merged.
-
-#+begin_src emacs-lisp :results none
-(defalias 'iedit-cleanup 'iedit-lib-cleanup)
-(defalias 'iedit-show/hide-unmatched-lines 'iedit-show/hide-context-lines)
-#+end_src
-
-
 ** Terminal
    #+begin_src emacs-lisp :results none
      (setq ansi-term-color-vector [term term-color-black term-color-red term-color-green
@@ -199,6 +190,8 @@ Workaround until https://github.com/syl20bnr/evil-iedit-state/issues/27 is merge
      (setq-default abbrev-mode t)
      (setq save-abbrevs 'silently)
      (super-save-mode +1)
+     (setq super-save-auto-save-when-idle t)
+     (setq-default super-save-auto-save-when-idle t)
    #+end_src
 ** Company
    #+begin_src emacs-lisp :results none
@@ -237,9 +230,9 @@ Workaround until https://github.com/syl20bnr/evil-iedit-state/issues/27 is merge
    #+end_src
 ** Parinfer
    #+begin_src emacs-lisp :results none
-     (require 'parinfer)
-     (add-hook 'emacs-lisp-mode-hook 'parinfer-mode)
-     (add-hook 'emacs-lisp-mode-hook 'turn-off-smartparens-mode)
+     ;; (require 'parinfer)
+     ;; (add-hook 'emacs-lisp-mode-hook 'parinfer-mode)
+     ;; (add-hook 'emacs-lisp-mode-hook 'turn-off-smartparens-mode)
    #+end_src
 ** Python
    #+begin_src emacs-lisp :results none
@@ -422,7 +415,7 @@ Workaround until https://github.com/syl20bnr/evil-iedit-state/issues/27 is merge
    #+end_src
 *** Prevent magit from exiting with esc
 #+begin_src emacs-lisp :results none
-(evil-define-key* evil-magit-state magit-mode-map [escape] nil)
+  ;; (evil-define-key* evil-magit-state magit-mode-map [escape] nil)
 #+end_src
 *** Explicit bin path
 According to
@@ -780,20 +773,20 @@ it makes magit a fair bit faster.
     (concat (jm/github-repository-url repository-name) "/compare/master..." (if branch-name branch-name (jm/git-current-branch))))
 
 #+end_src
-** Clubhouse
+** Shortcut
 #+begin_src emacs-lisp :results none
   (defun jm/clubhouse-story-id-from-branch-name (&optional branch-name)
-    (car (cdr (s-match "/ch\\([0-9]+\\)/" (if branch-name branch-name (jm/git-current-branch))))))
+    (car (cdr (s-match "/sc-\\([0-9]+\\)/" (if branch-name branch-name (jm/git-current-branch))))))
 
   (defun jm/clubhouse-story-link (story-id)
     (if story-id
         (let ((workspace (if org-clubhouse-team-name (concat org-clubhouse-team-name "/") "")))
-          (concat "\n[ch" story-id "](" (jm/clubhouse-story-url story-id) ")"))))
+          (concat "\n[sc-" story-id "](" (jm/clubhouse-story-url story-id) ")"))))
 
   (defun jm/clubhouse-story-url (story-id)
     (if story-id
         (let ((workspace (if org-clubhouse-team-name (concat org-clubhouse-team-name "/") "")))
-          (concat "https://app.clubhouse.io/" workspace "story/" story-id ))))
+          (concat "https://app.shortcut.com/" workspace "story/" story-id ))))
 
 
 #+end_src
@@ -910,7 +903,7 @@ it makes magit a fair bit faster.
 
   (defun jm/helm-work-dir ()
     (interactive)
-    (helm-find-files-1 (expand-file-name "~/Code/benchlabs/")))
+    (helm-find-files-1 (expand-file-name "~/code/alloy/")))
 #+end_src
 
 ** External Applications

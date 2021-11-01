@@ -64,7 +64,6 @@ This function should only modify configuration layer settings."
      javascript
      kubernetes
      lua
-     lsp
      (markdown :variables markdown-live-preview-engine 'vmd)
      (org :variables org-enable-github-support t)
      nginx
@@ -104,7 +103,6 @@ This function should only modify configuration layer settings."
      (org-clubhouse :location (recipe :fetcher github :repo "glittershark/org-clubhouse"))
      org-roam
      ox-clip
-     parinfer
      protobuf-mode
      smart-jump
      super-save
@@ -507,9 +505,6 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (yasnippet-snippets writeroom-mode visual-fill-column treemacs-evil tide racer org-download org-clubhouse meghanada magithub lsp-ui lsp-java json-navigator hl-todo helm-xref google-translate forge ghub emacsql evil-magit editorconfig doom-modeline docker json-mode tablist diff-hl cquery counsel-projectile counsel swiper ivy company-lsp company-go centered-cursor-mode browse-at-remote ace-link rust-mode lsp-mode smartparens flycheck company window-purpose helm helm-core magit transient lv pythonic dumb-jump all-the-icons powerline treemacs pfuture ace-window avy projectile dash org-plus-contrib hydra yapfify yaml-mode xterm-color ws-butler writegood-mode winum which-key web-beautify volatile-highlights vmd-mode vi-tilde-fringe uuidgen use-package unfill typescript-mode treepy treemacs-projectile toml-mode toc-org symon super-save sql-indent spaceline-all-the-icons smeargle smart-jump shrink-path shell-pop rjsx-mode reveal-in-osx-finder restart-emacs rainbow-delimiters pyvenv pytest pyenv-mode py-isort protobuf-mode prettier-js popwin plantuml-mode pippel pipenv pip-requirements persp-mode pcre2el password-generator parinfer paradox ox-gfm ox-clip overseer osx-trash osx-dictionary orgit org-present org-pomodoro org-mime org-bullets org-brain open-junk-file noflet nginx-mode nameless mwim mvn multi-term move-text mmm-mode maven-test-mode markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode link-hint launchctl langtool json-snatcher json-reformat js2-refactor js-doc insert-shebang indent-guide importmagic imenu-list hungry-delete highlight-parentheses highlight-numbers highlight-indentation hierarchy helm-themes helm-swoop helm-rtags helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-mode-manager helm-make helm-gtags helm-gitignore helm-git-grep helm-flx helm-descbinds helm-dash helm-company helm-c-yasnippet helm-ag groovy-mode groovy-imports graphql gradle-mode google-c-style golden-ratio godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc gnuplot gitignore-templates github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist ghub+ gh-md ggtags fuzzy font-lock+ flyspell-popup flyspell-correct-helm flycheck-rust flycheck-rtags flycheck-pos-tip flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-syntax evil-surround evil-string-inflection evil-org evil-numbers evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-commentary evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help ensime elisp-slime-nav eldoc-eval dotenv-mode dockerfile-mode docker-tramp disaster diminish dash-at-point cython-mode csv-mode company-terraform company-tern company-statistics company-shell company-rtags company-lua company-emacs-eclim company-c-headers company-anaconda column-enforce-mode closql clean-aindent-mode clang-format ccls cargo auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile atomic-chrome aggressive-indent ace-jump-helm-line ac-ispell)))
  '(spacemacs-centered-buffer-mode-fringe-color "#292b2e")
  '(spacemacs-theme-custom-colors
    (quote

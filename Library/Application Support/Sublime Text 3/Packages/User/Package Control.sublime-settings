@@ -13,7 +13,6 @@
 		"GitGutter",
 		"lispindent",
 		"MarkdownPreview",
-		"Material Theme",
 		"NeoVintageous",
 		"nginx",
 		"Open With",
@@ -24,6 +23,6 @@
 		"Pretty YAML",
 		"SideBarEnhancements",
 		"Terraform",
-		"TypeScript"
-	]
+		"TypeScript",
+	],
 }

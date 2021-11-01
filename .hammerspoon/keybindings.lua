@@ -32,13 +32,15 @@ local bindings = {
       {modifiers = cmd, key = 'm', name = 'Ripcord'},
       {key = '1', name = apps.name.activityMonitor},
       {key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph'},
-      {key = '2', name = 'Keybase'}, -- key = '5' reserved for Alfred snippets
+      {key = '2', name = 'Keybase'},
+      -- key = '5' reserved for Alfred snippets
       {key = '8', name = 'Ripcord'},
       {key = '8', name = 'Slack', shift = true},
       {key = '9', name = 'Spotify'},
       {key = '9', name = 'Soundcleod', shift = true},
       {key = ';', name = 'Dash'},
-      {key = '\\', name = '1Password 7'}, -- key = ';' reserved for Dash
+      {key = '\\', name = '1Password 7'},
+      -- key = ';' reserved for Dash
       {key = 'a', fn = emacs.agenda, desc = 'Org Agenda'},
       {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
       {key = 'b', fn = apps.closeNotification, shift = true, desc = 'Notification - Action'},
@@ -80,19 +82,20 @@ local bindings = {
       {key = 'o', name = apps.name.idea},
       {key = 'o', fn = apps.ideaOmni, shift = true},
       {key = 'p', name = 'Sublime Text'},
+      {key = 'p', name = 'Preview', shift = true},
       {key = 'q', fn = hs.toggleConsole, shift = true, desc = 'HS - Console'},
       {key = 'r', fn = emacs.orgRifle, desc = 'Org - Capture selection to Resources'},
       {key = 'r', fn = emacs.references, shift = true, desc = 'Org - Show Resources'},
-      {key = 's', name = 'Slack'},
-      {key = 's', name = 'Visual Studio Code', shift = true},
+      {key = 's', name = 'Visual Studio Code'},
       {key = 't', fn = emacs.capture(), desc = 'Org - Capture'},
       {key = 't', fn = emacs.inbox, shift = true, desc = 'Org - Inbox'},
       {key = 'u', name = 'Emacs'},
-      {key = 'u', fn = emacs.helmBuffers, shift = true}, -- key v, reserved for Alfred paste
+      {key = 'u', fn = emacs.helmBuffers, shift = true},
+      -- key v, reserved for Alfred paste
       {key = 'v', fn = selection.paste, shift = true, desc = 'Paste - Type'},
       {key = 'w', fn = emacs.capture('w'), desc = 'Org - Capture selection to Work'},
       {key = 'w', fn = emacs.workInbox, shift = true, desc = 'Org - Show work'},
-      {key = 'y', tab = chrome.tab.mail.work, desc = 'Switch to Inbox'},
+      {key = 'y', name = 'Mimestream'},
       {key = 'z', name = 'Zoom.us'},
       {key = '-', fn = grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter'},
       {key = '=', fn = grid.resizeWindowTaller, shift = true, desc = 'Windows - Taller'},

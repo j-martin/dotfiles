@@ -16,6 +16,11 @@
 [diff]
   colorMoved = true
   renameLimit = 900
+  tool = diffsitter
+[difftool]
+  prompt = false
+[difftool "diffsitter"]
+  cmd = diffsitter "$LOCAL" "$REMOTE"
 [alias]
   clean-all = clean --force -dx --exclude .idea
   co = checkout
@@ -25,6 +30,7 @@
   m = merge
   r = rebase
   re = rebase
+  rb = rebase
   ref = reflog
   rf = reflog --date=iso
   rs = reset

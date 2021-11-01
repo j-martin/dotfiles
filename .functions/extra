@@ -171,6 +171,7 @@ _rsync() {
     --exclude '.gradle/' \
     --exclude '.idea/' \
     --exclude '.terraform' \
+    --exclude '.mypy_cache' \
     --exclude 'out' \
     --exclude 'build' \
     --exclude 'node_modules' \
@@ -209,4 +210,12 @@ _track_shipment() {
 _exif() {
   local url="$1"
   curl --silent --fail "${url}" "${@:2}" | exiftool - -fast
+}
+
+sudo() {
+  unset -f sudo
+  if [[ "$(uname)" == 'Darwin' ]] && ! grep 'pam_tid.so' /etc/pam.d/sudo --silent; then
+    sudo sed -i -e '1s;^;auth       sufficient     pam_tid.so\n;' /etc/pam.d/sudo
+  fi
+  sudo "$@"
 }
