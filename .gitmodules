@@ -28,3 +28,6 @@
 [submodule ".intellimacs"]
 	path = .intellimacs
 	url = git@github.com:MarcoIeni/intellimacs.git
+[submodule ".oh-my-zsh-custom/plugins/fzf-tab"]
+	path = .oh-my-zsh-custom/plugins/fzf-tab
+	url = git@github.com:Aloxaf/fzf-tab.git

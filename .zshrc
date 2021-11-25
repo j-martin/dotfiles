@@ -65,6 +65,7 @@ plugins=(
   # man
   # fd
   # fzf
+  fzf-tab
   # node
   osx
   ripgrep
