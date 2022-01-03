@@ -44,7 +44,13 @@ _sync_repository() {
 }
 
 _main() {
-  _sync_external_services
+  if [[ "${ORG_SYNC_EXTERNAL_SERVICES:-}" == 'true' ]]; then
+    _info 'Syncing with external services...'
+    _sync_external_services
+  else
+    _info 'Skipping syncing with external services since ORG_SYNC_EXTERNAL_SERVICES is not "true".'
+  fi
+
   _sync_repository
 
   _info 'Done!'
