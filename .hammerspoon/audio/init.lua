@@ -15,8 +15,8 @@ function mod.workSetup()
   mod.muteSpeakers()
 end
 
-function mod.muteSpeakers()
-  local speakers = audiodevice.findOutputByName('Built-in Output')
+function mod.muteSpeakers(name)
+  local speakers = audiodevice.findOutputByName(name)
   if not speakers then
     return
   end
@@ -28,6 +28,7 @@ function mod.changeVolume(inc)
   return function()
     local device = audiodevice.defaultOutputDevice()
     local value = math.ceil(device:volume() + inc)
+    device:setBalance(0.5)
     if value <= 0 then
       device:setVolume(0)
       device:setMuted(true)
@@ -43,6 +44,7 @@ end
 function mod.setVolume(value)
   return function()
     local device = audiodevice.defaultOutputDevice()
+    device:setBalance(0.5)
     device:setMuted(false)
     device:setVolume(value)
     alert.show('Volume: ' .. tostring(value) .. ' %')
@@ -77,14 +79,16 @@ end
 
 function mod.init()
   function plugged()
-    mod.muteSpeakers()
+    mod.muteSpeakers('Built-in Output')
+    mod.muteSpeakers('MacBook Pro Speakers')
     local outputDevice = audiodevice.defaultOutputDevice()
     outputDevice:setMuted(false)
     outputDevice:setVolume(15)
   end
 
   function unplugged()
-    mod.muteSpeakers()
+    mod.muteSpeakers('Built-in Output')
+    mod.muteSpeakers('MacBook Pro Speakers')
     spotify.pause()
   end
 
