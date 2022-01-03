@@ -4,6 +4,7 @@ set -o errexit
 set -o pipefail
 set -u
 
+# Set LOG=anything to debug iTerm...
 readonly LOG
 
 _main() {
@@ -30,7 +31,7 @@ _main() {
 }
 
 _emacs() {
-  _exec /usr/local/bin/emacsclient --no-wait "$@"
+  _exec /opt/homebrew/bin/emacsclient --no-wait "$@"
 }
 
 _idea() {
