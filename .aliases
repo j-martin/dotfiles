@@ -309,6 +309,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
   # Fixes keyring access to the keychain.
   alias sign-venv='codesign -f -s - "$(pipenv --venv)/bin/python"'
   alias remove-attrs="find . -exec xattr -c '{}' \;"
+  alias brwe=brew
 fi
 
 alias da='date && date -u'
