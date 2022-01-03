@@ -1,6 +1,7 @@
 --type-add=j:*.aj
 --type-add=j:*.gradle
 --type-add=j:*.java
+
 --type-add=d:Dockerfile*
 
 --type-add=s:*.tsx
@@ -9,8 +10,14 @@
 
 --type-add=f:*.tf
 
+--type-add=g:*.groovy
+
+--type-add=r:*.rs
+--type-add=rs:*.rs
+
 --type-add=p:*.py
 
+--type-add=sq:*.sql
 --type-add=sql:*.sql
 
 --type-add=sh:*.sh
