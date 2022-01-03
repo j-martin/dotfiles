@@ -175,8 +175,6 @@ alias c=club
 
 ## Git
 
-alias ga='_git_command_with_fzf add'
-alias gd='_git_command_with_fzf diff'
 alias gl='git pull --tags --force'
 # TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^main$" | fzf -m | xargs git branch -D'
