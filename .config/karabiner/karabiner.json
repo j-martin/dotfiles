@@ -410,6 +410,28 @@
                         }
                     ]
                 },
+              {
+                  "disable_built_in_keyboard_if_exists": false,
+                  "fn_function_keys": [],
+                  "identifiers": {
+                    "is_keyboard": true,
+                    "is_pointing_device": false,
+                    "product_id": 835,
+                    "vendor_id": 1452
+                  },
+                  "ignore": false,
+                  "manipulate_caps_lock_led": true,
+                  "simple_modifications": [
+                    {
+                    "from": {
+                      "key_code": "right_option"
+                    },
+                    "to": {
+                      "key_code": "right_control"
+                    }
+                  }
+                  ]
+                },
                 {
                     "disable_built_in_keyboard_if_exists": false,
                     "fn_function_keys": [],
