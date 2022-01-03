@@ -417,6 +417,12 @@ From http://akrl.sdf.org/.
 #+begin_src emacs-lisp :results none
   ;; (evil-define-key* evil-magit-state magit-mode-map [escape] nil)
 #+end_src
+*** Workaround rebase keybinding being messed up
+https://github.com/syl20bnr/spacemacs/issues/15089
+#+begin_src emacs-lisp :results none
+ (setq auto-mode-alist (delete '("/git-rebase-todo$" . helm-ls-git-rebase-todo-mode) auto-mode-alist))
+#+end_src
+
 *** Explicit bin path
 According to
 https://www.reddit.com/r/emacs/comments/fhr72q/solution_performance_problem_with_magit_on_macos/
