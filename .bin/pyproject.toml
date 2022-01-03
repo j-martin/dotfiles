@@ -1,0 +1,27 @@
+[tool.poetry]
+name = ".bin"
+version = "0.1.0"
+description = ""
+authors = ["Jean-Martin Archer <jm@jmartin.ca>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+clubhouse = "==0.2.1"
+readability-lxml = "*"
+todoist-python = "*"
+keyring = "*"
+click = "*"
+cryptography = "*"
+"pushbullet.py" = "*"
+orgparse = "*"
+pypandoc = "*"
+python-slugify = "*"
+cron-descriptor = "==1.2.24"
+
+[tool.poetry.dev-dependencies]
+bpython = "*"
+black = "==19.3b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -4,12 +4,21 @@ set -o errexit
 set -o pipefail
 set -u
 
+_info() {
+  echo >&2 "[info] $*"
+}
+
 _sync_external_services() {
   pushd "$HOME/.bin"
 
+  _info 'Syncing calendars...'
   ./org-sync-calendar
-  pipenv run python org-sync-todoist
-  pipenv run python org-sync-pushbullet
+
+  _info 'Syncing todoist...'
+  poetry run python org-sync-todoist
+
+  _info 'Syncing pushbullet...'
+  poetry run python org-sync-pushbullet
 
   popd
 }
@@ -22,10 +31,13 @@ _sync_repository() {
 
   git add '.'
 
-  git commit -m "Sync $(gdate --iso-8601=minutes)" \
+  git commit -m "Sync from $(hostname) at $(gdate --iso-8601=minutes)" \
     || true
 
+  _info 'Pulling from repo...'
   git pull
+
+  _info 'Pushing to repo...'
   git push
 
   popd
@@ -34,6 +46,8 @@ _sync_repository() {
 _main() {
   _sync_external_services
   _sync_repository
+
+  _info 'Done!'
 }
 
 _main
