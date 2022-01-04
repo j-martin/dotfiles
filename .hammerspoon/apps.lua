@@ -18,10 +18,19 @@ mod.name = {
   ripcord = 'Ripcord',
 }
 
+-- Config example:
+-- ~/.private/hammerspoon.json
+-- {
+--  "slackTeamMapping": {
+--    "team1": "T00000000",
+--    "team2": "T11111111"
+--  }
+--}
+
 mod.slackTeamMapping = {
-  -- subdomain (without .slack.com) = "teamId"
+  -- slack domain (with or without '.slack.com') = "teamId"
   -- example:
-  fakecompany = "T00000000"
+  afakecompany = "T00000000"
 }
 
 local slackPrefixMapping = {
@@ -127,19 +136,19 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
 
     local teamId = nil
 
-    for key, value in pairs(mod.slackTeamMapping) do
-      if fullUrl:match('^https://' .. key .. '.*') then
+    for domain, value in pairs(mod.slackTeamMapping) do
+      if fullUrl:match('^https://' .. domain '.*') then
         teamId = value
       end
     end
 
-    local prefix = nil
-    local id = nil
+    local urlPrefix = nil
+    local itemId = nil
 
     for key, value in pairs(slackPrefixMapping) do
-      id = match(fullUrl, 'slack.com/archives/', key .. '%w+')
-      if id then
-        prefix = value
+      itemId = match(fullUrl, 'slack.com/archives/', key .. '%w+')
+      if itemId then
+        urlPrefix = value
         break
       end
     end
@@ -149,11 +158,11 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
        messageId = messageId:sub(0, 10) .. '.' .. messageId:sub(11, -1)
     end
 
-    logger.i(prefix, teamId, id, messageId)
+    logger.i(urlPrefix, teamId, itemId, messageId)
 
-    if prefix and teamId then
+    if urlPrefix and teamId then
       bundleId = 'com.tinyspeck.slackmacgap'
-      url = 'slack://' .. prefix .. '?team=' .. teamId .. '&id=' .. id .. '&message=' .. messageId .. '&' .. encodedParams
+      url = 'slack://' .. urlPrefix .. '?team=' .. teamId .. '&id=' .. itemId .. '&message=' .. messageId .. '&' .. encodedParams
     else
       logger.w("Could not infer the 'slack://' from the URL. Defaulting to your browser redirect.")
     end
