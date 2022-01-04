@@ -31,7 +31,7 @@ _main() {
 }
 
 _emacs() {
-  _exec /opt/homebrew/bin/emacsclient --no-wait "$@"
+  _exec "${BREW_PREFIX}/bin/emacsclient" --no-wait "$@"
 }
 
 _idea() {

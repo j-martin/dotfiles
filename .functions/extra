@@ -88,9 +88,9 @@ nvm() {
   unset -f nvm
   export NVM_DIR=~/.nvm
   setopt no_aliases
-  if [[ -s /opt/homebrew/opt/nvm/nvm.sh ]]; then
+  if [[ -s "${BREW_PREFIX}/opt/nvm/nvm.sh" ]]; then
     # Loading NVM.
-    source /opt/homebrew/opt/nvm/nvm.sh
+    source "${BREW_PREFIX}/opt/nvm/nvm.sh"
   fi
   nvm "$@"
   npm config delete prefix || true

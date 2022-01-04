@@ -19,6 +19,9 @@ export LANG=en_US.UTF-8
 export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK:$GOPATH/src/github.com/j-martin/:$HOME/code/"
 export VISUAL="emacsclient"
 
+test -e /usr/local/bin/brew \
+ && export BREW_PREFIX="$(brew --prefix)"
+
 GPG_TTY="$(tty)"
 export GPG_TTY
 
