@@ -3,9 +3,20 @@
 The git worktree is inspired from [[https://fuller.li/posts/organising-dotfiles-in-a-git-repository/][organizing dotfiles in a git
 repository]]. The rest is just years of collecting stuff.
 
+**** Create and add SSH Key passphrase to keyring
+#+begin_src shell :tangle yes
+$ ssh-keygen -t ed25519 -C "jm@jmartin.ca" -f ~/.ssh/github
+# Must use the system ssh-add instead of the one installed by Brew
+$ /usr/bin/ssh-add -K ~/.ssh/github
+#+end_src
+
+- Add SSH key to [GitHub](https://github.com/settings/keys).
+
 ** Initial dotfiles installation
  #+begin_src shell
  alias home="git --work-tree=$HOME --git-dir=$HOME/.files.git"
+
+ # After loading the alias
  home init
  home remote add origin git@github.com:j-martin/dotfiles.git
  home fetch
@@ -22,13 +33,6 @@ $ .setup/setup.sh
 
 *** Manual Steps
 Could be scripted, but involves a bunch of manual user inputs.
-
-**** Create and add SSH Key passphrase to keyring
-#+begin_src shell :tangle yes
-$ ssh-keygen -t ed25519 -C "jm@jmartin.ca" -f github
-# Must use the system ssh-add instead of the one installed by Brew
-$ /usr/bin/ssh-add -K .ssh/github
-#+end_src
 
 **** FZF
  #+begin_src shell :tangle yes
