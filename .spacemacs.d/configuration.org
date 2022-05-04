@@ -299,11 +299,6 @@ From http://akrl.sdf.org/.
    #+begin_src emacs-lisp :results none
      (setq tramp-default-method "ssh")
    #+end_src
-** Autofill
-   #+begin_src emacs-lisp :results none
-     (add-hook 'text-mode-hook 'turn-on-auto-fill)
-     (add-hook 'markdown-mode-hook 'turn-on-auto-fill)
-   #+end_src
 ** Pretty symbols
    #+begin_src emacs-lisp :results none
      (defun jm/pretty-symbols ()
