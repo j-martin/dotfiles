@@ -45,7 +45,6 @@ _macos_customizations () {
   defaults write com.apple.dock springboard-hide-duration -int 0
   defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
   defaults write com.extropy.oni ApplePressAndHoldEnabled -bool false
-  sudo defaults write /Library/Preferences/com.apple.TimeMachine MaxSize -integer 204800
   defaults write com.apple.systempreferences TMShowUnsupportedNetworkVolumes 1
   defaults write com.google.Chrome ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
 
@@ -106,7 +105,6 @@ _go_specific () {
 }
 
 if [[ "$(uname)" == 'Darwin' ]]; then
-  _macos_apps
   _macos_customizations
 elif [[ "$(uname)" == 'Linux' ]]; then
   _linux_apps
