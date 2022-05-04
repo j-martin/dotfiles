@@ -10,14 +10,23 @@ __source() {
   fi
 }
 
-export WORK="$HOME/code/alloy"
-export GOPATH="$HOME/code/go"
-export GOWORK="$GOPATH/src/github.com/alloytech/"
+export WORK="$HOME/src/github.com/Shopify"
+export GOPATH="$HOME/src"
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK:$GOPATH/src/github.com/j-martin/:$HOME/code/"
 export VISUAL="emacsclient"
+
+if [[ -f /opt/homebrew/bin/brew ]]; then
+  export HOMEBREW_PREFIX="/opt/homebrew";
+  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+  export HOMEBREW_REPOSITORY="/opt/homebrew";
+  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
+  export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+  export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+  export BREW_PREFIX="$(brew --prefix)"
+fi
 
 test -e /usr/local/bin/brew \
  && export BREW_PREFIX="$(brew --prefix)"
