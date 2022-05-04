@@ -21,7 +21,7 @@ _main() {
 }
 
 _emacs() {
-  exec "${BREW_PREFIX}/bin/emacsclient" --no-wait "$@" > /dev/null 2>&1 &
+  exec "${BREW_PREFIX:-/opt/homebrew}/bin/emacsclient" --no-wait "$@" > /dev/null 2>&1 &
 }
 
 _main "$@"
