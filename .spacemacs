@@ -54,7 +54,6 @@ This function should only modify configuration layer settings."
      emacs-lisp
      evil-commentary
      git
-     github
      gtags
      go
      graphviz
@@ -70,6 +69,7 @@ This function should only modify configuration layer settings."
      osx
      python
      react
+     ruby
      rust
      shell
      shell-scripts
@@ -100,7 +100,6 @@ This function should only modify configuration layer settings."
      ivy
      jq-mode
      jsonnet-mode
-     (org-clubhouse :location (recipe :fetcher github :repo "glittershark/org-clubhouse"))
      org-roam
      ox-clip
      protobuf-mode
