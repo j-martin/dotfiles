@@ -2,10 +2,10 @@
 
 _gcp_pick_project() {
   local query="$1"
-  gcloud projects list \
-    | fzf -0 -1 --header-lines=1 --query "${query}" \
-    | awk '{print $1}'
+  gcloud projects list --filter "name~${query}" --limit 10 \
+    | _fzf_pick "${query}"
 }
+
 _gcp_change_project() {
   local query="$1"
 

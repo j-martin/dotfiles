@@ -219,3 +219,10 @@ sudo() {
   fi
   sudo "$@"
 }
+
+_format_rtf() {
+  local file_path="$1"
+  local language="${2:-python}"
+  pygmentize -f rtf -O 'style=solarized-dark,bg=light' -l "${language}" "${file_path}" \
+    | pbcopy
+}

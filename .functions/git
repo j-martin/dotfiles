@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
 _git_repo() {
-  git config --get remote.origin.url \
-    | cut -d ':' -f2 \
-    | cut -d '.' -f1 \
-    | head -n1
+  local origin
+  origin="$(git config --get remote.origin.url)"
+
+  if [[ "${origin}" == "${GITHUB_URL}"* ]]; then
+    sed "s#${GITHUB_URL}/##g; s/\.git//" <<< "${origin}"
+  else
+    cut -d ':' -f2 <<< "${origin}" \
+      | cut -d '.' -f1 \
+      | head -n1
+  fi
 }
 
 _git_org_name() {
@@ -125,10 +131,18 @@ _git_new_branch_from_commit() {
   git cherry-pick "${object}"
 }
 
+__git_get_main_branch_name() {
+  if git config --get branch.main.remote > /dev/null 2>&1; then
+    echo 'main'
+  else
+    echo 'master'
+  fi
+}
+
 _git_new_branch() {
   local name="$1"
   git fetch 'origin'
-  __git_new_branch "$name" 'origin/main'
+  __git_new_branch "$name" "origin/$(__git_get_main_branch_name)"
 }
 __git_new_branch() {
   local name="$1"
@@ -150,11 +164,14 @@ _git_new_branch_and_commit() {
 }
 
 _github() {
-  local endpoint="$1"
+  local endpoint="${1}"
+  if [[ "${endpoint}" != 'https://api.github.com/'* ]]; then
+    endpoint="https://api.github.com/${endpoint}"
+  fi
   curl --fail --silent --show-error \
        --header "Authorization: token $(keyring get api github)" \
        --header "Accept: application/vnd.github.groot-preview+json" \
-    "https://api.github.com/$endpoint" \
+    "${endpoint}" \
     "${@:2}"
 }
 
@@ -354,7 +371,7 @@ _git_switch_worktree() {
     new_dir="${cur_repo}-bugfix"
     if [[ ! -d "${new_dir}" ]]; then
       git worktree prune
-      git worktree add "${new_dir}" "origin/main"
+      git worktree add "${new_dir}" "origin/$(__git_get_main_branch_name)"
     fi
     cd "${new_dir}" || _error "Failed to switch to '${new_dir}'"
   fi
@@ -363,6 +380,15 @@ _git_switch_worktree() {
 _git_commit_individual_files() {
   git diff --name-only \
     | xargs -I{} git commit -m '{}' '{}'
+}
+
+_github_subscribe_to_team_repos() {
+  local org="$1"
+  local team="$2"
+  for url in $(_github "orgs/${org}/teams/${team}/repos?per_page=100" |  jq -r '.[] | .subscription_url'); do
+    echo $url
+    _github "${url}" -X PUT --data '{"subscribed":true}'
+  done
 }
 
 _github_pr() {
@@ -381,7 +407,7 @@ _github_pr() {
 
 _git_push_pr_if_commits() {
   local commit_count
-  commit_count="$(git log HEAD --not origin/main "--pretty=format:%h" | wc -w | tr -d ' ')"
+  commit_count="$(git log HEAD --not origin/$(__git_get_main_branch_name) "--pretty=format:%h" | wc -w | tr -d ' ')"
   echo "${commit_count}"
   if [[ "${commit_count}" != '0' ]]; then
     git push
