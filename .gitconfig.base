@@ -11,8 +11,6 @@
   commentChar = ";"
   excludesfile = ~/.gitignore.global
   attributesfile = ~/.gitattributes
-[url "git@github.com:"]
-  insteadOf = "https://github.com/"
 [diff]
   colorMoved = true
   renameLimit = 900
