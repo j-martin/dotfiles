@@ -67,7 +67,7 @@ plugins=(
   # fzf
   fzf-tab
   # node
-  macos
+  osx
   ripgrep
   # terraform
   # vault
@@ -101,14 +101,33 @@ export KEYTIMEOUT=1
 bindkey '^[[1;9C' forward-word
 bindkey '^[[1;9D' backward-word
 
-# Disabling iTerm extensions if running inside EMACS.
-# It causes issue with escape chars.
-if [[ -z "${EMACS}" ]]; then
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-fi
-
 source "$HOME/.base"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export "ALLOY_REPOSITORY=/Users/jm/code/alloy"
-test -f '/Users/jm/code/alloy/libraries/shell/profile.sh' && source '/Users/jm/code/alloy/libraries/shell/profile.sh'
+[[ -f /opt/dev/sh/chruby/chruby.sh ]] && type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; }
+
+[ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
+
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+#         . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
+
+if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/mamba.sh" ]; then
+    . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/mamba.sh"
+fi
+# <<< conda initialize <<<
+
+source /Users/jm/src/github.com/Shopify/merlin-projects/cli/.autocomplete.sh
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
