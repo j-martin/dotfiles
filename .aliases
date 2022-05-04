@@ -167,8 +167,15 @@ alias gg='gcloud'
 alias s3='gsutil'
 
 # K8s
-alias kc=kubectl
+alias k=kctl
 alias mk=minikube
+alias kg='kctl get'
+alias ksn='kctl switch-namespace'
+alias ke='kctl exec'
+alias kct=kubectx
+alias kns=kubens
+alias kd='kctl describe'
+alias kl='kctl logs'
 
 # Clubhouse
 alias c=club

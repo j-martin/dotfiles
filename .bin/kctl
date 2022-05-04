@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -u
+
+IFS=$'\n\t'
+
+_info() {
+  echo >&2 "[info] $*"
+}
+
+_fatal() {
+  local message="$1"
+  local code="${2:-255}"
+  echo >&2 "[fatal] ${message} Exit code: ${code}"
+  exit "${code}"
+}
+
+__k8s_current_context() {
+  kubectl config view --minify --output json \
+    | jq -r '.contexts[0].context | "cluster: \(.cluster) namespace: \(.namespace)"'
+}
+
+_kubectl() {
+  _info "Running 'kubectl $*' on $(__k8s_current_context)"
+  kubectl "$@"
+}
+
+_gcp_k8s_auth() {
+  local project="$1"
+  gcloud container clusters list --project "${project}" --format json \
+    | jq -r '.[] | "\(.name)  --zone \(.zone)"' \
+    | xargs -n3 gcloud container clusters get-credentials --project "${project}"
+}
+
+_fzf_pick() {
+  local query="$1"
+  fzf -0 -1 --header-lines=1 --query "${query}" \
+    | awk '{print $1}' || {
+_fatal "Could not find '${query}'"
+  }
+}
+
+_k8s_pick_resource() {
+  local resource="$1"
+  local query="$2"
+  _kubectl get "${resource}" | _fzf_pick "${query}"
+}
+
+_k8s_pick_pod() {
+  _k8s_pick_resource 'pod' "$@"
+}
+
+_k8s_switch_namespace() {
+  local namespace="${1:-}"
+  namespace="$(_k8s_pick_resource namespace "${namespace}")"
+  _info "Switching namespace to: ${namespace}..."
+  _kubectl config set-context --current --namespace="${namespace}"
+}
+
+_k8s_exec() {
+  local pod="${1:-}"
+  pod="$(_k8s_pick_pod "${pod}")"
+  _kubectl exec -it "${pod}" "${2:-/bin/bash}" "${@:3}"
+}
+
+_k8s_logs() {
+  __k8s_logs "${1:-}" "${@:2}" --all-containers --follow=true --tail=100
+}
+
+__k8s_logs() {
+  local pod="${1:-}"
+  _kubectl logs "$(_k8s_pick_pod "${pod}")" "${@:2}"
+}
+
+_usage() {
+  cat >&2 << EOF
+USAGE: $0 [OPTIONS] COMMANDS...
+
+Wrapper around kubectl.
+
+COMMANDS:
+  s, start          Recreates the db (if not present) and starts the base
+
+EOF
+}
+
+_main() {
+  local key="${1:-}"
+  shift || true
+  case "${key}" in
+    -h | --help | h | help)
+      _usage
+      exit 0
+      ;;
+    auth)
+      _gcp_k8s_auth "$@"
+      ;;
+    e | exec)
+      _k8s_exec "$@"
+      ;;
+    l | logs)
+      _k8s_logs "$@"
+      ;;
+    *)
+      _kubectl "${key}" "$@"
+      ;;
+  esac
+}
+
+_main "$@"
