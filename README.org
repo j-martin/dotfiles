@@ -7,7 +7,7 @@ repository]]. The rest is just years of collecting stuff.
 #+begin_src shell :tangle yes
 $ ssh-keygen -t ed25519 -C "jm@jmartin.ca" -f ~/.ssh/github
 # Must use the system ssh-add instead of the one installed by Brew
-$ /usr/bin/ssh-add -K ~/.ssh/github
+$ /usr/bin/ssh-add --apple-use-keychain ~/.ssh/github
 #+end_src
 
 - Add SSH key to [GitHub](https://github.com/settings/keys).
@@ -47,4 +47,5 @@ $ keybase pgp pull-private --all
 **** Copy .gitconfig
 #+begin_src shell :tangle yes
 $ cp .gitconfig.ref .gitconfig
+$ cp .ssh.config .ssh/config
 #+end_src
