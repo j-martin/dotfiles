@@ -21,9 +21,8 @@ Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
+Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 
 call plug#end()
 
@@ -147,18 +146,6 @@ noremap <Leader>gb :Gblame<CR>
 noremap <Leader>gd :Gvdiff<CR>
 noremap <Leader>gr :Gremove<CR>
 
-"Vim-airline
-"===========
-let g:airline_theme='powerlineish'
-set laststatus=2
-let g:airline_theme='badwolf'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:Powerline_symbols = 'fancy'
-let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#syntastic#enabled = 1
-"let g:airline_section_gutter=""
-"let g:airline_detect_whitespace=0
 set ttimeoutlen=50
 
 "JSHint
