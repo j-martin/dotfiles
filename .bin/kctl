@@ -18,26 +18,26 @@ _fatal() {
 }
 
 __k8s_current_context() {
-  kubectl config view --minify --output json |
-    jq -r '.contexts[0].context | "cluster: \(.cluster) namespace: \(.namespace)"'
+  kubectl config view --minify --output json \
+    | jq -r '.contexts[0].context | "cluster: \(.cluster) namespace: \(.namespace)"'
 }
 
 _kubectl() {
-  _info "Running 'kubectl $(tr -d '\n' <<<"$@")' on $(__k8s_current_context)"
+  _info "Running 'kubectl $(tr -d '\n' <<< "$@")' on $(__k8s_current_context)"
   kubectl "$@"
 }
 
 _gcp_k8s_auth() {
   local project="$1"
-  gcloud container clusters list --project "${project}" --format json |
-    jq -r '.[] | "\(.name)  --zone \(.zone)"' |
-    xargs -n3 gcloud container clusters get-credentials --project "${project}"
+  gcloud container clusters list --project "${project}" --format json \
+    | jq -r '.[] | "\(.name)  --zone \(.zone)"' \
+    | xargs -n3 gcloud container clusters get-credentials --project "${project}"
 }
 
 _fzf_pick() {
   local query="$1"
-  fzf -0 -1 --header-lines=1 --query "'${query}" |
-    awk '{print $1}' || {
+  fzf -0 -1 --header-lines=1 --query "'${query}" \
+    | awk '{print $1}' || {
     _fatal "Could not find '${query}'"
   }
 }
@@ -66,9 +66,9 @@ _k8s_pick_pod() {
 _k8s_switch_cluster() {
   local context="${1:-}"
   context="$(
-    _kubectl config get-contexts |
-      fzf -0 -1 --header-lines=1 --query "'${context}" |
-      awk '{print $2}'
+    _kubectl config get-contexts \
+      | fzf -0 -1 --header-lines=1 --query "'${context}" \
+      | awk '{print $2}'
   )"
 
   kubectl config use-context "${context}"
@@ -98,7 +98,7 @@ __k8s_logs() {
 }
 
 _usage() {
-  cat >&2 <<EOF
+  cat >&2 << EOF
 USAGE: $0 COMMANDS [OPTIONS]...
 
 Wrapper around kubectl.
@@ -108,57 +108,57 @@ A RESOURCE_TYPE is a pod, a deployment, service, etc.
 COMMANDS:
 EOF
 
-  grep --extended-regexp '^    [[:alnum:]-]+.*)' "$0" |
-    sed 's/^  //; s/ |/,/g; s/)//; s/# //'
+  grep --extended-regexp '^    [[:alnum:]-]+.*)' "$0" \
+    | sed 's/^  //; s/ |/,/g; s/)//; s/# //'
 }
 
 _main() {
   local key="${1:-}"
   shift || true
   case "${key}" in
-  -h | --help | h | help) # Show help/usage.
-    _usage
-    exit 0
-    ;;
-  auth) # [PROJECT] Authenticate/add all cluster in the specified project.
-    _gcp_k8s_auth "$@"
-    ;;
-  d | describe) # RESOURCE_TYPE [RESOURCE_NAME] Describe the chosen resource. Will list resources if there no exact match or no resource passed.
-    _k8s_command_pick_resource describe "$@"
-    ;;
-  ed | edit) # RESOURCE_TYPE [RESOURCE_NAME] Edit the chosen resource. Will list resources if there no exact match or no resource passed.
-    _k8s_command_pick_resource edit "$@"
-    ;;
-  e | exec) # [POD_NAME] Run bash or other command on pod. Will list pods if there no exact match or no resource passed.
-    _k8s_exec "$@"
-    ;;
-  g | get) # ARGS kubectl get ...
-    _kubectl get "$@"
-    ;;
-  gr | get-resource) # [RESOURCE_TYPE] Get all resource. Will list resource types if there no exact match or no resource passed.
-    _kubectl get "$(_kubectl api-resources | _fzf_pick "${1:-}")"
-    ;;
-  gry | get-resource-yaml) # [RESOURCE_TYPE] Get all resource as yaml for a specific resource type. Will list resource types if there no exact match or no resource passed.
-    _k8s_command_pick_resource get "$(_kubectl api-resources | _fzf_pick "${1:-}")" "${2:-}" "${@:3}" --output=yaml
-    ;;
-  gy | get-yaml) # RESOURCE_TYPE [RESOURCE_NAME] Get yaml output of the chosen resource. Will list resources if there no exact match or no resource passed.
-    _k8s_command_pick_resource get "$1" "${2:-}" "${@:3}" --output=yaml
-    ;;
-  l | logs) # [POD] Watch logs for all containers in pod.
-    _k8s_logs "$@"
-    ;;
-  sc | switch-cluster) # [CLUSTER/CONTEXT] Will list clusters/contexts if there no exact match or no cluster is passed.
-    _k8s_switch_cluster "$@"
-    ;;
-  sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
-    _k8s_switch_namespace "$@"
-    ;;
-  --) # ARGS   Pass arguments directly to kubectl
-    _kubectl "$@"
-    ;;
-  *) # ARGS   Pass arguments directly to kubectl
-    _kubectl "${key}" "$@"
-    ;;
+    -h | --help | h | help) # Show help/usage.
+      _usage
+      exit 0
+      ;;
+    auth) # [PROJECT] Authenticate/add all cluster in the specified project.
+      _gcp_k8s_auth "$@"
+      ;;
+    d | describe) # RESOURCE_TYPE [RESOURCE_NAME] Describe the chosen resource. Will list resources if there no exact match or no resource passed.
+      _k8s_command_pick_resource describe "$@"
+      ;;
+    ed | edit) # RESOURCE_TYPE [RESOURCE_NAME] Edit the chosen resource. Will list resources if there no exact match or no resource passed.
+      _k8s_command_pick_resource edit "$@"
+      ;;
+    e | exec) # [POD_NAME] Run bash or other command on pod. Will list pods if there no exact match or no resource passed.
+      _k8s_exec "$@"
+      ;;
+    g | get) # ARGS kubectl get ...
+      _kubectl get "$@"
+      ;;
+    gr | get-resource) # [RESOURCE_TYPE] Get all resource. Will list resource types if there no exact match or no resource passed.
+      _kubectl get "$(_kubectl api-resources | _fzf_pick "${1:-}")"
+      ;;
+    gry | get-resource-yaml) # [RESOURCE_TYPE] Get all resource as yaml for a specific resource type. Will list resource types if there no exact match or no resource passed.
+      _k8s_command_pick_resource get "$(_kubectl api-resources | _fzf_pick "${1:-}")" "${2:-}" "${@:3}" --output=yaml
+      ;;
+    gy | get-yaml) # RESOURCE_TYPE [RESOURCE_NAME] Get yaml output of the chosen resource. Will list resources if there no exact match or no resource passed.
+      _k8s_command_pick_resource get "$1" "${2:-}" "${@:3}" --output=yaml
+      ;;
+    l | logs) # [POD] Watch logs for all containers in pod.
+      _k8s_logs "$@"
+      ;;
+    sc | switch-cluster) # [CLUSTER/CONTEXT] Will list clusters/contexts if there no exact match or no cluster is passed.
+      _k8s_switch_cluster "$@"
+      ;;
+    sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
+      _k8s_switch_namespace "$@"
+      ;;
+    --) # ARGS   Pass arguments directly to kubectl
+      _kubectl "$@"
+      ;;
+    *) # ARGS   Pass arguments directly to kubectl
+      _kubectl "${key}" "$@"
+      ;;
   esac
 }
 
