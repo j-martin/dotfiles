@@ -138,10 +138,10 @@ _main() {
   gr | get-resource) # [RESOURCE_TYPE] Get all resource. Will list resource types if there no exact match or no resource passed.
     _kubectl get "$(_kubectl api-resources | _fzf_pick "${1:-}")"
     ;;
-  gry | get-resource-yaml) # [RESOURCE_TYPE] Get all resource. Will list resource types if there no exact match or no resource passed.
+  gry | get-resource-yaml) # [RESOURCE_TYPE] Get all resource as yaml for a specific resource type. Will list resource types if there no exact match or no resource passed.
     _k8s_command_pick_resource get "$(_kubectl api-resources | _fzf_pick "${1:-}")" "${2:-}" "${@:3}" --output=yaml
     ;;
-  gy | get-yaml) # RESOURCE_TYPE [RESOURCE_NAME] Get yaml of the chosen resource. Will list resources if there no exact match or no resource passed.
+  gy | get-yaml) # RESOURCE_TYPE [RESOURCE_NAME] Get yaml output of the chosen resource. Will list resources if there no exact match or no resource passed.
     _k8s_command_pick_resource get "$1" "${2:-}" "${@:3}" --output=yaml
     ;;
   l | logs) # [POD] Watch logs for all containers in pod.
