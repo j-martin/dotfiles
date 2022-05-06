@@ -131,7 +131,7 @@ _main() {
   g | get) # ARGS kubectl get ...
     _kubectl get "$@"
     ;;
-  gr | get-resource) # [RESOURCE_TYPE]
+  gr | get-resource) # [RESOURCE_TYPE] Get all resource. Will list resource types if there no exact match or no resource passed.
     _kubectl get "$(_kubectl api-resources | _fzf_pick "${1:-}")"
     ;;
   gy | get-yaml) # RESOURCE_TYPE [RESOURCE_NAME] Get yaml of the chosen resource. Will list resources if there no exact match or no resource passed.
