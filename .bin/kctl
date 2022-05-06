@@ -140,7 +140,7 @@ _main() {
   l | logs) # [POD] Watch logs for all containers in pod.
     _k8s_logs "$@"
     ;;
-  sc | switch-cluster) # [CLUSTER] Will list clusters/context if there no exact match or no cluster is passed.
+  sc | switch-cluster) # [CLUSTER/CONTEXT] Will list clusters/contexts if there no exact match or no cluster is passed.
     _k8s_switch_cluster "$@"
     ;;
   sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
