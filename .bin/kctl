@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Installation command
+# The sudo is there in case /usr/local/bin is not user editable.
+# sudo curl https://raw.githubusercontent.com/j-martin/dotfiles/master/.bin/kctl --output /usr/local/bin/kctl && sudo chmod +x /usr/local/bin/kctl
+
 set -o errexit
 set -o pipefail
 set -u
@@ -80,6 +84,7 @@ _k8s_switch_namespace() {
   namespace="$(_k8s_pick_resource namespace "${namespace}")"
   _info "Switching namespace to: ${namespace}..."
   _kubectl config set-context --current --namespace="${namespace}"
+  _info "Now using ${namespace}..."
 }
 
 _k8s_exec() {
@@ -152,6 +157,9 @@ _main() {
       ;;
     sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
       _k8s_switch_namespace "$@"
+      ;;
+    wp)
+      watch kubectl get pod "$@"
       ;;
     --) # ARGS   Pass arguments directly to kubectl
       _kubectl "$@"
