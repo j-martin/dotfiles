@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-# Installation command
-# The sudo is there in case /usr/local/bin is not user editable.
-# sudo curl https://raw.githubusercontent.com/j-martin/dotfiles/master/.bin/kctl --output /usr/local/bin/kctl && sudo chmod +x /usr/local/bin/kctl
+# Installation command:
+# curl https://raw.githubusercontent.com/j-martin/dotfiles/master/.bin/kctl | bash -s -- install
 
 set -o errexit
 set -o pipefail
 set -u
 
 IFS=$'\n\t'
+KCTL_URL='https://raw.githubusercontent.com/j-martin/dotfiles/master/.bin/kctl'
 
 _info() {
   echo >&2 "[info] $*"
@@ -102,6 +102,12 @@ __k8s_logs() {
   _kubectl logs "$(_k8s_pick_pod "${pod}")" "${@:2}"
 }
 
+_install() {
+  local bin_path='/usr/local/bin/kctl'
+  sudo curl "${KCTL_URL}" --output "${bin_path}"
+  sudo chmod +x "${bin_path}"
+}
+
 _usage() {
   cat >&2 << EOF
 USAGE: $0 COMMANDS [OPTIONS]...
@@ -148,6 +154,9 @@ _main() {
       ;;
     gy | get-yaml) # RESOURCE_TYPE [RESOURCE_NAME] Get yaml output of the chosen resource. Will list resources if there no exact match or no resource passed.
       _k8s_command_pick_resource get "$1" "${2:-}" "${@:3}" --output=yaml
+      ;;
+    install | update) # Install or update kctl
+      _install
       ;;
     l | logs) # [POD] Watch logs for all containers in pod.
       _k8s_logs "$@"
