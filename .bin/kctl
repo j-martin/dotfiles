@@ -127,7 +127,7 @@ _main() {
   local key="${1:-}"
   shift || true
   case "${key}" in
-    -h | --help | h | help) # Show help/usage.
+    "" | -h | --help | h | help) # Show help/usage.
       _usage
       exit 0
       ;;
