@@ -104,8 +104,10 @@ __k8s_logs() {
 
 _install() {
   local bin_path='/usr/local/bin/kctl'
-  sudo curl "${KCTL_URL}" --output "${bin_path}"
+  _info "Installing or upgrading kctl from '${KCTL_URL}'..."
+  sudo curl "${KCTL_URL}" --silent --output "${bin_path}"
   sudo chmod +x "${bin_path}"
+  _info "kctl has been installed '${KCTL_URL}'!"
 }
 
 _usage() {
