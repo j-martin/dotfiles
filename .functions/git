@@ -72,9 +72,6 @@ _git_command_with_fzf() {
   fi
 }
 
-alias gd='_git_command_with_fzf diff'
-alias ga='_git_command_with_fzf add'
-
 _git_extract_commit() {
   local path="$1"
   local ref="${2:-HEAD}"
@@ -393,26 +390,12 @@ _github_subscribe_to_team_repos() {
 
 _github_pr() {
   local reviewers="${1:-$(git config --get github.reviewers)}"
-
-  local url
-  url="$(hub pull-request -F <(git log -1 --pretty=%B | _unfill) -r "${reviewers}")"
-  if [[ ! -z "$url" ]]; then
-    sleep 0.2
-    open "${url}"
-  else
-    _warn 'Failed to create PR.'
-    open "$(_github_current_branch_pr | jq -r ".[0].html_url")"
-  fi
-}
-
-_git_push_pr_if_commits() {
-  local commit_count
-  commit_count="$(git log HEAD --not origin/$(__git_get_main_branch_name) "--pretty=format:%h" | wc -w | tr -d ' ')"
-  echo "${commit_count}"
-  if [[ "${commit_count}" != '0' ]]; then
-    git push
-    bub w pr
-  fi
+  local message="$(git log --pretty=%B "origin/$(__git_get_main_branch_name)...HEAD"  )"
+  gh pr create \
+     --title "$(head -n1 <<< "${message}")" \
+     --body "$(tail -n +1 <<< "${message}" | _unfill)" \
+     --reviewer "${reviewers}" \
+     "$@"
 }
 
 _git_clone() {
