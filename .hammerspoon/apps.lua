@@ -117,6 +117,12 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
     encodedParams = fullUrl:gsub('.*?', '')
   end
 
+  if not host then
+    logger.i("No host, assuming it is a file.")
+    hs.urlevent.openURL(url:gsub('^http:[ab]/', 'file://'))
+    return
+  end
+
   if host:match('.*.zoom.us$') then
     bundleId = 'us.zoom.xos'
     -- https://xxxxxxxxxxxx.zoom.us/j/000000000000?pwd=OVVVeHlkYWoxS3FWRVRKTzZZcFVDdz09
@@ -137,7 +143,7 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
     local teamId = nil
 
     for domain, value in pairs(mod.slackTeamMapping) do
-      if fullUrl:match('^https://' .. domain '.*') then
+      if fullUrl:match('^https://' .. domain .. '.*') then
         teamId = value
       end
     end
