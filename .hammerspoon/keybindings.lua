@@ -41,7 +41,7 @@ local bindings = {
       {key = ';', name = 'Dash'},
       {key = '\\', name = '1Password 7'},
       -- key = ';' reserved for Dash
-      {key = 'a', fn = emacs.agenda, desc = 'Org Agenda'},
+      {key = 'a', name = 'Figma 2'},
       {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
       {key = 'b', fn = apps.closeNotification, shift = true, desc = 'Notification - Action'},
       {key = 'c', name = 'Google Calendar'},
@@ -88,7 +88,7 @@ local bindings = {
       {key = 'q', fn = hs.toggleConsole, shift = true, desc = 'HS - Console'},
       {key = 'r', fn = emacs.orgRifle, desc = 'Org - Capture selection to Resources'},
       {key = 'r', fn = emacs.references, shift = true, desc = 'Org - Show Resources'},
-      {key = 's', name = 'Visual Studio Code'},
+      {key = 's', name = 'Logseq'},
       {key = 't', fn = emacs.capture(), desc = 'Org - Capture'},
       {key = 't', fn = emacs.inbox, shift = true, desc = 'Org - Inbox'},
       {key = 'u', name = 'Emacs'},
