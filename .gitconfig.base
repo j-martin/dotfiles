@@ -3,6 +3,8 @@
   email = jm@jmartin.ca
 [pull]
   rebase = true
+[rebase]
+  autoSquash = true
 [push]
   default = current
 [github]

@@ -5,8 +5,5 @@
 [user]
   signingkey = <change-me>
 [github]
-  oauth-token = <change-me>
   team = <change-me>
   org = <change-me>
-[clubhouse]
-  user = <change-me>
