@@ -208,6 +208,12 @@ _track_shipment() {
     | jq .
 }
 
+_brew_link_current() {
+  for i in $(find "$(brew --prefix)/Cellar" -mindepth 2 -maxdepth 2 -type d); do
+    ln -sf "${i}" "$(dirname "${i}")/current"
+  done
+}
+
 _exif() {
   local url="$1"
   curl --silent --fail "${url}" "${@:2}" | exiftool - -fast
