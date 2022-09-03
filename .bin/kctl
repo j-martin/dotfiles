@@ -21,18 +21,58 @@ _fatal() {
   exit "${code}"
 }
 
+_background_red() {
+  # iTerm escape code to turn the terminal red.
+  printf "\033]Ph501010\033\\"
+  "$@"
+}
+
+_background_orange() {
+  printf "\033]Ph403010\033\\"
+  "$@"
+}
+
+_background_safe() {
+  printf "\033]1337;SetProfile=Default\a"
+}
+
+_show_current_context() {
+  local message_prefix="${1}"
+
+  local context
+  context="$(__k8s_current_context)"
+  case "${context}" in
+    *dev*)
+      _background_safe
+      ;;
+    *staging*)
+      _info 'Staging environment found. Switching background to orange in iTerm. Use "kctl done" to reset your terminal color when you are done.'
+      _background_orange
+      ;;
+    *)
+      _info 'Assuming this is a production cluster. Switching background to red in iTerm. Use "kctl done" to reset your terminal color when you are done.'
+      _background_red
+      ;;
+  esac
+
+  _info "${message_prefix} on ${context}"
+}
+
 __k8s_current_context() {
   kubectl config view --minify --output json \
     | jq -r '.contexts[0].context | "cluster: \(.cluster) namespace: \(.namespace)"'
 }
 
 _kubectl() {
-  _info "Running 'kubectl $(tr -d '\n' <<< "$@")' on $(__k8s_current_context)"
+  _show_current_context "Running 'kubectl $(tr -d '\n' <<< "$@")'"
   kubectl "$@"
 }
 
 _gcp_k8s_auth() {
-  local project="$1"
+  local project="${1:-}"
+  if [[ -z "${project}" ]]; then
+    _fatal 'Please specify the project.'
+  fi
   gcloud container clusters list --project "${project}" --format json \
     | jq -r '.[] | "\(.name)  --zone \(.zone)"' \
     | xargs -n3 gcloud container clusters get-credentials --project "${project}"
@@ -76,7 +116,7 @@ _k8s_switch_cluster() {
   )"
 
   kubectl config use-context "${context}"
-  _info "Now on $(__k8s_current_context)"
+  _show_current_context "Now"
 }
 
 _k8s_switch_namespace() {
@@ -135,6 +175,10 @@ _main() {
       ;;
     auth) # [PROJECT] Authenticate/add all cluster in the specified project.
       _gcp_k8s_auth "$@"
+      ;;
+    done | safe) # Resets iTerm background color. Use this if you were working on a staging or production cluster and want the default color back.
+      _info 'Reseting to default background / profile.'
+      _background_safe
       ;;
     d | describe) # RESOURCE_TYPE [RESOURCE_NAME] Describe the chosen resource. Will list resources if there no exact match or no resource passed.
       _k8s_command_pick_resource describe "$@"
