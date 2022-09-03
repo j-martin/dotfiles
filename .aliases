@@ -37,13 +37,15 @@ ea() {
 
 # ZSH Specific
 if [ -n "$ZSH_VERSION" ]; then
-  alias -g G='| grep -i'
+  alias -g G='| grep -i -E'
   alias -g F='"$(fzf)"'
   alias -g L='| less -SRi'
   alias -g LL='2>&1 | less -SRi'
   alias -g T='"${TMPDIR}temp"'
   alias -g P='pbpaste |'
-  alias -g C='| pbcopy'
+  alias -g C='| _pbcopy'
+  alias -g BR='"$(_git_current_branch)"'
+  alias -g H='"$(git rev-parse HEAD)"'
 fi
 
 # Quick edit
@@ -79,9 +81,11 @@ alias cdp='cd "$(dirname "$(pbpaste)")"'
 alias cf='cd "$(dirname "$(fzf)")"'
 alias comp='_notify "Done!"'
 alias digg='dig +noall +answer'
-alias dk='docker'
-alias dkp='docker ps'
+alias docker='podman'
+alias dk='podman'
+alias dkp='podman ps'
 dki() { docker images | awk '{print $1 ":" $2}' | sort -u; }
+alias dksync='bash -c "podman machine ssh date -s \"$(date -I seconds)\""'
 alias dc='docker-compose'
 alias dm='docker-machine'
 dbuild() {
@@ -149,6 +153,7 @@ alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules
 alias treef='tree -fa | grep -i'
 alias touch='_touch'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
+alias ur='_utc_range'
 
 alias vimrc='vi $HOME/.vimrc'
 alias zshrc='vi $HOME/.zshrc'
@@ -229,6 +234,9 @@ alias gcp='git add -p && git commit' # Commiting part of a file.
 alias gpp='git push --no-verify --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && hbp'
 alias ghpr='gpp && hpr'
+alias ghprm='gh pr merge "$(_git_current_branch)" --merge'
+alias ghpro='open "$(gh pr status --json "url" | jq -r ".currentBranch.url")"'
+ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r ;}
 alias ghw='watch -n10 github-events'
 alias gpick='git cherry-pick'
 alias gcv='git commit -v' # Commit all with a Diff view.
@@ -265,9 +273,9 @@ alias gra='git rebase --abort'
 alias grl='git reflog --date=iso'
 alias grc='git rebase --continue'
 alias greset='git fetch origin && git reset --hard origin/$(__git_get_main_branch_name)'
-alias gri='git rebase -i'
-alias gro='git rebase -i $(__git_get_main_branch_name)'
-alias grom='git rebase -i origin/$(__git_get_main_branch_name)'
+alias gri='git rebase --autosquash -i'
+alias gro='git rebase --autosquash -i $(__git_get_main_branch_name)'
+alias grom='git rebase --autosquash -i origin/$(__git_get_main_branch_name)'
 alias gs='git status'
 alias gsa='git stash apply'
 alias gsl='git stash list'
