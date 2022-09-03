@@ -1,4 +1,5 @@
 local eventtap = require 'hs.eventtap'
+local application = require 'hs.application'
 local json = require 'hs.json'
 local logger = hs.logger.new('apps', 'info')
 local mouse = require 'hs.mouse'
@@ -33,6 +34,8 @@ mod.slackTeamMapping = {
   afakecompany = "T00000000"
 }
 
+local screenRatioNotch = 1125.0
+
 local slackPrefixMapping = {
   C = 'channel',
   DA = 'user',
@@ -66,11 +69,21 @@ function mod.ripcordQuickSwitcher()
   eventtap.keyStroke({'cmd'}, 'k')
 end
 
+function mod.googleMeetToggleMute()
+  eventtap.keyStroke('cmd', 'd', 200, application.get('Google Meet'))
+end
+
 local function clickNotification(offset_x, offset_y)
   local currentScreen = mouse.getCurrentScreen()
   local currentPos = mouse.getRelativePosition()
   local targetScreen = screen.primaryScreen()
-  local targetPos = {x = targetScreen:frame().w - offset_x, y = offset_y}
+  local targetFrame = targetScreen:frame()
+
+  if targetFrame.h == screenRatioNotch then
+    offset_y = offset_y + 40
+  end
+
+  local targetPos = {x = targetFrame.w - offset_x, y = offset_y}
 
   mouse.setRelativePosition(targetPos, targetScreen)
   wait(5)
@@ -79,12 +92,12 @@ local function clickNotification(offset_x, offset_y)
 end
 
 function mod.openNotification()
-  -- Use y=40 if hiding menu bar
+  -- Use offset_y=40 if hiding menu bar
   clickNotification(120, 70)
 end
 
 function mod.closeNotification()
-  -- Use y=20 if hiding menu bar
+  -- Use offset_y=20 if hiding menu bar
   clickNotification(355, 50)
 end
 

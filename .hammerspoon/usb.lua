@@ -22,6 +22,15 @@ local mod = {}
 --   vendorID = 3034,
 --   vendorName = "Realtek"
 -- }
+-- usb: {
+--   eventType = "added",
+--   productID = 3140,
+--   productName = "ZV-1",
+--   vendorID = 1356,
+--   vendorName = "Sony"
+-- }
+
+
 
 function mod.workSetup()
   audio.workSetup()
