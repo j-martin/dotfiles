@@ -65,7 +65,6 @@ plugins=(
   # man
   # fd
   # fzf
-  fzf-tab
   # node
   osx
   ripgrep
@@ -105,29 +104,8 @@ source "$HOME/.base"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [[ -f /opt/dev/sh/chruby/chruby.sh ]] && type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; }
-
 [ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
 
-[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-# __conda_setup="$('/opt/homebrew/Caskroom/miniconda/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-# if [ $? -eq 0 ]; then
-#     eval "$__conda_setup"
-# else
-#     if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
-#         . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
-#     else
-#         export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
-#     fi
-# fi
-# unset __conda_setup
-
-if [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/mamba.sh" ]; then
-    . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/mamba.sh"
-fi
-# <<< conda initialize <<<
-
-source /Users/jm/src/github.com/Shopify/merlin-projects/cli/.autocomplete.sh
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
