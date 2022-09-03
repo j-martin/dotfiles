@@ -31,7 +31,7 @@ _main() {
 }
 
 _emacs() {
-  _exec "${BREW_PREFIX:-/opt/homebrew}/bin/emacsclient" --no-wait "$@"
+  _exec "${BREW_PREFIX:-$(brew --prefix)}/bin/emacsclient" --no-wait "$@"
 }
 
 _idea() {
