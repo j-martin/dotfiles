@@ -145,8 +145,10 @@ alias pbclean='echo | pbcopy'
 alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
-alias ssh='_production \ssh'
-alias s='iap -t'
+alias s='_production \ssh'
+_ssh_tmux() {
+  ssh "${@}" "bash -c 'tmux -CC new-session -A -s ${USER}'"
+}
 alias tmp='cd "$(mktemp -d -t "jm-$(gdate -u +"%Y-%m-%dT%H-%M-%SZ")")"'
 alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
 alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" "src"'
