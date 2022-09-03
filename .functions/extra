@@ -160,6 +160,7 @@ _rsync_watch() {
       _notify "Synced ${count} file(s)"
     done
 }
+
 _rsync() {
   local local_path="$1"
   local remote_path="$2"
@@ -225,4 +226,30 @@ _format_rtf() {
   local language="${2:-python}"
   pygmentize -f rtf -O 'style=solarized-dark,bg=light' -l "${language}" "${file_path}" \
     | pbcopy
+}
+
+# IntelliJ doesn't always copy the external tool
+_idea_link_external_tools() {
+  local external_tool_file="$HOME/Library/Preferences/IntelliJIdeaCurrent/tools/External Tools.xml"
+  local base_dir="$HOME/Library/Application Support/JetBrains"
+  find "${base_dir}" -maxdepth 1 -type d \
+    | xargs -I'{}' mkdir -p '{}/tools'
+
+  find "${base_dir}" -maxdepth 1 -type d \
+    | xargs -I'{}' ln -sf "${external_tool_file}"  '{}/tools/'
+}
+
+_date_iso_8601() {
+  _gnu date +"%Y-%m-%dT%H:%M:%S%:z" "$@"
+}
+
+_utc_range() {
+  local hours="$1"
+  for i in $(seq 0 "${hours}"); do
+    _echo_green_bold "Offset:\t-${i} hours"
+    printf "Local:\t"
+    _date_iso_8601 --date="-${i}hour"
+    printf "UTC:\t"
+    _date_iso_8601 --utc --date="-${i}hour"
+  done
 }

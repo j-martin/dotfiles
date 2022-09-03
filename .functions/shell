@@ -1,0 +1,10 @@
+FMT_END="\e[0m"
+
+FMT_GREEN="\e[32m"
+FMT_RED="\e[31m"
+
+FMT_BOLD="\e[1m"
+
+_echo_green_bold() {
+  echo -e "${FMT_GREEN}${FMT_BOLD}${@}${FMT_END}"
+}

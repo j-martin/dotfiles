@@ -393,7 +393,7 @@ _github_pr() {
   local message="$(git log --pretty=%B "origin/$(__git_get_main_branch_name)...HEAD"  )"
   gh pr create \
      --title "$(head -n1 <<< "${message}")" \
-     --body "$(tail -n +1 <<< "${message}" | _unfill)" \
+     --body "$(tail -n +2 <<< "${message}" | _unfill)" \
      --reviewer "${reviewers}" \
      "$@"
 }

@@ -29,6 +29,14 @@ _safe() {
   echo -e "\033]1337;SetProfile=Default\a"
 }
 
+_gnu() {
+  if [[ "$(uname)" == 'Darwin' ]]; then
+    "g${1}" "${@:2}"
+  else
+    "$@"
+  fi
+}
+
 _pick_first_col() {
   cut -d ' ' -f1
 }
@@ -117,7 +125,7 @@ _close_tunnel() {
 _touch() {
   local filepath="$1"
   mkdir -p "$(dirname "$filepath")"
-  \touch "$filepath"
+  \touch "$filepath" "${@:2}"
 }
 
 _pipenv_run() {
@@ -149,8 +157,6 @@ _pbcopy() {
 }
 
 _unfill() {
-  # Unfill (reflow) text to be full length.
-  sed -E 's/^ +//' \
-    | awk -vRS= -vORS= '{gsub("\n"," ")}{print $0 RT}' \
-    | sed -E 's/ +$//'
+  # Unfill/unwrap (reflow) text to be full length.
+  perl -00 -lpe 's/\n/ /g, s/ +/ /g'
 }
