@@ -7,8 +7,10 @@ local headphones_watcher = require "audio/headphones_watcher"
 
 local mod = {}
 
+dacName = 'FiiO USB DAC-E10'
+
 mod.volumes = {}
-mod.volumes['FiiO USB DAC-E10'] = 100
+mod.volumes[dacName] = 100
 
 inputDevicePriority = {
   "Samson Q2U Microphone",
@@ -17,7 +19,7 @@ inputDevicePriority = {
 
 outputDevicePriority = {
   "WH-1000XM3",
-  "FiiO USB DAC-E10"
+  dacName
 }
 
 function mod.setDefaultInputDevice()
