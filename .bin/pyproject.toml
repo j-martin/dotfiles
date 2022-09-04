@@ -1,5 +1,5 @@
 [tool.poetry]
-name = ".bin"
+name = "bin"
 version = "0.1.0"
 description = ""
 authors = ["Jean-Martin Archer <jm@jmartin.ca>"]
@@ -17,6 +17,7 @@ orgparse = "*"
 pypandoc = "*"
 python-slugify = "*"
 cron-descriptor = "==1.2.24"
+python-kasa = "^0.5.0"
 
 [tool.poetry.dev-dependencies]
 bpython = "*"

@@ -5,6 +5,7 @@ local logger = hs.logger.new('usb', 'debug')
 local audio = require "audio"
 local alert = require "hs.alert"
 local screen = require 'screen'
+local process = require "utils/process"
 
 local mod = {}
 
@@ -40,6 +41,12 @@ function mod.workSetup()
   screen.setBrightness(0.8)()
 end
 
+function mod.officeLights(command)
+  return function()
+    process.start('/usr/local/bin/poetry', {'run', './office_automation.py', command})
+  end
+end
+
 local function buildHandlers(watchedEvents)
   local function buildHandler(watchedEvent)
     return function(event)
@@ -52,7 +59,6 @@ local function buildHandlers(watchedEvents)
       if isEventType and isProductID and isVendorID then
         logger.df("event matched %s", inspect(watchedEvent))
         watchedEvent.fn()
-        hs.reload()
       end
     end
   end
@@ -69,6 +75,8 @@ end
 local watchedEvents = {
   {eventType = "removed", productName = "", productID = 7, vendorID = 1523, fn = audio.muteSpeakers},
   {eventType = "added", productName = "", productID = 7, vendorID = 1523, fn = mod.workSetup},
+  {eventType = "removed", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeLights("off")},
+  {eventType = "added", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeLights("on")},
 }
 
 function mod.init()
