@@ -1,12 +1,3 @@
-local uielement = require "hs.uielement"
-local timer = require "hs.timer"
-local pasteboard = require "hs.pasteboard"
-local http = require "hs.http"
-local task = require "hs.task"
-local eventtap = require "hs.eventtap"
-local alert = require "hs.alert"
-local window = require "hs.window"
-local osascript = require "hs.osascript"
 local logger = hs.logger.new('selection', 'debug')
 
 local mod = {}
@@ -19,8 +10,8 @@ local function selectedTextFromClipboard(currentApp)
     if retries < 0 then
       return initial
     end
-    timer.usleep(0.1 * 1000000)
-    local selection = pasteboard.readString()
+    hs.timer.usleep(0.1 * 1000000)
+    local selection = hs.pasteboard.readString()
     if selection == initial and currentApp ~= 'Google Chrome' then
       logger.d('Same result. Retrying')
       return getClipboard(initial, retries - 1)
@@ -29,17 +20,17 @@ local function selectedTextFromClipboard(currentApp)
     end
   end
 
-  local initial = pasteboard.readString()
-  eventtap.keyStroke({'cmd'}, 'c')
+  local initial = hs.pasteboard.readString()
+  hs.eventtap.keyStroke({'cmd'}, 'c')
   selection = getClipboard(initial, 3)
   logger.df('clipboard: %s', selection)
-  pasteboard:setContents(initial)
+  hs.pasteboard:setContents(initial)
   return selection
 end
 
 function mod.getSelectedText()
-  local currentApp = window.focusedWindow():application():name()
-  local element = uielement.focusedElement()
+  local currentApp = hs.window.focusedWindow():application():name()
+  local element = hs.uielement.focusedElement()
   local selection
 
   if element then
@@ -54,12 +45,12 @@ function mod.getSelectedText()
 end
 
 local function openUrl(url)
-  task.new('/usr/bin/open', nil, function()
+  hs.task.new('/usr/bin/open', nil, function()
   end, {url}):start()
 end
 
 local function query(url, text)
-  openUrl(url .. http.encodeForQuery(text))
+  openUrl(url .. hs.http.encodeForQuery(text))
 end
 
 local function google(text, engine)
@@ -81,9 +72,9 @@ function mod.actOn(engine)
 end
 
 function mod.paste()
-  local content = pasteboard.getContents()
-  alert("Pasting/Typing: '" .. content .. "'")
-  eventtap.keyStrokes(content)
+  local content = hs.pasteboard.getContents()
+  hs.alert("Pasting/Typing: '" .. content .. "'")
+  hs.eventtap.keyStrokes(content)
 end
 
 local function round(number)
@@ -91,7 +82,7 @@ local function round(number)
 end
 
 function mod.epochSinceNow(text)
-  local initial = timer.secondsSinceEpoch()
+  local initial = hs.timer.secondsSinceEpoch()
   local selection = tonumber(text or mod.getSelectedText())
 
   if selection > 1000000000000 then
@@ -99,7 +90,7 @@ function mod.epochSinceNow(text)
   end
 
   local diff = initial - selection
-  alert.show(round(diff / 60) .. ' mins / ' .. round(diff / 60 / 60) .. ' hours / ' .. round(diff / 60 / 60 / 24)
+  hs.alert.show(round(diff / 60) .. ' mins / ' .. round(diff / 60 / 60) .. ' hours / ' .. round(diff / 60 / 60 / 24)
                .. ' days / ' .. round(diff / 60 / 60 / 24 / 30) .. ' months ago')
 end
 

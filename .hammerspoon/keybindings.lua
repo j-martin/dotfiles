@@ -2,7 +2,6 @@ local apps = require 'apps'
 local audio = require 'audio'
 local keybinder = require 'keybinder'
 local emacs = require 'emacs'
-local grid = require 'hs.grid'
 local mode = require 'mode'
 local mounts = require 'mounts'
 local screen = require 'screen'
@@ -102,14 +101,14 @@ local bindings = {
       {key = 'y', name = apps.getEmailClient()},
       {key = 'z', name = 'Google Meet'},
       {key = 'z', fn = apps.googleMeetToggleMute, shift = true, desc = 'Google Meet - Toggle Mute'},
-      {key = '-', fn = grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter'},
-      {key = '=', fn = grid.resizeWindowTaller, shift = true, desc = 'Windows - Taller'},
-      {key = '-', fn = grid.resizeWindowThinner, desc = 'Windows - Thinner'},
-      {key = '=', fn = grid.resizeWindowWider, desc = 'Windows - Wider'},
-      {key = 'up', fn = grid.pushWindowUp, shift = true, desc = 'Windows - Up'},
-      {key = 'down', fn = grid.pushWindowDown, shift = true, desc = 'Windows - Down'},
-      {key = 'left', fn = grid.pushWindowLeft, shift = true, desc = 'Windows - Left'},
-      {key = 'right', fn = grid.pushWindowRight, shift = true, desc = 'Windows - Right'},
+      {key = '-', fn = hs.grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter'},
+      {key = '=', fn = hs.grid.resizeWindowTaller, shift = true, desc = 'Windows - Taller'},
+      {key = '-', fn = hs.grid.resizeWindowThinner, desc = 'Windows - Thinner'},
+      {key = '=', fn = hs.grid.resizeWindowWider, desc = 'Windows - Wider'},
+      {key = 'up', fn = hs.grid.pushWindowUp, shift = true, desc = 'Windows - Up'},
+      {key = 'down', fn = hs.grid.pushWindowDown, shift = true, desc = 'Windows - Down'},
+      {key = 'left', fn = hs.grid.pushWindowLeft, shift = true, desc = 'Windows - Left'},
+      {key = 'right', fn = hs.grid.pushWindowRight, shift = true, desc = 'Windows - Right'},
     },
   },
   {

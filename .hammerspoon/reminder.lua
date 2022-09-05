@@ -1,16 +1,10 @@
-local timer = require "hs.timer"
-local alert = require "hs.alert"
-local fnutils = require "hs.fnutils"
-local watcher = require "hs.caffeinate.watcher"
-local sound = require "hs.sound"
-
 local mod = {}
 
 local isAwake = {
-  watcher.screensaverDidStop,
-  watcher.sessionDidBecomeActive,
-  watcher.systemDidWake,
-  watcher.screensDidUnlock,
+  hs.caffeinate.watcher.screensaverDidStop,
+  hs.caffeinate.watcher.sessionDidBecomeActive,
+  hs.caffeinate.watcher.systemDidWake,
+  hs.caffeinate.watcher.screensDidUnlock,
 }
 
 -- System Sounds
@@ -33,9 +27,9 @@ local function notice(message, duration)
       textSize = 100,
     }
 
-    alert('\n' .. padding .. message .. padding .. '\n', duration or 10, style)
-    sound.getByName("Hero"):play()
-    sound.getByName("Purr"):play()
+    hs.alert('\n' .. padding .. message .. padding .. '\n', duration or 10, style)
+    hs.sound.getByName("Hero"):play()
+    hs.sound.getByName("Purr"):play()
   end
 end
 
@@ -50,19 +44,19 @@ local function noticeActions(action)
 
     local function setupTimer(item)
       local interval = item.interval or defaultInterval
-      timer.doAfter(counter, notice(item.name .. ' ▶', interval - 1))
+      hs.timer.doAfter(counter, notice(item.name .. ' ▶', interval - 1))
       increment(interval)
-      timer.doAfter(counter, notice('◀ ' .. item.name, interval - 1))
+      hs.timer.doAfter(counter, notice('◀ ' .. item.name, interval - 1))
       increment(interval)
     end
 
-    fnutils.each(action, setupTimer)
+    hs.fnutils.each(action, setupTimer)
   end
 end
 
 local function setReminder(item)
   if not item.timer then
-    item.timer = timer.doEvery(item.freq, item.fn or notice(item.name))
+    item.timer = hs.timer.doEvery(item.freq, item.fn or notice(item.name))
   end
   item.timer:stop():start()
 end
@@ -72,7 +66,7 @@ local function stopReminder(item)
 end
 
 local function setReminders(reminders)
-  fnutils.each(reminders, setReminder)
+  hs.fnutils.each(reminders, setReminder)
 end
 
 local stretchesList = {{name = ''}}
@@ -80,7 +74,7 @@ local stretchesList = {{name = ''}}
 local reminders = {{name = 'Break', freq = 1200, fn = noticeActions(stretchesList)}}
 
 local function parseEvent(event)
-  if fnutils.contains(isAwake, event) then
+  if hs.fnutils.contains(isAwake, event) then
     setReminders(reminders)
   end
 end
@@ -89,18 +83,18 @@ mod.stretches = noticeActions(stretchesList)
 
 function mod.reset()
   setReminders(reminders)
-  alert('Reminders have been reset.')
+  hs.alert('Reminders have been reset.')
 end
 
 function mod.stop()
-  fnutils.each(reminders, stopReminder)
-  alert('Reminders have been stopped.')
+  hs.fnutils.each(reminders, stopReminder)
+  hs.alert('Reminders have been stopped.')
 end
 
 function mod.init()
   setReminders(reminders)
   -- disabling reset for now
-  -- watcher.new(parseEvent):start()
+  -- hs.caffeinate.watcher.new(parseEvent):start()
 end
 
 return mod

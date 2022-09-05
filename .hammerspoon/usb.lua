@@ -1,9 +1,5 @@
-local watcher = require "hs.usb.watcher"
-local inspect = require "hs.inspect"
-local fnutils = require "hs.fnutils"
 local logger = hs.logger.new('usb', 'debug')
 local audio = require "audio"
-local alert = require "hs.alert"
 local screen = require 'screen'
 local process = require "utils/process"
 
@@ -37,7 +33,7 @@ function mod.workSetup()
   audio.workSetup()
 
   -- Keep at the bottom, because it's slow.
-  alert.show('Resetting brightness and volume for the office.')
+  hs.alert.show('Resetting brightness and volume for the office.')
   screen.setBrightness(0.8)()
 end
 
@@ -50,23 +46,23 @@ end
 local function buildHandlers(watchedEvents)
   local function buildHandler(watchedEvent)
     return function(event)
-      logger.d(inspect(event))
+      logger.d(hs.inspect(event))
 
       local isEventType = event.eventType == watchedEvent.eventType
       local isProductID = event.productID == watchedEvent.productID
       local isVendorID = event.vendorID == watchedEvent.vendorID
 
       if isEventType and isProductID and isVendorID then
-        logger.df("event matched %s", inspect(watchedEvent))
+        logger.df("event matched %s", hs.inspect(watchedEvent))
         watchedEvent.fn()
       end
     end
   end
 
-  local handlers = fnutils.map(watchedEvents, buildHandler)
+  local handlers = hs.fnutils.map(watchedEvents, buildHandler)
 
   return function(event)
-    fnutils.each(handlers, function(handler)
+    hs.fnutils.each(handlers, function(handler)
       handler(event)
     end)
   end
@@ -81,7 +77,7 @@ local watchedEvents = {
 
 function mod.init()
   local handlers = buildHandlers(watchedEvents)
-  watcher.new(handlers):start()
+  hs.usb.watcher.new(handlers):start()
 end
 
 return mod

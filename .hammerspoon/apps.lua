@@ -1,12 +1,4 @@
-local eventtap = require 'hs.eventtap'
-local application = require 'hs.application'
-local json = require 'hs.json'
 local logger = hs.logger.new('apps', 'info')
-local mouse = require 'hs.mouse'
-local screen = require 'hs.screen'
-local timer = require 'hs.timer'
-local urlevent = require 'hs.urlevent'
-local window = require 'hs.window'
 local windows = require 'windows'
 
 local mod = {}
@@ -46,7 +38,7 @@ local states = {noisyTyperEnabled = false}
 local function wait(n)
   local n = n or 1
   -- 0.01s
-  timer.usleep(10000 * n)
+  hs.timer.usleep(10000 * n)
 end
 
 function mod.getEmailClient()
@@ -60,7 +52,7 @@ end
 function mod.switchToAndType(application, modifiers, keyStroke, delay)
   windows.launchOrCycleFocus(application)()
   wait(delay)
-  eventtap.keyStroke(modifiers, keyStroke)
+  hs.eventtap.keyStroke(modifiers, keyStroke)
 end
 
 function mod.ideaOmni()
@@ -74,17 +66,17 @@ end
 function mod.ripcordQuickSwitcher()
   windows.launchOrCycleFocus(mod.name.ripcord)()
   wait(2)
-  eventtap.keyStroke({'cmd'}, 'k')
+  hs.eventtap.keyStroke({'cmd'}, 'k')
 end
 
 function mod.googleMeetToggleMute()
-  eventtap.keyStroke('cmd', 'd', 200, application.get('Google Meet'))
+  hs.eventtap.keyStroke('cmd', 'd', 200, hs.application.get('Google Meet'))
 end
 
 local function clickNotification(offset_x, offset_y)
-  local currentScreen = mouse.getCurrentScreen()
-  local currentPos = mouse.getRelativePosition()
-  local targetScreen = screen.primaryScreen()
+  local currentScreen = hs.mouse.getCurrentScreen()
+  local currentPos = hs.mouse.getRelativePosition()
+  local targetScreen = hs.screen.primaryScreen()
   local targetFrame = targetScreen:frame()
 
   if targetFrame.h == screenRatioNotch then
@@ -93,10 +85,10 @@ local function clickNotification(offset_x, offset_y)
 
   local targetPos = {x = targetFrame.w - offset_x, y = offset_y}
 
-  mouse.setRelativePosition(targetPos, targetScreen)
+  hs.mouse.setRelativePosition(targetPos, targetScreen)
   wait(5)
-  eventtap.leftClick(targetPos)
-  mouse.setRelativePosition(currentPos, currentScreen)
+  hs.eventtap.leftClick(targetPos)
+  hs.mouse.setRelativePosition(currentPos, currentScreen)
 end
 
 function mod.openNotification()
@@ -116,7 +108,7 @@ function mod.activityMonitor()
 
   win:moveToScreen(laptopScreen)
   win:moveToUnit({0.85, 0.9, 0.1, 0.1}, 0)
-  eventtap.keyStroke({'cmd'}, '1')
+  hs.eventtap.keyStroke({'cmd'}, '1')
 end
 
 function match(haystack, patternPrefix, pattern)
@@ -207,7 +199,7 @@ function mod.init()
   if privateConfigFile then
     logger.f("Loading private config from '%s'...", privateConfigPath)
     privateConfigFile:close()
-    mod.slackTeamMapping = json.read(privateConfigPath).slackTeamMapping
+    mod.slackTeamMapping = hs.json.read(privateConfigPath).slackTeamMapping
   end
   hs.urlevent.httpCallback = mod.httpCallback
   hs.urlevent.slackCallback = logger.i

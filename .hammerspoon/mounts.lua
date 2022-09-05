@@ -1,19 +1,16 @@
-local alert = require "hs.alert"
-local volume = require "hs.fs.volume"
-
 local mod = {}
 
 function mod.unmountAll()
-  for volume_path, attributes in pairs(volume.allVolumes()) do
+  for volume_path, attributes in pairs(hs.volume.allVolumes()) do
     if not attributes.NSURLVolumeIsInternalKey and attributes.NSURLVolumeIsLocalKey
       and not attributes.NSURLVolumeLocalizedFormatDescriptionKey:lower():match('fuse') then
-      alert.show('Umounting: ' .. volume_path)
-      if not volume.eject(volume_path) then
-        alert.show('Failed to umount' .. volume_path)
+      hs.alert.show('Umounting: ' .. volume_path)
+      if not hs.volume.eject(volume_path) then
+        hs.alert.show('Failed to umount' .. volume_path)
       end
     end
   end
-  alert.show('Unmounting done.')
+  hs.alert.show('Unmounting done.')
 end
 
 return mod

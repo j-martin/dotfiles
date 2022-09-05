@@ -1,5 +1,3 @@
-local osascript = require "hs.osascript"
-
 local mod = {}
 
 function mod.setBrightness(value)
@@ -25,7 +23,7 @@ function mod.setBrightness(value)
       end tell
       ]]
   return function()
-    osascript.applescript(script)
+    hs.osascript.applescript(script)
   end
 end
 

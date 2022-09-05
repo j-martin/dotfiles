@@ -1,7 +1,4 @@
-local eventtap = require 'hs.eventtap'
-local timer = require 'hs.timer'
 local apps = require 'apps'
-local window = require 'hs.window'
 local logger = hs.logger.new('chrome', 'debug')
 
 local mod = {}
@@ -12,7 +9,7 @@ mod.tab = {slack = ' Alloy Slack', mail = {work = 'Alloy, Inc. Mail', personal =
 
 local function wait(n)
   local n = n or 1
-  timer.usleep(10000 * n)
+  hs.timer.usleep(10000 * n)
 end
 
 function openSlack()
@@ -22,23 +19,23 @@ end
 function mod.slackQuickSwitcher()
   openSlack()
   wait(2)
-  eventtap.keyStroke({'cmd'}, 'k')
+  hs.eventtap.keyStroke({'cmd'}, 'k')
 end
 
 function mod.slackReactionEmoji(chars)
   return function()
-    eventtap.keyStroke({'cmd', 'shift'}, '\\')
+    hs.eventtap.keyStroke({'cmd', 'shift'}, '\\')
     wait()
-    eventtap.keyStrokes(chars)
+    hs.eventtap.keyStrokes(chars)
     wait(20)
-    eventtap.keyStroke({}, 'return')
+    hs.eventtap.keyStroke({}, 'return')
   end
 end
 
 function mod.slackUnread()
   openSlack()
   wait()
-  eventtap.keyStroke({'cmd', 'shift'}, 'a')
+  hs.eventtap.keyStroke({'cmd', 'shift'}, 'a')
 end
 
 function mod.openOmni()
@@ -69,7 +66,7 @@ function mod.activateTab(name)
         }
         main();
         ]])
-    window.find(name):focus()
+    hs.window.find(name):focus()
   end
 end
 

@@ -1,8 +1,3 @@
-local window = require "hs.window"
-local grid = require "hs.grid"
-local layout = require "hs.layout"
-local screen = require "hs.screen"
-local fnutils = require "hs.fnutils"
 local ext = require "windows/extensions"
 local logger = hs.logger.new('windows', 'debug')
 
@@ -11,13 +6,13 @@ local mod = {}
 mod.launchOrCycleFocus = ext.launchOrCycleFocus
 
 -- grid/window settings
-grid.ui.textSize = 15
-grid.GRIDWIDTH = 10
-grid.GRIDHEIGHT = 4
-grid.MARGINX = 0
-grid.MARGINY = 0
-window.animationDuration = 0
-window.timeout(1)
+hs.grid.ui.textSize = 15
+hs.grid.GRIDWIDTH = 10
+hs.grid.GRIDHEIGHT = 4
+hs.grid.MARGINX = 0
+hs.grid.MARGINY = 0
+hs.window.animationDuration = 0
+hs.window.timeout(1)
 
 function mod.applyLayout(commonLayout, selectedLayout)
   local function expandLayout(entry)
@@ -25,14 +20,14 @@ function mod.applyLayout(commonLayout, selectedLayout)
     if entry.screenFn then
       scr = entry.screenFn()
     else
-      scr = screen.primaryScreen():name()
+      scr = hs.screen.primaryScreen():name()
     end
     return {entry.name, nil, scr, entry.pos, nil, nil}
   end
 
   return function()
-    local completeLayout = fnutils.map(fnutils.concat(selectedLayout, commonLayout), expandLayout)
-    layout.apply(completeLayout)
+    local completeLayout = hs.fnutils.map(hs.fnutils.concat(selectedLayout, commonLayout), expandLayout)
+    hs.layout.apply(completeLayout)
   end
 end
 
@@ -41,7 +36,7 @@ local function toUnitRect(win)
     return math.ceil(value * 10) / 10
   end
 
-  local unitRect = fnutils.map(win:screen():toUnitRect(win:frame()), round)
+  local unitRect = hs.fnutils.map(win:screen():toUnitRect(win:frame()), round)
   return {unitRect._x, unitRect._y, unitRect._w, unitRect._h}
 end
 
@@ -61,7 +56,7 @@ end
 
 local function resolveTargetScreen(targetScreen)
   if targetScreen == 'primary' then
-    return screen.primaryScreen()
+    return hs.screen.primaryScreen()
   end
   return nil
 end
@@ -74,7 +69,7 @@ function mod.moveWindowTo(pos, targetScreen)
   end
 
   return function()
-    local win = window:frontmostWindow()
+    local win = hs.window:frontmostWindow()
     local winKey = buildKey(win)
     local winPos = toUnitRect(win)
     local previousState = previousStates[winKey]
@@ -93,7 +88,7 @@ function mod.moveWindowTo(pos, targetScreen)
 end
 
 function mod.maximize()
-  window.focusedWindow():maximize()
+  hs.window.focusedWindow():maximize()
 end
 
 local function isTableOfTables(t)
@@ -125,17 +120,17 @@ function mod.setPosition(positions, targetScreen, reversable)
 
   local nextPosFn
 
-  if reversable and screen.primaryScreen():name() == 'Color LCD' then
+  if reversable and hs.screen.primaryScreen():name() == 'Color LCD' then
     reverse(positions)
   end
 
   return function()
-    local win = window.frontmostWindow():focus()
+    local win = hs.window.frontmostWindow():focus()
     local currentPos = toUnitRect(win)
     local id = win:id()
 
     if cycleStates[id] ~= positions or not inPostions(currentPos, positions) then
-      nextPosFn = fnutils.cycle(positions)
+      nextPosFn = hs.fnutils.cycle(positions)
     end
 
     local nextPos = nextPosFn()
@@ -153,28 +148,28 @@ function mod.setPosition(positions, targetScreen, reversable)
 end
 
 function mod.snapAll()
-  fnutils.each(window.visibleWindows(), grid.snap)
+  hs.fnutils.each(hs.window.visibleWindows(), hs.grid.snap)
 end
 
 function mod.moveTo(pos)
   return function()
-    window.focusedWindow():move(pos)
+    hs.window.focusedWindow():move(pos)
     ext.centerOnTitle(pos)
   end
 end
 
 function mod.previousScreen()
-  local win = window.focusedWindow()
+  local win = hs.window.focusedWindow()
   win:moveToScreen(win:screen():previous())
 end
 
 function mod.nextScreen()
-  local win = window.focusedWindow()
+  local win = hs.window.focusedWindow()
   win:moveToScreen(win:screen():next())
 end
 
 local function maximizeOrCycleScreen()
-  local win = window.focusedWindow()
+  local win = hs.window.focusedWindow()
   if win:frame().w + 10 <= win:screen():frame().w then
     win:maximize()
     return win, nil
@@ -202,7 +197,7 @@ end
 function mod.alternateScreen()
   local laptopScreen = 'Color LCD'
   local extraScreen = 'SMS24A850'
-  if screen.find(extraScreen) then
+  if hs.screen.find(extraScreen) then
     return extraScreen
   else
     return laptopScreen

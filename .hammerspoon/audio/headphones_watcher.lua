@@ -1,9 +1,5 @@
 local mod = {}
 
-local audiodevice = require "hs.audiodevice"
-local watcher = require "hs.audiodevice.watcher"
-local alert = require "hs.alert"
-local spotify = require "hs.spotify"
 local logger = hs.logger.new('headphones', 'debug')
 
 local watchedDevices = {}
@@ -16,7 +12,7 @@ local previousTime = 0
 local function debounce(message, fn)
   logger.d(message)
   if os.time() - 1 > previousTime then
-    alert(message)
+    hs.alert(message)
     previousTime = os.time()
   end
   if fn then
@@ -29,7 +25,7 @@ local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   if dev_uid == 'dev#' then
     return
   end
-  local device = audiodevice.findDeviceByUID(dev_uid)
+  local device = hs.audiodevice.findDeviceByUID(dev_uid)
   if device and device:jackConnected() then
     debounce("Headphones plugged", mod.pluggedFn)
   else
@@ -40,8 +36,8 @@ end
 function mod.init(pluggedFn, unpluggedFn)
   mod.pluggedFn = pluggedFn
   mod.unpluggedFn = unpluggedFn
-  watcher.setCallback(audioDeviceWatch)
-  watcher.start()
+  hs.audiodevice.watcher.setCallback(audioDeviceWatch)
+  hs.audiodevice.watcher.start()
 end
 
 return mod

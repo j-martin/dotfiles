@@ -1,8 +1,3 @@
-local application = require 'hs.application'
-local window = require 'hs.window'
-local fnutils = require 'hs.fnutils'
-local hotkey = require 'hs.hotkey'
-local inspect = require "hs.inspect"
 local logger = hs.logger.new('keybinder', 'info')
 local windows = require 'windows'
 local chrome = require 'chrome'
@@ -11,7 +6,7 @@ local hyper = {'cmd', 'alt', 'ctrl'}
 local hyperShift = {'cmd', 'alt', 'ctrl', 'shift'}
 local globalBindings = '*'
 
-hotkey.alertDuration = 2.5
+hs.hotkey.alertDuration = 2.5
 
 local mod = {cmd = {'cmd'}, hyper = hyper, globalBindings = globalBindings}
 
@@ -51,20 +46,20 @@ local function bind(binding)
   end
   local fn = buildBindFunction(binding)
   if fn == nil then
-    logger.ef('Missing binding function for: %s', inspect(binding))
+    logger.ef('Missing binding function for: %s', hs.inspect(binding))
   end
-  binding.hotkey = hotkey.new(modifiers, binding.key, fn, message)
+  binding.hotkey = hs.hotkey.new(modifiers, binding.key, fn, message)
   return binding
 end
 
 function initWatcher(appBindingMap)
   local activated = {}
-  activated[application.watcher.activated] = true
-  activated[application.watcher.launched] = true
-  activated[application.watcher.launching] = true
-  activated[application.watcher.unhidden] = true
+  activated[hs.application.watcher.activated] = true
+  activated[hs.application.watcher.launched] = true
+  activated[hs.application.watcher.launching] = true
+  activated[hs.application.watcher.unhidden] = true
 
-  return application.watcher.new(function(appName, event, appObj)
+  return hs.application.watcher.new(function(appName, event, appObj)
     local bindings = appBindingMap[appName]
     if bindings == nil then
       return
@@ -72,7 +67,7 @@ function initWatcher(appBindingMap)
 
     if activated[event] ~= nil then
       logger.df('Enabling for %s', appName)
-      enableBindings(bindings, window.focusedWindow())
+      enableBindings(bindings, hs.window.focusedWindow())
       return
     end
 
@@ -84,7 +79,7 @@ end
 function mod.init(appBindingList)
   local appBindingMap = {}
   for _, app in ipairs(appBindingList) do
-    appBindingMap[app.name] = fnutils.imap(app.bindings, bind)
+    appBindingMap[app.name] = hs.fnutils.imap(app.bindings, bind)
   end
   enableBindings(appBindingMap[globalBindings])
   initWatcher(appBindingMap):start()
