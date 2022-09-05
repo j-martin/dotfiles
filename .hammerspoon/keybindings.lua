@@ -99,7 +99,7 @@ local bindings = {
       {key = 'v', fn = selection.paste, shift = true, desc = 'Paste - Type'},
       {key = 'w', fn = emacs.capture('w'), desc = 'Org - Capture selection to Work'},
       {key = 'w', fn = emacs.workInbox, shift = true, desc = 'Org - Show work'},
-      {key = 'y', name = 'Gmail'},
+      {key = 'y', name = apps.getEmailClient()},
       {key = 'z', name = 'Google Meet'},
       {key = 'z', fn = apps.googleMeetToggleMute, shift = true, desc = 'Google Meet - Toggle Mute'},
       {key = '-', fn = grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter'},

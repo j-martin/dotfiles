@@ -49,6 +49,14 @@ local function wait(n)
   timer.usleep(10000 * n)
 end
 
+function mod.getEmailClient()
+  if hs.host.localizedName == 'smbp1421' then
+    return 'Gmail'
+  end
+  return 'Mimestream'
+
+end
+
 function mod.switchToAndType(application, modifiers, keyStroke, delay)
   windows.launchOrCycleFocus(application)()
   wait(delay)
