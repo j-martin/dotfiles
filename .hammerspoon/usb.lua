@@ -1,7 +1,8 @@
 local logger = hs.logger.new('usb', 'debug')
+
 local audio = require "audio"
-local screen = require 'screen'
 local process = require "utils/process"
+local screen = require 'screen'
 
 local mod = {}
 

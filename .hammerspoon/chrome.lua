@@ -51,21 +51,22 @@ function mod.activateTab(name)
 
       // loop tabs to find a web page with a title of <name>
       function main() {
-      for (var i = 0; i < wins.length; i++) {
-      var win = wins.at(i);
-      var tabs = win.tabs;
-      for (var j = 0; j < tabs.length; j++) {
-      var tab = tabs.at(j);
-      tab.title(); j;
-      if (tab.title().indexOf(']] .. name .. [[') > -1) {
-        win.activeTabIndex = j + 1;
-        return;
+        for (var i = 0; i < wins.length; i++) {
+          var win = wins.at(i);
+          var tabs = win.tabs;
+          for (var j = 0; j < tabs.length; j++) {
+            var tab = tabs.at(j);
+            tab.title(); j;
+            if (tab.title().indexOf(']] .. name .. [[') > -1) {
+              win.activeTabIndex = j + 1;
+              return;
+            }
+          }
         }
-        }
-        }
-        }
-        main();
-        ]])
+      }
+
+      main();
+    ]])
     hs.window.find(name):focus()
   end
 end
