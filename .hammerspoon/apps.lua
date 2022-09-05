@@ -7,7 +7,6 @@ mod.name = {
   activityMonitor = 'Activity Monitor',
   iTerm = 'iTerm2',
   idea = 'IntelliJ IDEA',
-  noisyTyper = 'NoisyTyper',
   ripcord = 'Ripcord',
 }
 
@@ -32,8 +31,6 @@ local slackPrefixMapping = {
   C = 'channel',
   DA = 'user',
 }
-
-local states = {noisyTyperEnabled = false}
 
 local function wait(n)
   local n = n or 1
