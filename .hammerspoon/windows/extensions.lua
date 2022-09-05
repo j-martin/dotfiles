@@ -1,20 +1,10 @@
 -- initially from https://raw.githubusercontent.com/oskarols/dotfiles/0bd44443d00108e3c1a8d01520489e2d165f70ff/hammerspoon/extensions.lua
-local fnutils = require "hs.fnutils"
-local indexOf = fnutils.indexOf
-local filter = fnutils.filter
-local geometry = require "hs.geometry"
-local window = require "hs.window"
-local drawing = require "hs.drawing"
-local timer = require "hs.timer"
-local mouse = require "hs.mouse"
-local fs = require "hs.fs"
-local application = require "hs.application"
-local screen = require "hs.screen"
+
 local logger = hs.logger.new('windows.ext', 'debug')
 
 local mod = {}
 
-application.enableSpotlightForNameSearches(true)
+hs.application.enableSpotlightForNameSearches(true)
 ---------------------------------------------------------
 -- functools
 ---------------------------------------------------------
@@ -72,26 +62,26 @@ function mod.mouseHighlight()
   result(mouseCircleTimer, "stop")
 
   -- Get the current co-ordinates of the mouse pointer
-  local mousepoint = mouse.getAbsolutePosition()
+  local mousepoint = hs.mouse.getAbsolutePosition()
 
-  local circle = geometry.rect(mousepoint.x - 20, mousepoint.y - 20, 40, 40)
+  local circle = hs.geometry.rect(mousepoint.x - 20, mousepoint.y - 20, 40, 40)
 
   local fillColor = {red = 0.5, blue = 0.5, green = 0.5, alpha = 0.5}
 
-  mouseCircle = drawing.circle(circle)
+  mouseCircle = hs.drawing.circle(circle)
   mouseCircle:setFillColor(fillColor)
   mouseCircle:setStrokeWidth(0)
   mouseCircle:show()
 
-  -- Set a timer to delete the circle after 3 seconds
-  mouseCircleTimer = timer.doAfter(0.2, function()
+  -- Set a hs.timer to delete the circle after 3 seconds
+  mouseCircleTimer = hs.timer.doAfter(0.2, function()
     mouseCircle:delete()
   end)
 end
 
 function mod.centerOnTitle(rect)
-  local point = geometry.point(rect.x + 5, rect.y + 20)
-  mouse.absolutePosition(point)
+  local point = hs.geometry.point(rect.x + 5, rect.y + 20)
+  hs.mouse.absolutePosition(point)
 end
 
 ---------------------------------------------------------
@@ -111,8 +101,8 @@ local function getNextWindow(currentWindow)
     return win:isStandard()
   end
 
-  windows = filter(windows, filterStd)
-  -- windows = filter(windows, window.isVisible)
+  windows = hs.fnutils.filter(windows, filterStd)
+  -- windows = hs.fnutils.filter(windows, hs.window.isVisible)
 
   -- need to sort by ID, since the default order of the window
   -- isn't usable when we change the mainWindow
@@ -122,7 +112,7 @@ local function getNextWindow(currentWindow)
     return w1:id() > w2:id()
   end)
 
-  local lastIndex = indexOf(windows, currentWindow)
+  local lastIndex = hs.fnutils.indexOf(windows, currentWindow)
   return windows[getNextIndex(windows, lastIndex)]
 end
 
@@ -137,9 +127,9 @@ function mod.launchOrCycleFocus(applicationName)
   return function()
     local nextWindow = nil
     local targetWindow
-    local focusedWindow = window.frontmostWindow()
+    local focusedWindow = hs.window.frontmostWindow()
     if not focusedWindow then
-      application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
+      hs.application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
       return
     end
     local app = focusedWindow:application()
@@ -147,13 +137,13 @@ function mod.launchOrCycleFocus(applicationName)
     focusedWindow:focus()
     local currentAppName
     if app:path() then
-      currentAppName = cleanupName(focusedWindow and fs.displayName(app:path()))
+      currentAppName = cleanupName(focusedWindow and hs.fs.displayName(app:path()))
     end
     lastToggledAppName = currentAppName
 
     if applicationName == 'iTerm2' then
       -- moving the cursor out the window, to preserve iTerm currently focused split
-      mouse.absolutePosition(geometry.point(screen.mainScreen():fullFrame().w / 2, 5))
+      hs.mouse.absolutePosition(hs.geometry.point(hs.screen.mainScreen():fullFrame().w / 2, 5))
     end
 
     local appName = cleanupName(applicationName)
@@ -163,16 +153,16 @@ function mod.launchOrCycleFocus(applicationName)
       nextWindow:becomeMain()
     else
       logger.df('launch or focus %s', app)
-      if not application.launchOrFocus(applicationName) then
+      if not hs.application.launchOrFocus(applicationName) then
         local sanitizedName = applicationName:gsub('[0-9]+', '')
-        application.launchOrFocus(sanitizedName)
+        hs.application.launchOrFocus(sanitizedName)
       end
     end
 
     if nextWindow then
       targetWindow = nextWindow
     else
-      targetWindow = window.focusedWindow()
+      targetWindow = hs.window.focusedWindow()
     end
 
     if not targetWindow then
