@@ -194,14 +194,4 @@ function mod.cycleScreenBack()
   ext.centerOnTitle(win:frame())
 end
 
-function mod.alternateScreen()
-  local laptopScreen = 'Color LCD'
-  local extraScreen = 'SMS24A850'
-  if hs.screen.find(extraScreen) then
-    return extraScreen
-  else
-    return laptopScreen
-  end
-end
-
 return mod
