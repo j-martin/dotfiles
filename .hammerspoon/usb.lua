@@ -44,6 +44,22 @@ function mod.officeLights(command)
   end
 end
 
+function mod.officeLightsToggler()
+  local is_on = false
+  local command = 'off'
+  return function()
+    if is_on then
+      command = 'off'
+      is_on = false
+    else
+      command = 'on'
+      is_on = true
+    end
+    mod.officeLights(command)()
+  end
+
+end
+
 local function buildHandlers(watchedEvents)
   local function buildHandler(watchedEvent)
     return function(event)

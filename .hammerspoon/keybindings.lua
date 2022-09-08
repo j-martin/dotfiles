@@ -82,7 +82,7 @@ local bindings = {
       {key = 'm', fn = windows.previousScreen, shift = true, desc = 'Move window the next screen'},
       {key = 'o', name = apps.name.idea},
       {key = 'o', fn = apps.ideaOmni, shift = true},
-      {key = 'e', fn = usb.officeLights('on')},
+      {key = 'e', fn = usb.officeLightsToggler()},
       {key = 'p', name = 'Sublime Text'},
       {key = 'p', name = 'Preview', shift = true},
       {key = 'q', name = 'Tuple'},
