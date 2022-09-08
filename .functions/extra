@@ -208,7 +208,18 @@ _track_shipment() {
     | jq .
 }
 
+__maybe_link() {
+  local refered_path="$1"
+  local symlink_path="$2"
+  if [[ -e "${refered_path}" ]]; then
+    sudo ln -s "${refered_path}" "${symlink_path}"
+  fi
+
+}
+
 _brew_link_current() {
+  __maybe_link /opt/homebrew/bin/poetry /usr/local/bin/poetry
+
   for i in $(find "$(brew --prefix)/Cellar" -mindepth 2 -maxdepth 2 -type d); do
     ln -sf "${i}" "$(dirname "${i}")/current"
   done
