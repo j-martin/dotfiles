@@ -47,7 +47,7 @@ function mod.workSetup()
   local dac = hs.audiodevice.findOutputByName(dacName)
   dac:setDefaultOutputDevice()
   dac:setMuted(false)
-  dac:setVolume(dacVolume)
+  dac:setVolume(mod.volumes[dacName])
   mod.muteSpeakers()
 end
 
