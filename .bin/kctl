@@ -46,11 +46,11 @@ _show_current_context() {
       _background_safe
       ;;
     *staging*)
-      _info 'Staging environment found. Switching background to orange in iTerm. Use "kctl done" to reset your terminal color when you are done.'
+      _info 'Staging environment found. Switching background to orange in iTerm. Use "kctl safe" to reset your terminal color when you are done.'
       _background_orange
       ;;
     *)
-      _info 'Assuming this is a production cluster. Switching background to red in iTerm. Use "kctl done" to reset your terminal color when you are done.'
+      _info 'Assuming this is a production cluster. Switching background to red in iTerm. Use "kctl safe" to reset your terminal color when you are done.'
       _background_red
       ;;
   esac
@@ -176,12 +176,15 @@ _main() {
     auth) # [PROJECT] Authenticate/add all cluster in the specified project.
       _gcp_k8s_auth "$@"
       ;;
-    done | safe) # Resets iTerm background color. Use this if you were working on a staging or production cluster and want the default color back.
+    s | safe) # Resets iTerm background color. Use this if you were working on a staging or production cluster and want the default color back.
       _info 'Reseting to default background / profile.'
       _background_safe
       ;;
     d | describe) # RESOURCE_TYPE [RESOURCE_NAME] Describe the chosen resource. Will list resources if there no exact match or no resource passed.
       _k8s_command_pick_resource describe "$@"
+      ;;
+    dp | describe-pod) # [POD_NAME] Describe the chosen pod. Will list pods if there no exact match or no pods passed.
+      _k8s_command_pick_resource describe pods "$@"
       ;;
     ed | edit) # RESOURCE_TYPE [RESOURCE_NAME] Edit the chosen resource. Will list resources if there no exact match or no resource passed.
       _k8s_command_pick_resource edit "$@"
@@ -214,6 +217,7 @@ _main() {
       _k8s_switch_namespace "$@"
       ;;
     wp)
+      _show_current_context 'Watching pods'
       watch kubectl get pod "$@"
       ;;
     --) # ARGS   Pass arguments directly to kubectl
