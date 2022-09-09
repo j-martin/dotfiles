@@ -216,6 +216,10 @@ _main() {
     sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
       _k8s_switch_namespace "$@"
       ;;
+    w | watch)
+      _show_current_context 'Watching...'
+      watch kubectl get "$@"
+      ;;
     wp)
       _show_current_context 'Watching pods'
       watch kubectl get pod "$@"
