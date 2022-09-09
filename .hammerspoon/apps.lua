@@ -39,7 +39,7 @@ local function wait(n)
 end
 
 function mod.getEmailClient()
-  if hs.host.localizedName == 'smbp1421' then
+  if hs.host.localizedName() == 'smbp1421' then
     return 'Gmail'
   end
   return 'Mimestream'
