@@ -90,6 +90,8 @@ local watchedEvents = {
   {eventType = "added", productName = "", productID = 7, vendorID = 1523, fn = mod.workSetup},
   {eventType = "removed", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeLights("off")},
   {eventType = "added", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeLights("on")},
+  {eventType = "removed", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeLights("off")},
+  {eventType = "added", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeLights("on")},
 }
 
 function mod.init()
