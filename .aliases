@@ -137,7 +137,7 @@ alias no='e ~/.org/MAIN.org'
 alias noisy='pkill -f Noisy && open -a /Applications/NoisyTyper.app'
 alias m='make'
 alias ml='make -f Makefile.docker'
-alias myip='tail -n10 ~/.ip_history; for ip in 4 6; do; gdate "+%Y-%m-%dT%H:%M:%S " | tr -d "\n" && dig "-${ip}" TXT +short o-o.myaddr.l.google.com @ns1.google.com | tr -d "\""; done | tee -a ~/.ip_history'
+alias myip='tail -n10 ~/.ip_history; { gdate "+%Y-%m-%dT%H:%M:%S" | tr "\n" ",";  for ip in 6 4; do; curl --silent "-${ip}" https://ifconfig.co | tr "\n" ","; done; echo } | tee -a ~/.ip_history'
 alias opb='open "$(pbpaste)"'
 alias opd='open "$(basename "$(pbpaste)")"'
 alias pwdc='pwd | tr -d "\n" | pbcopy'
@@ -146,7 +146,7 @@ alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 alias s='_production \ssh'
-_ssh_tmux() {
+sst() {
   ssh "${@}" "bash -c 'tmux -CC new-session -A -s ${USER}'"
 }
 alias tmp='cd "$(mktemp -d -t "jm-$(gdate -u +"%Y-%m-%dT%H-%M-%SZ")")"'
