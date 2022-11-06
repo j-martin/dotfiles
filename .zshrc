@@ -66,7 +66,7 @@ plugins=(
   # fd
   # fzf
   # node
-  osx
+  macos
   ripgrep
   # terraform
   # vault
