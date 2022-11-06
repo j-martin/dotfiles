@@ -270,3 +270,11 @@ _utc_range() {
     _date_iso_8601 --utc --date="-${i}hour"
   done
 }
+
+_sed_diff() {
+  local pattern="$1"
+  local file1="$2"
+  local file2="$3"
+
+  icdiff <(sed "${pattern}" "${file1}") <(sed "${pattern}" "${file2}")
+}
