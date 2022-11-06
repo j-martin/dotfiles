@@ -158,5 +158,5 @@ _pbcopy() {
 
 _unfill() {
   # Unfill/unwrap (reflow) text to be full length.
-  perl -00 -lpe 's/\n/ /g, s/ +/ /g'
+  sed 's/^-/\n-/g' | perl -00 -lpe 's/^-/\n-/g, s/\n/ /g, s/ +/ /g'
 }
