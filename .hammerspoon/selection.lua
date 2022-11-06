@@ -29,7 +29,11 @@ local function selectedTextFromClipboard(currentApp)
 end
 
 function mod.getSelectedText()
-  local currentApp = hs.window.focusedWindow():application():name()
+  local currentWindow = hs.window.focusedWindow()
+  local currentApp = 'unknown'
+  if currentWindow then
+    currentApp = currentWindow:application():name()
+  end
   local element = hs.uielement.focusedElement()
   local selection
 
