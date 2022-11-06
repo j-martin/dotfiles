@@ -74,6 +74,7 @@ agl() { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
 ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
 uu() { rg --color=always --line-number --after-context=4 --before-context=2 --smart-case "$@" | less -SRi; }
 agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
+alias b=bat
 alias cay='cal -y'
 alias clf='clf -c'
 alias ca='_with_fzf "cat"'
@@ -184,12 +185,10 @@ alias kns=kubens
 alias kd='kctl describe'
 alias kl='kctl logs'
 
-# Clubhouse
-alias c=club
-
 ## Git
 
 alias gl='git pull --tags --force'
+alias ghd='gh dash'
 # TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^$(__git_get_main_branch_name)$" | fzf -m | xargs git branch -D'
 alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^$(__git_get_main_branch_name)$" | xargs git branch -D'
@@ -232,6 +231,7 @@ alias gclone='_git_clone'
 alias gwip='(git log --oneline $(__git_get_main_branch_name)..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias groo='groot'
+alias gcf='git commit --fixup "$(git log --oneline | fzf --no-sort | awk "{print \$1}")"'
 alias gcp='git add -p && git commit' # Commiting part of a file.
 alias gpp='git push --no-verify --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && hbp'
@@ -259,6 +259,7 @@ alias gmcp='_git_copy_last_commit'
 alias gms="_git_commit_with_issue_key"
 gmss() { git commit --message "squashme $1" "${@:2}"; }
 gmsm() { git commit --message "merge with $1" "${@}"; }
+alias gm='git machete'
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/$(__git_get_main_branch_name)'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
@@ -304,6 +305,7 @@ alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
 alias hr='open "$GITHUB_URL/$(_git_repo)"'
 
 # General
+json-pretty() { jq . "$1" | sponge "$1" }
 alias ic=imgcat
 fn() { find . -iname "*$@*"; }
 fne() { find . -iname "*.$@"; }
@@ -314,6 +316,7 @@ whichl() { ls -lha "$(where $1)"; }
 wh=which
 alias listen='osqueryi "select l.address, l.port, p.pid, p.path from listening_ports l, processes p where l.pid = p.pid order by p.name"'
 alias ports='lsof -nP +c 15 | grep LISTEN'
+alias safe=_safe
 
 # Emacs
 alias emacs-clean="find ~/.emacs.d -name '*.elc' -delete"
@@ -355,6 +358,7 @@ alias scal='scala -Dscala.color'
 agsbt() { agq "$@" -a --depth 2 ./*.{sbt,scala}; }
 alias groov="groovyConsole > /dev/null &"
 alias yar='nvm install && yarn'
+alias tf=terraform
 
 alias gr='./gradlew'
 
