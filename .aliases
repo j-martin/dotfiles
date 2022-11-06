@@ -236,6 +236,7 @@ alias gcp='git add -p && git commit' # Commiting part of a file.
 alias gpp='git push --no-verify --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && hbp'
 alias ghpr='gpp && hpr'
+alias ghprmsg='_git_get_pr_message | _pbcopy'
 alias ghprm='gh pr merge "$(_git_current_branch)" --merge'
 alias ghpro='open "$(gh pr status --json "url" | jq -r ".currentBranch.url")"'
 ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r ;}

@@ -388,12 +388,17 @@ _github_subscribe_to_team_repos() {
   done
 }
 
+_git_get_pr_message() {
+  git log --pretty=%B "origin/$(__git_get_main_branch_name)...HEAD" \
+    | _unfill
+}
+
 _github_pr() {
   local reviewers="${1:-$(git config --get github.reviewers)}"
-  local message="$(git log --pretty=%B "origin/$(__git_get_main_branch_name)...HEAD"  )"
+  local message="$(_git_get_pr_message)"
   gh pr create \
      --title "$(head -n1 <<< "${message}")" \
-     --body "$(tail -n +2 <<< "${message}" | _unfill)" \
+     --body "$(tail -n +2 <<< "${message}")" \
      --reviewer "${reviewers}" \
      "$@"
 }
