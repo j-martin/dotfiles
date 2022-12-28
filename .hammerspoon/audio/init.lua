@@ -3,9 +3,11 @@ local headphones_watcher = require "audio/headphones_watcher"
 local mod = {}
 
 dacName = 'FiiO USB DAC-E10'
+appleUSBWithDT1990Pro = 'USB-C to 3.5mm Headphone Jack Adapter'
 
 mod.volumes = {}
 mod.volumes[dacName] = 100
+mod.volumes[appleUSBWithDT1990Pro] = 20
 
 inputDevicePriority = {
   "Samson Q2U Microphone",
@@ -14,6 +16,7 @@ inputDevicePriority = {
 
 outputDevicePriority = {
   "WH-1000XM3",
+  appleUSBWithDT1990Pro,
   dacName
 }
 
@@ -70,13 +73,15 @@ function mod.changeVolume(inc)
       hs.alert.show('Muted')
     else
       device:setMuted(false)
-      mod.setVolume(value)
+      mod.setVolume(value)()
     end
   end
 end
 
 function mod.setVolume(value)
   return function()
+    local finalValue = value
+
     local device = hs.audiodevice.defaultOutputDevice()
     local deviceName = device:name()
     if value == 'default' then
@@ -84,6 +89,7 @@ function mod.setVolume(value)
     end
     device:setBalance(0.5)
     device:setMuted(false)
+
     device:setVolume(finalValue)
     hs.alert.show('Volume for ' .. deviceName .. ' set to ' .. tostring(finalValue) .. ' %')
   end
