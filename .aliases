@@ -375,6 +375,7 @@ alias ipy='ipython3'
 alias ipyn='ipython3 notebook'
 alias py='python3'
 alias pr='pipenv run'
+alias pip-conflict-formatter="pbpaste | sed 's/RequirementInformation/\n/g; s/(requirement=SpecifierRequirement/\n/g; s/from/\n/g; s/, parent=LinkCandidate(/\n/g; s/extras=frozenset({/\n/g; s/})))/\n\n/g'"
 
 # Website
 alias oo='open $(pbpaste)'
