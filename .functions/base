@@ -160,3 +160,11 @@ _unfill() {
   # Unfill/unwrap (reflow) text to be full length.
   sed 's/^-/\n-/g' | perl -00 -lpe 's/^-/\n-/g, s/\n/ /g, s/ +/ /g'
 }
+
+_to_lowercase() {
+  tr '[:upper:]' '[:lower:]'
+}
+
+_to_uppercase() {
+  tr '[:lower:]' '[:upper:]'
+}
