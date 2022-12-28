@@ -20,8 +20,16 @@ _main() {
   fi
 }
 
+_get_brew_prefix() {
+  local brew_prefix='/opt/homebrew'
+  if [[ ! -d "${brew_prefix}" ]]; then
+    brew_prefix="/usr/local"
+  fi
+  echo "${brew_prefix}"
+}
+
 _emacs() {
-  exec "${BREW_PREFIX:-/opt/homebrew}/bin/emacsclient" --no-wait "$@" > /dev/null 2>&1 &
+  exec "${BREW_PREFIX:-$(_get_brew_prefix)}/bin/emacsclient" --no-wait "$@" > /dev/null 2>&1 &
 }
 
 _main "$@"
