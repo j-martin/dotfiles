@@ -76,7 +76,7 @@ _case_sentence() {
 _with_fzf() {
   local app="$1"
   local prefix="${*:2}"
-  prefix="$(awk '{$1=$1};1' <<< "${prefix}")"
+  prefix="$(awk '{$1=$1};1' <<< "${prefix}" | sed 's#^a/##; s#^b/##')"
   if [[ -f "$prefix" ]]; then
     eval "$app $prefix"
     return
