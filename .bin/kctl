@@ -109,6 +109,8 @@ _k8s_pick_pod() {
 
 _k8s_switch_cluster() {
   local context="${1:-}"
+  local namespace="${2:-}"
+  local pod="${3:-}"
   context="$(
     _kubectl config get-contexts \
       | fzf -0 -1 --header-lines=1 --query "'${context}" \
@@ -117,6 +119,13 @@ _k8s_switch_cluster() {
 
   kubectl config use-context "${context}"
   _show_current_context "Now"
+
+  if [[ -n "${namespace}" ]]; then
+    _k8s_switch_namespace "${namespace}"
+  fi
+  if [[ -n "${pod}" ]]; then
+    _k8s_exec "${pod}"
+  fi
 }
 
 _k8s_switch_namespace() {
@@ -210,7 +219,7 @@ _main() {
     l | logs) # [POD] Watch logs for all containers in pod.
       _k8s_logs "$@"
       ;;
-    sc | switch-cluster) # [CLUSTER/CONTEXT] Will list clusters/contexts if there no exact match or no cluster is passed.
+    sc | switch-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Will list clusters/contexts if there no exact match or no cluster is passed. If the namespace is passed then it will try to switch to that namespace as well. If a pod is defined it will run exec on it.
       _k8s_switch_cluster "$@"
       ;;
     sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
