@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -u
+
+IFS=$'\n\t'
+
+_list_schedules() {
+  local payload
+  payload="$(curl --fail --silent https://splatoon3.ink/data/schedules.json)"
+
+  export time_offset="$(($(date +%z | head -c3) % 2 * 60 * 60))" # workaround https://github.com/stedolan/jq/issues/1912
+  export mode="${1:-Splat Zones}"
+  local x_battle="${2:-true}"
+
+  jq '
+    .data.bankaraSchedules.nodes[]
+      | select (
+          .bankaraMatchSettings != null
+          and .bankaraMatchSettings[].vsRule.name == env.mode
+          and ([.bankaraMatchSettings[].vsStages[].name] | contains(["Undertow Spillway"]) | not)
+      )
+      | {
+          startDateTime: (.startTime | fromdate + (env.time_offset | tonumber) | strflocaltime("%FT%T")),
+          details: (.bankaraMatchSettings[] | select(.vsRule.name == env.mode) | {stages: [.vsStages[].name], mode})
+        }
+    ' <<< "${payload}"
+
+  if [[ "${x_battle}" == 'false' ]]; then
+    return
+  fi
+
+  jq '
+    .data.xSchedules.nodes[]
+      | select (
+          .xMatchSetting != null
+          and .xMatchSetting.vsRule.name == env.mode
+          and ([.xMatchSetting.vsStages[].name] | contains(["Undertow Spillway"]) | not)
+      )
+      | {
+          startDateTime: (.startTime | fromdate + (env.time_offset | tonumber) | strflocaltime("%FT%T")),
+          details: {
+            stages: [.xMatchSetting.vsStages[].name],
+            mode: "X"
+          }
+        }
+    ' <<< "${payload}"
+}
+
+_main() {
+  _list_schedules "$@" \
+    | jq --color-output --slurp 'sort_by(.startDateTime)[:5]'
+}
+
+_main "$@"
