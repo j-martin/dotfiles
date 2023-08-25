@@ -117,10 +117,19 @@ function match(haystack, patternPrefix, pattern)
   return result:sub(string.len(patternPrefix) + 1, -1)
 end
 
+mod.lastUrl = nil
+
 function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
   logger.i(scheme, host, hs.inspect(params), fullUrl, senderPID)
-  local url = fullUrl
   local bundleId = 'com.google.Chrome'
+  local url = fullUrl
+  if mod.lastUrl == fullUrl then
+    logger.i("Same URL as before. Defaulting to Chrome...")
+    mod.open(bundleId, fullUrl)
+    return
+  end
+
+  mod.lastUrl = fullUrl
 
   local encodedParams = ''
   if next(params) then
@@ -183,7 +192,10 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
       logger.w("Could not infer the 'slack://' from the URL. Defaulting to your browser redirect.")
     end
   end
+  mod.open(bundleId, url)
+end
 
+function mod.open(bundleId, url)
   logger.i(bundleId, url)
 
   hs.application.launchOrFocusByBundleID(bundleId)
