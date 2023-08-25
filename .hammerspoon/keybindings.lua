@@ -38,7 +38,7 @@ local bindings = {
       {key = '9', name = 'Spotify'},
       {key = '9', name = 'Soundcleod', shift = true},
       {key = ';', name = 'Dash'},
-      {key = '\\', name = '1Password 7'},
+      {key = '\\', name = '1Password'},
       -- key = ';' reserved for Dash
       {key = 'a', name = 'Figma 2'},
       {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
@@ -98,7 +98,7 @@ local bindings = {
       {key = 'v', fn = selection.paste, shift = true, desc = 'Paste - Type'},
       {key = 'w', fn = emacs.capture('w'), desc = 'Org - Capture selection to Work'},
       {key = 'w', fn = emacs.workInbox, shift = true, desc = 'Org - Show work'},
-      {key = 'y', name = apps.getEmailClient()},
+      {key = 'y', name = 'Gmail'},
       {key = 'z', name = 'Google Meet'},
       {key = 'z', fn = apps.googleMeetToggleMute, shift = true, desc = 'Google Meet - Toggle Mute'},
       {key = '-', fn = hs.grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter'},

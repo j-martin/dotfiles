@@ -6,7 +6,7 @@ local mod = {}
 mod.name = {
   activityMonitor = 'Activity Monitor',
   iTerm = 'iTerm2',
-  idea = 'IntelliJ IDEA',
+  idea = 'IntelliJ IDEA CE',
   ripcord = 'Ripcord',
 }
 
