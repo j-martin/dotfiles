@@ -8,11 +8,13 @@ repository]]. The rest is just years of collecting stuff.
 $ ssh-keygen -t ed25519 -C "jm@jmartin.ca" -f ~/.ssh/github
 # Must use the system ssh-add instead of the one installed by Brew
 $ /usr/bin/ssh-add --apple-use-keychain ~/.ssh/github
+$ cat ~/.ssh/github.pub | pbcopy
 #+end_src
 
-- Add SSH key to [GitHub](https://github.com/settings/keys).
+- Add SSH key to [[https://github.com/settings/keys][GitHub]].
 
 ** Initial dotfiles installation
+
  #+begin_src shell
  alias home="git --work-tree=$HOME --git-dir=$HOME/.files.git"
 
@@ -20,7 +22,7 @@ $ /usr/bin/ssh-add --apple-use-keychain ~/.ssh/github
  home init
  home remote add origin git@github.com:j-martin/dotfiles.git
  home fetch
- home checkout master
+ home checkout main
  home submodule init
  home submodule update
  #+end_src
