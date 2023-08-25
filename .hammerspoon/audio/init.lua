@@ -10,8 +10,9 @@ mod.volumes[dacName] = 100
 mod.volumes[appleUSBWithDT1990Pro] = 20
 
 inputDevicePriority = {
+  "RØDE VideoMic GO II",
   "Samson Q2U Microphone",
-  "MacBook Pro Microphone"
+  "MacBook Pro Microphone",
 }
 
 outputDevicePriority = {
