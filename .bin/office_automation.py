@@ -7,24 +7,23 @@ import sys
 from kasa import SmartPlug
 from typing import List
 
-COMMAND_ON = 'on'
-COMMAND_OFF = 'off'
 
-def switch(host: str, command: str) -> None:
+async def toggle(host: str) -> None:
     dev = SmartPlug(host)
-    if command == COMMAND_OFF:
-        asyncio.run(dev.turn_off())
+    await dev.update()
+    if dev.is_on:
+        await dev.turn_off()
+        print(f"Turned off: {host}")
     else:
-        asyncio.run(dev.turn_on())
+        await dev.turn_on()
+        print(f"Turned on: {host}")
 
 
-def main() -> None:
+async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="lights.office.jmartin.ca")
-    parser.add_argument("command", choices=[COMMAND_ON, COMMAND_OFF])
     args = parser.parse_args()
-
-    switch(args.host, args.command)
+    await toggle(args.host)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
