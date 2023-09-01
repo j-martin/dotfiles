@@ -6,7 +6,7 @@ local mod = {}
 mod.name = {
   activityMonitor = 'Activity Monitor',
   iTerm = 'iTerm2',
-  idea = 'IntelliJ IDEA CE',
+  idea = 'Goland',
   ripcord = 'Ripcord',
 }
 
@@ -36,14 +36,6 @@ local function wait(n)
   local n = n or 1
   -- 0.01s
   hs.timer.usleep(10000 * n)
-end
-
-function mod.getEmailClient()
-  if hs.host.localizedName() == 'smbp1421' then
-    return 'Gmail'
-  end
-  return 'Mimestream'
-
 end
 
 function mod.switchToAndType(application, modifiers, keyStroke, delay)
