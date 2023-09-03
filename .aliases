@@ -72,7 +72,8 @@ alias stt='subl ./' # Depends on the 'st' command in the ~/.bin dir.
 # Convenience
 agl() { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
 ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
-uu() { rg --color=always --line-number --after-context=4 --before-context=2 --smart-case "$@" | less -SRi; }
+alias uu=_rg
+alias uuc=_rg_cased
 agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
 alias b=bat
 alias cay='cal -y'

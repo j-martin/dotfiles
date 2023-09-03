@@ -168,3 +168,8 @@ _to_lowercase() {
 _to_uppercase() {
   tr '[:lower:]' '[:upper:]'
 }
+
+_to_snake_case() {
+  perl -pe 's/([a-z0-9])([A-Z])/$1_\L$2/g' \
+    | _to_lowercase
+}

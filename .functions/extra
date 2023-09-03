@@ -1,5 +1,24 @@
 #!/usr/bin/env bash
 
+_rg() {
+  rg \
+    --color=always \
+    --line-number \
+    --after-context=4 \
+    --before-context=2 \
+    --smart-case "$@" \
+    | less -SRi
+}
+
+_rg_cased() {
+  local pattern="$1"
+  pattern="$(_to_snake_case <<< "${pattern}" | sed 's#[-_]#[-_]?#g')"
+  _info "Using pattern: ${pattern}"
+  _rg "${pattern}" "${@:2}"
+}
+
+# dockerPickImage
+
 _docker_pick_container() {
   local tag_prefix="$1"
   docker ps \
