@@ -297,3 +297,17 @@ _sed_diff() {
 
   icdiff <(sed "${pattern}" "${file1}") <(sed "${pattern}" "${file2}")
 }
+
+_run_every() {
+  local max_age="$1"
+
+  local sentinel_path
+  sentinel_path="${TMPDIR}/$(md5sum <<< '${@}' | awk '{print $1}')"
+
+  if [[ ! -f "${sentinel_path}" ]] || [[ -n "$(find "${sentinel_path}" -mtime "+${max_age}" -print)" ]]; then
+    _info "Running: '${@:2}'..."
+    "${@:2}" && \touch -m "${sentinel_path}"
+  else
+    _info "Sentinel file '${sentinel_path}' not older than ${max_age}. Skipping '${@:2}'..."
+  fi
+}

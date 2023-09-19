@@ -388,3 +388,7 @@ alias bcleanup='brew bundle --global cleanup' # --force
 
 # macOS
 alias fixsound='sudo killall coreaudiod'
+
+# pulumi
+alias pu='_gcp_login && pulumi'
+alias pus='_gcp_login && pulumi stack'
