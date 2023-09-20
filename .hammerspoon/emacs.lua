@@ -35,7 +35,7 @@ function mod.orgRifle()
 end
 
 function mod.workInbox()
-  eval('(jm/open-work)')
+  eval('(jm/open-inbox)')
 end
 
 function mod.agenda()
