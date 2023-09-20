@@ -907,6 +907,11 @@ it makes magit a fair bit faster.
       (save-buffer)
       (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
 
+  (defun jm/open-with-line-column-idea (app)
+    (when buffer-file-name
+      (save-buffer)
+      (shell-command (concat app " --line " (jm/get-line-number) " --column " (number-to-string (current-column)) " \"" buffer-file-name "\""))))
+
   (defun jm/open-with-line-column-vim (app)
     (when buffer-file-name
       (shell-command (concat app " \"" buffer-file-name "\" \"+normal " (jm/get-line-number) "G" (jm/get-column) "|\""))))
@@ -929,7 +934,7 @@ it makes magit a fair bit faster.
   (defun jm/open-with-idea ()
     (interactive)
     (jm/open-with-reveal "IntelliJ IDEA")
-    (jm/open-with-line "/usr/local/bin/idea"))
+    (jm/open-with-line-column-idea "/Applications/GoLand.app/Contents/MacOS/goland"))
 
   (defun jm/open-with-vscode ()
     (interactive)
