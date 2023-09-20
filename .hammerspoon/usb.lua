@@ -11,9 +11,9 @@ local mod = {
 
 -- Global USB handler to workaround.
 -- There seems to be a bug where the USB handler will stop responding after the first invocation.
-
 local globalHandler = nil
 
+-- Event Example
 -- usb: {
 --   eventType = "removed",
 --   productID = 33107,
@@ -36,16 +36,6 @@ local globalHandler = nil
 --   vendorName = "Sony"
 -- }
 
-
-
-function mod.workSetup()
-  audio.workSetup()
-
-  -- Keep at the bottom, because it's slow.
-  hs.alert.show('Resetting brightness and volume for the office.')
-  screen.setBrightness(0.8)()
-end
-
 function mod.officeAutomation(command, host)
   if not host then
     host = mod.switchLights
@@ -56,17 +46,12 @@ function mod.officeAutomation(command, host)
 end
 
 function mod.switchToggler(host)
-  return function()
-    mod.officeAutomation('toggle', host)()
-  end
-
+  return mod.officeAutomation('toggle', host)
 end
 
-local function buildHandlers(watchedEvents)
+local function buildGlobalHandler(watchedEvents)
   local function buildHandler(watchedEvent)
     return function(event)
-      logger.d(hs.inspect(event))
-
       local isEventType = event.eventType == watchedEvent.eventType
       local isProductID = event.productID == watchedEvent.productID
       local isVendorID = event.vendorID == watchedEvent.vendorID
@@ -81,27 +66,32 @@ local function buildHandlers(watchedEvents)
   local handlers = hs.fnutils.map(watchedEvents, buildHandler)
 
   return function(event)
-    hs.fnutils.each(handlers, function(handler)
-      handler(event)
-    end)
+    logger.d(hs.inspect(event))
+    hs.fnutils.each(handlers, function(handler) handler(event) end)
+
+    -- Workaround
     globalHandler:stop()
     globalHandler:start()
   end
 end
 
 local watchedEvents = {
-  {eventType = "removed", productName = "", productID = 7, vendorID = 1523, fn = audio.muteSpeakers},
-  {eventType = "added", productName = "", productID = 7, vendorID = 1523, fn = mod.workSetup},
-  {eventType = "removed", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
-  {eventType = "added", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("on")},
-  {eventType = "removed", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
+  -- Network adapter on office Thunderbolt dock
+  {eventType = "added", productID = 33107, productName = "USB 10/100/1000 LAN", vendorID = 3034, vendorName = "Realtek", fn = mod.officeAutomation("off", mod.switchDesk)},
+
+  -- ZV-1 with webcam streaming off
+  -- {eventType = "added", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("on")},
+  -- {eventType = "removed", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
+
+  -- ZV-1 with webcam streaming  on
   {eventType = "added", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("on")},
+  {eventType = "removed", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
 }
 
 function mod.init()
-  local handlers = buildHandlers(watchedEvents)
+  local handlers = buildGlobalHandler(watchedEvents)
   globalHandler = hs.usb.watcher.new(handlers)
-  globalHandler:start()
+  -- globalHandler:start()
 end
 
 return mod
