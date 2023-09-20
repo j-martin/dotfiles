@@ -27,10 +27,29 @@ _docker_pick_container() {
     | _pick_first_col
 }
 
-_docker_pick_images() {
-  docker images \
-    | awk '$1 != "REPOSITORY" {print $1 ":" $2}' \
-    | _fzf "'$1"
+_load_dot_env() {
+  if [[ ! -f .env ]]; then
+    _info 'No .env file found skipping...'
+    return
+  fi
+  set -o allexport
+  set -x
+  source .env
+  set +x
+  set +o allexport
+}
+
+_go_mod_download() {
+  for mod_file in $(find . -name 'go.mod' | grep -vE 'node_modules|templates'); do
+    local directory
+    directory="$(dirname "${mod_file}")"
+    (
+      pushd "${directory}" > /dev/null
+      _info "Download go dependencies for ${PWD}..."
+      go mod download
+      _info 'Done'
+    )
+  done
 }
 
 _consul_list_services_dns() {

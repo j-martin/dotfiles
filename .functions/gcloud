@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 _gcp_pick_project() {
-  local query="$1"
-  gcloud projects list --filter "name~${query}" --limit 10 \
+  local query="${1:-}"
+  gcloud projects list \
     | _fzf_pick "${query}"
 }
 
 _gcp_change_project() {
-  local query="$1"
+  local query="${1:-}"
 
   local project
   project="$(_gcp_pick_project "${query}")"

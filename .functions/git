@@ -161,21 +161,13 @@ _git_new_branch_and_commit() {
 }
 
 _github() {
-  local endpoint="${1}"
-  if [[ "${endpoint}" != 'https://api.github.com/'* ]]; then
-    endpoint="https://api.github.com/${endpoint}"
-  fi
-  curl --fail --silent --show-error \
-       --header "Authorization: token $(keyring get api github)" \
-       --header "Accept: application/vnd.github.groot-preview+json" \
-    "${endpoint}" \
-    "${@:2}"
+  gh api --method GET "$@"
 }
 
 _github_post() {
   local endpoint="$1"
   local payload="$2"
-  curl --fail --silent --show-error -XPOST -H "Authorization: token $(keyring get system github_token)" \
+  curl --fail --silent --show-error -XPOST -H "Authorization: Bearer $(keyring get system github_token)" \
     "https://api.github.com/$endpoint" --data "$payload"
 }
 
@@ -236,13 +228,13 @@ _github_commit_url() {
 
 _github_copy_commit_url() {
   local commit="$1"
-  _github_commit_url  "${commit}" \
+  _github_commit_url "${commit}" \
     | _pbcopy
 }
 
 _github_copy_pr_url_for_commit() {
   local commit="$1"
-  _github_pull_request_for_commit  "${commit}" \
+  _github_pull_request_for_commit "${commit}" \
     | _pbcopy
 }
 
@@ -382,9 +374,9 @@ _git_commit_individual_files() {
 _github_subscribe_to_team_repos() {
   local org="$1"
   local team="$2"
-  for url in $(_github "orgs/${org}/teams/${team}/repos?per_page=100" |  jq -r '.[] | .subscription_url'); do
+  for url in $(_github "orgs/${org}/teams/${team}/repos?per_page=100" | jq -r '.[] | .subscription_url'); do
     echo $url
-    _github "${url}" -X PUT --data '{"subscribed":true}'
+    gh api --method PUT "${url}" --data '{"subscribed":true}'
   done
 }
 
@@ -394,20 +386,54 @@ _git_get_pr_message() {
 }
 
 _github_pr() {
-  local reviewers="${1:-$(git config --get github.reviewers)}"
   local message="$(_git_get_pr_message)"
   gh pr create \
      --title "$(head -n1 <<< "${message}")" \
      --body "$(tail -n +2 <<< "${message}")" \
-     --reviewer "${reviewers}" \
      "$@"
+}
+
+_github_pr_with_reviewer() {
+  local reviewers="${1:-$(git config --get github.reviewers)}"
+  _github_pr \
+    --reviewer "${reviewers}" \
+    "$@"
+}
+
+_github_mass_approve() {
+  sed 's#https://github.com/##; s#/pull/# #' \
+    | awk '{print $2,"--repo", $1, "--approve", "--body", "Approved in bulk with the assumption it is similar to other related PRs."}' \
+    | xargs -n6 echo gh pr review
 }
 
 _git_clone() {
   local repository="$1"
-  git clone "${repository}"
-  cd "$(basename "${repository}" | sed 's/\.git$//')" \
-    || _info 'Failed to change dir...'
+  local src_dir="${HOME}/src"
+
+  if [[ "${repository}" != */* ]]; then
+    repository="github.com/${GITHUB_WORK_ORG}/${repository}"
+  elif [[ "${repository}" != 'https://'* ]]; then
+    repository="github.com/${repository}"
+  fi
+
+  local repo_dir
+  repo_dir="${src_dir}/$(sed -E "s#https://##; s/\.git$//" <<< "${repository}" \
+    | awk 'BEGIN{FS="/"; OFS="/"} {print $1, $2, $3}')"
+
+  local repo
+  repo="$(sed -E "s#https://##; s/\.git$//" <<< "${repository}" \
+    | awk -F/ '{print "git@" $1 ":" $2 "/" $3}')"
+
+  if [[ ! -d "${repo_dir}" ]]; then
+    mkdir -p "$(dirname "${repo_dir}")"
+    git clone "$repo" "${repo_dir}" \
+      || return
+  fi
+
+  cd "${repo_dir}" \
+    && _info "Moved to '$PWD'..." \
+    || _info 'Failed to change repo_dir...'
+
 }
 
 _git_delete_commit() {
@@ -416,8 +442,8 @@ _git_delete_commit() {
 }
 
 _git_list_files_not_under_source_control() {
-  local dir="$1"
-  find "${dir}" \( -type d -exec test -d '{}'/.git \; -prune \) -o -print
+  local repo_dir="$1"
+  find "${repo_dir}" \( -type d -exec test -d '{}'/.git \; -prune \) -o -print
 }
 
 _git_compare_releases() {

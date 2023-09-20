@@ -75,20 +75,19 @@ ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | le
 alias uu=_rg
 alias uuc=_rg_cased
 agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
-alias b=bat
+alias ba='_with_fzf bat'
 alias cay='cal -y'
 alias clf='clf -c'
-alias ca='_with_fzf "cat"'
+alias ca='_with_fzf cat'
 alias cdp='cd "$(dirname "$(pbpaste)")"'
 alias cf='cd "$(dirname "$(fzf)")"'
 alias comp='_notify "Done!"'
 alias digg='dig +noall +answer'
-alias docker='podman'
-alias dk='podman'
-alias dkp='podman ps'
+alias dk='docker'
+alias dkp='docker ps'
 dki() { docker images | awk '{print $1 ":" $2}' | sort -u; }
 alias dksync='bash -c "podman machine ssh date -s \"$(date -I seconds)\""'
-alias dc='docker-compose'
+alias dc='_load_dot_env && docker-compose'
 alias dm='docker-machine'
 dbuild() {
   local name="$(basename "$(pwd)")"
@@ -101,6 +100,7 @@ drunb() { docker run --entrypoint='/bin/bash' -it "$(_docker_pick_images $1)"; }
 dbash() { docker exec -it "$(_docker_pick_container $1)" bash; }
 dsh() { docker exec -it "$(_docker_pick_container $1)" sh; }
 dkill() { docker kill "$(_docker_pick_container $1)"; }
+
 alias dkillall='docker ps -q | xargs -r docker kill'
 alias drmiall='docker images -q | xargs -r docker rmi -f'
 alias dtest='docker build -t $(basename $(pwd)) . && docker run -it $(basename $(pwd))'
@@ -122,6 +122,7 @@ idiff() { icdiff "$1" "$2" | less -SRi; }
 idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
 alias lc=bat
 alias lcf='_with_fzf "lc"'
+alias lde='_load_dot_env'
 alias le='less -SRi'
 alias lf='_with_fzf cat | less -SRi'
 alias ler='less README.md'
@@ -169,10 +170,9 @@ alias shfmt='shfmt -i 2 -bn -l -d -ci -sr -w'
 
 # GCP
 unalias gcp
-alias gcloud='PATH="~/.pyenv/versions/3.7.8/bin/:$PATH" \gcloud'
-alias gsutil='PATH="~/.pyenv/versions/3.7.8/bin/:$PATH" \gsutil'
 alias bq='PATH="~/.pyenv/versions/3.7.8/bin/:$PATH" \bq'
 alias gg='gcloud'
+alias ggl='gcloud auth login'
 alias s3='gsutil'
 
 # K8s
@@ -199,6 +199,7 @@ alias gcml='git checkout $(__git_get_main_branch_name) && git pull'
 alias gc-='git checkout -'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
+alias gcl='_git_clone'
 git-reflog-grep() {
   git reflog | awk '{print $1}' | while read in; do
     echo "$in"
@@ -236,7 +237,8 @@ alias gcf='git commit --fixup "$(git log --oneline | fzf --no-sort | awk "{print
 alias gcp='git add -p && git commit' # Commiting part of a file.
 alias gpp='git push --no-verify --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && hbp'
-alias ghpr='gpp && hpr'
+alias ghpr='gpp && _github_pr'
+alias ghprr='gpp && _github_pr_with_reviewer'
 alias ghprmsg='_git_get_pr_message | _pbcopy'
 alias ghprm='gh pr merge "$(_git_current_branch)" --merge'
 alias ghpro='open "$(gh pr status --json "url" | jq -r ".currentBranch.url")"'
@@ -300,6 +302,7 @@ alias hpc='_github_copy_pr_url_for_commit'
 alias hb='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
 alias hbp='open "$GITHUB_URL/$(_git_repo)/pull/new/$(_git_current_branch_url)"'
 alias hpr='_github_pr'
+alias hprr='_github_pr_with_reviewer'
 alias hbs='open "$GITHUB_URL/$(_git_repo)/branches"'
 alias his='open "$GITHUB_URL/$(_git_repo)/issues"'
 alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
@@ -392,3 +395,7 @@ alias fixsound='sudo killall coreaudiod'
 # pulumi
 alias pu='_gcp_login && pulumi'
 alias pus='_gcp_login && pulumi stack'
+
+# bub
+alias b="$HOME/src/github.com/j-martin/bub/main"
+alias w="$HOME/src/github.com/j-martin/bub/main workflow"

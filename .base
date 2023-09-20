@@ -10,8 +10,10 @@ __source() {
   fi
 }
 
-export WORK="$HOME/src/github.com/Shopify"
-export GOPATH="$HOME/src"
+export GITHUB_WORK_ORG='nestoca'
+export GOPRIVATE='github.com/nestoca,github.com/j-martin'
+export WORK="$HOME/src/github.com/nestoca"
+export GOPATH="$HOME"
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
