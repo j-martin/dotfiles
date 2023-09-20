@@ -39,6 +39,8 @@ Could be scripted, but involves a bunch of manual user inputs.
 **** FZF
  #+begin_src shell :tangle yes
 $ /usr/local/opt/fzf/install
+#or
+$ /opt/homebrew/opt/fzf/install
  #+end_src
 
 **** Load GPG Key
