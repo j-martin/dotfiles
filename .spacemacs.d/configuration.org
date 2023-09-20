@@ -563,22 +563,14 @@ it makes magit a fair bit faster.
       (setq
        org-capture-templates
        '(
-         ("t" "Inbox (Main)"
-          entry
-          (file+headline "~/.org/main.org" "Inbox")
-          "* TODO %?%i\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%:annotation\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
-         ("T" "Inbox without selection (Main)"
+         ("t" "Inbox without selection (Main)"
           entry
           (file+headline "~/.org/main.org" "Inbox")
           "* TODO %?\n:PROPERTIES:\n:ENTERED: %U\n:END:\n")
-         ("w" "Inbox (Work)"
+         ("T" "Inbox (Main)"
           entry
-          (file+headline "~/.org/work.org" "Inbox")
-          "* TODO %?%i\n:PROPERTIES:\n:ENTERED: %U\n:END:\n\n%:annotation\n\n:DESCRIPTION:\n%i\n:END:\n")
-         ("W" "Inbox without selection (Work)"
-          entry
-          (file+headline "~/.org/work.org" "Inbox")
-          "* TODO %?%i\n:PROPERTIES:\n:ENTERED: %U\n:END:\n\n:DESCRIPTION:\n:END:\n")
+          (file+headline "~/.org/main.org" "Inbox")
+          "* TODO %?%i\n:PROPERTIES:\n:ENTERED: %U\n:END:\n%:annotation\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n")
          ("b" "Branch (Work)"
           entry
           (file+function "~/.org/work.org" jm/org-branch-header)
@@ -699,7 +691,7 @@ it makes magit a fair bit faster.
     (spacemacs/set-leader-keys "or" 'jm/open-references)
     (spacemacs/set-leader-keys "oU" 'jm/unfill-buffer)
     (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
-    (spacemacs/set-leader-keys "ow" 'jm/open-work)
+    (spacemacs/set-leader-keys "ow" 'jm/open-inbox)
     (spacemacs/set-leader-keys "ox" 'jm/org-md-export)
     (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
     (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
@@ -894,10 +886,6 @@ it makes magit a fair bit faster.
   (defun jm/open-references ()
     (interactive)
     (jm/open-file "~/.org/references.org"))
-
-  (defun jm/open-work ()
-    (interactive)
-    (jm/open-file "~/.org/work.org"))
 
   (defun jm/helm-org-dir ()
     (interactive)
