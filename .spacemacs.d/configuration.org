@@ -728,10 +728,9 @@ it makes magit a fair bit faster.
 ** Git
 #+begin_src emacs-lisp :results none
   (defun jm/magit-commit-message ()
-    (let ((story-id (jm/clubhouse-story-id-from-branch-name)))
-      (when (> (length story-id) 1)
-        (insert (jm/clubhouse-story-link story-id))))
-    (beginning-of-buffer)
+    (let ((prefix (jm/commit-prefix-from-branch-name)))
+      (when (> (length prefix) 1) (insert prefix)))
+
     (evil-insert-state))
 
   (defun jm/magit-branch (task)
@@ -770,23 +769,13 @@ it makes magit a fair bit faster.
   (defun jm/github-compare-url (&optional repository-name branch-name)
     (concat (jm/github-repository-url repository-name) "/compare/master..." (if branch-name branch-name (jm/git-current-branch))))
 
+  (defun jm/git-branch-type (&optional branch-name)
+    (car (cdr (s-match "^[a-zA-Z]+/" (if branch-name branch-name (jm/git-current-branch))))))
 #+end_src
-** Shortcut
+** JIRA
 #+begin_src emacs-lisp :results none
-  (defun jm/clubhouse-story-id-from-branch-name (&optional branch-name)
-    (car (cdr (s-match "/sc-\\([0-9]+\\)/" (if branch-name branch-name (jm/git-current-branch))))))
-
-  (defun jm/clubhouse-story-link (story-id)
-    (if story-id
-        (let ((workspace (if org-clubhouse-team-name (concat org-clubhouse-team-name "/") "")))
-          (concat "\n[sc-" story-id "](" (jm/clubhouse-story-url story-id) ")"))))
-
-  (defun jm/clubhouse-story-url (story-id)
-    (if story-id
-        (let ((workspace (if org-clubhouse-team-name (concat org-clubhouse-team-name "/") "")))
-          (concat "https://app.shortcut.com/" workspace "story/" story-id ))))
-
-
+  (defun jm/commit-prefix-from-branch-name (&optional branch-name)
+    (concat (s-join "(" (cdr (jm/jira-issue-id-from-branch-name (if branch-name branch-name (jm/git-current-branch))))) "): "))
 #+end_src
 
 ** Editing
