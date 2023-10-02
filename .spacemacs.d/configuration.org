@@ -729,7 +729,7 @@ it makes magit a fair bit faster.
 #+begin_src emacs-lisp :results none
   (defun jm/magit-commit-message ()
     (let ((prefix (jm/commit-prefix-from-branch-name)))
-      (when (> (length prefix) 1) (insert prefix)))
+      (when (> (length prefix) 5) (insert prefix)))
 
     (evil-insert-state))
 
