@@ -73,7 +73,7 @@ alias stt='subl ./' # Depends on the 'st' command in the ~/.bin dir.
 agl() { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
 ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
 alias uu=_rg
-alias uuc=_rg_cased
+alias uc=_rg_cased
 agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
 alias ba='_with_fzf bat'
 alias cay='cal -y'
@@ -388,6 +388,8 @@ alias c2='open "https://console.aws.amazon.com/ec2/"'
 # Brew
 alias bdump='brew bundle --global dump --force && sed -i "s/, link: false//"  ~/.Brewfile'
 alias bcleanup='brew bundle --global cleanup' # --force
+alias bic='brew install --cask'
+alias bi='brew install'
 
 # macOS
 alias fixsound='sudo killall coreaudiod'
@@ -399,3 +401,7 @@ alias pus='_work_login && pulumi stack'
 # bub
 alias b="$HOME/src/github.com/j-martin/bub/main"
 alias w="$HOME/src/github.com/j-martin/bub/main workflow"
+
+# clipboard
+alias pc='pbcopy'
+alias pp='pbpaste'
