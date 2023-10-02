@@ -393,8 +393,8 @@ alias bcleanup='brew bundle --global cleanup' # --force
 alias fixsound='sudo killall coreaudiod'
 
 # pulumi
-alias pu='_gcp_login && pulumi'
-alias pus='_gcp_login && pulumi stack'
+alias pu='_work_login && pulumi'
+alias pus='_work_login && pulumi stack'
 
 # bub
 alias b="$HOME/src/github.com/j-martin/bub/main"

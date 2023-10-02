@@ -14,12 +14,3 @@ _gcp_change_project() {
   gcloud config set project "${project}"
   _info "Now using ${project}"
 }
-
-__gcp_login() {
-  gcloud auth login
-  gcloud auth application-default login
-}
-
-_gcp_login() {
-  _run_every 12h __gcp_login
-}
