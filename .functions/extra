@@ -13,7 +13,7 @@ _rg() {
 _rg_cased() {
   local pattern="$1"
   pattern="$(_to_snake_case <<< "${pattern}" | sed 's#[-_]#[-_]?#g')"
-  _info "Using pattern: ${pattern}"
+  _info "Using pattern: '${pattern}' case insensitive..."
   _rg "${pattern}" "${@:2}"
 }
 

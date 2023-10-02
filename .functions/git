@@ -81,7 +81,7 @@ _git_extract_commit() {
 }
 
 _git_pick_any_branches() {
-  git branch --all \
+  git target_branch --all \
     | sed 's#remotes/origin/##; s#^. ##' \
     | fzf "$@"
 }
@@ -114,9 +114,10 @@ _git_format_commit_message() {
 }
 
 _slugify() {
-  tr \'' "#:,.+^&*()`[]@$%' '-' \
+  tr ':' '/' \
+    | tr \'' "#,.+^&*()`[]@$%' '-' \
     | tr '[:upper:]' '[:lower:]' \
-    | sed -E 's/-+/-/g; s/^-//; s/-$//'
+    | sed -E 's/-+/-/g; s/^-//; s/-$//; s#/-#/#g; s#/+#/#g'
 }
 
 _git_new_branch_from_commit() {
@@ -138,13 +139,18 @@ __git_get_main_branch_name() {
 
 _git_new_branch() {
   local name="$1"
+  local target_branch="$2"
+  if [[ -z "${target_branch}" ]]; then
+    target_branch="$(__git_get_main_branch_name)"
+  fi
+
   git fetch 'origin'
-  __git_new_branch "$name" "origin/$(__git_get_main_branch_name)"
+  __git_new_branch "$name" "origin/${target_branch}"
 }
 __git_new_branch() {
   local name="$1"
   local base_ref="${2:-}"
-  git checkout -b "$(git config --get clubhouse.user)/$(_slugify <<< "$name")" "${base_ref}"
+  git checkout -b "$(_slugify <<< "$name")" "${base_ref}"
 }
 
 _git_new_branch_and_commit_from_new_issue() {
@@ -388,9 +394,9 @@ _git_get_pr_message() {
 _github_pr() {
   local message="$(_git_get_pr_message)"
   gh pr create \
-     --title "$(head -n1 <<< "${message}")" \
-     --body "$(tail -n +2 <<< "${message}")" \
-     "$@"
+    --title "$(head -n1 <<< "${message}")" \
+    --body "$(tail -n +2 <<< "${message}")" \
+    "$@"
 }
 
 _github_pr_with_reviewer() {
@@ -466,9 +472,9 @@ _git_copy_last_commit() {
 }
 
 _git_set_upstream() {
-  local branch
-  branch="$(_git_current_branch)"
-  git branch "--set-upstream-to=origin/${branch}" "${branch}"
+  local target_branch
+  target_branch="$(_git_current_branch)"
+  git target_branch "--set-upstream-to=origin/${target_branch}" "${target_branch}"
 }
 
 mass-main() {
@@ -476,13 +482,13 @@ mass-main() {
 }
 
 mass-prep() {
-  local branch="$1"
-  if [[ -z "${branch}" ]]; then
-    echo 'No branch defined, stopping.'
+  local target_branch="$1"
+  if [[ -z "${target_branch}" ]]; then
+    echo 'No target_branch defined, stopping.'
     return 1
   fi
   mass-main
-  mass "git checkout -b '${branch}'"
+  mass "git checkout -b '${target_branch}'"
 }
 
 mass-done() {
