@@ -776,7 +776,7 @@ it makes magit a fair bit faster.
 #+begin_src emacs-lisp :results none
   (defun jm/commit-prefix-from-branch-name (&optional branch-name)
     (concat (s-join "(" (cdr (jm/jira-issue-id-from-branch-name (if branch-name branch-name (jm/git-current-branch))))) "): "))
-(defun jm/jira-issue-id-from-branch-name (&optional branch-name)
+  (defun jm/jira-issue-id-from-branch-name (&optional branch-name)
     (s-match "^\\([a-zA-z]+\\)/\\([a-zAZ]+-[0-9]+\\)[/-]" (if branch-name branch-name (jm/git-current-branch))))
 #+end_src
 
