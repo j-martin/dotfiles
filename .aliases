@@ -399,8 +399,8 @@ alias pu='_work_login && pulumi'
 alias pus='_work_login && pulumi stack'
 
 # bub
-alias b="$HOME/src/github.com/j-martin/bub/main"
-alias w="$HOME/src/github.com/j-martin/bub/main workflow"
+alias n="$HOME/src/github.com/j-martin/nub/bin/nub-darwin-arm64"
+alias w="$HOME/src/github.com/j-martin/nub/bin/nub-darwin-arm64 workflow"
 
 # clipboard
 alias pc='pbcopy'
