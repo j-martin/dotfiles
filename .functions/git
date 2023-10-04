@@ -129,19 +129,16 @@ _git_new_branch_from_commit() {
   git cherry-pick "${object}"
 }
 
-__git_get_main_branch_name() {
-  if git config --get branch.main.remote > /dev/null 2>&1; then
-    echo 'main'
-  else
-    echo 'master'
-  fi
+__git_get_default_branch_name() {
+  git symbolic-ref --short refs/remotes/origin/HEAD \
+    | sed 's#.*/##'
 }
 
 _git_new_branch() {
   local name="$1"
   local target_branch="$2"
   if [[ -z "${target_branch}" ]]; then
-    target_branch="$(__git_get_main_branch_name)"
+    target_branch="HEAD"
   fi
 
   git fetch 'origin'
@@ -366,7 +363,7 @@ _git_switch_worktree() {
     new_dir="${cur_repo}-bugfix"
     if [[ ! -d "${new_dir}" ]]; then
       git worktree prune
-      git worktree add "${new_dir}" "origin/$(__git_get_main_branch_name)"
+      git worktree add "${new_dir}" "origin/HEAD"
     fi
     cd "${new_dir}" || _error "Failed to switch to '${new_dir}'"
   fi
@@ -387,7 +384,7 @@ _github_subscribe_to_team_repos() {
 }
 
 _git_get_pr_message() {
-  git log --pretty=%B "origin/$(__git_get_main_branch_name)...HEAD" \
+  git log --pretty=%B "origin/HEAD...HEAD" \
     | _unfill
 }
 

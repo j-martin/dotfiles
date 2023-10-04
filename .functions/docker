@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+_docker_pick_container() {
+  local tag_prefix="$1"
+  docker ps \
+    | grep -v 'CONTAINER ID' \
+    | _fzf "'${tag_prefix}" \
+    | _pick_first_col
+}
+
+_docker_pick_images() {
+  docker images \
+    | awk '$1 != "REPOSITORY" {print $1 ":" $2}' \
+    | _fzf "'$1"
+}
+
+_docker_logs() {
+  docker logs "$(_docker_pick_container "$@")" --follow
+}
+
+_docker_exec() {
+  local query="$1"
+  docker exec -it "$(_docker_pick_container "${query}")" "${@:2}"
+}
