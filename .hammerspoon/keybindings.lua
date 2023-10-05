@@ -48,6 +48,7 @@ local bindings = {
       {key = 'd', fn = selection.actOn('google'), desc = 'Search selection'},
       {key = 'f', name = 'Finder'},
       {key = 'f', name = 'Preview', shift = true},
+      {key = 'g', name = 'ChatGPT'},
       {key = 'i', name = 'iTerm2'},
       {key = 'i', fn = apps.iTermOmni, shift = true},
       {key = 'j', pos = {{0.0, 0.0, 0.5, 1.0}, {0.0, 0.0, 0.7, 1.0}}, desc = 'Window - Left 50% <-> 30%'},
