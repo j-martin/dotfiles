@@ -34,10 +34,10 @@ _main() {
     for pr_json in $(gh api "search/issues?q=${query}" | jq -c '.items[]'); do
 
         local url
-        url="$(_get "${pr_json}" ".url")"
+        url="$(_get "${pr_json}" ".html_url")"
         if gum confirm "Approve PR? $(_get "${pr_json}" .title) ${url}"; then
             local repo
-            repo="$(sed 's#https://api.github.com/repos/##g; s#/issues.*##;' <<< "${url}")"
+            repo="$(sed 's#.*/repos/##g; s#/issues.*##;' <<< "${url}")"
             local pr_number
             pr_number="$(_get "${pr_json}" ".number")"
 
