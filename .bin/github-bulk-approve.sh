@@ -35,7 +35,7 @@ _main() {
 
         local url
         url="$(_get "${pr_json}" ".html_url")"
-        if gum confirm "Approve PR? $(_get "${pr_json}" .title) ${url}"; then
+        if gum confirm "Approve PR? $(_get "${pr_json}" .title) ${url}/files?w=1"; then
             local repo
             repo="$(sed 's#.*/repos/##g; s#/issues.*##;' <<< "${url}")"
             local pr_number
