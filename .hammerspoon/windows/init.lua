@@ -120,7 +120,7 @@ function mod.setPosition(positions, targetScreen, reversable)
 
   local nextPosFn
 
-  if reversable and hs.screen.primaryScreen():name() == 'Color LCD' then
+  if reversable and hs.screen.primaryScreen():name() == 'Built-in Retina Display' then
     reverse(positions)
   end
 
