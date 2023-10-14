@@ -14,6 +14,11 @@ hs.grid.MARGINY = 0
 hs.window.animationDuration = 0
 hs.window.timeout(1)
 
+function mod.isUltraWide()
+  local frame = hs.screen.primaryScreen():frame()
+  return frame.w / frame.h > 1.8
+end
+
 function mod.applyLayout(commonLayout, selectedLayout)
   local function expandLayout(entry)
     local scr
@@ -113,7 +118,10 @@ end
 local cycleStates = {}
 
 -- cycles window size
-function mod.setPosition(positions, targetScreen, reversable)
+function mod.setPosition(positions, positionsUltraWide, targetScreen, reversable)
+  if mod.isUltraWide() and positionsUltraWide then
+    positions = positionsUltraWide
+  end
   if not isTableOfTables(positions) then
     return mod.moveWindowTo(positions, targetScreen)
   end
