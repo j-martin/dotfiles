@@ -3,10 +3,17 @@ local windows = require 'windows'
 
 local mod = {}
 
+local function getAppNameBasedOnHost(homeApp, workApp)
+  if hs.host.localizedName() == 'nmbp1423' then
+    return workApp
+  end
+  return homeApp
+end
+
 mod.name = {
   activityMonitor = 'Activity Monitor',
   iTerm = 'iTerm2',
-  idea = 'Goland',
+  idea = getAppNameBasedOnHost('IntelliJ IDEA CE', 'GoLand') ,
   ripcord = 'Ripcord',
 }
 
