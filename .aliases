@@ -230,6 +230,7 @@ gshow() { git show "$1:$2" | vi -; }
 gshowm() { git show "origin/HEAD:$1" | vi -; }
 alias gcleanx='git clean --force -dx --exclude .idea --exclude "*.iml"'
 alias gclone='_git_clone'
+alias ggh='git rev-parse HEAD | tr -d "\n" | _pbcopy'
 alias gwip='(git log --oneline $(__git_get_default_branch_name)..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias groo='groot'
