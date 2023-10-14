@@ -331,12 +331,8 @@ _run_every() {
   fi
 }
 
-__work_login() {
-  gcloud auth login
-  gcloud auth application-default login
-  _private_work_login
-}
-
 _work_login() {
-  _run_every 12h __work_login
+  if type __work_login; then
+    _run_every 12h __work_login
+  fi
 }
