@@ -3,6 +3,16 @@ local windows = require 'windows'
 
 local mod = {}
 
+function mod.getExecPath(exec)
+  local brewBinPath = '/opt/homebrew/bin/'
+  if not hs.fs.attributes(brewBinPath) then
+    brewBinPath = '/usr/local/bin/'
+  end
+
+  return brewBinPath .. exec
+
+end
+
 local function getAppNameBasedOnHost(homeApp, workApp)
   if hs.host.localizedName() == 'nmbp1423' then
     return workApp

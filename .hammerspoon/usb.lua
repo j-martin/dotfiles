@@ -1,5 +1,6 @@
 local logger = hs.logger.new('usb', 'debug')
 
+local apps = require "apps"
 local audio = require "audio"
 local process = require "utils/process"
 local screen = require 'screen'
@@ -41,7 +42,7 @@ function mod.officeAutomation(command, host)
     host = mod.switchLights
   end
   return function()
-    process.start('/opt/homebrew/bin/poetry', {'run', './office_automation.py', '--host', host, command })
+    process.start(apps.getExecPath('poetry'), {'run', './office_automation.py', '--host', host, command })
   end
 end
 
