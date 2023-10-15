@@ -36,34 +36,49 @@ function getn(t)
   return max
 end
 
-local function cleanupProcess(task)
+local function cleanupProcess(process)
+  task = process.task
   logger.df("Checking if still running: %s", task:pid())
-  return task:isRunning()
+  if not task:isRunning() then
+    logger.df("The process is not running anymore: %s", task:pid())
+    return false
+  end
+  if process.ttl < mod.getEpoch then
+    logger.df("Terminating due to TTL: %s", task:pid())
+    task:terminate()
+  end
+  logger.df("The process is still running: %s", task:pid())
+  return true
 end
 
 local function expand(path)
   return path:gsub('~', HOME)
 end
 
-function mod.start(cmd, args, pwd)
+
+function mod.getEpoch()
+  return os.time(os.date("!*t"))
+end
+
+function mod.start(cmd, args, pwd, ttl)
   running_processes = hs.fnutils.filter(running_processes, cleanupProcess)
 
   cmd = expand(cmd)
   args = hs.fnutils.map(args or {}, expand)
   pwd = expand(pwd or '~/.bin')
 
-  process = hs.task.new(cmd, nil, function() end, args)
-  table.insert(running_processes, process)
+  task = hs.task.new(cmd, returnCallback, streamCallback, args)
+  table.insert(running_processes, {task = task, ttl = mod.getEpoch() + (ttl or 30) })
 
-  logger.f('starting %s %s in %s', cmd, args, pwd)
-  process:setWorkingDirectory(pwd)
-  process:setEnvironment(env)
+  logger.f('starting %s %s in %s', cmd, hs.inspect(args), pwd)
+  task:setWorkingDirectory(pwd)
+  task:setEnvironment(env)
 
-  if not process:start() then
+  if not task:start() then
     logger.df('failed to start %s', cmd)
   end
 
-  return process
+  return task
 end
 
 return mod
