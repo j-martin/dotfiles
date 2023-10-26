@@ -23,10 +23,8 @@ function disableBindings(bindings)
 end
 
 local function buildBindFunction(binding)
-  if binding.pos and binding.targetScreen then
-    return windows.setPosition(binding.pos, binding.posUltraWide, binding.targetScreen, binding.reversable)
-  elseif binding.pos then
-    return windows.setPosition(binding.pos, binding.posUltraWide, 'primary', binding.reversable)
+  if binding.pos then
+    return windows.setPosition(binding.pos, binding.posUltraWide, binding.reversable)
   elseif binding.name then
     return windows.launchOrCycleFocus(binding.name)
   elseif binding.tab then

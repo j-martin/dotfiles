@@ -90,7 +90,7 @@ local bindings = {
         shift = true,
         desc = 'Window - Center (small)',
       },
-      {key = 'm', pos = {0.00, 0.00, 1.00, 1.00}, targetScreen = 'current', desc = 'Full Screen (Current)'},
+      {key = 'm', pos = {0.00, 0.00, 1.00, 1.00}, desc = 'Full Screen (Current)'},
       {key = 'm', fn = windows.previousScreen, shift = true, desc = 'Move window the next screen'},
       {key = 'o', name = apps.name.idea},
       {key = 'o', fn = apps.ideaOmni, shift = true},

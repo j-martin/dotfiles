@@ -15,7 +15,7 @@ hs.window.animationDuration = 0
 hs.window.timeout(1)
 
 function mod.isUltraWide()
-  local frame = hs.screen.primaryScreen():frame()
+  local frame = hs.screen.mainScreen():frame()
   return frame.w / frame.h > 1.8
 end
 
@@ -59,18 +59,11 @@ local function inPostions(currentPos, positions)
   return false
 end
 
-local function resolveTargetScreen(targetScreen)
-  if targetScreen == 'primary' then
-    return hs.screen.primaryScreen()
-  end
-  return nil
-end
-
 local previousStates = {}
 
-function mod.moveWindowTo(pos, targetScreen)
+function mod.moveWindowTo(position, positionsUltraWide)
   local function buildKey(win)
-    return table.concat(pos, '\0') .. win:id()
+    return table.concat(position, '\0') .. win:id()
   end
 
   return function()
@@ -79,13 +72,18 @@ function mod.moveWindowTo(pos, targetScreen)
     local winPos = toUnitRect(win)
     local previousState = previousStates[winKey]
 
-    if previousState and isSamePos(pos, winPos) then
-      win:move(previousState.pos, previousState.screen)
+    if mod.isUltraWide() and positionsUltraWide then
+      position = positionsUltraWide
+    end
+
+
+    if previousState and isSamePos(position, winPos) then
+      win:move(previousState.positionj, previousState.screen)
       previousStates[winKey] = nil
       logger.d('reverted to previousState')
     else
-      previousStates[winKey] = {screen = win:screen(), pos = winPos}
-      win:move(pos, resolveTargetScreen(targetScreen))
+      previousStates[winKey] = {screen = win:screen(), position = winPos}
+      win:move(position)
       logger.d('saved previousState')
     end
     ext.centerOnTitle(win:frame())
@@ -118,21 +116,17 @@ end
 local cycleStates = {}
 
 -- cycles window size
-function mod.setPosition(positions, positionsUltraWide, targetScreen, reversable)
-  if mod.isUltraWide() and positionsUltraWide then
-    positions = positionsUltraWide
-  end
+function mod.setPosition(positions, positionsUltraWide, reversable)
   if not isTableOfTables(positions) then
-    return mod.moveWindowTo(positions, targetScreen)
+    return mod.moveWindowTo(positions, positionsUltraWide)
   end
 
   local nextPosFn
 
-  if reversable and hs.screen.primaryScreen():name() == 'Built-in Retina Display' then
-    reverse(positions)
-  end
-
   return function()
+    if mod.isUltraWide() and positionsUltraWide then
+      positions = positionsUltraWide
+    end
     local win = hs.window.frontmostWindow():focus()
     local currentPos = toUnitRect(win)
     local id = win:id()
@@ -150,7 +144,7 @@ function mod.setPosition(positions, positionsUltraWide, targetScreen, reversable
 
     cycleStates[id] = positions
 
-    win:move(nextPos, resolveTargetScreen(targetScreen))
+    win:move(nextPos)
     ext.centerOnTitle(win:frame())
   end
 end
