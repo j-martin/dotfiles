@@ -34,5 +34,5 @@
 --follow
 --hidden
 
---glob=!{.git,node_modules,build,out,mod}/
+--glob=!{.git,node_modules,out}/
 --glob=!*.lock
