@@ -14,7 +14,7 @@ function mod.getExecPath(exec)
 end
 
 local function isHost(hostname)
-  return hs.fnutils.find(hs.host.names(), function(i) return i == hostname end)
+  return hs.fnutils.contains(hs.host.names(), hostname)
 end
 
 local function getAppNameBasedOnHost(homeApp, workApp)
