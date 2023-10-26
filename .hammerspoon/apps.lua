@@ -13,8 +13,12 @@ function mod.getExecPath(exec)
 
 end
 
+local function isHost(hostname)
+  return hs.fnutils.find(hs.host.names(), function(i) return i == hostname end)
+end
+
 local function getAppNameBasedOnHost(homeApp, workApp)
-  if hs.host.localizedName() == 'nmbp1423' then
+  if isHost('nmbp1423.local') then
     return workApp
   end
   return homeApp
