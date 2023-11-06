@@ -14,8 +14,8 @@ hs.grid.MARGINY = 0
 hs.window.animationDuration = 0
 hs.window.timeout(1)
 
-function mod.isUltraWide()
-  local frame = hs.screen.mainScreen():frame()
+function mod.isUltraWide(win)
+  local frame = win:screen():frame()
   return frame.w / frame.h > 1.8
 end
 
@@ -72,18 +72,19 @@ function mod.moveWindowTo(position, positionsUltraWide)
     local winPos = toUnitRect(win)
     local previousState = previousStates[winKey]
 
-    if mod.isUltraWide() and positionsUltraWide then
-      position = positionsUltraWide
+    local _position = position
+    if mod.isUltraWide(win) and positionsUltraWide then
+      _position = positionsUltraWide
     end
 
 
-    if previousState and isSamePos(position, winPos) then
+    if previousState and isSamePos(_position, winPos) then
       win:move(previousState.positionj, previousState.screen)
       previousStates[winKey] = nil
       logger.d('reverted to previousState')
     else
-      previousStates[winKey] = {screen = win:screen(), position = winPos}
-      win:move(position)
+      previousStates[winKey] = {screen = win:screen(), _position = winPos}
+      win:move(_position)
       logger.d('saved previousState')
     end
     ext.centerOnTitle(win:frame())
@@ -124,15 +125,16 @@ function mod.setPosition(positions, positionsUltraWide, reversable)
   local nextPosFn
 
   return function()
-    if mod.isUltraWide() and positionsUltraWide then
-      positions = positionsUltraWide
-    end
     local win = hs.window.frontmostWindow():focus()
+    local _positions = positions
+    if mod.isUltraWide(win) and positionsUltraWide then
+      _positions = positionsUltraWide
+    end
     local currentPos = toUnitRect(win)
     local id = win:id()
 
-    if cycleStates[id] ~= positions or not inPostions(currentPos, positions) then
-      nextPosFn = hs.fnutils.cycle(positions)
+    if cycleStates[id] ~= _positions or not inPostions(currentPos, _positions) then
+      nextPosFn = hs.fnutils.cycle(_positions)
     end
 
     local nextPos = nextPosFn()
@@ -142,7 +144,7 @@ function mod.setPosition(positions, positionsUltraWide, reversable)
       nextPos = nextPosFn()
     end
 
-    cycleStates[id] = positions
+    cycleStates[id] = _positions
 
     win:move(nextPos)
     ext.centerOnTitle(win:frame())
