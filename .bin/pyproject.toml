@@ -5,7 +5,7 @@ description = ""
 authors = ["Jean-Martin Archer <jm@jmartin.ca>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.11.0,<4.0"
 clubhouse = "==0.2.1"
 readability-lxml = "*"
 todoist-python = "*"
@@ -19,6 +19,7 @@ python-slugify = "*"
 cron-descriptor = "==1.2.24"
 python-kasa = "^0.5.0"
 sortedcontainers = "^2.4.0"
+homeassistant-api = "^4.1.1.post2"
 
 [tool.poetry.dev-dependencies]
 bpython = "*"

@@ -4,7 +4,9 @@
 import argparse
 import asyncio
 import sys
-from kasa import SmartPlug
+# from kasa import SmartPlug
+from homeassistant_api import Client
+import keyring
 from typing import List
 import time
 import io
@@ -13,27 +15,24 @@ COMMAND_ON = 'on'
 COMMAND_OFF = 'off'
 COMMAND_TOGGLE = 'toggle'
 
-async def switch(host: str, command: str) -> None:
-    dev = SmartPlug(host)
+def switch(entity_id: str, command: str) -> None:
+    client = Client('https://assistant.home.jmartin.ca/api', keyring.get_password('system', 'homeassistant'))
+    switch = client.get_domain('switch')
+    # switch.turn_on(entity_id="switch.office_desk")
     if command == COMMAND_ON:
-        await dev.turn_on()
-        print(f"Turned on: {host}")
+        switch.turn_on(entity_id=entity_id)
+        print(f"Turned on: {entity_id}")
     elif command == COMMAND_OFF:
-        await dev.turn_off()
-        print(f"Turned off: {host}")
+        switch.turn_off(entity_id=entity_id)
+        print(f"Turned off: {entity_id}")
     elif command == COMMAND_TOGGLE:
-        await dev.update()
-        if dev.is_on:
-            await dev.turn_off()
-            print(f"Turned off: {host}")
-        else:
-            await dev.turn_on()
-            print(f"Turned on: {host}")
+        switch.toggle(entity_id=entity_id)
+        print(f"Toggled: {entity_id}")
 
 
-async def main() -> None:
+def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", default="lights.office.jmartin.ca")
+    parser.add_argument("--entity-id", default="switch.desk_lights")
     parser.add_argument("command", choices=[COMMAND_ON, COMMAND_OFF, COMMAND_TOGGLE])
     args = parser.parse_args()
 
@@ -41,7 +40,7 @@ async def main() -> None:
         fp.seek(0, io.SEEK_END)
         fp.writelines([f"{time.time()} - {args.command}\n"])
 
-    await switch(args.host, args.command)
+    switch(args.entity_id, args.command)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()

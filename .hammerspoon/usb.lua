@@ -6,8 +6,8 @@ local process = require "utils/process"
 local screen = require 'screen'
 
 local mod = {
-  switchLights = 'lights.office.jmartin.ca',
-  switchDesk = 'desk.office.jmartin.ca'
+  switchLights = 'switch.desk_lights',
+  switchDesk = 'switch.office_desk'
 }
 
 -- Global USB handler to workaround.
@@ -37,17 +37,17 @@ local globalHandler = nil
 --   vendorName = "Sony"
 -- }
 
-function mod.officeAutomation(command, host)
-  if not host then
-    host = mod.switchLights
+function mod.officeAutomation(command, entityId)
+  if not entityId then
+    entityId = mod.switchLights
   end
   return function()
-    process.start(apps.getExecPath('poetry'), {'run', './office_automation.py', '--host', host, command }, nil, 10)
+    process.start(apps.getExecPath('poetry'), {'run', './office_automation.py', '--entity-id', entityId, command }, nil, 10)
   end
 end
 
-function mod.switchToggler(host)
-  return mod.officeAutomation('toggle', host)
+function mod.switchToggler(entityId)
+  return mod.officeAutomation('toggle', entityId)
 end
 
 local function buildGlobalHandler(watchedEvents)
