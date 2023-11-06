@@ -115,6 +115,7 @@ alias hosts='sudo vi /etc/hosts'
 alias hsl='grep key "$HOME/.hammerspoon/bindings.lua"'
 jqx() { jq . -C "$@" | less -SRi; }
 jql() { fzf --no-mouse --print-query --preview "jq {q} $*" <<< '' };
+alias jq-serialized='jq -R -s .'
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
 alias ip='ifconfig | grep "inet 1"'
@@ -396,8 +397,7 @@ alias bi='brew install'
 alias fixsound='sudo killall coreaudiod'
 
 # pulumi
-alias pu='_work_login && pulumi'
-alias pus='_work_login && pulumi stack'
+alias pu='_pulumi'
 
 # bub
 alias n="$HOME/src/github.com/j-martin/nub/bin/nub-darwin-arm64"
