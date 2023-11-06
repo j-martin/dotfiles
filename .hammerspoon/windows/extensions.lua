@@ -80,7 +80,7 @@ function mod.mouseHighlight()
 end
 
 function mod.centerOnTitle(rect)
-  local point = hs.geometry.point(rect.x + rect.w / 3, rect.y + rect.h / 3)
+  local point = hs.geometry.point(rect.x + rect.w / 5, rect.y + rect.h / 5)
   hs.mouse.absolutePosition(point)
 end
 
