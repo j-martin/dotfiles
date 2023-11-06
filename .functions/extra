@@ -332,7 +332,7 @@ _run_every() {
 }
 
 _work_login() {
-  if type __work_login; then
+  if type __work_login  > /dev/null 2>&1; then
     _run_every 12h __work_login
   fi
 }
