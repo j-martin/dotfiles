@@ -16,7 +16,7 @@ hs.window.timeout(1)
 
 function mod.isUltraWide(win)
   local frame = win:screen():frame()
-  return frame.w / frame.h > 1.8
+  return frame.w / frame.h > 2
 end
 
 function mod.applyLayout(commonLayout, selectedLayout)
