@@ -80,7 +80,7 @@ function mod.paste()
   hs.alert("Pasting/Typing: '" .. content .. "'")
   for line in content:gmatch("[^\r\n]+") do
     hs.eventtap.keyStrokes(line)
-    hs.eventtap.keyStroke({"cmd"}, "return")
+    hs.eventtap.keyStroke({}, "return")
   end
 end
 
