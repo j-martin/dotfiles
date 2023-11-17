@@ -78,7 +78,10 @@ end
 function mod.paste()
   local content = hs.pasteboard.getContents()
   hs.alert("Pasting/Typing: '" .. content .. "'")
-  hs.eventtap.keyStrokes(content)
+  for line in content:gmatch("[^\r\n]+") do
+    hs.eventtap.keyStrokes(line)
+    hs.eventtap.keyStroke({"cmd"}, "return")
+  end
 end
 
 local function round(number)
