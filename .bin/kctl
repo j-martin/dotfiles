@@ -23,17 +23,17 @@ _fatal() {
 
 _background_red() {
   # iTerm escape code to turn the terminal red.
-  printf "\033]Ph501010\033\\"
+  printf "\033]Ph501010\033\\" >&2
   "$@"
 }
 
 _background_orange() {
-  printf "\033]Ph403010\033\\"
+  printf "\033]Ph403010\033\\" >&2
   "$@"
 }
 
 _background_safe() {
-  printf "\033]1337;SetProfile=Default\a"
+  printf "\033]1337;SetProfile=Default\a" >&2
 }
 
 _show_current_context() {
