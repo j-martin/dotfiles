@@ -10,7 +10,8 @@ _list_schedules() {
   local payload
   payload="$(curl --fail --silent https://splatoon3.ink/data/schedules.json)"
 
-  export time_offset="$(($(date +%z | head -c3) % 2 * 60 * 60))" # workaround https://github.com/stedolan/jq/issues/1912
+  # export time_offset="$(($(date +%z | head -c3) % 2 * 60 * 60))" # workaround https://github.com/stedolan/jq/issues/1912
+  export time_offset="0"
   local x_battle="${1:-true}"
   export mode="${2:-Splat Zones}"
 
@@ -24,7 +25,7 @@ _list_schedules() {
       )
       | {
           startDateTime: (.startTime | fromdate + (env.time_offset | tonumber) | strflocaltime("%FT%T")),
-          details: (.bankaraMatchSettings[] | select(.vsRule.name == env.mode) | {stages: [.vsStages[].name], mode})
+          details: (.bankaraMatchSettings[] | select(.vsRule.name == env.mode) | {stages: [.vsStages[].name], bankaraMode})
         }
     ' <<< "${payload}"
 
