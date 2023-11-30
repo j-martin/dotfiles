@@ -37,12 +37,12 @@ local globalHandler = nil
 --   vendorName = "Sony"
 -- }
 
-function mod.officeAutomation(command, entityId)
-  if not entityId then
-    entityId = mod.switchLights
+function mod.officeAutomation(command, scene)
+  if not scene then
+    scene = 'office_call'
   end
   return function()
-    process.start(apps.getExecPath('poetry'), {'run', './office_automation.py', '--entity-id', entityId, command }, nil, 10)
+    process.start(apps.getExecPath('poetry'), {'run', './office_automation.py', '--scene', scene, command }, nil, 10)
   end
 end
 
@@ -90,7 +90,7 @@ end
 
 local watchedEvents = {
   -- Network adapter on office Thunderbolt dock
-  {eventType = "added", productID = 33107, productName = "USB 10/100/1000 LAN", vendorID = 3034, vendorName = "Realtek", fn = mod.officeAutomation("off", mod.switchDesk)},
+  -- {eventType = "added", productID = 33107, productName = "USB 10/100/1000 LAN", vendorID = 3034, vendorName = "Realtek", fn = mod.officeAutomation("off", mod.switchDesk)},
 
   -- ZV-1 with in USB mass storage mode
   -- {eventType = "added", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("on")},
