@@ -119,6 +119,8 @@ end
 -- Needed to enable cycling of application windows
 local lastToggledAppName = ''
 
+local cursorPositions = {}
+
 function mod.launchOrCycleFocus(applicationName)
   local function cleanupName(name)
     return name:gsub('.app$', '')
@@ -128,6 +130,7 @@ function mod.launchOrCycleFocus(applicationName)
     local nextWindow = nil
     local targetWindow
     local focusedWindow = hs.window.frontmostWindow()
+    cursorPositions[focusedWindow:title()] = hs.mouse.absolutePosition()
     if not focusedWindow then
       hs.application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
       return
@@ -140,11 +143,6 @@ function mod.launchOrCycleFocus(applicationName)
       currentAppName = cleanupName(focusedWindow and hs.fs.displayName(app:path()))
     end
     lastToggledAppName = currentAppName
-
-    if applicationName == 'iTerm2' then
-      -- moving the cursor out the window, to preserve iTerm currently focused split
-      hs.mouse.absolutePosition(hs.geometry.point(hs.screen.mainScreen():fullFrame().w / 2, 5))
-    end
 
     local appName = cleanupName(applicationName)
     logger.df('last: %s, current: %s', currentAppName, appName)
@@ -170,7 +168,17 @@ function mod.launchOrCycleFocus(applicationName)
       return nil
     end
 
-    mod.centerOnTitle(targetWindow:frame())
+    local previousCursorPosition = cursorPositions[targetWindow:title()]
+    if previousCursorPosition then
+      hs.mouse.absolutePosition(previousCursorPosition)
+    else
+      if applicationName == 'iTerm2' then
+        -- moving the cursor out the window, to preserve iTerm currently focused split
+        hs.mouse.absolutePosition(hs.geometry.point(hs.screen.mainScreen():fullFrame().w / 2, 5))
+      else
+        mod.centerOnTitle(targetWindow:frame())
+      end
+    end
   end
 end
 
