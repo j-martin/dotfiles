@@ -10,7 +10,8 @@
 
 --type-add=f:*.tf
 
---type-add=g:*.groovy
+--type-add=go:*.go
+--type-add=go:go.mod
 
 --type-add=r:*.rs
 --type-add=rs:*.rs
@@ -21,11 +22,6 @@
 --type-add=sql:*.sql
 
 --type-add=sh:*.sh
---type-add=sh:.ore
---type-add=sh:ore
-
---type-add=o:.ore
---type-add=o:ore
 
 --type-add=y:*.yaml*
 --type-add=y:*.yml*
