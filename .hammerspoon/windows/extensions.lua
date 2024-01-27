@@ -62,19 +62,19 @@ function mod.mouseHighlight()
   result(mouseCircleTimer, "stop")
 
   -- Get the current co-ordinates of the mouse pointer
-  local mousepoint = hs.mouse.getAbsolutePosition()
+  local mousePoint = hs.mouse.getAbsolutePosition()
 
-  local circle = hs.geometry.rect(mousepoint.x - 20, mousepoint.y - 20, 40, 40)
+  local radius = 100
 
-  local fillColor = {red = 0.5, blue = 0.5, green = 0.5, alpha = 0.5}
+  local circle = hs.geometry.rect(mousePoint.x - (radius / 2), mousePoint.y - (radius / 2), radius, radius)
+
+  local fillColor = {red = 0.5, blue = 0.5, green = 0.5, alpha = 1}
 
   mouseCircle = hs.drawing.circle(circle)
   mouseCircle:setFillColor(fillColor)
-  mouseCircle:setStrokeWidth(0)
   mouseCircle:show()
 
-  -- Set a hs.timer to delete the circle after 3 seconds
-  mouseCircleTimer = hs.timer.doAfter(0.2, function()
+  mouseCircleTimer = hs.timer.doAfter(0.07, function()
     mouseCircle:delete()
   end)
 end
@@ -179,6 +179,7 @@ function mod.launchOrCycleFocus(applicationName)
         mod.centerOnTitle(targetWindow:frame())
       end
     end
+    mod.mouseHighlight()
   end
 end
 
