@@ -1,4 +1,3 @@
-local alert = require "hs.alert"
 local apps = require "apps"
 local audio = require "audio"
 local battery = require "battery"
@@ -12,4 +11,4 @@ usb.init()
 apps.init()
 hs.ipc.cliInstall("/opt/homebrew")
 
-alert.show("Config loaded")
+hs.alert.show("Config loaded")

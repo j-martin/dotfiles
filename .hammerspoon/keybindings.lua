@@ -10,6 +10,7 @@ local windows = require 'windows'
 local chrome = require 'chrome'
 local reload = require 'utils/reload'
 local usb = require 'usb'
+local wifi = require 'wifi'
 
 local cmd = keybinder.cmd
 local cmdCtrl = {'cmd', 'ctrl'}
@@ -152,6 +153,7 @@ local hyperModeBindings = {
   {key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Spotify'},
   {key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%'},
   {key = 'y', fn = audio.changeVolume(-100), desc = 'Mute'},
+  {key = 'w', fn = wifi.restartWifi, desc = 'Restart WiFi'},
   {key = 'z', fn = usb.workSetup, desc = 'Work setup'},
 }
 
