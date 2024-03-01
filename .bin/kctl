@@ -195,9 +195,11 @@ _k8s_show_vpa_recommendations() {
           }
         }]
       }' \
+    | jq --slurp \
     | yq --prettyPrint
 
 }
+
 _install() {
   local bin_path='/usr/local/bin/kctl'
   _info "Installing or upgrading kctl from '${KCTL_URL}'..."
