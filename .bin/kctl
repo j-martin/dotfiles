@@ -151,6 +151,53 @@ __k8s_logs() {
   _kubectl logs "$(_k8s_pick_pod "${pod}")" "${@:2}"
 }
 
+_jq_log() {
+  jq -R '. as $line | try (fromjson) catch $line' | jq "$@"
+}
+
+_k8s_restart() {
+  local deployment="${1:-}"
+  deployment="$(_k8s_pick_resource deployment "${deployment}")"
+  gum confirm "Are you sure you want to restart deployment: ${deployment}"
+  _info "Restarting deployment: ${deployment}"
+  _kubectl rollout restart deployment "${deployment}" "${@:2}"
+
+}
+
+_k8s_scale() {
+  local deployment="${1:-}"
+  local replicas="${2:-1}"
+  deployment="$(_k8s_pick_resource deployment "${deployment}")"
+  gum confirm "Are you sure you want to scale the ${deployment} to ${replicas} replicas?"
+  _info "Scaling deployment ${deployment} to ${replicas} replicas"
+  _kubectl scale deployment "${deployment}" --replicas "${replicas}" "${@:3}"
+
+}
+_k8s_show_vpa_recommendations() {
+  _kubectl get vpa --output json \
+    | jq '.items[] | {
+      name: .metadata.name,
+      conditions: [.status.conditions[].type],
+      recommendations: [
+        .status.recommendation.containerRecommendations[] | select(.containerName != "google-sql-proxy") | {
+          container: .containerName,
+          cpu: {
+            lowerBound: .lowerBound.cpu,
+            target: .target.cpu,
+            uncappedTarget: .uncappedTarget.cpu,
+            upperBound: .upperBound.cpu
+          },
+          memory: {
+            lowerBound: "\(.lowerBound.memory | tonumber / 1024 / 1024)Mi",
+            target: "\(.target.memory | tonumber / 1024 / 1024)Mi",
+            uncappedTarget: "\(.uncappedTarget.memory | tonumber / 1024 / 1024)Mi",
+            upperBound: "\(.upperBound.memory | tonumber / 1024 / 1024)Mi"
+          }
+        }]
+      }' \
+    | yq --prettyPrint
+
+}
 _install() {
   local bin_path='/usr/local/bin/kctl'
   _info "Installing or upgrading kctl from '${KCTL_URL}'..."
@@ -211,13 +258,25 @@ _main() {
       _k8s_command_pick_resource get "$(_kubectl api-resources | _fzf_pick "${1:-}")" "${2:-}" "${@:3}" --output=yaml
       ;;
     gy | get-yaml) # RESOURCE_TYPE [RESOURCE_NAME] Get yaml output of the chosen resource. Will list resources if there no exact match or no resource passed.
-      _k8s_command_pick_resource get "$1" "${2:-}" "${@:3}" --output=yaml
+      _k8s_command_pick_resource get "${1:-}" "${@:2}" --output=yaml
+      ;;
+    gs | get-secrets) # [SECRET_NAME] Get secrets. Will list secrets if there no exact match or no secret passed.
+      _k8s_command_pick_resource get secrets "${1:-}" "${@:2}" --output json | jq '.data | to_entries[] | {key, value: (.value | @base64d)}'
       ;;
     install | update) # Install or update kctl
       _install
       ;;
+    r | restart)
+      _k8s_restart "$@" # [DEPLOYMENT-NAME] Restart all pods in the deployment. Will list deployments if there no exact match or no deployment passed.
+      ;;
+    sca | scale) # [DEPLOYMENT-NAME] [REPLICAS] Scale the deployment to the specified number of replicas. Will list deployments if there no exact match or no deployment passed.
+      _k8s_scale "$@"
+      ;;
     l | logs) # [POD] Watch logs for all containers in pod.
       _k8s_logs "$@"
+      ;;
+    lj | logs-json) # [POD] Watch logs for all containers in pod. Handles/formats each lines as JSON.
+      _k8s_logs "${1:-}" | _jq_log "${@:2}"
       ;;
     sc | switch-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Will list clusters/contexts if there no exact match or no cluster is passed. If the namespace is passed then it will try to switch to that namespace as well. If a pod is defined it will run exec on it.
       _k8s_switch_cluster "$@"
@@ -225,13 +284,19 @@ _main() {
     sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
       _k8s_switch_namespace "$@"
       ;;
+    v | vpa)
+      _k8s_show_vpa_recommendations
+      ;;
     w | watch)
       _show_current_context 'Watching...'
       watch kubectl get "$@"
       ;;
-    wp)
+    wp | watch-pods)
       _show_current_context 'Watching pods'
-      watch kubectl get pod "$@"
+      watch "kubectl get pod --output wide | grep --extended-regexp --ignore-case '${1:-.*}'"
+      ;;
+    wg | wpg)
+      _fatal 'Use "wp" instead'
       ;;
     --) # ARGS   Pass arguments directly to kubectl
       _kubectl "$@"
