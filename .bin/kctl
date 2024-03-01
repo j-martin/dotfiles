@@ -45,7 +45,7 @@ _show_current_context() {
     *dev*)
       _background_safe
       ;;
-    *staging* | *qa* | *demo*)
+    *staging* | *demo*)
       _info 'Staging environment found. Switching background to orange in iTerm. Use "kctl safe" to reset your terminal color when you are done.'
       _background_orange
       ;;
