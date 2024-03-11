@@ -46,6 +46,7 @@ _go_mod_download() {
     (
       pushd "${directory}" > /dev/null
       _info "Download go dependencies for ${PWD}..."
+      go mod tidy
       go mod download
       _info 'Done'
     )
@@ -321,13 +322,13 @@ _run_every() {
   local max_age="$1"
 
   local sentinel_path
-  sentinel_path="${TMPDIR}/$(md5sum <<< '${@}' | awk '{print $1}')"
+  sentinel_path="${tmpdir}/$(md5sum <<< '${@}' | awk '{print $1}')"
 
   if [[ ! -f "${sentinel_path}" ]] || [[ -n "$(find "${sentinel_path}" -mtime "+${max_age}" -print)" ]]; then
-    _info "Running: '${@:2}'..."
+    _info "running: '${@:2}'..."
     "${@:2}" && \touch -m "${sentinel_path}"
   else
-    _info "Sentinel file '${sentinel_path}' not older than ${max_age}. Skipping '${@:2}'..."
+    _info "sentinel file '${sentinel_path}' not older than ${max_age}. skipping '${@:2}'..."
   fi
 }
 
@@ -335,4 +336,42 @@ _work_login() {
   if type __work_login  > /dev/null 2>&1; then
     _run_every 12h __work_login
   fi
+}
+
+_jwt_decode_from_clipboard() {
+  pbpaste \
+    | cut -d. -f1,2 \
+    | tr . '\n' \
+    | base64 --decode \
+    | jq .
+}
+
+
+_quote_lines() {
+  sed -E 's/^(.+)$/"\1"/'
+}
+
+_quote_single_lines() {
+  sed -E "s/^(.+)$$/'\1'/"
+}
+
+_jq_log() {
+  jq -R '. as $line | try (fromjson) catch $line'
+}
+
+_jq_clipboard_to_escaped_string() {
+  pbpaste | jq -asR
+}
+
+urlencode () {
+  local string="$1"
+  python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], sys.argv[2]))' "${string}" "$urlencode_safe"
+}
+
+_shell_command_to_args() {
+  sed -E 's/ /", "/g; s/(.*)/"\1"/'
+}
+
+_args_to_shell() {
+  sed -E 's/", *"/ /g; s/^"//; s/"$//'
 }

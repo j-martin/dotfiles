@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
 
 _git_repo() {
-  local origin
-  origin="$(git config --get remote.origin.url)"
-
-  if [[ "${origin}" == "${GITHUB_URL}"* ]]; then
-    sed "s#${GITHUB_URL}/##g; s/\.git//" <<< "${origin}"
-  else
-    cut -d ':' -f2 <<< "${origin}" \
-      | cut -d '.' -f1 \
-      | head -n1
-  fi
+  git config --get remote.origin.url \
+    | sed 's#https://github.com/##; s#.git$##; s#git@github.com:##'
 }
 
 _git_org_name() {
@@ -116,8 +108,7 @@ _git_format_commit_message() {
 _slugify() {
   tr ':' '/' \
     | tr \'' "#,.+^&*()`[]@$%' '-' \
-    | tr '[:upper:]' '[:lower:]' \
-    | sed -E 's/-+/-/g; s/^-//; s/-$//; s#/-#/#g; s#/+#/#g'
+    | sed -E 's/-+/-/g; s/^-//; s/-$//; s#/-#/#g; s#/+#/#g; s#(^[a-z]+)-#\1/#; s#-*/-*#/#g'
 }
 
 _git_new_branch_from_commit() {
@@ -176,7 +167,36 @@ _github_post() {
 
 _github_search_issues() {
   local query="$1"
-  _github search/issues --get --data-urlencode "q=${query}"
+  gh api "search/issues" --field=q="${query}" --method GET | jq -c '.items[] | {title, html_url}'
+}
+
+_github_search_pr() {
+  local title="$1"
+  local author="$2"
+  local extra="$3"
+  _github_search_issues "author:${author} archived:false state:open type:pr \"${title}\" in:title ${extra}"
+}
+
+_github_bulk_pr_action() {
+  local payload=$(cat)
+  jq --raw-output '"\(.title) \(.html_url)"' <<< "${payload}"
+
+  if ! grep "github.com"  > /dev/null 2>&1 ; then
+    _warn 'No PR to approve. Aborting.'
+    return
+  fi
+
+  gum confirm "Run 'gh pr $*' on the PR above?" || return
+  while read -r line; do
+    gh pr "$@" "$(jq -r '.html_url' <<< "${line}")"
+  done <<< "$payload"
+}
+
+_github_bulk_approve() {
+  local title="$1"
+  local author="$2"
+  _github_search_pr "${title}" "${author}" "review:required review-requested:@me ${*:3}" \
+    | _github_bulk_pr_action review --approve
 }
 
 _github_repos() {
@@ -216,12 +236,12 @@ _github_current_branch_pr_number() {
 
 _github_current_branch_pr() {
   _github "repos/$(_git_repo)/pulls" \
-    --get \
-    --data-urlencode head="$(dirname "$(_git_repo)"):$(_git_current_branch)"
+    --method GET \
+    --field head="$(dirname "$(_git_repo)"):$(_git_current_branch)"
 }
 
 _github_open_url() {
-  open "$(_github_pick_url "$@")"
+  _safe_open "$(_github_pick_url "$@")"
 }
 
 _github_commit_url() {
@@ -242,13 +262,22 @@ _github_copy_pr_url_for_commit() {
 }
 
 _github_open_commit() {
-  local commit="$1"
-  open "$(_github_commit_url "${commit}")"
+  local commit="${1:-$(pbpaste)}"
+  _safe_open "$(_github_commit_url "${commit}")"
+}
+
+_safe_open() {
+  local url="$1"
+  if [[ -z "${url}" ]]; then
+    _error 'No URL passed as an argument.'
+    return 1
+  fi
+  open "${url}"
 }
 
 _github_open_pr_for_commit() {
-  local commit="$1"
-  open "$(_github_pull_request_for_commit "${commit}")"
+  local commit="${1:-$(pbpaste)}"
+  _safe_open "$(_github_pull_request_for_commit "${commit}")"
 }
 
 _github_pick_url() {
@@ -329,7 +358,7 @@ _github_events() {
 }
 
 _github_open_current_branch() {
-  open "https://github.com/$(_git_repo)/tree/$(_git_current_branch)"
+  _safe_open "https://github.com/$(_git_repo)/tree/$(_git_current_branch)"
 }
 
 _github_current_branch_pr_comments() {
@@ -383,6 +412,25 @@ _github_subscribe_to_team_repos() {
   done
 }
 
+_github_open_check() {
+  local query="${1:-}"
+  local url=""
+  while true; do
+    url="$(
+      gh api repos/$(_git_repo)/commits/$(git rev-parse HEAD)/check-runs \
+        | jq -r '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)\t\(.details_url)"' \
+        | fzf --select-1 --exit-0 --query "${query}" \
+        | awk -F\t '{print $4}'
+    )"
+    if [[ -n "${url}" ]]; then
+      break
+    fi
+    _info "Waiting for checks to be available..."
+    sleep 1
+  done
+  _safe_open "${url}"
+}
+
 _git_get_pr_message() {
   git log --pretty=%B "origin/HEAD...HEAD" \
     | _unfill
@@ -401,12 +449,6 @@ _github_pr_with_reviewer() {
   _github_pr \
     --reviewer "${reviewers}" \
     "$@"
-}
-
-_github_mass_approve() {
-  sed 's#https://github.com/##; s#/pull/# #' \
-    | awk '{print $2,"--repo", $1, "--approve", "--body", "Approved in bulk with the assumption it is similar to other related PRs."}' \
-    | xargs -n6 echo gh pr review
 }
 
 _git_clone() {
@@ -439,6 +481,16 @@ _git_clone() {
 
 }
 
+_github_actions_delete_all_runs() {
+  # Does not deleting by default
+  local workflow="$1"
+  gh run list --limit 200 \
+    --workflow="${workflow}" \
+    --json databaseId \
+    | jq '.[].databaseId' \
+    | xargs -I{} echo gh run delete {}
+}
+
 _git_delete_commit() {
   local commit="$1"
   git rebase --onto "${commit}^" "${commit}"
@@ -447,6 +499,10 @@ _git_delete_commit() {
 _git_list_files_not_under_source_control() {
   local repo_dir="$1"
   find "${repo_dir}" \( -type d -exec test -d '{}'/.git \; -prune \) -o -print
+}
+
+_gh_generate_approve_commands_from_url() {
+  pbpaste | sed 's/^/gh pr review --approve /' | _pbcopy
 }
 
 _git_compare_releases() {
@@ -504,5 +560,5 @@ mass() {
 }
 
 _mass() {
-  parallel --max-proc 20 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'" \"$HOME/.bin/env.sh\" $* )"
+  parallel --max-proc 20 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'"  $* )"
 }
