@@ -42,10 +42,10 @@ _show_current_context() {
   local context
   context="$(__k8s_current_context)"
   case "${context}" in
-    *dev*)
+    *dev* | *staging*)
       _background_safe
       ;;
-    *staging* | *demo*)
+    *qa* | *demo*)
       _info 'Staging environment found. Switching background to orange in iTerm. Use "kctl safe" to reset your terminal color when you are done.'
       _background_orange
       ;;
@@ -237,6 +237,11 @@ _main() {
     s | safe) # Resets iTerm background color. Use this if you were working on a staging or production cluster and want the default color back.
       _info 'Reseting to default background / profile.'
       _background_safe
+      ;;
+    cj | create-job)
+      local cronjob="$1"
+      cronjob="$(_k8s_pick_resource cronjob "${cronjob}")"
+      _kubectl create job --from="cronjob/${cronjob}" "${cronjob}-${USER}-$(date +%s)"
       ;;
     d | describe) # RESOURCE_TYPE [RESOURCE_NAME] Describe the chosen resource. Will list resources if there no exact match or no resource passed.
       _k8s_command_pick_resource describe "$@"
