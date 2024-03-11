@@ -27,7 +27,7 @@ end
 mod.name = {
   activityMonitor = 'Activity Monitor',
   iTerm = 'iTerm2',
-  idea = getAppNameBasedOnHost('IntelliJ IDEA CE', 'GoLand') ,
+  idea = 'GoLand',
   ripcord = 'Ripcord',
 }
 
