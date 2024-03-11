@@ -652,7 +652,6 @@
     }
   ],
   "vim.easymotion": true,
-  "workbench.activityBar.visible": true,
   "gitlens.advanced.messages": {
     "suppressCommitHasNoPreviousCommitWarning": false,
     "suppressCommitNotFoundWarning": false,
