@@ -3,6 +3,8 @@
   email = jm@jmartin.ca
 [pull]
   rebase = true
+[push]
+  autoSetupRemote = true
 [rebase]
   autoSquash = true
 [push]
@@ -13,6 +15,7 @@
   commentChar = ";"
   excludesfile = ~/.gitignore.global
   attributesfile = ~/.gitattributes
+  # pager = delta
 [diff]
   colorMoved = true
   renameLimit = 900
@@ -49,3 +52,31 @@
   follow = true
 [url "git@github.com:"]
   insteadOf = https://github.com/
+
+[interactive]
+#  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  light = false
+  features = decorations
+  line-numbers = true
+  side-by-side = true
+  paging = always
+
+[merge]
+  conflictstyle = zdiff3
+
+[diff]
+  colorMoved = default
+  algorithm = histogram
+[branch]
+  sort = -committerdate
+[init]
+  defaultBranch = main
+[transfer]
+  fsckobjects = true
+[fetch]
+  fsckobjects = true
+[receive]
+  fsckObjects = true
