@@ -48,6 +48,8 @@ if [ -n "$ZSH_VERSION" ]; then
   alias -g H='"$(git rev-parse HEAD)"'
 fi
 
+alias S=_safe
+
 # Quick edit
 alias eco='_with_fzf "ec" ".conf$" '
 alias esc='_with_fzf "ec" ".scala$" '
@@ -75,11 +77,16 @@ ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | le
 alias uu=_rg
 alias uc=_rg_cased
 agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
+alias b=bat
 alias ba='_with_fzf bat'
 alias cay='cal -y'
 alias clf='clf -c'
 alias ca='_with_fzf cat'
-alias cdp='cd "$(dirname "$(pbpaste)")"'
+cdp() {
+  local file_path
+  file_path="$(pbpaste)"
+  cd "${file_path}"  2> /dev/null || cd "$(dirname "${file_path}")"
+}
 alias cf='cd "$(dirname "$(fzf)")"'
 alias comp='_notify "Done!"'
 alias digg='dig +noall +answer'
@@ -103,6 +110,7 @@ dkill() { docker kill "$(_docker_pick_container $1)"; }
 
 alias dkillall='docker ps -q | xargs -r docker kill'
 alias drmiall='docker images -q | xargs -r docker rmi -f'
+alias dkcleanup='gum confirm "Delete all containers and volumes?" && docker rm -f $(docker ps -a -q) && docker volume rm $(docker volume ls -q)'
 alias dtest='docker build -t $(basename $(pwd)) . && docker run -it $(basename $(pwd))'
 alias epoch='date +%s000'
 alias ep='pbpaste | $HOME/.bin/ep.py'
@@ -118,6 +126,9 @@ jql() { fzf --no-mouse --print-query --preview "jq {q} $*" <<< '' };
 alias jq-serialized='jq -R -s .'
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
+jq-paths() {
+  jq -r 'select(objects) |= [.] | map(paths(scalars)) | map(map(select(numbers)="[]") | join(".")) | unique[]' "$@" | sed 's/^/./'
+}
 alias ip='ifconfig | grep "inet 1"'
 idiff() { icdiff "$1" "$2" | less -SRi; }
 idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
@@ -215,7 +226,7 @@ alias gdpb='git diff | pbcopy'
 alias gdff='git icdiff | less -SRi'
 alias gdfff='git diff --color | diff-so-fancy | less -SRi'
 alias gdf='git diff -- "$(fzf)"'
-alias gpom='git pull --rebase origin HEAD'
+alias gpom='git fetch origin && git pull --rebase origin HEAD'
 alias gpomtheirs='git pull --rebase --strategy recursive --strategy-option theirs origin HEAD'
 alias gw='_git_switch_worktree'
 alias gwf='$(git worktree list | fzf | _pick_first_col)'
@@ -242,7 +253,7 @@ alias ghbp='gpp && hbp'
 alias ghpr='gpp && _github_pr'
 alias ghprr='gpp && _github_pr_with_reviewer'
 alias ghprmsg='_git_get_pr_message | _pbcopy'
-alias ghprm='gh pr merge "$(_git_current_branch)" --merge'
+alias ghprm='gh pr merge "$(_git_current_branch)" --rebase'
 alias ghpro='open "$(gh pr status --json "url" | jq -r ".currentBranch.url")"'
 ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r ;}
 alias ghw='watch -n10 github-events'
@@ -285,6 +296,7 @@ alias greset='git fetch origin && git reset --hard origin/HEAD'
 alias gri='git rebase --autosquash -i'
 alias gro='git rebase --autosquash -i $(__git_get_default_branch_name)'
 alias grom='git rebase --autosquash -i origin/HEAD'
+alias gorm=grom
 alias gs='git status'
 alias gsa='git stash apply'
 alias gsl='git stash list'
@@ -298,7 +310,9 @@ alias ge="emacsclient --no-wait --eval '(magit-status)' && osascript -e 'tell ap
 alias ha='open "$GITHUB_URL"'
 alias hpo='open "$GITHUB_URL/$(_git_repo)/pulls"'
 alias hc='_github_open_commit'
+alias hca='open "$GITHUB_URL/$(_git_repo)/actions"'
 alias hcc='_github_copy_commit_url'
+alias hck='_github_open_check'
 alias hp='_github_open_pr_for_commit'
 alias hpc='_github_copy_pr_url_for_commit'
 alias hb='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
@@ -380,7 +394,7 @@ alias gmachine='gcloud compute machine-types list'
 alias ipy='ipython3'
 alias ipyn='ipython3 notebook'
 alias py='python3'
-alias pr='pipenv run'
+alias pr='poetry run'
 alias pip-conflict-formatter="pbpaste | sed 's/RequirementInformation/\n/g; s/(requirement=SpecifierRequirement/\n/g; s/from/\n/g; s/, parent=LinkCandidate(/\n/g; s/extras=frozenset({/\n/g; s/})))/\n\n/g'"
 
 # Website
@@ -398,6 +412,9 @@ alias fixsound='sudo killall coreaudiod'
 
 # pulumi
 alias pu='_pulumi'
+
+# kubectl
+alias k8s-infer-deployment-name-from-pod-name="sed -E 's/-[a-z0-9]+-[a-z0-9]+$//' | sort -u"
 
 # bub
 alias n="$HOME/src/github.com/j-martin/nub/bin/nub-darwin-arm64"
