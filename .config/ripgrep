@@ -13,6 +13,9 @@
 --type-add=go:*.go
 --type-add=go:go.mod
 
+--type-add=g:*.go
+--type-add=g:go.mod
+
 --type-add=r:*.rs
 --type-add=rs:*.rs
 
