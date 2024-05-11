@@ -901,17 +901,17 @@ it makes magit a fair bit faster.
 
   (defun jm/open-with-line (app)
     (when buffer-file-name
-      (save-buffer)
+      (basic-save-buffer-1)
       (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) "\""))))
 
   (defun jm/open-with-line-column (app)
     (when buffer-file-name
-      (save-buffer)
+      (basic-save-buffer-1)
       (shell-command (concat app " \"" buffer-file-name ":" (jm/get-line-number) ":" (jm/get-column) "\""))))
 
   (defun jm/open-with-line-column-idea (app)
     (when buffer-file-name
-      (save-buffer)
+      (basic-save-buffer-1)
       (shell-command (concat app " --line " (jm/get-line-number) " --column " (number-to-string (current-column)) " \"" buffer-file-name "\""))))
 
   (defun jm/open-with-line-column-vim (app)
