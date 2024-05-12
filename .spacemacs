@@ -63,8 +63,6 @@ This function should only modify configuration layer settings."
      javascript
      kubernetes
      lua
-     (languagetool :variables
-       langtool-language-tool-jar "/opt/homebrew/Cellar/languagetool/current/libexec/languagetool-commandline.jar")
      (markdown :variables markdown-live-preview-engine 'vmd)
      (org :variables org-enable-github-support t)
      nginx
