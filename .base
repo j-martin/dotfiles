@@ -19,6 +19,7 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK:$GOPATH/src/github.com/j-martin/:$HOME/code/"
 export VISUAL="emacsclient"
+# export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 if [[ -f /opt/homebrew/bin/brew ]]; then
   export HOMEBREW_PREFIX="/opt/homebrew";
