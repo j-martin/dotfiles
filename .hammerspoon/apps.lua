@@ -223,9 +223,9 @@ function mod.init()
     privateConfigFile:close()
     mod.slackTeamMapping = hs.json.read(privateConfigPath).slackTeamMapping
   end
-  hs.urlevent.httpCallback = mod.httpCallback
-  hs.urlevent.slackCallback = logger.i
-  hs.urlevent.setDefaultHandler('http')
+  -- hs.urlevent.httpCallback = mod.httpCallback
+  -- hs.urlevent.slackCallback = logger.i
+  -- hs.urlevent.setDefaultHandler('http')
 end
 
 
