@@ -42,6 +42,11 @@ function mod.officeAutomation(command, scene)
     scene = 'office_call'
   end
   return function()
+    if command == 'on' then
+      hs.spotify.pause()
+    else
+      audio.setVolume('default')()
+    end
     process.start(apps.getExecPath('poetry'), {'run', './office_automation.py', '--scene', scene, command }, nil, 10)
   end
 end
