@@ -5,8 +5,8 @@ local keybindings = require "keybindings"
 local usb = require "usb"
 
 keybindings.init()
-battery.init()
-audio.init()
+-- battery.init()
+-- audio.init()
 usb.init()
 apps.init()
 -- hs.ipc.cliInstall("/opt/homebrew")
