@@ -41,7 +41,7 @@ local bindings = {
       {key = ';', name = 'Dash'},
       {key = '\\', name = '1Password'},
       -- key = ';' reserved for Dash
-      {key = 'a', name = 'Figma 2'},
+      {key = 'a', name = 'Figma'},
       {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
       {key = 'b', fn = apps.closeNotification, shift = true, desc = 'Notification - Action'},
       {key = 'c', name = 'Google Calendar'},
