@@ -179,7 +179,7 @@ function mod.launchOrCycleFocus(applicationName)
         mod.centerOnTitle(targetWindow:frame())
       end
     end
-    mod.mouseHighlight()
+    -- mod.mouseHighlight()
   end
 end
 
