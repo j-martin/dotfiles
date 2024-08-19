@@ -14,11 +14,16 @@ function mod.getExecPath(exec)
 end
 
 local function isHost(hostname)
-  return hs.fnutils.contains(hs.host.names(), hostname)
+  for _, name in ipairs(hs.host.names()) do
+    if string.match(name, hostname) then
+      return true
+    end
+  end
+  return false
 end
 
 local function getAppNameBasedOnHost(homeApp, workApp)
-  if isHost('nmbp1423.local') then
+  if isHost('nmbp1423') then
     return workApp
   end
   return homeApp
