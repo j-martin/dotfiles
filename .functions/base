@@ -14,13 +14,13 @@ _error() {
 
 _production() {
   # iTerm escape code to turn the terminal red.
-  printf "\033]Ph501010\033\\"
+  printf "\033]Ph341817\033\\" >&2
   trap _safe EXIT
   "$@"
 }
 
 _watchout() {
-  printf "\033]Ph403010\033\\"
+  printf "\033]Ph2d1800\033\\" >&2
   trap _safe EXIT
   "$@"
 }

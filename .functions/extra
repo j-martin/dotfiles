@@ -176,7 +176,7 @@ pidof() {
 _notify() {
   local message="$*"
   _info "${message}"
-  printf '\033]9;%s\033\\' "${message}"
+  printf '\033]9;%s\033\' "${message}"
 }
 
 _rsync_watch() {
