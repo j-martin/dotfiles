@@ -150,6 +150,7 @@ _git_new_branch_and_commit_from_new_issue() {
 
 _git_new_branch_and_commit() {
   local message="$1"
+  message="$(sed -E '1 s#http.*/browse/([A-Z]+-[0-9]+).*)#\1)#' <<< "${message}")"
   _git_new_branch "$(head -n1 <<< "${message}")"
   git commit -n -m "$(_git_format_commit_message "${message}")" "${@:2}"
 }
@@ -167,12 +168,17 @@ _github_post() {
 
 _github_search_issues() {
   local query="$1"
-  gh api "search/issues" --field=q="${query}" --method GET | jq -c '.items[] | {title, html_url}'
+  gh api "search/issues" --field=q="${query}" --field=per_page=100 --method GET | jq -c '.items[] | {title, html_url}'
+}
+
+_gh_pr_bulk() {
+  jq .html_url | xargs -n1 gh pr "$@"
 }
 
 _github_search_pr() {
+  # _github_search_pr 'production'  'review-requested:@me'
   local title="$1"
-  local author="$2"
+  local author="${2:-@me}"
   local extra="$3"
   _github_search_issues "author:${author} archived:false state:open type:pr \"${title}\" in:title ${extra}"
 }
@@ -181,15 +187,19 @@ _github_bulk_pr_action() {
   local payload=$(cat)
   jq --raw-output '"\(.title) \(.html_url)"' <<< "${payload}"
 
-  if ! grep "github.com"  > /dev/null 2>&1 ; then
+  if ! grep "github.com" <<< "${payload}" > /dev/null 2>&1; then
     _warn 'No PR to approve. Aborting.'
     return
   fi
 
-  gum confirm "Run 'gh pr $*' on the PR above?" || return
   while read -r line; do
-    gh pr "$@" "$(jq -r '.html_url' <<< "${line}")"
-  done <<< "$payload"
+    local url
+    url="$(jq -r '.html_url' <<< "${line}")"
+    PAGER=cat gh pr view "${url}"
+    PAGER=cat gh pr diff "${url}"
+    gum confirm "Run 'gh pr $*' on the PR above?" || continue
+    gh pr "$@" "${url}"
+  done <<< "${payload}"
 }
 
 _github_bulk_approve() {
@@ -412,16 +422,19 @@ _github_subscribe_to_team_repos() {
   done
 }
 
+__github_pick_run() {
+  gh api repos/$(_git_repo)/commits/$(git rev-parse HEAD)/check-runs \
+    | jq -r '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)\t\(.details_url)"' \
+    | grep --invert-match 'gitstream' \
+    | fzf --select-1 --exit-0 --query "${query}" \
+    | awk -F\t '{print $4}'
+}
+
 _github_open_check() {
   local query="${1:-}"
   local url=""
   while true; do
-    url="$(
-      gh api repos/$(_git_repo)/commits/$(git rev-parse HEAD)/check-runs \
-        | jq -r '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)\t\(.details_url)"' \
-        | fzf --select-1 --exit-0 --query "${query}" \
-        | awk -F\t '{print $4}'
-    )"
+    url="$(__github_pick_run)"
     if [[ -n "${url}" ]]; then
       break
     fi
@@ -438,9 +451,15 @@ _git_get_pr_message() {
 
 _github_pr() {
   local message="$(_git_get_pr_message)"
+  local body
+  body="$(tail -n +2 <<< "${message}")"
+  if which _github_pr_body_template > /dev/null 2>&1; then
+    body="$(_github_pr_body_template "${body}")"
+  fi
+
   gh pr create \
     --title "$(head -n1 <<< "${message}")" \
-    --body "$(tail -n +2 <<< "${message}")" \
+    --body "${body}" \
     "$@"
 }
 
@@ -479,6 +498,14 @@ _git_clone() {
     && _info "Moved to '$PWD'..." \
     || _info 'Failed to change repo_dir...'
 
+}
+
+_git_clone_all_org_repos() {
+  local org="${1:-nestoca}"
+  for repo in $(gh repo list "${org}" --json name,isArchived --limit 200 \
+    | jq --raw-output '.[] | select(.isArchived | not).name'); do
+    _git_clone "${repo}"
+  done
 }
 
 _github_actions_delete_all_runs() {
@@ -560,5 +587,18 @@ mass() {
 }
 
 _mass() {
-  parallel --max-proc 20 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'"  $* )"
+  parallel --max-proc 2 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'"  $* )"
+}
+
+_git_jira_issue_from_branch() {
+  _git_current_branch \
+    | sed -E 's#^[a-z]+/([a-zA-Z]+-[0-9]+)/.*#\1#'
+}
+
+_git_patch_similar_files() {
+  local reference_file="$1"
+  local file_pattern="$2"
+  for file_path in $(git ls-files "${file_pattern}"); do
+    git diff "${reference_file}" | patch --forward --no-backup-if-mismatch "${file_path}"
+  done
 }
