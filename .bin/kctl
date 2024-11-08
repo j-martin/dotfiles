@@ -139,7 +139,7 @@ _k8s_switch_namespace() {
 _k8s_exec() {
   local pod="${1:-}"
   pod="$(_k8s_pick_pod "${pod}")"
-  _kubectl exec -it "${pod}" "${2:-/bin/bash}" "${@:3}"
+  _kubectl exec -it "${pod}" -- "${2:-sh}" "${@:3}"
 }
 
 _k8s_logs() {
