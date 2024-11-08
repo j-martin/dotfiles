@@ -14,6 +14,7 @@ export GITHUB_WORK_ORG='nestoca'
 export GOPRIVATE='github.com/nestoca,github.com/j-martin'
 export WORK="$HOME/src/github.com/nestoca"
 export GOPATH="$HOME"
+export OP_BIOMETRIC_UNLOCK_ENABLED=true
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
