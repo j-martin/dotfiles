@@ -48,6 +48,9 @@ _macos_customizations () {
   defaults write com.apple.systempreferences TMShowUnsupportedNetworkVolumes 1
   defaults write com.google.Chrome ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
 
+  # allow to drag windows by holding cmd+ctrl
+  defaults write -g NSWindowShouldDragOnGesture YES
+
   # Disable the desktop
   defaults write com.apple.finder CreateDesktop false
 
