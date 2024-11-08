@@ -38,6 +38,7 @@ ea() {
 # ZSH Specific
 if [ -n "$ZSH_VERSION" ]; then
   alias -g G='| grep -i -E'
+  alias -g V='| grep -v -i -E'
   alias -g F='"$(fzf)"'
   alias -g L='| less -SRi'
   alias -g LL='2>&1 | less -SRi'
@@ -91,6 +92,7 @@ alias cf='cd "$(dirname "$(fzf)")"'
 alias comp='_notify "Done!"'
 alias digg='dig +noall +answer'
 alias dk='docker'
+alias de=_docker_exec
 alias dkp='docker ps'
 dki() { docker images | awk '{print $1 ":" $2}' | sort -u; }
 alias dksync='bash -c "podman machine ssh date -s \"$(date -I seconds)\""'
@@ -122,7 +124,6 @@ alias hi='history | grep '
 alias hosts='sudo vi /etc/hosts'
 alias hsl='grep key "$HOME/.hammerspoon/bindings.lua"'
 jqx() { jq . -C "$@" | less -SRi; }
-jql() { fzf --no-mouse --print-query --preview "jq {q} $*" <<< '' };
 alias jq-serialized='jq -R -s .'
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
@@ -132,6 +133,18 @@ jq-paths() {
 alias ip='ifconfig | grep "inet 1"'
 idiff() { icdiff "$1" "$2" | less -SRi; }
 idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
+
+for lang in go typescript markdown python yaml json bash; do
+  alias b${lang:0:1}="bat --language '${lang}'"
+done
+
+if [ -n "$ZSH_VERSION" ]; then
+  alias -g Y='| bat --language yaml'
+  for lang in go TYPESCRIPT MARKDOWN PYTHON YAML JSON BASH; do
+    alias -g B${lang:0:1}="| bat --language '${lang}'"
+  done
+fi
+
 alias lc=bat
 alias lcf='_with_fzf "lc"'
 alias lde='_load_dot_env'
@@ -225,6 +238,7 @@ alias gdpb='git diff | pbcopy'
 alias gdff='git icdiff | less -SRi'
 alias gdfff='git diff --color | diff-so-fancy | less -SRi'
 alias gdf='git diff -- "$(fzf)"'
+alias gdom='git diff origin/master'
 alias gpom='git fetch origin && git pull --rebase origin HEAD'
 alias gpomtheirs='git pull --rebase --strategy recursive --strategy-option theirs origin HEAD'
 alias gw='_git_switch_worktree'
@@ -247,12 +261,23 @@ alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias groo='groot'
 alias gcf='git commit --fixup "$(git log --oneline | fzf --no-sort | awk "{print \$1}")"'
 alias gcp='git add -p && git commit' # Commiting part of a file.
-alias gpp='git push --no-verify --set-upstream origin $(git symbolic-ref --short -q HEAD)'
+__git_push() {
+  local current_branch
+  current_branch="$(_git_current_branch)"
+  if [[ "${current_branch}" == 'master' ]] ||  [[ "${current_branch}" == 'main' ]]; then
+    _info "Do not push to ${current_branch}"
+    return 1
+  fi
+  git push --no-verify "$@"
+}
+alias gp=__git_push
+alias gpfl='__git_push --force-with-lease --no-verify'
+alias gpp='__git_push --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && hbp'
 alias ghpr='gpp && _github_pr'
 alias ghprr='gpp && _github_pr_with_reviewer'
 alias ghprmsg='_git_get_pr_message | _pbcopy'
-alias ghprm='gh pr merge "$(_git_current_branch)" --rebase'
+alias ghprm='git pull && git push && gh pr merge "$(_git_current_branch)" --rebase'
 alias ghpro='open "$(gh pr status --json "url" | jq -r ".currentBranch.url")"'
 ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r ;}
 alias ghw='watch -n10 github-events'
@@ -267,7 +292,6 @@ alias gll='git log -p'
 alias glf='git log -p -- "$(_fzf)"'
 alias glgg='git log --graph --decorate'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-alias gplush='git pull && git push'
 alias gmc='git commit -vnm'
 alias gmcp='_git_copy_last_commit'
 # alias gms='bub workflow commit'
@@ -324,7 +348,7 @@ alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
 alias hr='open "$GITHUB_URL/$(_git_repo)"'
 
 # General
-json-pretty() { jq . "$1" | sponge "$1" }
+# json-pretty() { jq . "$1" | sponge "$1" }
 alias ic=imgcat
 fn() { find . -iname "*$@*"; }
 fne() { find . -iname "*.$@"; }
@@ -409,9 +433,6 @@ alias bi='brew install'
 # macOS
 alias fixsound='sudo killall coreaudiod'
 
-# pulumi
-alias pu='_pulumi'
-
 # kubectl
 alias k8s-infer-deployment-name-from-pod-name="sed -E 's/-[a-z0-9]+-[a-z0-9]+$//' | sort -u"
 
@@ -422,3 +443,7 @@ alias w="$HOME/src/github.com/j-martin/nub/bin/nub-darwin-arm64 workflow"
 # clipboard
 alias pc='pbcopy'
 alias pp='pbpaste'
+
+# golang
+alias gomd='go mod download'
+alias gomt='go mod tidy'
