@@ -15,21 +15,25 @@
   commentChar = ";"
   excludesfile = ~/.gitignore.global
   attributesfile = ~/.gitattributes
-  # pager = delta
 [diff]
   colorMoved = true
   renameLimit = 900
-  tool = diffsitter
+  tool = difftastic
+  algorithm = histogram
 [difftool]
   prompt = false
+  tool = difftastic
 [difftool "diffsitter"]
   cmd = diffsitter "$LOCAL" "$REMOTE"
+[difftool "difftastic"]
+  cmd = difft "$LOCAL" "$REMOTE"
 [alias]
   clean-all = clean --force -dx --exclude .idea
   co = checkout
   cp = cherry-pick
   cpa = cherry-pick --abort
   cpc = cherry-pick --continue
+  df = difftool
   m = merge
   r = rebase
   re = rebase
@@ -52,10 +56,6 @@
   follow = true
 [url "git@github.com:"]
   insteadOf = https://github.com/
-
-[interactive]
-#  diffFilter = delta --color-only
-
 [delta]
   navigate = true
   light = false
@@ -63,13 +63,8 @@
   line-numbers = true
   side-by-side = true
   paging = always
-
 [merge]
   conflictstyle = zdiff3
-
-[diff]
-  colorMoved = default
-  algorithm = histogram
 [branch]
   sort = -committerdate
 [init]
