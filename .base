@@ -18,7 +18,7 @@ export OP_BIOMETRIC_UNLOCK_ENABLED=true
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
-export CDPATH=".:$HOME:$HOME/code/j-martin:$WORK:$GOWORK:$GOPATH/src/github.com/j-martin/:$HOME/code/"
+export CDPATH=".:$WORK:$HOME:$HOME/code/j-martin:$GOWORK:$GOPATH/src/github.com/j-martin/:$HOME/code/"
 export VISUAL="emacsclient"
 # export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
