@@ -437,8 +437,8 @@ alias fixsound='sudo killall coreaudiod'
 alias k8s-infer-deployment-name-from-pod-name="sed -E 's/-[a-z0-9]+-[a-z0-9]+$//' | sort -u"
 
 # bub
-alias n="$HOME/src/github.com/j-martin/nub/bin/nub-darwin-arm64"
-alias w="$HOME/src/github.com/j-martin/nub/bin/nub-darwin-arm64 workflow"
+alias n="build-cacher --source-dir $HOME/src/github.com/j-martin/nub -- go run main.go"
+alias w="build-cacher --source-dir $HOME/src/github.com/j-martin/nub -- go run main.go workflow"
 
 # clipboard
 alias pc='pbcopy'
