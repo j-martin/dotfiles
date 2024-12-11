@@ -141,6 +141,8 @@ local bindings = {
 local hyperModeBindings = {
   {key = '9', fn = audio.open, desc = 'Spotify'},
   {key = 'b', fn = screen.setBrightness(0.8), desc = 'Set brightness to 80%.'},
+  {key = 'd', fn = usb.officeAutomation('on', 'desk'), desc = 'Turn desk on'},
+  {key = 'f', fn = usb.officeAutomation('off', 'desk'), desc = 'Turn desk off'},
   {key = 'e', fn = mounts.unmountAll, desc = 'Unmount all volumes'},
   {key = 'h', fn = audio.current, desc = 'Current song'},
   {key = 'i', fn = audio.changeVolume(-5), desc = 'Decrease the volume by 5%'},
