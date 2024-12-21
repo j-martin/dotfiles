@@ -75,7 +75,7 @@ local bindings = {
         desc = 'Window - Right (alt)',
       },
       {key = 'l', name = chrome.name},
-      {key = 'l', shift = true, name = 'Google Chrome Canary'},
+      {key = 'l', shift = true, name = 'Brave Browser'},
       {
         key = 'n',
         pos = {{0.25, 0.00, 0.50, 1.00}, {0.20, 0.00, 0.60, 1.00} },

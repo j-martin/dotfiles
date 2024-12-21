@@ -139,7 +139,7 @@ mod.lastUrl = nil
 
 function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
   logger.i(scheme, host, hs.inspect(params), fullUrl, senderPID)
-  local bundleId = 'com.google.Chrome'
+  local bundleId = 'com.brave.Browser'
   local url = fullUrl
   if mod.lastUrl == fullUrl then
     logger.i("Same URL as before. Defaulting to Chrome...")

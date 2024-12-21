@@ -3,7 +3,7 @@ local logger = hs.logger.new('chrome', 'debug')
 
 local mod = {}
 
-mod.name = 'Google Chrome'
+mod.name = 'Brave Browser'
 
 mod.tab = {slack = ' Alloy Slack', mail = {work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail'}}
 
@@ -45,7 +45,7 @@ end
 function mod.activateTab(name)
   return function()
     hs.osascript.javascript([[
-      var chrome = Application('Google Chrome');
+      var chrome = Application('Brave Browser');
       chrome.activate();
       var wins = chrome.windows;
 

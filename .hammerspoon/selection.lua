@@ -12,7 +12,7 @@ local function selectedTextFromClipboard(currentApp)
     end
     hs.timer.usleep(0.1 * 1000000)
     local selection = hs.pasteboard.readString()
-    if selection == initial and currentApp ~= 'Google Chrome' then
+    if selection == initial and currentApp ~= 'Brave Browser' then
       logger.d('Same result. Retrying')
       return getClipboard(initial, retries - 1)
     else

@@ -56,9 +56,9 @@ function mod.capture(captureTemplate)
     local url = focusedApplication:path()
     local body = selection.getSelectedText()
 
-    if focusedApplication:name() == 'Google Chrome' then
-      _, title, _ = hs.osascript.javascript("Application('Google Chrome').windows[0].activeTab().title()")
-      _, url, _ = hs.osascript.javascript("Application('Google Chrome').windows[0].activeTab().url()")
+    if focusedApplication:name() == 'Brave Browser' then
+      _, title, _ = hs.osascript.javascript("Application('Brave Browser').windows[0].activeTab().title()")
+      _, url, _ = hs.osascript.javascript("Application('Brave Browser').windows[0].activeTab().url()")
     end
 
     if focusedApplication:name() == 'Finder' then
