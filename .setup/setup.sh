@@ -10,6 +10,11 @@ _macos_customizations () {
   sudo pmset -a standbydelay 86400
   sudo pmset -a sms 0
 
+  # Reduce spacing between menu bar items
+  defaults -currentHost write -globalDomain NSStatusItemSpacing -int 12
+  defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 8
+  killall SystemUIServer
+
   defaults write com.apple.dock expose-animation-duration -float 0.1
   defaults write com.apple.dock autohide-time-modifier -float 0
   defaults write com.apple.dock autohide-delay -float 0
