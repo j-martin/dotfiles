@@ -497,7 +497,7 @@ _git_clone() {
   cd "${repo_dir}" \
     && _info "Moved to '$PWD'..." \
     || _info 'Failed to change repo_dir...'
-
+  _go_mod_download
 }
 
 _git_clone_all_org_repos() {
