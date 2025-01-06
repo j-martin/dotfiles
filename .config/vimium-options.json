@@ -1,46 +1,101 @@
 {
-  "settingsVersion": "1.62.4",
+  "keyMappings": "# Insert your preferred key mappings here.\nmap <space>j goBack\nmap <space>k goForward",
+  "regexFindMode": true,
+  "scrollStepSize": 600,
+  "grabBackFocus": true,
+  "settingsVersion": "2.1.2",
   "exclusionRules": [
     {
-      "pattern": "http*://mail.google.com/*",
-      "passKeys": "jko"
+      "passKeys": "jkogixr/",
+      "pattern": "https?://mail.google.com/*"
     },
     {
-      "pattern": "http*://inbox.google.com/*",
-      "passKeys": "jkxgio/?brpP[]"
+      "passKeys": "t",
+      "pattern": "https?://github.com/*"
     },
     {
-      "pattern": "https?://github.com/*",
-      "passKeys": "\\?t"
+      "passKeys": "",
+      "pattern": "https?://docs.google.com.com/*"
     },
     {
-      "pattern": "https?://*.atlassian.net/*",
-      "passKeys": "el[?/g"
+      "passKeys": "",
+      "pattern": "https?://excalidraw.com/*"
     },
     {
-      "pattern": "https?://www.youtube.com/*",
-      "passKeys": "<space>"
+      "passKeys": "",
+      "pattern": "https?://excalidraw.com/*"
     },
     {
-      "pattern": "https?://www.netflix.com/*",
-      "passKeys": "<space>"
+      "passKeys": "",
+      "pattern": "https?://lucid.app/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://lucid.app/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://app.coderpad.io/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://app.coderpad.io/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://www.powerlanguage.co.uk/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://www.powerlanguage.co.uk/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://www.onemodel.app/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://www.onemodel.app/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://app.codesignal.com/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://www.nytimes.com/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://www.nytimes.com/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "about:blank*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "about:blank*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://app.codesignal.com/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://miro.com/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://miro.com/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://meet.google.com/*"
+    },
+    {
+      "passKeys": "",
+      "pattern": "https?://skribbl.io/*"
     }
-  ],
-  "filterLinkHints": false,
-  "waitForEnterForFilteredHints": true,
-  "hideHud": false,
-  "keyMappings": "map <space><space> LinkHints.activateMode\nmap <space>t Vomnibar.activateTabSelection\nmap <space>o Vomnibar.activateInNewTab\nmap <space>j goBack\nmap <space>k goForward\nmap <space>x restoreTab\nmap <space>e duplicateTab\nmap <space>w moveTabToNewWindow",
-  "linkHintCharacters": "fjkluiomghyner",
-  "linkHintNumbers": "0123456789",
-  "newTabUrl": "pages/blank.html",
-  "nextPatterns": "next,more,newer,>,›,→,»,≫,>>",
-  "previousPatterns": "prev,previous,back,older,<,‹,←,«,≪,<<",
-  "regexFindMode": true,
-  "ignoreKeyboardLayout": false,
-  "scrollStepSize": 600,
-  "smoothScroll": true,
-  "grabBackFocus": true,
-  "searchEngines": "w: http://www.wikipedia.org/w/index.php?title=Special:Search&search=%s Wikipedia\n\n# More examples.\n#\n# (Vimium supports search completion Wikipedia, as\n# above, and for these.)\n#\ng: http://www.google.com/search?q=%s Google\n# l: http://www.google.com/search?q=%s&btnI I'm feeling lucky...\ny: http://www.youtube.com/results?search_query=%s Youtube\n# gm: https://www.google.com/maps?q=%s Google maps\n# b: https://www.bing.com/search?q=%s Bing\n# d: https://duckduckgo.com/?q=%s DuckDuckGo\n# az: http://www.amazon.com/s/?field-keywords=%s Amazon",
-  "searchUrl": "https://www.google.com/search?q=",
-  "userDefinedLinkHintCss": "div > .vimiumHintMarker {\n/* linkhint boxes */\nbackground: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF785),\n  color-stop(100%,#FFC542));\nborder: 1px solid #E3BE23;\n}\n\ndiv > .vimiumHintMarker span {\n/* linkhint text */\ncolor: black;\nfont-weight: bold;\nfont-size: 12px;\n}\n\ndiv > .vimiumHintMarker > .matchingCharacter {\n}"
+  ]
 }
