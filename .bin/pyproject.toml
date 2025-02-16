@@ -3,6 +3,7 @@ name = "bin"
 version = "0.1.0"
 description = ""
 authors = ["Jean-Martin Archer <jm@jmartin.ca>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11.0,<4.0"
@@ -21,7 +22,7 @@ python-kasa = "^0.5.0"
 sortedcontainers = "^2.4.0"
 homeassistant-api = "^4.2.2.post1"
 
-[tool.poetry.dev-dependencies]
+[poetry.group.dev.dependencies]
 black = "==19.3b0"
 
 [build-system]
