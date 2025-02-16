@@ -40,7 +40,7 @@ _load_dot_env() {
 }
 
 _go_mod_download() {
-  for mod_file in $(find . -name 'go.mod' | grep -vE 'node_modules|templates'); do
+  for mod_file in $(find . -name 'go.mod' | grep -vE 'node_modules|templates' | sort); do
     local directory
     directory="$(dirname "${mod_file}")"
     (
@@ -369,7 +369,9 @@ urlencode () {
 }
 
 _shell_command_to_args() {
-  sed -E 's/ /", "/g; s/(.*)/"\1"/'
+  sed -E 's/\\$//g; s/ +$//g; s/\t+/ /g; s/ +/ /g; s/^ //g; s/ /", "/g; s/(.*)/"\1"/; s/"+/"/g' \
+    | awk 'BEGIN {ORS=", "} {print}' \
+    | sed 's/, $//g'
 }
 
 _args_to_shell() {

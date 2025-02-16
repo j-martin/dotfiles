@@ -134,6 +134,8 @@ alias ip='ifconfig | grep "inet 1"'
 idiff() { icdiff "$1" "$2" | less -SRi; }
 idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
 
+alias o=orb
+
 for lang in go typescript markdown python yaml json bash; do
   alias b${lang:0:1}="bat --language '${lang}'"
 done
@@ -176,6 +178,7 @@ alias redis-flush='redis-cli flushall'
 s() {
   ssh -t "$@" tmux -CC new -A -s "${USER}"
 }
+alias t=task
 alias tmp='cd "$(mktemp -d -t "jm-$(gdate -u +"%Y-%m-%dT%H-%M-%SZ")")"'
 alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
 alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" "src"'
@@ -190,7 +193,7 @@ alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
 cb() { open "$(_chrome_parse_bookmarks | _fzf \"$1\" | cut -d '|' -f1)"; }
 
 # Formatting
-alias shfmt='shfmt -i 2 -bn -l -d -ci -sr -w'
+alias shfmt='shfmt --indent 2 --binary-next-line --list --diff --case-indent --space-redirects --write'
 
 # GCP
 unalias gcp
@@ -280,7 +283,8 @@ alias ghpr='gpp && _github_pr'
 alias ghprr='gpp && _github_pr_with_reviewer'
 alias ghprmsg='_git_get_pr_message | _pbcopy'
 alias ghprm='git pull && git push && gh pr merge "$(_git_current_branch)" --rebase'
-alias ghpro='open "$(gh pr status --json "url" | jq -r ".currentBranch.url")"'
+alias ghpro='open "$(_github_pr_url)"'
+alias ghprc='_pbcopy <<< "$(_github_pr_url)"'
 ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r ;}
 alias ghw='watch -n10 github-events'
 alias gpick='git cherry-pick'

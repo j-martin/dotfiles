@@ -427,7 +427,7 @@ __github_pick_run() {
     | jq -r '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)\t\(.details_url)"' \
     | grep --invert-match 'gitstream' \
     | fzf --select-1 --exit-0 --query "${query}" \
-    | awk -F\t '{print $4}'
+    | awk -F\t -v pr_number="$(gh pr view $(_git_current_branch) --json number | jq -r .number)" '{print $4 "?pr=" pr_number}'
 }
 
 _github_open_check() {
@@ -601,4 +601,9 @@ _git_patch_similar_files() {
   for file_path in $(git ls-files "${file_pattern}"); do
     git diff "${reference_file}" | patch --forward --no-backup-if-mismatch "${file_path}"
   done
+}
+
+_github_pr_url() {
+  gh pr status --json "url" \
+    | jq -r ".currentBranch.url"
 }
