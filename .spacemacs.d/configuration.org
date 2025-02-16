@@ -688,6 +688,7 @@ it makes magit a fair bit faster.
     (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
     (spacemacs/set-leader-keys "oo" 'jm/open-with-idea)
     (spacemacs/set-leader-keys "op" 'jm/open-with-sublime)
+    (spacemacs/set-leader-keys "os" 'jm/open-with-vscode)
     (spacemacs/set-leader-keys "or" 'jm/open-references)
     (spacemacs/set-leader-keys "oU" 'jm/unfill-buffer)
     (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
@@ -940,7 +941,7 @@ it makes magit a fair bit faster.
 
   (defun jm/open-with-vscode ()
     (interactive)
-    (jm/open-with-line-column "/usr/local/bin/code --goto"))
+    (jm/open-with-line-column "/opt/homebrew/bin/cursor --goto"))
 
   (defun jm/open-with-nvim ()
     (interactive)

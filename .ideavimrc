@@ -23,6 +23,7 @@ let mapleader=" "
 
 nmap <leader>ou :action Tool_External Tools_Emacs<CR>
 nmap <leader>oo :action Tool_External Tools_Emacs<CR>
+nmap <leader>os :action Tool_External Tools_Cursor<CR>
 nmap <leader>op :action Tool_External Tools_Sublime<CR>
 nmap <leader>oi :action Tool_External Tools_iTerm<CR>
 nmap <leader>ot :action Tool_External Tools_Org Capture<CR>

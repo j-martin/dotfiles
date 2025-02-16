@@ -29,23 +29,16 @@ local bindings = {
     name = keybinder.globalBindings,
     bindings = {
       -- cmd + h reserved for notification
-      {modifiers = cmd, key = 'm', name = 'Ripcord'},
       {key = '1', name = apps.name.activityMonitor},
       {key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph'},
-      {key = '2', name = 'Keybase'},
       -- key = '5' reserved for Alfred snippets
       {key = '8', name = 'Slack'},
-      {key = '8', name = 'Ripcord', shift = true},
       {key = '9', name = 'Spotify'},
-      {key = '9', name = 'Soundcleod', shift = true},
-      {key = ';', name = 'Dash'},
       {key = '\\', name = '1Password'},
-      -- key = ';' reserved for Dash
       {key = 'a', name = 'Figma'},
       {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
       {key = 'b', fn = apps.closeNotification, shift = true, desc = 'Notification - Action'},
       {key = 'c', name = 'Google Calendar'},
-      {key = 'c', name = 'Calendar', shift = true},
       {key = 'd', fn = selection.actOn('google'), desc = 'Search selection'},
       {key = 'f', name = 'Finder'},
       {key = 'f', name = 'Preview', shift = true},
@@ -102,7 +95,7 @@ local bindings = {
       {key = 'q', fn = hs.toggleConsole, shift = true, desc = 'HS - Console'},
       {key = 'r', fn = emacs.orgRifle, desc = 'Org - Capture selection to Resources'},
       {key = 'r', fn = emacs.references, shift = true, desc = 'Org - Show Resources'},
-      {key = 's', name = 'Logseq'},
+      {key = 's', name = 'Cursor'},
       {key = 't', fn = emacs.capture(), desc = 'Org - Capture'},
       {key = 't', fn = emacs.inbox, shift = true, desc = 'Org - Inbox'},
       {key = 'u', name = 'Emacs'},
