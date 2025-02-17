@@ -125,3 +125,8 @@ if [ -f '/Users/jm/.bin/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/j
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/Users/jm/.sdkman"
+[[ -s "/Users/jm/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/jm/.sdkman/bin/sdkman-init.sh"
