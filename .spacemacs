@@ -64,9 +64,9 @@ This function should only modify configuration layer settings."
      kubernetes
      lua
      (markdown :variables markdown-live-preview-engine 'vmd)
-     (org :variables org-enable-github-support t)
      nginx
      osx
+     (org :variables org-enable-github-support t)
      python
      react
      ruby
@@ -102,6 +102,7 @@ This function should only modify configuration layer settings."
      jsonnet-mode
      org-roam
      ox-clip
+     (org-reminders :location (recipe :fetcher github :repo "ginqi7/org-reminders"))
      protobuf-mode
      smart-jump
      super-save
