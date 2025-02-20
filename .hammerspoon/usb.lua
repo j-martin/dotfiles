@@ -51,7 +51,7 @@ function mod.officeAutomation(command, scene)
         hs.urlevent.openURL("neewerlite://turnOffLight")
       end
     end
-    process.start(apps.getExecPath('poetry'), {'run', './office_automation.py', '--scene', scene, command }, nil, 10)
+    process.start(apps.getExecPath('office-automation'), {'--scene', scene, command }, nil, 10)
   end
 end
 

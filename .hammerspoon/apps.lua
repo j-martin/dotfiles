@@ -4,13 +4,15 @@ local windows = require 'windows'
 local mod = {}
 
 function mod.getExecPath(exec)
-  local brewBinPath = '/opt/homebrew/bin/'
-  if not hs.fs.attributes(brewBinPath) then
-    brewBinPath = '/usr/local/bin/'
+  dirs = {'/opt/homebrew/bin/', '/usr/local/bin/', os.getenv("HOME") .. "/bin/" }
+  for _, dir in ipairs(dirs) do
+    local path=dir .. exec
+    if hs.fs.attributes(path) then
+      return path
+    end
   end
-
-  return brewBinPath .. exec
-
+  logger.i("Could not find executable in PATHs. Defaulting to executable's name.")
+  return exec
 end
 
 local function isHost(hostname)
@@ -32,7 +34,7 @@ end
 mod.name = {
   activityMonitor = 'Activity Monitor',
   iTerm = 'iTerm2',
-  idea = getAppNameBasedOnHost('IntelliJ IDEA CE', 'GoLand'),
+  idea = 'GoLand',
   ripcord = 'Ripcord',
 }
 
