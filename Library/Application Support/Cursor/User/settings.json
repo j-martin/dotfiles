@@ -76,7 +76,7 @@
             "after": [],
             "commands": [
                 {
-                    "command": "open-with.open",
+                    "command": "openWith.open",
                     "args": [
                         "emacsclient +{line}:{column} '{filename}'"
                     ]
@@ -92,9 +92,9 @@
             "after": [],
             "commands": [
                 {
-                    "command": "open-with.open",
+                    "command": "openWith.open",
                     "args": [
-                        "'/Applications/IntelliJ IDEA CE.app/Contents/MacOS/idea' --line '{line}' --column '{column}' '{filename}'"
+                        "'/Applications/GoLand.app/Contents/MacOS/goland' --line '{line}' --column '{column}' '{filename}'"
                     ]
                 }
             ]
@@ -108,7 +108,7 @@
             "after": [],
             "commands": [
                 {
-                    "command": "open-with.open",
+                    "command": "openWith.open",
                     "args": [
                         "/Users/jm/.bin/iterm-open.sh '{dir}'"
                     ]
@@ -712,5 +712,13 @@
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "git.openRepositoryInParentFolders": "always"
+    "git.openRepositoryInParentFolders": "always",
+    "openWith.commands": {
+        "Emacs (Client)": "emacsclient +{line}:{column} '{filename}'",
+        "GoLand": "/Applications/GoLand.app/Contents/MacOS/goland --line {line} --column {column} '{filename}'",
+        "Sublime": "subl '{filename}:{line}:{column}'"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
