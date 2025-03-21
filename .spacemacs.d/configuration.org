@@ -204,6 +204,7 @@ From http://akrl.sdf.org/.
      (setq
       super-save-mode +1
       super-save-idle-duration 0.1
+      super-save-all-buffers t
       super-save-auto-save-when-idle t)
    #+end_src
 ** Smart-Jump
