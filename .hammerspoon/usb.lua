@@ -37,10 +37,7 @@ local globalHandler = nil
 --   vendorName = "Sony"
 -- }
 
-function mod.officeAutomation(command, scene)
-  if not scene then
-    scene = 'office_call'
-  end
+function mod.officeAutomation(scene, command)
   return function()
     if scene == 'office_call' then
       if command == 'on' then
@@ -52,6 +49,10 @@ function mod.officeAutomation(command, scene)
       end
     end
     process.start(apps.getExecPath('office-automation'), {'--scene', scene, command }, nil, 10)
+    if scene == 'desk' and command == 'off' then
+      hs.spotify.pause()
+      hs.caffeinate.systemSleep()
+    end
   end
 end
 
@@ -106,8 +107,8 @@ local watchedEvents = {
   -- {eventType = "removed", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
 
   -- ZV-1 with webcam in USB streaming mod
-  {eventType = "added", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("on")},
-  {eventType = "removed", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
+  {eventType = "added", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("office_call", "on")},
+  {eventType = "removed", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("office_call", "off")},
 }
 
 function mod.init()
