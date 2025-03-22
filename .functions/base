@@ -163,7 +163,7 @@ _pbcopy() {
   content="$(cat)"
 
   _info "Clipboard set to:\\n${content}"
-  pbcopy <<< "${content}"
+  printf '%s' "${content}" | perl -pe 'chomp if eof' | pbcopy
 }
 
 _unfill() {

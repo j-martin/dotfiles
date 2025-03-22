@@ -227,7 +227,7 @@ alias gcml='git checkout "$(__git_get_default_branch_name)" && git pull'
 alias gc-='git checkout -'
 alias gca='git commit --amend'
 alias gcaa='git commit . --amend'
-alias gccc='git rev-parse HEAD | _pbcopy'
+alias gccc="git rev-parse HEAD | _pbcopy"
 alias gcl='_git_clone'
 git-reflog-grep() {
   git reflog | awk '{print $1}' | while read in; do
