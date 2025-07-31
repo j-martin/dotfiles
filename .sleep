@@ -8,4 +8,11 @@ shopt -s inherit_errexit 2>/dev/null || true
 
 IFS=$'\n\t'
 
+pkill -f Spotify
 pkill -f Hammerspoon || true
+
+
+( date | tr -d '\n' && echo ' - sleep' ) >> "${HOME}/.activity.log"
+
+# Killing spotify again.
+pkill -f Spotify
