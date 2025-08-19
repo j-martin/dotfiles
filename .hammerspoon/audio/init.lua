@@ -7,7 +7,7 @@ appleUSBWithDT1990Pro = 'USB-C to 3.5mm Headphone Jack Adapter'
 
 mod.volumes = {}
 mod.volumes[dacName] = 100
-mod.volumes[appleUSBWithDT1990Pro] = 20
+mod.volumes[appleUSBWithDT1990Pro] = 25
 
 inputDevicePriority = {
   "RØDE VideoMic GO II",
