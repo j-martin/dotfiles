@@ -721,5 +721,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "git.openRepositoryInParentFolders": "always",
-  "go.toolsManagement.autoUpdate": true
+  "go.toolsManagement.autoUpdate": true,
+  "cursor.composer.shouldAllowCustomModes": true,
+  "git.autofetch": true
 }
