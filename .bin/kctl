@@ -42,7 +42,7 @@ _show_current_context() {
   local context
   context="$(__k8s_current_context)"
   case "${context}" in
-    *dev* | *staging*)
+    *dev* | *staging* | *kind-*)
       _background_safe
       ;;
     *qa* | *demo* | *platform*)
@@ -143,7 +143,7 @@ _k8s_exec() {
 }
 
 _k8s_logs() {
-  __k8s_logs "${1:-}" "${@:2}" --all-containers --follow=true --tail=100
+  __k8s_logs "${1:-}" "${@:2}" --max-log-requests=20 --all-containers --follow=true --tail=100
 }
 
 __k8s_logs() {
