@@ -8,6 +8,6 @@ shopt -s inherit_errexit 2>/dev/null || true
 
 IFS=$'\n\t'
 
-open -a Hammerspoon
+open -a Spotify
 
 ( date | tr -d '\n' && echo ' - wakeup' ) >> "${HOME}/.activity.log"
