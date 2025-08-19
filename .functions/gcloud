@@ -14,3 +14,16 @@ _gcp_change_project() {
   gcloud config set project "${project}"
   _info "Now using ${project}"
 }
+
+_gcp_compare_role() {
+  local role1="${1:-}"
+  local role2="${2:-}"
+  icdiff \
+    <(gcloud iam roles describe "${role1}") \
+    <(gcloud iam roles describe "${role2}") \
+    | less \
+    || (
+      _error "Failed to compare roles ${role1} and ${role2}"
+      return 1
+    )
+}
