@@ -150,7 +150,7 @@ _git_new_branch_and_commit_from_new_issue() {
 
 _git_new_branch_and_commit() {
   local message="$1"
-  message="$(sed -E '1 s#http.*/browse/([A-Z]+-[0-9]+).*)#\1)#' <<< "${message}")"
+  message="$(sed -E '1 s#http.*/(browse|issues)/([A-Z]+-[0-9]+).*)#\2)#' <<< "${message}")"
   _git_new_branch "$(head -n1 <<< "${message}")"
   git commit -n -m "$(_git_format_commit_message "${message}")" "${@:2}"
 }
@@ -394,12 +394,13 @@ _git_root_dir() {
 }
 
 _git_switch_worktree() {
+  local suffix="${1:-alt}"
   local cur_repo
   cur_repo="$(_git_root_dir)"
-  if [[ "${cur_repo}" =~ .*bugfix ]]; then
-    cd "${cur_repo//\-bugfix//}" || _error "Failed to switch to '${cur_repo}'"
+  if [[ "${cur_repo}" == *"${suffix}" ]]; then
+    cd "${cur_repo//\-${suffix}//}" || _error "Failed to switch to '${cur_repo}'"
   else
-    new_dir="${cur_repo}-bugfix"
+    new_dir="${cur_repo}-${suffix}"
     if [[ ! -d "${new_dir}" ]]; then
       git worktree prune
       git worktree add "${new_dir}" "origin/HEAD"
@@ -456,11 +457,23 @@ _github_pr() {
   if which _github_pr_body_template > /dev/null 2>&1; then
     body="$(_github_pr_body_template "${body}")"
   fi
+  local output
+  output="$(mktemp)"
 
   gh pr create \
     --title "$(head -n1 <<< "${message}")" \
     --body "${body}" \
-    "$@"
+    "${@}"  2>&1 \
+    | tee "${output}"
+
+  local url
+  url="$(tail -n1 "${output}")"
+  if [[ "${url}" == 'https://github.com'* ]]; then
+    _pbcopy <<< "${url}"
+    _notify 'PR created. The URL is in the clipboard.'
+  else
+    _info "The last line was not a URL: ${url}"
+  fi
 }
 
 _github_pr_with_reviewer() {
@@ -476,7 +489,7 @@ _git_clone() {
 
   if [[ "${repository}" != */* ]]; then
     repository="github.com/${GITHUB_WORK_ORG}/${repository}"
-  elif [[ "${repository}" != 'https://'* ]]; then
+  elif [[ "${repository}" != 'https://'* ]] && [[ "${repository}" != 'github.com'* ]]; then
     repository="github.com/${repository}"
   fi
 
@@ -606,4 +619,17 @@ _git_patch_similar_files() {
 _github_pr_url() {
   gh pr status --json "url" \
     | jq -r ".currentBranch.url"
+}
+
+_github_generate_alfred_snippets() {
+  gh api "orgs/${GITHUB_WORK_ORG}/members" --paginate | jq -r '.[].login' | while read username; do
+    gh api "users/${username}" \
+      | jq '{"alfredsnippet" : {"snippet" : .login, "dontautoexpand" : true, "name" : "GitHub \(.name) \(.login)", "keyword" : ""}}' \
+      | tee "$HOME/Documents/Alfred.alfredpreferences/snippets/GitHub/github-${username}.json"
+  done
+}
+
+_github_rate_limit() {
+  gh api rate_limit \
+    | jq '.rate | {percentUsage: (.used / .limit * 10000 | round /100), reset: (.reset | strftime("%Y-%m-%d %H:%M:%S UTC"))}'
 }

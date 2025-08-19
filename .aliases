@@ -25,6 +25,13 @@ alias et='emacsclient --tty'
 alias e='_with_fzf "ec"'
 alias etf='_with_fzf "emacsclient --tty"'
 
+ed() {
+  (
+    cd "$(git rev-parse --show-toplevel)"
+    git diff --name-only origin/master...HEAD | _with_fzf ec
+  )
+}
+
 ett() {
   local file="$1"
   _touch "${file}"
@@ -215,6 +222,11 @@ alias kl='kctl logs'
 
 ## Git
 
+cg() {
+  local repo_name="$1"
+  cd $(find ~/src -maxdepth 4 -type d -name '.git' | sed 's#.git$##' | fzf --select-1 --query "'${repo_name}")
+}
+
 alias gl='git pull --tags --force'
 alias ghd='gh dash'
 # TODO: Use git for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
@@ -235,6 +247,7 @@ git-reflog-grep() {
     git show "$in" | grep "$@"
   done
 }
+alias goc=gco
 alias gdel=_git_delete_commit
 alias gclon='git clone "$(_github_pick_repo)"'
 alias gcane='git commit --amend --no-edit -n'
@@ -279,11 +292,11 @@ alias gp=__git_push
 alias gpfl='__git_push --force-with-lease --no-verify'
 alias gpp='__git_push --set-upstream origin $(git symbolic-ref --short -q HEAD)'
 alias ghbp='gpp && hbp'
-alias ghpr='gpp && _github_pr'
-alias ghprr='gpp && _github_pr_with_reviewer'
+alias ghpr='gpom && gpp && _github_pr'
+alias ghprr='gpom && gpp && _github_pr_with_reviewer'
+alias ghpro='ghprr && _safe_open $(pbpaste)'
 alias ghprmsg='_git_get_pr_message | _pbcopy'
 alias ghprm='git pull && git push && gh pr merge "$(_git_current_branch)" --rebase'
-alias ghpro='open "$(_github_pr_url)"'
 alias ghprc='_pbcopy <<< "$(_github_pr_url)"'
 ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r ;}
 alias ghw='watch -n10 github-events'
@@ -294,8 +307,9 @@ alias gdo='git diff origin/HEAD'
 alias gdc='git diff --cached'
 alias gdos='git diff origin/HEAD --stat'
 alias gkap='gitk --all --date-order $(git log -g --pretty=%H)'
-alias gll='git log -p'
-alias glf='git log -p -- "$(_fzf)"'
+alias gll='git log --patch --pretty=fuller --date local'
+alias glf='git log --patch --pretty=fuller -- "$(_fzf)"'
+alias glg='git log --stat --pretty=fuller --date local'
 alias glgg='git log --graph --decorate'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gmc='git commit -vnm'
@@ -334,7 +348,6 @@ alias gu='_github_open_url'
 alias gupd='git stash && git pull --rebase origin HEAD && git stash apply && git stash drop'
 gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt; }
 alias ge="emacsclient --no-wait --eval '(magit-status)' && osascript -e 'tell application \"Emacs\" to activate'"
-
 # Github
 alias ha='open "$GITHUB_URL"'
 alias hpo='open "$GITHUB_URL/$(_git_repo)/pulls"'
