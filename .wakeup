@@ -9,5 +9,6 @@ shopt -s inherit_errexit 2>/dev/null || true
 IFS=$'\n\t'
 
 open -a Spotify
+open -a Trailer
 
 ( date | tr -d '\n' && echo ' - wakeup' ) >> "${HOME}/.activity.log"
