@@ -10,6 +10,9 @@ _macos_customizations () {
   sudo pmset -a standbydelay 86400
   sudo pmset -a sms 0
 
+  # Remove all apps in dock
+  defaults write com.apple.dock persistent-apps -array
+
   # Reduce spacing between menu bar items
   defaults -currentHost write -globalDomain NSStatusItemSpacing -int 12
   defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 8
