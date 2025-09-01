@@ -130,3 +130,8 @@ export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/Users/jm/.sdkman"
 [[ -s "/Users/jm/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/jm/.sdkman/bin/sdkman-init.sh"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/jm/.lmstudio/bin"
+# End of LM Studio CLI section
+
