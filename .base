@@ -57,8 +57,8 @@ source "$HOME/.aliases"
 
 export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:$HOME/.local/bin:$PATH"
 
-test -e /usr/libexec/java_home \
-  && export JAVA_HOME="$(/usr/libexec/java_home -v 16 2> /dev/null || true)"
+export JAVA_HOME="$(find /opt/homebrew/Cellar/openjdk -type d -maxdepth 1 -mindepth 1 | tail)/libexec/openjdk.jdk/Contents/Home"
+
 test -e /usr/local/bin/nvim \
   && export EDITOR='/usr/local/bin/nvim'
 
