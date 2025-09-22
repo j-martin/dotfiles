@@ -466,3 +466,6 @@ alias pp='pbpaste'
 # golang
 alias gomd='go mod download'
 alias gomt='go mod tidy'
+
+# cert
+alias certv='openssl x509 -serial  -subject -issuer -dates -alias -noout -in'
