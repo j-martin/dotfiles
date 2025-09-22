@@ -34,7 +34,8 @@ end
 mod.name = {
   activityMonitor = 'Activity Monitor',
   iTerm = 'iTerm2',
-  idea = 'GoLand',
+  goland = 'GoLand',
+  idea = 'IntelliJ IDEA CE',
   ripcord = 'Ripcord',
 }
 
