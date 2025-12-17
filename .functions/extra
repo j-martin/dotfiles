@@ -292,7 +292,7 @@ _idea_link_external_tools() {
     | xargs -I'{}' mkdir -p '{}/tools'
 
   find "${base_dir}" -maxdepth 1 -type d \
-    | xargs -I'{}' ln -sf "${external_tool_file}"  '{}/tools/'
+    | xargs -I'{}' ln -sf "${external_tool_file}" '{}/tools/'
 }
 
 _date_iso_8601() {
@@ -333,7 +333,7 @@ _run_every() {
 }
 
 _work_login() {
-  if type __work_login  > /dev/null 2>&1; then
+  if type __work_login > /dev/null 2>&1; then
     _run_every 12h __work_login
   fi
 }
@@ -345,7 +345,6 @@ _jwt_decode_from_clipboard() {
     | base64 --decode \
     | jq .
 }
-
 
 _quote_lines() {
   sed -E 's/^(.+)$/"\1"/'
@@ -359,11 +358,21 @@ _jq_log() {
   jq -R '. as $line | try (fromjson) catch $line'
 }
 
+_jq_paths() {
+  jq --raw-output '
+      def path2text($value):
+        def tos: if type == "number" then . else tojson end;
+        reduce .[] as $segment ("";  . + ($segment | if type == "string" then "." + . else "[\(.)]" end)) + " = \($value | tos)";
+
+      paths(scalars) as $p | getpath($p) as $v | $p | path2text($v)' \
+    | sed 's/^/./'
+}
+
 _jq_clipboard_to_escaped_string() {
   pbpaste | jq -asR
 }
 
-urlencode () {
+urlencode() {
   local string="$1"
   python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], sys.argv[2]))' "${string}" "$urlencode_safe"
 }
