@@ -66,7 +66,7 @@ export PAGER='less -SRi'
 export HOSTNAME="$HOST"
 
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep"
-export FZF_DEFAULT_COMMAND='rg --files 2> /dev/null'
+export FZF_DEFAULT_COMMAND="rg --files --hidden --glob='!{.git,node_modules,out}' 2> /dev/null"
 
 export SDKMAN_DIR="$HOME/.sdkman"
 __source "$HOME/.sdkman/bin/sdkman-init.sh"
