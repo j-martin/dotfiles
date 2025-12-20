@@ -40,9 +40,9 @@ _show_current_context() {
   local message_prefix="${1}"
 
   local context
-  context="$(__k8s_current_context)"
+  context="${2:-$(__k8s_current_context)}"
   case "${context}" in
-    *dev* | *staging* | *kind-*)
+    *dev* | *staging* | *kind-* | *orbstack*)
       _background_safe
       ;;
     *qa* | *demo* | *platform*)
@@ -55,16 +55,21 @@ _show_current_context() {
       ;;
   esac
 
-  _info "${message_prefix} on ${context}"
+  _info "${message_prefix} ${context}"
 }
 
 __k8s_current_context() {
   kubectl config view --minify --output json \
-    | jq -r '.contexts[0].context | "cluster: \(.cluster) namespace: \(.namespace)"'
+    | jq -r '.contexts[0].context | "on cluster: \(.cluster) namespace: \(.namespace)"'
+}
+
+__k8s_current_context_args() {
+  kubectl config view --minify --output json \
+    | jq -r '.contexts[0].context | "--context=\(.cluster) --namespace=\(.namespace)"'
 }
 
 _kubectl() {
-  _show_current_context "Running 'kubectl $(tr -d '\n' <<< "$@")'"
+  _show_current_context "Running: kubectl $(tr -d '\n' <<< "$@")" "$(__k8s_current_context_args)"
   kubectl "$@"
 }
 
