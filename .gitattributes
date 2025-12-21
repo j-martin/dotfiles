@@ -1,3 +1,4 @@
+* merge=mergiraf
 *.c     diff=cpp
 *.h     diff=cpp
 *.c++   diff=cpp

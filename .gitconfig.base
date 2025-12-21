@@ -34,6 +34,9 @@
   cpa = cherry-pick --abort
   cpc = cherry-pick --continue
   df = difftool
+  g = grep
+  l = ls-files
+  ls = ls-files
   m = merge
   r = rebase
   re = rebase
@@ -65,6 +68,9 @@
   paging = always
 [merge]
   conflictstyle = zdiff3
+[merge "mergiraf"]
+  name = mergiraf
+  driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
 [branch]
   sort = -committerdate
 [init]
