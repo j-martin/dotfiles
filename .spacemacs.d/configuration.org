@@ -13,7 +13,7 @@
   (setq exec-path (append exec-path '("/usr/local/bin")))
   (setq exec-path (append exec-path '("/opt/homebrew/bin")))
   (setenv "RIPGREP_CONFIG_PATH" (substitute-in-file-name "$HOME/.config/ripgrep"))
-  (require 'org-reminders)
+  ;; (require 'org-reminders)
 #+end_src
 
 ** Convenience
