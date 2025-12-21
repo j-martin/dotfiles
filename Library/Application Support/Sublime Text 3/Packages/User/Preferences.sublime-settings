@@ -42,11 +42,9 @@
   "hot_exit": false,
   "ignored_packages":
   [
-    "Six",
     "Vintage",
-    "Vintageous",
   ],
-  "neovintageous_build_version": 11100,
+  "neovintageous_build_version": 13200,
   "open_files_in_new_windows": false,
   "open_with":
   [
@@ -110,4 +108,6 @@
   "vintageous_use_ctrl_keys": true,
   "vintageous_use_sys_clipboard": true,
   "word_wrap": true,
+  "vintageous_use_super_keys": false,
+  "index_files": true,
 }

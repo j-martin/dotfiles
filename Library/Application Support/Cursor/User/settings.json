@@ -723,5 +723,6 @@
   "git.openRepositoryInParentFolders": "always",
   "go.toolsManagement.autoUpdate": true,
   "cursor.composer.shouldAllowCustomModes": true,
-  "git.autofetch": true
+  "git.autofetch": true,
+  "cursor.enable_git_worktrees_setting": true
 }
