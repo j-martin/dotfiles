@@ -54,6 +54,8 @@ if [ -n "$ZSH_VERSION" ]; then
   alias -g C='| _pbcopy'
   alias -g BR='"$(_git_current_branch)"'
   alias -g H='"$(git rev-parse HEAD)"'
+  alias -g JL='| jless --yaml'
+
 fi
 
 alias S=_safe
@@ -134,9 +136,7 @@ jqx() { jq . -C "$@" | less -SRi; }
 alias jq-serialized='jq -R -s .'
 alias jqc='pbpaste | jq .'
 alias jqcl='pbpaste | jq -C . | less -SRi'
-jq-paths() {
-  jq -r 'select(objects) |= [.] | map(paths(scalars)) | map(map(select(numbers)="[]") | join(".")) | unique[]' "$@" | sed 's/^/./'
-}
+alias jq-paths=_jq_paths
 alias ip='ifconfig | grep "inet 1"'
 idiff() { icdiff "$1" "$2" | less -SRi; }
 idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
@@ -247,6 +247,7 @@ git-reflog-grep() {
     git show "$in" | grep "$@"
   done
 }
+alias gco=_git_checkout
 alias goc=gco
 alias gdel=_git_delete_commit
 alias gclon='git clone "$(_github_pick_repo)"'
@@ -358,7 +359,7 @@ alias hck='_github_open_check'
 alias hp='_github_open_pr_for_commit'
 alias hpc='_github_copy_pr_url_for_commit'
 alias hb='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
-alias hbp='open "$GITHUB_URL/$(_git_repo)/pull/new/$(_git_current_branch_url)"'
+alias hbp='gh pr view --web || open "$GITHUB_URL/$(_git_repo)/pull/new/$(_git_current_branch_url)"'
 alias hpr='_github_pr'
 alias hprr='_github_pr_with_reviewer'
 alias hbs='open "$GITHUB_URL/$(_git_repo)/branches"'

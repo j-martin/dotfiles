@@ -510,7 +510,6 @@ _git_clone() {
   cd "${repo_dir}" \
     && _info "Moved to '$PWD'..." \
     || _info 'Failed to change repo_dir...'
-  _go_mod_download
 }
 
 _git_clone_all_org_repos() {
@@ -632,4 +631,48 @@ _github_generate_alfred_snippets() {
 _github_rate_limit() {
   gh api rate_limit \
     | jq '.rate | {percentUsage: (.used / .limit * 10000 | round /100), reset: (.reset | strftime("%Y-%m-%d %H:%M:%S UTC"))}'
+}
+
+_github_list_repo_secrets() {
+  local owner="${2:-nestoca}"
+  local repo="$1"
+  gh api \
+     -H "Accept: application/vnd.github+json" \
+     -H "X-GitHub-Api-Version: 2022-11-28" \
+     https://api.github.com/repos/${owner}/${repo}/actions/secrets
+}
+
+_git_checkout() {
+  local branch="$1"
+  if [[ "${branch}" == 'https://github.com'* ]]; then
+    _git_checkout_pr_from_url "${branch}" "${@:2}"
+    return
+  fi
+  git checkout "$@"
+}
+
+_git_checkout_pr_from_url() {
+  local url="$1"
+  _git_clone "${url}"
+  git fetch origin
+  git checkout "$(gh pr view --json headRefName --jq .headRefName "${url}")"
+}
+
+_github_list_all_org_repo_secrets() {
+  local org="${1:-nestoca}"
+  local limit="${2:-500}"
+
+  echo "Fetching repository secrets for org: ${org}"
+  echo ""
+
+  for repo in $(gh repo list "${org}" --json name,isArchived --limit "${limit}" \
+    | jq --raw-output '.[] | select(.isArchived | not).name' | sort); do
+    echo "==> https://github.com/${org}/${repo}/settings/secrets/actions"
+    gh api \
+      -H "Accept: application/vnd.github+json" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      "repos/${org}/${repo}/actions/secrets" \
+      | jq -r '.secrets[]? | "  - \(.name) (updated: \(.updated_at))"'
+    echo ""
+  done
 }
