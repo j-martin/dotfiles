@@ -9,6 +9,7 @@ set -u
 
 IFS=$'\n\t'
 KCTL_URL='https://raw.githubusercontent.com/j-martin/dotfiles/master/.bin/kctl'
+DEFAULT_KUBECONFIG="${HOME}/.kube/config"
 
 _info() {
   echo >&2 "[info] $*"
@@ -21,15 +22,17 @@ _fatal() {
   exit "${code}"
 }
 
+__background_color() {
+  printf "\033]Ph%s\033\\" "$@" >&2
+}
+
 _background_red() {
   # iTerm escape code to turn the terminal red.
-  printf "\033]Ph341817\033\\" >&2
-  "$@"
+  __background_color '341817'
 }
 
 _background_orange() {
-  printf "\033]Ph2d1800\033\\" >&2
-  "$@"
+  __background_color '2d1800'
 }
 
 _background_safe() {
@@ -55,7 +58,12 @@ _show_current_context() {
       ;;
   esac
 
+  __set_context_badge
   _info "${message_prefix} ${context}"
+}
+
+__set_context_badge() {
+  printf "\e]1337;SetBadgeFormat=%s\a" "$(__k8s_current_context_compact | base64)" >&2
 }
 
 __k8s_current_context() {
@@ -68,8 +76,13 @@ __k8s_current_context_args() {
     | jq -r '.contexts[0].context | "--context=\(.cluster) --namespace=\(.namespace)"'
 }
 
+__k8s_current_context_compact() {
+  kubectl config view --minify --output json \
+    | jq -r '.contexts[0].context | "cluster: \(.cluster)\nns: \(.namespace)"'
+}
+
 _kubectl() {
-  _show_current_context "Running: kubectl $(tr -d '\n' <<< "$@")" "$(__k8s_current_context_args)"
+  _show_current_context "Running: kubectl $(tr -d '\n' <<<"$@")" "$(__k8s_current_context_args)"
   kubectl "$@"
 }
 
@@ -112,7 +125,7 @@ _k8s_pick_pod() {
   _k8s_pick_resource 'pod' "$@"
 }
 
-_k8s_switch_cluster() {
+__k8s_switch_cluster() {
   local context="${1:-}"
   local namespace="${2:-}"
   local pod="${3:-}"
@@ -133,12 +146,35 @@ _k8s_switch_cluster() {
   fi
 }
 
+_k8s_switch_cluster() {
+  if [[ -z "${KUBECONFIG:-}" ]]; then
+    export KUBECONFIG="${TMPDIR:-/tmp/}kube.context.${RANDOM}.yaml"
+    while [[ -f "${KUBECONFIG}" ]]; do
+      export KUBECONFIG="${TMPDIR:-/tmp/}kube.context.${RANDOM}.yaml"
+    done
+    _info "Starting new shell with KUBECONFIG=$KUBECONFIG"
+    cp "${DEFAULT_KUBECONFIG}" "${KUBECONFIG}"
+    __k8s_switch_cluster "$@"
+    exec "$SHELL"
+  fi
+  __k8s_switch_cluster "$@"
+}
+
 _k8s_switch_namespace() {
   local namespace="${1:-}"
   namespace="$(_k8s_pick_resource namespace "${namespace}")"
   _info "Switching namespace to: ${namespace}..."
   _kubectl config set-context --current --namespace="${namespace}"
   _info "Now using ${namespace}..."
+}
+
+_sync_global_kubeconfig() {
+  if [[ -z "${KUBECONFIG:-}" ]]; then
+    _fatal "KUBECONFIG not defined. Assuming the current kube config is the global one."
+  fi
+  mv "${DEFAULT_KUBECONFIG}" "${DEFAULT_KUBECONFIG}.$(date +%s).bak"
+  cp "${KUBECONFIG}" "${DEFAULT_KUBECONFIG}"
+  _info "Copied '${KUBECONFIG}' to '${DEFAULT_KUBECONFIG}'."
 }
 
 _k8s_exec() {
@@ -214,7 +250,7 @@ _install() {
 }
 
 _usage() {
-  cat >&2 << EOF
+  cat >&2 <<EOF
 USAGE: $0 COMMANDS [OPTIONS]...
 
 Wrapper around kubectl.
@@ -290,6 +326,9 @@ _main() {
     lj | logs-json) # [POD] Watch logs for all containers in pod. Handles/formats each lines as JSON.
       _k8s_logs "${1:-}" | _jq_log "${@:2}"
       ;;
+    sgc | sync-kubeconfig) # Copies the current context back to ~/.kube/config
+      _sync_global_kubeconfig "$@"
+      ;;
     sc | switch-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Will list clusters/contexts if there no exact match or no cluster is passed. If the namespace is passed then it will try to switch to that namespace as well. If a pod is defined it will run exec on it.
       _k8s_switch_cluster "$@"
       ;;
@@ -305,6 +344,7 @@ _main() {
       ;;
     wp | watch-pods)
       _show_current_context 'Watching pods'
+      __set_context_badge
       watch "kubectl get pod --output wide | grep --extended-regexp --ignore-case '${1:-.*}'"
       ;;
     wg | wpg)
@@ -317,6 +357,7 @@ _main() {
       _kubectl "${key}" "$@"
       ;;
   esac
+  __set_context_badge
 }
 
 _main "$@"
