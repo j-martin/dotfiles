@@ -330,10 +330,19 @@ _main() {
       _sync_global_kubeconfig "$@"
       ;;
     sc | switch-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Will list clusters/contexts if there no exact match or no cluster is passed. If the namespace is passed then it will try to switch to that namespace as well. If a pod is defined it will run exec on it.
+      __k8s_switch_cluster "$@"
+      ;;
+    ssc | switch-shell-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Same as switch-cluster, but opens a new shell with a duplicate kubeconfig and context.
       _k8s_switch_cluster "$@"
       ;;
     sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
       _k8s_switch_namespace "$@"
+      ;;
+    lsf | list-service-fqdns)
+      _kubectl get service --all-namespaces \
+              --output custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace \
+              --no-headers \
+        | awk '{print $1 "." $2 ".svc.cluster.local"}'
       ;;
     v | vpa)
       _k8s_show_vpa_recommendations
