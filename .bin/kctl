@@ -82,7 +82,7 @@ __k8s_current_context_compact() {
 }
 
 _kubectl() {
-  _show_current_context "Running: kubectl $(tr -d '\n' <<<"$@")" "$(__k8s_current_context_args)"
+  _show_current_context "Running: kubectl $(tr -d '\n' <<< "$@")" "$(__k8s_current_context_args)"
   kubectl "$@"
 }
 
@@ -125,7 +125,7 @@ _k8s_pick_pod() {
   _k8s_pick_resource 'pod' "$@"
 }
 
-__k8s_switch_cluster() {
+_k8s_switch_cluster() {
   local context="${1:-}"
   local namespace="${2:-}"
   local pod="${3:-}"
@@ -146,18 +146,14 @@ __k8s_switch_cluster() {
   fi
 }
 
-_k8s_switch_cluster() {
-  if [[ -z "${KUBECONFIG:-}" ]]; then
+_new_subshell() {
+  export KUBECONFIG="${TMPDIR:-/tmp/}kube.context.${RANDOM}.yaml"
+  while [[ -f "${KUBECONFIG}" ]]; do
     export KUBECONFIG="${TMPDIR:-/tmp/}kube.context.${RANDOM}.yaml"
-    while [[ -f "${KUBECONFIG}" ]]; do
-      export KUBECONFIG="${TMPDIR:-/tmp/}kube.context.${RANDOM}.yaml"
-    done
-    _info "Starting new shell with KUBECONFIG=$KUBECONFIG"
-    cp "${DEFAULT_KUBECONFIG}" "${KUBECONFIG}"
-    __k8s_switch_cluster "$@"
-    exec "$SHELL"
-  fi
-  __k8s_switch_cluster "$@"
+  done
+  cp "${DEFAULT_KUBECONFIG:-KUBECONFIG}" "${KUBECONFIG}"
+  _info "Starting a new shell with KUBECONFIG=$KUBECONFIG"
+  exec "$SHELL"
 }
 
 _k8s_switch_namespace() {
@@ -250,7 +246,7 @@ _install() {
 }
 
 _usage() {
-  cat >&2 <<EOF
+  cat >&2 << EOF
 USAGE: $0 COMMANDS [OPTIONS]...
 
 Wrapper around kubectl.
@@ -330,18 +326,18 @@ _main() {
       _sync_global_kubeconfig "$@"
       ;;
     sc | switch-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Will list clusters/contexts if there no exact match or no cluster is passed. If the namespace is passed then it will try to switch to that namespace as well. If a pod is defined it will run exec on it.
-      __k8s_switch_cluster "$@"
-      ;;
-    ssc | switch-shell-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Same as switch-cluster, but opens a new shell with a duplicate kubeconfig and context.
       _k8s_switch_cluster "$@"
+      ;;
+    ns | new-subshell) # Copies the KUBE_CONFIG and opens a new shell that points to it. Allows to use multiple kube context in parallel.
+      _new_subshell "$@"
       ;;
     sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
       _k8s_switch_namespace "$@"
       ;;
     lsf | list-service-fqdns)
       _kubectl get service --all-namespaces \
-              --output custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace \
-              --no-headers \
+        --output custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace \
+        --no-headers \
         | awk '{print $1 "." $2 ".svc.cluster.local"}'
       ;;
     v | vpa)
