@@ -32,6 +32,10 @@ if [[ -f /opt/homebrew/bin/brew ]]; then
   export BREW_PREFIX="$(brew --prefix)"
 fi
 
+if command -v fzf > /dev/null 2>&1 && ! declare -f __fzf_comprun > /dev/null; then
+  eval "$(fzf --zsh)"
+fi
+
 test -e /usr/local/bin/brew \
   && export BREW_PREFIX="$(brew --prefix)"
 
