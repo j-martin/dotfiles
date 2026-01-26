@@ -328,10 +328,17 @@ _main() {
     sc | switch-cluster) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Will list clusters/contexts if there no exact match or no cluster is passed. If the namespace is passed then it will try to switch to that namespace as well. If a pod is defined it will run exec on it.
       _k8s_switch_cluster "$@"
       ;;
-    ns | new-subshell) # Copies the KUBE_CONFIG and opens a new shell that points to it. Allows to use multiple kube context in parallel.
+    ssc | switch-cluster-in-subsell) # [CLUSTER/CONTEXT] [NAMESPACE] [POD] Same as sc, but create a subshell with a new KUBECONFIG before.
+      _k8s_switch_cluster "$@"
+      ;;
+    ss | ns | new-subshell) # Copies the KUBE_CONFIG and opens a new shell that points to it. Allows to use multiple kube context in parallel.
       _new_subshell "$@"
       ;;
     sn | switch-namespace) # [NAMESPACE] Will list namespace if there no exact match or no namespace is passed.
+      _k8s_switch_namespace "$@"
+      ;;
+    ssn | switch-namespace-in-subshell) # [NAMESPACE] Same as sn, but create a subshell with a new KUBECONFIG before.
+      _new_subshell
       _k8s_switch_namespace "$@"
       ;;
     lsf | list-service-fqdns)
