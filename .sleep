@@ -4,15 +4,15 @@ set -o errexit
 set -o pipefail
 set -o errtrace
 set -u
-shopt -s inherit_errexit 2>/dev/null || true
+shopt -s inherit_errexit 2> /dev/null || true
 
 IFS=$'\n\t'
 
+pkill -f DeskPad
 pkill -f Spotify || true
 pkill -f Trailer || true
 
-
-( date | tr -d '\n' && echo ' - sleep' ) >> "${HOME}/.activity.log"
+date | sed 's/$/ - sleep/' >> "${HOME}/.activity.log"
 
 # Killing spotify again.
 pkill -f Spotify
