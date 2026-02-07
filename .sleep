@@ -8,11 +8,11 @@ shopt -s inherit_errexit 2> /dev/null || true
 
 IFS=$'\n\t'
 
-pkill -f DeskPad
+pkill -f DeskPad || true
 pkill -f Spotify || true
 pkill -f Trailer || true
 
 date | sed 's/$/ - sleep/' >> "${HOME}/.activity.log"
 
 # Killing spotify again.
-pkill -f Spotify
+pkill -f Spotify || true
