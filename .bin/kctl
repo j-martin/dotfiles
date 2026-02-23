@@ -68,17 +68,17 @@ __set_context_badge() {
 
 __k8s_current_context() {
   kubectl config view --minify --output json \
-    | jq -r '.contexts[0].context | "on cluster: \(.cluster) namespace: \(.namespace)"'
+    | jq --raw-output '.contexts[0].context | "on cluster: \(.cluster) namespace: \(.namespace)"'
 }
 
 __k8s_current_context_args() {
   kubectl config view --minify --output json \
-    | jq -r '.contexts[0].context | "--context=\(.cluster) --namespace=\(.namespace)"'
+    | jq --raw-output '.contexts[0].context | "--context=\(.cluster) --namespace=\(.namespace)"'
 }
 
 __k8s_current_context_compact() {
   kubectl config view --minify --output json \
-    | jq -r '.contexts[0].context | "cluster: \(.cluster)\nns: \(.namespace)"'
+    | jq --raw-output '.contexts[0].context | "cluster: \(.cluster)\nns: \(.namespace)"'
 }
 
 _kubectl() {
@@ -92,7 +92,7 @@ _gcp_k8s_auth() {
     _fatal 'Please specify the project.'
   fi
   gcloud container clusters list --project "${project}" --format json \
-    | jq -r '.[] | "\(.name)  --zone \(.zone)"' \
+    | jq --raw-output '.[] | "\(.name)  --zone \(.zone)"' \
     | xargs -n3 gcloud container clusters get-credentials --project "${project}"
 }
 
