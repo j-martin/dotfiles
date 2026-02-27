@@ -391,3 +391,22 @@ _swap_wifi_mac_address() {
   sudo /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport en0 -z
   sudo ifconfig en0 ether "$(openssl rand -hex 6 | sed 's/\(..\)/\1:/g; s/.$//')"
 }
+
+_warp_bypass_github() {
+  curl https://api.github.com/meta | jq -r '.web + .api | .[]' | sort -u | __warp_bypass
+}
+
+_warp_bypass() {
+  local domain="$1"
+  dig "${domain}" A +short \
+    | __warp_bypass
+}
+
+__warp_bypass() {
+  local router_ip
+  router_ip="$(route -n get default | awk -F': ' '/gateway/ {print $2}')"
+
+  while read -r ip; do
+    sudo route -nv add -net "${ip}" "${router_ip}"
+  done
+}
