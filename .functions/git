@@ -599,7 +599,7 @@ mass() {
 }
 
 _mass() {
-  parallel --max-proc 2 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'"  $* )"
+  parallel --max-proc 10 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'"  $* )"
 }
 
 _git_jira_issue_from_branch() {
