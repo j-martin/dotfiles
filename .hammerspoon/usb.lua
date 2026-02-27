@@ -42,10 +42,10 @@ function mod.officeAutomation(scene, command)
     if scene == 'office_call' then
       if command == 'on' then
         hs.spotify.pause()
-        hs.urlevent.openURL("neewerlite://turnOnLight")
+        -- hs.urlevent.openURL("neewerlite://turnOnLight")
       else
         audio.setVolume('default')()
-        hs.urlevent.openURL("neewerlite://turnOffLight")
+        -- hs.urlevent.openURL("neewerlite://turnOffLight")
       end
     end
     process.start(apps.getExecPath('office-automation'), {'--scene', scene, command }, nil, 10)
