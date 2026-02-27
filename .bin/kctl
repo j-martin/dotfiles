@@ -181,6 +181,17 @@ _k8s_exec() {
   _kubectl exec -it "${pod}" -- "${2:-sh}" "${@:3}"
 }
 
+_k8s_run() {
+  local image="${1:-ubuntu}"
+  local args=("${@:2}")
+  shift || args=("bash")
+
+  local pod_name
+  pod_name="${image}-${USER}-$(date +%s)"
+  trap "kubectl delete pod ${pod_name}" exit
+  _kubectl run "${pod_name}" --image="${image}" --stdin --tty --restart=Never -- "${args[@]}"
+}
+
 _k8s_logs() {
   __k8s_logs "${1:-}" "${@:2}" --max-log-requests=20 --all-containers --follow=true --tail=100
 }
@@ -312,7 +323,10 @@ _main() {
     install | update) # Install or update kctl
       _install
       ;;
-    r | restart)
+    r | run)
+      _k8s_run "$@"
+      ;;
+    rs | restart)
       _k8s_restart "$@" # [DEPLOYMENT-NAME] Restart all pods in the deployment. Will list deployments if there no exact match or no deployment passed.
       ;;
     sca | scale) # [DEPLOYMENT-NAME] [REPLICAS] Scale the deployment to the specified number of replicas. Will list deployments if there no exact match or no deployment passed.
