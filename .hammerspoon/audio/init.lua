@@ -103,22 +103,22 @@ end
 local function callAndDisplay(fn)
   return function()
     fn()
-    hs.spotify.displayCurrentTrack()
+    hs.itunes.displayCurrentTrack()
   end
 end
 
-mod.next = callAndDisplay(hs.spotify.next)
-mod.previous = callAndDisplay(hs.spotify.previous)
-mod.current = hs.spotify.displayCurrentTrack
+mod.next = callAndDisplay(hs.itunes.next)
+mod.previous = callAndDisplay(hs.itunes.previous)
+mod.current = hs.itunes.displayCurrentTrack
 
 function mod.playpause()
   hs.alert.show('Play/Pause')
-  hs.spotify.playpause()
+  hs.itunes.playpause()
 end
 
 local function parseEvent(event)
   if event == hs.caffeinate.watcher.screensDidLock then
-    hs.spotify.pause()
+    hs.itunes.pause()
   end
 end
 
@@ -135,7 +135,7 @@ function mod.init()
   function unplugged()
     mod.muteSpeakers('Built-in Output')
     mod.muteSpeakers('MacBook Pro Speakers')
-    hs.spotify.pause()
+    hs.itunes.pause()
     mod.setDefaultInputDevice()
   end
 

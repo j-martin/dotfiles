@@ -41,7 +41,7 @@ function mod.officeAutomation(scene, command)
   return function()
     if scene == 'office_call' then
       if command == 'on' then
-        hs.spotify.pause()
+        hs.itunes.pause()
         -- hs.urlevent.openURL("neewerlite://turnOnLight")
       else
         audio.setVolume('default')()
@@ -50,7 +50,7 @@ function mod.officeAutomation(scene, command)
     end
     process.start(apps.getExecPath('office-automation'), {'--scene', scene, command }, nil, 10)
     if scene == 'desk' and command == 'off' then
-      hs.spotify.pause()
+      hs.itunes.pause()
       hs.caffeinate.systemSleep()
     end
   end

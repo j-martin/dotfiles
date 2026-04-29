@@ -29,11 +29,11 @@ local bindings = {
     name = keybinder.globalBindings,
     bindings = {
       -- cmd + h reserved for notification
-      {key = '1', name = apps.name.activityMonitor},
-      {key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph'},
+      -- {key = '1', name = apps.name.activityMonitor},
+      -- {key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph'},
       -- key = '5' reserved for Alfred snippets
       {key = '8', name = 'Slack'},
-      {key = '9', name = 'Spotify'},
+      {key = '9', name = 'Music'},
       {key = '\\', name = '1Password'},
       {key = 'a', name = 'Figma'},
       {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
@@ -144,7 +144,7 @@ local hyperModeBindings = {
   {key = 'o', fn = audio.setVolume('default'), desc = 'Default volume level'},
   {key = 'p', fn = audio.setVolume(100), desc = 'High volume level'},
   {key = 'r', fn = reload.reload, desc = 'Reloading configuration ...'},
-  {key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Spotify'},
+  {key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Music'},
   {key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%'},
   {key = 'y', fn = audio.changeVolume(-100), desc = 'Mute'},
   {key = 'w', fn = wifi.restartWifi, desc = 'Restart WiFi'},
