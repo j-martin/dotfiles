@@ -8,7 +8,6 @@ shopt -s inherit_errexit 2>/dev/null || true
 
 IFS=$'\n\t'
 
-open -a Spotify
-open -a Trailer
+open -a Trailer || true
 
 date | sed 's/$/ - wakeup/' >> "${HOME}/.activity.log"
