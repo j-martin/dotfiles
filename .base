@@ -41,6 +41,7 @@ test -e /usr/local/bin/brew \
 
 GPG_TTY="$(tty)"
 export GPG_TTY
+export DO_NOT_TRACK=true
 
 __source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
