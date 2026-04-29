@@ -48,6 +48,7 @@ This function should only modify configuration layer settings."
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/")
      better-defaults
+     claude-code
      csv
      dash
      docker

@@ -724,5 +724,6 @@
   "go.toolsManagement.autoUpdate": true,
   "cursor.composer.shouldAllowCustomModes": true,
   "git.autofetch": true,
-  "cursor.enable_git_worktrees_setting": true
+  "cursor.enable_git_worktrees_setting": true,
+  "workbench.statusBar.visible": false
 }
