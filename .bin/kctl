@@ -187,9 +187,10 @@ _k8s_run() {
   shift || args=("bash")
 
   local pod_name
-  pod_name="${image}-${USER}-$(date +%s)"
-  trap "kubectl delete pod ${pod_name}" exit
-  _kubectl run "${pod_name}" --image="${image}" --stdin --tty --restart=Never -- "${args[@]}"
+  pod_name="$(basename "${image}")-${USER}-$(date +%s)"
+  pod_name="${pod_name//[^a-zA-Z0-9-]/-}"
+  trap 'kubectl delete pod '"${pod_name}" exit
+  _kubectl run "${pod_name}" --image="${image}" --stdin --tty --restart=Never --labels="tags.datadoghq.com/service=debug,tags.datadoghq.com/version=0.00${KCTL_EXTRA_LABELS}" -- "${args[@]}"
 }
 
 _k8s_logs() {
