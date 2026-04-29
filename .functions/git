@@ -676,3 +676,15 @@ _github_list_all_org_repo_secrets() {
     echo ""
   done
 }
+
+_gh_action_sha() {
+  local action="$1"  # e.g. google-github-actions/setup-gcloud@v3
+  local repo="${action%@*}"
+  local ref="${action#*@}"
+
+  local sha
+  sha=$(gh api "repos/${repo}/commits/${ref}" --jq '.sha')
+  cat << EOF
+  {"ref": "${action}", "sha": "${repo}@${sha}", "allowTag": true}
+EOF
+}

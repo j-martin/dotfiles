@@ -410,3 +410,37 @@ __warp_bypass() {
     sudo route -nv add -net "${ip}" "${router_ip}"
   done
 }
+
+_find_and_replace_literal() {
+  for i in $(git grep -l "$1"); do
+    _replace_literal "$@" "$i"
+  done
+}
+
+_replace_literal() {
+  local search="$1"
+  local replace="$2"
+  local file="$3"
+  local tmp
+  tmp=$(mktemp)
+
+
+  awk -v s="$search" -v r="$replace" '
+    {
+        out = ""
+        while ((i = index($0, s)) > 0) {
+            out = out substr($0, 1, i-1) r
+            $0 = substr($0, i + length(s))
+        }
+        print out $0
+    }' "$file" > "$tmp"
+  mv -f "$tmp" "$file"
+}
+
+_paste_to_tempfile() {
+  local file
+  file="$(mktemp)"
+
+  pbpaste > "${file}"
+  _pbcopy <<< "${file}"
+}
