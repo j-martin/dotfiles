@@ -123,7 +123,10 @@ urlencode() {
 }
 
 nvm() {
-  node --version
+  if grep --quiet --fixed-strings "$(node --version)" .nvmrc; then
+    _info "Node version $(node --version) matches .nvmrc. Skipping nvm use..."
+    return
+  fi
   unset -f nvm
   export NVM_DIR=~/.nvm
   setopt no_aliases
@@ -424,7 +427,6 @@ _replace_literal() {
   local tmp
   tmp=$(mktemp)
 
-
   awk -v s="$search" -v r="$replace" '
     {
         out = ""
@@ -441,6 +443,7 @@ _paste_to_tempfile() {
   local file
   file="$(mktemp)"
 
+  _info 'Copying clipboard contents to temporary file: '"${file}"
   pbpaste > "${file}"
   _pbcopy <<< "${file}"
 }

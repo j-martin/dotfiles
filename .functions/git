@@ -424,18 +424,20 @@ _github_subscribe_to_team_repos() {
 }
 
 __github_pick_run() {
-  gh api repos/$(_git_repo)/commits/$(git rev-parse HEAD)/check-runs \
+  local query="$1"
+  gh api "repos/$(_git_repo)/commits/$(git rev-parse HEAD)/check-runs" \
     | jq -r '.check_runs[] | "\(.name)\t\(.status)\t\(.conclusion)\t\(.details_url)"' \
+    | grep --invert-match 'Wiz' \
     | grep --invert-match 'gitstream' \
     | fzf --select-1 --exit-0 --query "${query}" \
-    | awk -F\t -v pr_number="$(gh pr view $(_git_current_branch) --json number | jq -r .number)" '{print $4 "?pr=" pr_number}'
+    | awk -F'\t' -v pr_number="$(gh pr view $(_git_current_branch) --json number | jq -r .number)" '{print $4 "?pr=" pr_number}'
 }
 
 _github_open_check() {
   local query="${1:-}"
   local url=""
   while true; do
-    url="$(__github_pick_run)"
+    url="$(__github_pick_run "${query}")"
     if [[ -n "${url}" ]]; then
       break
     fi
