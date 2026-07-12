@@ -725,5 +725,6 @@
   "cursor.composer.shouldAllowCustomModes": true,
   "git.autofetch": true,
   "cursor.enable_git_worktrees_setting": true,
-  "workbench.statusBar.visible": false
+  "workbench.statusBar.visible": false,
+  "window.autoDetectColorScheme": false
 }
