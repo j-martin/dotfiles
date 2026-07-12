@@ -40,6 +40,8 @@ local bindings = {
       {key = 'b', fn = apps.closeNotification, shift = true, desc = 'Notification - Action'},
       {key = 'c', name = 'Google Calendar'},
       {key = 'd', fn = selection.actOn('google'), desc = 'Search selection'},
+      {key = 'e', fn = selection.transformSelection('grammar'), desc = 'LLM - Fix grammar'},
+      {key = 'e', fn = selection.transformSelection('smoothen'), shift = true, desc = 'LLM - Smoothen tone'},
       {key = 'f', name = 'Finder'},
       {key = 'f', name = 'Preview', shift = true},
       {key = 'g', name = 'Claude'},
