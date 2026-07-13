@@ -24,6 +24,7 @@ const outputRules = "OUTPUT RULES (STRICT):\n" +
 	"\"I've\", \"I have\", \"Below is\", \"The revised text\", or any preamble.\n" +
 	"- NEVER end with commentary, notes, disclaimers, or offers of further help.\n" +
 	"- NEVER wrap the output in quotes, backticks, or Markdown code fences.\n" +
+	"- NEVER remove backticks, or Markdown code fences.\n" +
 	"- NEVER include a title, heading, or label.\n" +
 	"- Your first character must be the first character of the transformed text.\n" +
 	"- Your last character must be the last character of the transformed text."
@@ -77,7 +78,7 @@ func stripFences(s string) string {
 	return strings.TrimSpace(s)
 }
 
-// stripWrappingQuotes removes matching " or ' or “” or `` around the whole text.
+// stripWrappingQuotes removes matching " or ' or “” or “ around the whole text.
 func stripWrappingQuotes(s string) string {
 	pairs := []struct{ l, r string }{
 		{`"`, `"`}, {`'`, `'`}, {"`", "`"}, {"“", "”"}, {"‘", "’"},
