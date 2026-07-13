@@ -108,9 +108,11 @@ function mod.transformSelection(llmMode)
       return
     end
 
-    hs.alert.show('llm ' .. llmMode .. '…')
+    local messageId = hs.alert.show('llm ' .. llmMode .. ' running do not change focus…', nil, nil, 'infinite')
     logger.df('llm %s input=%d chars via %s', llmMode, #text, llmPath)
     local onDone = function(exitCode, stdOut, stdErr)
+      hs.alert.closeSpecific(messageId)
+      hs.alert.show('llm done', nil, nil, 1)
       logger.df('llm exit=%s stdout=%d chars stderr=%s',
                 tostring(exitCode), #(stdOut or ''), stdErr or '')
       if exitCode ~= 0 then
