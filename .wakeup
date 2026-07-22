@@ -9,5 +9,6 @@ shopt -s inherit_errexit 2>/dev/null || true
 IFS=$'\n\t'
 
 open -a Trailer || true
+open -a MeetingBar || true
 
 date | sed 's/$/ - wakeup/' >> "${HOME}/.activity.log"
