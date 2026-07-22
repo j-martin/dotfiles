@@ -23,7 +23,7 @@ var outputRules = strings.Join([]string{"OUTPUT RULES (STRICT):",
 	"- NEVER start with phrases like \"Here is\", \"Here's\", \"Sure\", \"Okay\", \"Certainly\", " +
 		"\"I've\", \"I have\", \"Below is\", \"The revised text\", or any preamble.",
 	"- NEVER end with commentary, notes, disclaimers, or offers of further help.",
-	"- NEVER wrap the output in quotes, backticks, or Markdown code fences.",
+	"- NEVER remove backticks '`', quotes '>' , or Markdown code fences.",
 	"- NEVER include a title, heading, or label.",
 	"- Your first character must be the first character of the transformed text.",
 	"- Your last character must be the last character of the transformed text.",
