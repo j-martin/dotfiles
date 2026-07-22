@@ -18,16 +18,17 @@ type mode struct {
 	user   func(text string) string
 }
 
-const outputRules = "OUTPUT RULES (STRICT):\n" +
-	"- Reply with ONLY the transformed text. Nothing else.\n" +
+var outputRules = strings.Join([]string{"OUTPUT RULES (STRICT):",
+	"- Reply with ONLY the transformed text. Nothing else.",
 	"- NEVER start with phrases like \"Here is\", \"Here's\", \"Sure\", \"Okay\", \"Certainly\", " +
-	"\"I've\", \"I have\", \"Below is\", \"The revised text\", or any preamble.\n" +
-	"- NEVER end with commentary, notes, disclaimers, or offers of further help.\n" +
-	"- NEVER wrap the output in quotes, backticks, or Markdown code fences.\n" +
-	"- NEVER remove backticks, or Markdown code fences.\n" +
-	"- NEVER include a title, heading, or label.\n" +
-	"- Your first character must be the first character of the transformed text.\n" +
-	"- Your last character must be the last character of the transformed text."
+		"\"I've\", \"I have\", \"Below is\", \"The revised text\", or any preamble.",
+	"- NEVER end with commentary, notes, disclaimers, or offers of further help.",
+	"- NEVER wrap the output in quotes, backticks, or Markdown code fences.",
+	"- NEVER include a title, heading, or label.",
+	"- Your first character must be the first character of the transformed text.",
+	"- Your last character must be the last character of the transformed text.",
+	"- Sentence case text",
+}, "\n")
 
 var modes = map[string]mode{
 	"grammar": {
@@ -42,7 +43,7 @@ var modes = map[string]mode{
 	"smoothen": {
 		system: "You are a warm, friendly editor. Rewrite the text the user provides so it sounds friendlier, more approachable, and more positive, " +
 			"while preserving the original meaning, key facts, language, and rough length. Do not add new content. Keep it professional, not sycophantic. " +
-			"A single well-placed emoji is fine; more than one is not.\n\n" + outputRules,
+			"An occasional well-placed emoji is fine.\n\n" + outputRules,
 		user: func(text string) string {
 			return "Rewrite the following text with a friendlier, warmer tone while keeping the meaning intact.\n\n" + text
 		},

@@ -108,6 +108,8 @@ function mod.transformSelection(llmMode)
       return
     end
 
+    local currentWindow = hs.window.focusedWindow()
+
     local messageId = hs.alert.show('llm ' .. llmMode .. ' running do not change focus…', nil, nil, 'infinite')
     logger.df('llm %s input=%d chars via %s', llmMode, #text, llmPath)
     local onDone = function(exitCode, stdOut, stdErr)
@@ -123,6 +125,9 @@ function mod.transformSelection(llmMode)
       if result == '' then
         hs.alert.show('llm returned empty output')
         return
+      end
+      if currentWindow then
+        currentWindow:focus()
       end
       hs.pasteboard.setContents(result)
       hs.timer.usleep(30 * 1000)
