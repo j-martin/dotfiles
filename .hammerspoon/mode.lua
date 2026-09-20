@@ -1,6 +1,5 @@
 local mod = {}
 
-hs.alert.defaultStyle['radius'] = 5
 hs.alert.defaultStyle['textSize'] = 20
 
 -- bindings { { key = 'string', fn = fn } }

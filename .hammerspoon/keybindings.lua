@@ -97,6 +97,7 @@ local bindings = {
       {key = 'q', fn = hs.toggleConsole, shift = true, desc = 'HS - Console'},
       {key = 'r', fn = emacs.orgRifle, desc = 'Org - Capture selection to Resources'},
       {key = 'r', fn = emacs.references, shift = true, desc = 'Org - Show Resources'},
+      {key = 's', name = 'Obsidian'},
       {key = 't', fn = emacs.capture(), desc = 'Org - Capture'},
       {key = 't', fn = emacs.inbox, shift = true, desc = 'Org - Inbox'},
       {key = 'u', name = 'Emacs'},
