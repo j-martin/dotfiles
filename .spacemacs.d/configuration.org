@@ -332,7 +332,7 @@ From http://akrl.sdf.org/.
    #+begin_src emacs-lisp :results none
      (defun jm/makefile-mode-config ()
        (setq-default indent-tabs-mode t)
-       (global-set-key (kbd "TAB") 'self-insert-command)
+       (local-set-key (kbd "TAB") 'self-insert-command)
        (setq indent-tabs-mode t)
        (setq tab-width 8)
        (setq c-basic-indent 8))
