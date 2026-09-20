@@ -717,6 +717,13 @@ it makes magit a fair bit faster.
 #+begin_src emacs-lisp :results none
   (which-key-define-key-recursively global-map [escape] 'keyboard-quit)
 #+end_src
+
+*** Fix macos emoji picker
+#+begin_src emacs-lisp :results none
+  (global-set-key (kbd "C-H-SPC") #'ns-do-show-character-palette)
+#+end_src
+
+
 *** Remap C-c C-c and C-c C-k
 #+begin_src emacs-lisp :results none
   (define-key org-mode-map (kbd "C-c C-k") nil)
