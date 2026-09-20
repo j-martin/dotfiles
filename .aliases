@@ -183,7 +183,7 @@ alias rand='openssl rand -base64 128 | tr -d "\n/+="'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 s() {
-  ssh -t "$@" tmux -CC new -A -s "${USER}"
+  ssh -t "$@" /usr/local/bin/tmux -u -CC new -A -s "${USER}"
 }
 alias t=task
 alias tmp='cd "$(mktemp -d -t "jm-$(gdate -u +"%Y-%m-%dT%H-%M-%SZ")")"'
