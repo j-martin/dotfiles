@@ -80,17 +80,22 @@ end
 
 -- copyForReplace copies the current selection to the clipboard so it can later be
 -- replaced with a transformed version. If nothing is selected it falls back to
--- selecting the entire focused field. Returns the copied text and the pasteboard's
--- prior contents so the caller can restore them once the replacement is done.
+-- selecting the entire focused field. In Emacs it cuts instead of copying so the
+-- paste can happen at the resulting cursor position. Returns the copied text and
+-- the pasteboard's prior contents so the caller can restore them once the
+-- replacement is done.
 local function copyForReplace()
+  local currentWindow = hs.window.focusedWindow()
+  local currentApp = currentWindow and currentWindow:application():name() or ''
+  local grabKey = currentApp == 'Emacs' and 'x' or 'c'
   local initial = hs.pasteboard.readString() or ''
-  hs.eventtap.keyStroke({'cmd'}, 'c')
+  hs.eventtap.keyStroke({'cmd'}, grabKey)
   hs.timer.usleep(150 * 1000)
   local selected = hs.pasteboard.readString() or ''
   if selected == initial then
     hs.eventtap.keyStroke({'cmd'}, 'a')
     hs.timer.usleep(50 * 1000)
-    hs.eventtap.keyStroke({'cmd'}, 'c')
+    hs.eventtap.keyStroke({'cmd'}, grabKey)
     hs.timer.usleep(150 * 1000)
     selected = hs.pasteboard.readString() or ''
   end
