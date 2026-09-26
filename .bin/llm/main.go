@@ -19,16 +19,24 @@ type mode struct {
 }
 
 var outputRules = strings.Join([]string{"OUTPUT RULES (STRICT):",
-	"- Reply with ONLY the transformed text. Nothing else.",
-	"- NEVER start with phrases like \"Here is\", \"Here's\", \"Sure\", \"Okay\", \"Certainly\", " +
-		"\"I've\", \"I have\", \"Below is\", \"The revised text\", or any preamble.",
-	"- NEVER end with commentary, notes, disclaimers, or offers of further help.",
-	"- NEVER remove backticks '`', quotes '>' , or Markdown code fences.",
-	"- NEVER include a title, heading, or label.",
-	"- Your first character must be the first character of the transformed text.",
-	"- Your last character must be the last character of the transformed text.",
-	"- Sentence case text",
-}, "\n")
+	"Reply with ONLY the transformed text. Nothing else.",
+	"NEVER start with phrases like \"Here is\", \"Here's\", \"Sure\", \"Okay\", \"Certainly\", \"I've\", \"I have\", \"Below is\", \"The revised text\", or any preamble.",
+	"NEVER end with commentary, notes, disclaimers, or offers of further help.",
+	"NEVER remove backticks '`', quotes '>' , or Markdown code fences.",
+	"NEVER include a title, heading, or label.",
+	"If the text is flowed/fill by N character longs (e.g. git commit message), respect the column width",
+	"In markdown code blocks do NOT modify any whitespace characters.",
+	"Aggressively use commas.",
+	"Your first character must be the first character of the transformed text.",
+	"Your last character must be the last character of the transformed text.",
+	"Sentence case text",
+}, "\n - ")
+
+var aliases = map[string]string{
+	"g":      "grammar",
+	"s":      "smoothen",
+	"smooth": "smoothen",
+}
 
 var modes = map[string]mode{
 	"grammar": {
@@ -101,10 +109,14 @@ func main() {
 
 func run() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: %s <grammar|smoothen> [text]", os.Args[0])
+		return fmt.Errorf("usage: %s <grammar|g|smoothen|s> [text]", os.Args[0])
 	}
 
-	m, ok := modes[os.Args[1]]
+	name := os.Args[1]
+	if canonical, ok := aliases[name]; ok {
+		name = canonical
+	}
+	m, ok := modes[name]
 	if !ok {
 		return fmt.Errorf("unknown mode %q, expected grammar or smoothen", os.Args[1])
 	}
