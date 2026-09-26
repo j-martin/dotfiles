@@ -29,9 +29,8 @@ local bindings = {
     name = keybinder.globalBindings,
     bindings = {
       -- cmd + h reserved for notification
-      -- {key = '1', name = apps.name.activityMonitor},
-      -- {key = '1', fn = apps.activityMonitor, shift = true, desc = 'Activity Monitor with CPU Graph'},
       -- key = '5' reserved for Alfred snippets
+      {key = '1', name = apps.name.activityMonitor, shift = true},
       {key = '8', name = 'Slack'},
       {key = '9', name = 'Music'},
       {key = '9', shift = true, name = 'Nintendo Music'},
