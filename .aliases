@@ -180,6 +180,7 @@ alias opd='open "$(basename "$(pbpaste)")"'
 alias pwdc='pwd | tr -d "\n" | pbcopy'
 alias pbclean='echo | pbcopy'
 alias rand='openssl rand -base64 128 | tr -d "\n/+="'
+alias fix-term='clear; tty sane; tput cnorm'
 alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
 alias redis-flush='redis-cli flushall'
 s() {
