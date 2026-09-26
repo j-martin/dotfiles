@@ -234,6 +234,20 @@ From http://akrl.sdf.org/.
    #+begin_src emacs-lisp :results none
      ;; (add-hook 'emacs-lisp-mode-hook 'aggressive-indent-mode)
    #+end_src
+** Dotfile formatting
+   #+begin_src emacs-lisp :results none
+     (defun jm/disable-format-on-save-for-dotfile ()
+       "Keep the formatting of the Spacemacs dotfile untouched on save."
+       (when (and buffer-file-name
+                  (file-equal-p buffer-file-name (dotspacemacs/location)))
+         (setq-local emacs-lisp-format-on-save nil)
+         (when (bound-and-true-p spacemacs-whitespace-cleanup-mode)
+           (spacemacs-whitespace-cleanup-mode -1))))
+
+     ;; find-file-hook runs after globalized minor modes are enabled, so the
+     ;; whitespace cleanup mode can't turn itself back on afterwards.
+     (add-hook 'find-file-hook #'jm/disable-format-on-save-for-dotfile)
+   #+end_src
 ** Atomic Chrome
    #+begin_src emacs-lisp :results none
      (atomic-chrome-start-server)
