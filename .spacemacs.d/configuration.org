@@ -371,7 +371,7 @@ From http://akrl.sdf.org/.
    #+begin_src emacs-lisp :results none
      (setq-default evil-escape-delay 0.2)
      (setq-default evil-escape-key-sequence "jk")
-     (setq-default evil-escape-unordered-key-sequence t)
+     (setq-default evil-escape-unordered-key-sequence nil)
      (evil-ex-define-cmd "E" 'revert-buffer)
      (evil-ex-define-cmd "WQ" 'evil-save-modified-and-close)
      (evil-ex-define-cmd "Wq" 'evil-save-modified-and-close)
