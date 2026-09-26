@@ -92,6 +92,7 @@ export HISTFILESIZE=1000000
 export HISTSIZE=1000000
 export HISTCONTROL=ignoreboth
 export HISTIGNORE='ls:bg:fg:history'
+export DISABLE_UPDATE_PROMPT=true
 
 # User configuration
 bindkey -e
@@ -134,4 +135,3 @@ export SDKMAN_DIR="/Users/jm/.sdkman"
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/jm/.lmstudio/bin"
 # End of LM Studio CLI section
-
