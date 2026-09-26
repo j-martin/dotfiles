@@ -462,19 +462,20 @@ _github_pr() {
   local output
   output="$(mktemp)"
 
-  gh pr create \
-    --title "$(head -n1 <<< "${message}")" \
-    --body "${body}" \
-    "${@}"  2>&1 \
-    | tee "${output}"
+  {
+    gh pr create \
+      --title "$(head -n1 <<< "${message}")" \
+      --body "${body}" \
+      "${@}" 2>&1 || _warn 'GitHub is unreliable.' \
+   } | tee "${output}"
 
   local url
-  url="$(tail -n1 "${output}")"
-  if [[ "${url}" == 'https://github.com'* ]]; then
+  url="$(grep -oE 'https://github\.com/[^[:space:]]+/pull/[0-9]+' "${output}" | tail -n1)"
+  if [[ -n "${url}" ]]; then
     _pbcopy <<< "${url}"
     _notify 'PR created. The URL is in the clipboard.'
   else
-    _info "The last line was not a URL: ${url}"
+    _info 'No pull request URL found in the output.'
   fi
 }
 
