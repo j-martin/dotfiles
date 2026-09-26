@@ -6,7 +6,7 @@ local usb = require "usb"
 
 keybindings.init()
 -- battery.init()
--- audio.init()
+audio.init()
 usb.init()
 apps.init()
 -- hs.ipc.cliInstall("/opt/homebrew")
