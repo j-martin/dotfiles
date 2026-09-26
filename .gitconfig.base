@@ -34,9 +34,9 @@
   cpa = cherry-pick --abort
   cpc = cherry-pick --continue
   df = difftool
-  dl= -c diff.external=difft log --ext-diff --patch --pretty=fuller --date local
-  ds= -c diff.external=difft show --ext-diff
-  dd= -c diff.external=difft diff
+  dl = -c diff.external=difft log --ext-diff --patch --pretty=fuller --date local
+  ds = -c diff.external=difft show --ext-diff
+  dd = -c diff.external=difft diff
   g = grep
   l = ls-files
   ls = ls-files
