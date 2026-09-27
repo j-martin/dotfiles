@@ -72,7 +72,7 @@ This function should only modify configuration layer settings."
      react
      ruby
      rust
-     shell
+     (shell :variables shell-default-shell 'eshell)
      shell-scripts
      (spell-checking :variables
                      enable-flyspell-auto-completion t
