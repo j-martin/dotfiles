@@ -38,10 +38,6 @@ This function should only modify configuration layer settings."
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     (spacemacs-agentic :variables
-      agentic-systems-ai-code-backend 'agent-shell
-      agentic-systems-agent-recall-search-paths
-      '("~/src" "~/projects"))
      (auto-completion :variables
                       auto-completion-tab-key-behavior 'cycle
                       auto-completion-return-key-behavior 'complete
@@ -112,7 +108,6 @@ This function should only modify configuration layer settings."
      jsonnet-mode
      org-roam
      ox-clip
-     ;; (org-reminders :location (recipe :fetcher github :repo "ginqi7/org-reminders"))
      protobuf-mode
      smart-jump
      super-save
