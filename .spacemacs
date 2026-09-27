@@ -617,6 +617,8 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  ;; Emacs 31 warns about every uncompiled package lacking a lexical-binding cookie.
+  (add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie))
   ;; Defined in configuration.org
   (setq spacemacs-spaceline-additional-segments '(jm/previous-buffers))
   (custom-set-variables
