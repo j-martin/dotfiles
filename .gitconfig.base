@@ -41,6 +41,7 @@
   l = ls-files
   ls = ls-files
   m = merge
+  p = push --no-verify
   r = rebase
   rb = rebase
   re = rebase
