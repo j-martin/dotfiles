@@ -50,6 +50,7 @@
   rs = reset
   rv = revert
   s = status
+  sync = !git pull && git push --no-verify
   st = stash
 [magithub]
   online = false
