@@ -33,17 +33,17 @@
   cp = cherry-pick
   cpa = cherry-pick --abort
   cpc = cherry-pick --continue
+  dd = -c diff.external=difft diff
   df = difftool
   dl = -c diff.external=difft log --ext-diff --patch --pretty=fuller --date local
   ds = -c diff.external=difft show --ext-diff
-  dd = -c diff.external=difft diff
   g = grep
   l = ls-files
   ls = ls-files
   m = merge
   r = rebase
-  re = rebase
   rb = rebase
+  re = rebase
   ref = reflog
   rf = reflog --date=iso
   rs = reset
