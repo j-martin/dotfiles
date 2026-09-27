@@ -3,6 +3,7 @@ local audio = require "audio"
 local battery = require "battery"
 local keybindings = require "keybindings"
 local usb = require "usb"
+local reload = require "reload"
 
 keybindings.init()
 -- battery.init()
