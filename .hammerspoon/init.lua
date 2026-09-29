@@ -11,5 +11,5 @@ audio.init()
 usb.init()
 apps.init()
 -- hs.ipc.cliInstall("/opt/homebrew")
-
+reload.init()
 hs.alert.show("Config loaded")

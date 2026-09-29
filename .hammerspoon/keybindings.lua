@@ -8,7 +8,7 @@ local screen = require 'screen'
 local selection = require 'selection'
 local windows = require 'windows'
 local chrome = require 'chrome'
-local reload = require 'utils/reload'
+local reload = require 'reload'
 local usb = require 'usb'
 local wifi = require 'wifi'
 
