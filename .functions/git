@@ -125,8 +125,13 @@ __git_get_default_branch_name() {
     | sed 's#.*/##'
 }
 
+_git_shorten_issue_url() {
+  sed -E '1 s#http.*/(browse|issues)/([A-Z]+-[0-9]+).*)#\2)#'
+}
+
 _git_new_branch() {
-  local name="$1"
+  local name
+  name="$(_git_shorten_issue_url <<< "$1")"
   local target_branch="$2"
   if [[ -z "${target_branch}" ]]; then
     target_branch="HEAD"
@@ -150,7 +155,7 @@ _git_new_branch_and_commit_from_new_issue() {
 
 _git_new_branch_and_commit() {
   local message="$1"
-  message="$(sed -E '1 s#http.*/(browse|issues)/([A-Z]+-[0-9]+).*)#\2)#' <<< "${message}")"
+  message="$(_git_shorten_issue_url <<< "${message}")"
   _git_new_branch "$(head -n1 <<< "${message}")"
   git commit -n -m "$(_git_format_commit_message "${message}")" "${@:2}"
 }
