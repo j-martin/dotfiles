@@ -744,6 +744,24 @@ it makes magit a fair bit faster.
 #+end_src
 
 ** Fixes
+*** Helm ag region-or-symbol arity
+Spacemacs overrides =thing-at-point= with a one-argument lambda, but newer
+helm-core calls it with the optional =no-properties= argument.
+#+begin_src emacs-lisp :results none
+  (defun spacemacs//helm-do-ag-region-or-symbol (func &optional dir)
+    "Search with `ag' with a default input."
+    (require 'helm-ag)
+    (cl-letf* (((symbol-value 'helm-ag-insert-at-point) 'symbol)
+               ((symbol-function 'this-fn) (symbol-function 'thing-at-point))
+               ((symbol-function 'thing-at-point)
+                (lambda (thing &optional no-properties)
+                  (let ((res (if (region-active-p)
+                                 (buffer-substring-no-properties
+                                  (region-beginning) (region-end))
+                               (this-fn thing no-properties))))
+                    (when res (rxt-quote-pcre res))))))
+      (funcall func dir)))
+#+end_src
 * Functions
 ** Git
 #+begin_src emacs-lisp :results none
