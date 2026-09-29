@@ -344,6 +344,7 @@ alias gro='git rebase --autosquash -i $(__git_get_default_branch_name)'
 alias grom='git rebase --autosquash -i origin/HEAD'
 alias gorm=grom
 alias gs='git status'
+alias ghs='gh stack'
 alias gsa='git stash apply'
 alias gsl='git stash list'
 alias gss='git stash save'
