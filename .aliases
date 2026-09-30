@@ -413,7 +413,7 @@ hadd() {
   echo "$*" | grep -vi '.org\|.config\|.private\|work\|Dropbox' && home add -f "$@"
 }
 alias hms='home commit -m'
-alias hlog='home log -p'
+alias hll='home log -p'
 alias hdot='open https://github.com/j-martin/dotfiles'
 alias hs='home status'
 he() {
