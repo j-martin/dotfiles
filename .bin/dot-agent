@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+IFS=$'\n\t'
+
+readonly BINPATH="$(realpath "$(dirname "$0")")"
+
+_info() {
+  echo >&2 "[info] $*"
+}
+
+_list_files() {
+  (
+    cd "$HOME"
+    git --work-tree="${HOME}" --git-dir="${HOME}/.files.git" ls-files
+  )
+}
+
+# Parent dir of each nested tracked file (not the top-level dir, so e.g. ~/.ssh isn't fully exposed)
+_home_dirs() {
+  # macOS sed has no long options, so use grep; the match keeps a trailing slash
+  _list_files | grep --only-matching --extended-regexp '^.*/' | sort --unique
+}
+
+_home_files() {
+  _list_files | grep --invert-match '/'
+}
+
+_agent() {
+  local args=()
+  local dir file
+
+  for dir in $(_home_dirs); do
+    args+=(--add-dir "${HOME}/${dir%/}")
+  done
+
+  if command -v claude > /dev/null 2>&1; then
+    _info 'Starting Claude Code'
+    for file in $(_home_files); do
+      args+=(--allowedTools "Read(~/${file})" --allowedTools "Edit(~/${file})")
+    done
+    set -o xtrace
+    claude "$@" "${args[@]}" --model claude-opus-5-5
+  else
+    _info 'Starting Copilot'
+    # Copilot has no read(path) rule; write(path) needs an absolute path to match a single file
+    for file in $(_home_files); do
+      args+=(--allow-tool "write(${HOME}/${file})")
+    done
+    set -o xtrace
+    copilot "$@" "${args[@]}" --model claude-opus-5.5
+  fi
+}
+
+_main() {
+  cd "${BINPATH}"
+  _agent "$@"
+}
+
+_main "$@"
