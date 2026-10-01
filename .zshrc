@@ -59,7 +59,7 @@ plugins=(
   docker
   # gradle
   git
-  gitfast
+  # gitfast
   # github
   # kubectl
   # man
