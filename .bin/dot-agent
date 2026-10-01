@@ -12,11 +12,20 @@ _info() {
   echo >&2 "[info] $*"
 }
 
-_list_files() {
+_list_entries() {
   (
     cd "$HOME"
-    git --work-tree="${HOME}" --git-dir="${HOME}/.files.git" ls-files
+    git --work-tree="${HOME}" --git-dir="${HOME}/.files.git" ls-files --stage
   )
+}
+
+# Submodules are gitlinks (mode 160000): expose them as whole dirs, not as files
+_list_files() {
+  _list_entries | awk -F'\t' '$1 !~ /^160000 / { print $2 }'
+}
+
+_submodules() {
+  _list_entries | awk -F'\t' '$1 ~ /^160000 / { print $2 }'
 }
 
 # Parent dir of each nested tracked file (not the top-level dir, so e.g. ~/.ssh isn't fully exposed)
@@ -33,7 +42,7 @@ _agent() {
   local args=()
   local dir file
 
-  for dir in $(_home_dirs); do
+  for dir in $(_home_dirs) $(_submodules); do
     args+=(--add-dir "${HOME}/${dir%/}")
   done
 
