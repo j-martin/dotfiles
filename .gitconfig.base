@@ -35,8 +35,11 @@
   cpc = cherry-pick --continue
   dd = -c diff.external=difft diff
   df = difftool
+  dfnt = difftool ':(exclude)*test*'
   dl = -c diff.external=difft log --ext-diff --patch --pretty=fuller --date local
+  dlnt = -c diff.external=difft log --ext-diff --patch --pretty=fuller --date local ':(exclude)*test*'
   ds = -c diff.external=difft show --ext-diff
+  dsnt = -c diff.external=difft show --ext-diff ':(exclude)*test*'
   g = grep
   l = ls-files
   ls = ls-files
