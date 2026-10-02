@@ -395,6 +395,14 @@ From http://akrl.sdf.org/.
      (require 'evil-textobj-syntax)
    #+end_src
 
+*** Visualstar keymap workaround
+Upstream (fdad5552a006) renamed the keymap to =evil-visualstar/mode-map= but
+=define-minor-mode= still references =evil-visualstar-mode-map=.
+#+begin_src emacs-lisp :results none
+(unless (boundp 'evil-visualstar-mode-map)
+  (defvaralias 'evil-visualstar-mode-map 'evil-visualstar/mode-map))
+#+end_src
+
 *** Center on fold commands
 #+begin_src emacs-lisp :results none
 (defun jm/recenter (&rest anything) (interactive) (recenter))
