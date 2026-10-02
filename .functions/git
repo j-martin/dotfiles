@@ -120,6 +120,26 @@ _git_new_branch_from_commit() {
   git cherry-pick "${object}"
 }
 
+# Moves the last commit of the current branch onto a new branch added on top of the active gh stack.
+_git_stack_add_from_last_commit() {
+  if [[ -n "$(git status --porcelain)" ]]; then
+    echo "Working tree is not clean, aborting." >&2
+    return 1
+  fi
+
+  local commit
+  commit="$(git rev-parse HEAD)"
+  local title
+  title="$(git log --format=%s -n 1 "${commit}")"
+
+  git reset --hard HEAD~1 || return 1
+  if ! gh stack add "$(_slugify <<< "$(_git_shorten_issue_url <<< "${title}")")"; then
+    git reset --hard "${commit}"
+    return 1
+  fi
+  git cherry-pick "${commit}"
+}
+
 __git_get_default_branch_name() {
   git symbolic-ref --short refs/remotes/origin/HEAD \
     | sed 's#.*/##'

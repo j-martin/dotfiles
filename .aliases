@@ -345,6 +345,7 @@ alias grom='git rebase --autosquash -i origin/HEAD'
 alias gorm=grom
 alias gs='git status'
 alias ghs='gh stack'
+alias ghsa='_git_stack_add_from_last_commit'
 alias gsa='git stash apply'
 alias gsl='git stash list'
 alias gss='git stash save'
