@@ -4,7 +4,7 @@ _home_git() {
   git --work-tree="$HOME" --git-dir="$HOME/.files.git" "$@"
 }
 
-home_submodule_update() {
+_home_submodule_update() {
   (
     cd "$HOME" || return 1
     failed=0
@@ -51,8 +51,8 @@ home_submodule_update() {
   )
 }
 
-home_submodule_remove() {
-  [ $# -eq 0 ] && echo "usage: home_submodule_remove <submodule-path>..." && return 1
+_home_submodule_remove() {
+  [ $# -eq 0 ] && echo "usage: _home_submodule_remove <submodule-path>..." && return 1
   (
     cd "$HOME" || return 1
     for p in "$@"; do

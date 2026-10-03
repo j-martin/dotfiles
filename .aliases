@@ -417,8 +417,8 @@ alias hms='home commit -m'
 alias hll='home log -p'
 alias hdot='open https://github.com/j-martin/dotfiles'
 alias hs='home status'
-alias hsu=home_submodule_update
-alias hsrm=home_submodule_remove
+alias hsu=_home_submodule_update
+alias hsrm=_home_submodule_remove
 he() {
   (cd "$HOME" && home ls-files | e "$@")
 }
