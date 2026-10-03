@@ -1,3 +1,5 @@
+local cheatsheet = require 'keybinder/cheatsheet'
+
 local mod = {}
 
 hs.alert.defaultStyle['textSize'] = 20
@@ -5,6 +7,9 @@ hs.alert.defaultStyle['textSize'] = 20
 -- bindings { { key = 'string', fn = fn } }
 function mod.create(modifiers, key, name, bindings)
   local mode = hs.hotkey.modal.new(modifiers, key)
+
+  local trigger = cheatsheet.modifiersString(modifiers) .. ' ' .. (key == 'space' and 'Space' or key:upper())
+  cheatsheet.register(string.format('%s Mode (%s, then key)', name, trigger), bindings)
 
   function mode:entered()
     hs.alert.show(name .. ' Mode', 120)

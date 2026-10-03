@@ -1,6 +1,7 @@
 local logger = hs.logger.new('keybinder', 'info')
 local windows = require 'windows'
 local chrome = require 'chrome'
+local cheatsheet = require 'keybinder/cheatsheet'
 
 local hyper = {'cmd', 'alt', 'ctrl'}
 local hyperShift = {'cmd', 'alt', 'ctrl', 'shift'}
@@ -74,11 +75,27 @@ function initWatcher(appBindingMap)
   end)
 end
 
+-- Register a cheatsheet section per application; bindings without explicit
+-- modifiers use hyper, so the section title shows it.
+local function registerCheatsheet(appBindingList)
+  local hyperTitle = ' (' .. cheatsheet.modifiersString(hyper) .. ')'
+  for _, app in ipairs(appBindingList) do
+    local title = app.name == globalBindings and 'Hyper' .. hyperTitle or app.name
+    cheatsheet.register(title, app.bindings)
+  end
+end
+
+-- Show every binding registered so far (hyper bindings, app bindings, modes, ...).
+function mod.showBindings()
+  cheatsheet.show()
+end
+
 function mod.init(appBindingList)
   local appBindingMap = {}
   for _, app in ipairs(appBindingList) do
     appBindingMap[app.name] = hs.fnutils.imap(app.bindings, bind)
   end
+  registerCheatsheet(appBindingList)
   enableBindings(appBindingMap[globalBindings])
   initWatcher(appBindingMap):start()
 end

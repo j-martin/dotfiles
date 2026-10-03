@@ -131,6 +131,7 @@ local bindings = {
 ----------------
 
 local hyperModeBindings = {
+  {key = '/', fn = keybinder.showBindings, exitMode = true, desc = 'List hyper keybindings'},
   {key = '9', fn = audio.open, desc = 'Spotify'},
   {key = 'b', fn = screen.setBrightness(0.8), desc = 'Set brightness to 80%.'},
   {key = 'c', fn = usb.officeAutomation('coffee', 'on'), desc = 'Turn coffee machine on'},
