@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+_home_git() {
+  git --work-tree="$HOME" --git-dir="$HOME/.files.git" "$@"
+}
+
+home_submodule_update() {
+  (
+    cd "$HOME" || return 1
+    failed=0
+    updated=()
+    while read -r p; do
+      [ $# -gt 0 ] && ! printf '%s\n' "$@" | grep -qxF "$p" && continue
+      echo "==> $p"
+      old=$(git -C "$p" rev-parse HEAD 2>/dev/null)
+      if [ -z "$old" ]; then
+        _home_git submodule update --init --recursive --remote -- "$p" &&
+          echo "initialized at $(git -C "$p" rev-parse HEAD)" ||
+          failed=1
+        continue
+      fi
+      name=$(_home_git config --file .gitmodules --get-regexp '^submodule\..*\.path$' |
+        awk -v p="$p" '$2 == p { sub(/^submodule\./, "", $1); sub(/\.path$/, "", $1); print $1 }')
+      branch=$(_home_git config --file .gitmodules --get "submodule.$name.branch" || echo HEAD)
+      git -C "$p" fetch --quiet origin || {
+        failed=1
+        continue
+      }
+      [ "$branch" = HEAD ] && ! git -C "$p" rev-parse --verify --quiet origin/HEAD >/dev/null &&
+        git -C "$p" remote set-head origin --auto >/dev/null
+      new=$(git -C "$p" rev-parse --verify --quiet "origin/$branch") || {
+        echo "cannot resolve origin/$branch"
+        failed=1
+        continue
+      }
+      if [ "$old" = "$new" ]; then
+        echo "up to date"
+        continue
+      fi
+      git -C "$p" --no-pager dd "$old" "$new"
+      gum confirm "Update $p to ${new:0:9}?" </dev/tty || continue
+      if _home_git submodule update --init --recursive --remote --no-fetch -- "$p"; then
+        updated+=("$p")
+      else
+        failed=1
+      fi
+    done < <(_home_git ls-files --stage | awk '$1 == "160000" { print $4 }')
+    [ "$failed" -ne 0 ] && echo "some submodules failed, not committing" && return 1
+    [ ${#updated[@]} -eq 0 ] && return 0
+    _home_git commit --message 'deps, sync submodules' -- "${updated[@]}"
+  )
+}
+
+home_submodule_remove() {
+  [ $# -eq 0 ] && echo "usage: home_submodule_remove <submodule-path>..." && return 1
+  (
+    cd "$HOME" || return 1
+    for p in "$@"; do
+      p="${p#$HOME/}"
+      p="${p%/}"
+      _home_git submodule deinit --force -- "$p" &&
+        _home_git rm --force -- "$p" &&
+        rm -rf "$HOME/.files.git/modules/$p" || return 1
+    done
+  )
+}
