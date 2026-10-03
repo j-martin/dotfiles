@@ -1,9 +1,12 @@
+-- Loading this early before we load potentially broken code.
+local reload = require "reload"
+reload.init()
+
 local apps = require "apps"
 local audio = require "audio"
 local battery = require "battery"
 local keybindings = require "keybindings"
 local usb = require "usb"
-local reload = require "reload"
 
 keybindings.init()
 -- battery.init()
@@ -11,5 +14,4 @@ audio.init()
 usb.init()
 apps.init()
 -- hs.ipc.cliInstall("/opt/homebrew")
-reload.init()
 hs.alert.show("Config loaded")

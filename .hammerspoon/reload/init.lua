@@ -20,7 +20,9 @@ local function reloadConfig(files)
 end
 
 function mod.init()
-  hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", reloadConfig):start()
+  -- Keep a reference so the watcher isn't garbage collected
+  if mod.watcher then mod.watcher:stop() end
+  mod.watcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", reloadConfig):start()
 end
 
 function mod.reload()
