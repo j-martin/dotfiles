@@ -444,6 +444,45 @@ https://github.com/syl20bnr/spacemacs/issues/15089
  (setq auto-mode-alist (delete '("/git-rebase-todo$" . helm-ls-git-rebase-todo-mode) auto-mode-alist))
 #+end_src
 
+*** Dotfiles (bare repo in ~/.files.git)
+Equivalent of =git --work-tree=$HOME --git-dir=$HOME/.files.git=. Any magit
+command run from =$HOME= (e.g. the status buffer) uses the dotfiles repo.
+#+begin_src emacs-lisp :results none
+  (defvar jm/dotfiles-git-dir (expand-file-name "~/.files.git"))
+  (defvar jm/dotfiles-work-tree (expand-file-name "~/"))
+
+  (defun jm/dotfiles-directory-p (&optional dir)
+    (let ((dir (expand-file-name (or dir default-directory))))
+      (and (not (file-remote-p dir))
+           (or (string= (file-name-as-directory dir) jm/dotfiles-work-tree)
+               (string= (file-name-as-directory dir)
+                        (file-name-as-directory jm/dotfiles-git-dir))))))
+
+  (defun jm/magit-dotfiles-environment (env)
+    (if (jm/dotfiles-directory-p)
+        (append (list (concat "GIT_DIR=" jm/dotfiles-git-dir)
+                      (concat "GIT_WORK_TREE=" jm/dotfiles-work-tree))
+                env)
+      env))
+
+  (with-eval-after-load 'magit-process
+    (advice-add 'magit-process-environment
+                :filter-return #'jm/magit-dotfiles-environment))
+
+  (defun jm/magit-dotfiles ()
+    (interactive)
+    (require 'magit)
+    (magit-status-setup-buffer jm/dotfiles-work-tree))
+
+  (defun jm/magit-status-or-dotfiles ()
+    "Open magit for the current repo, or the dotfiles repo when not in one."
+    (interactive)
+    (require 'magit)
+    (if (or current-prefix-arg (magit-toplevel))
+        (call-interactively #'magit-status)
+      (jm/magit-dotfiles)))
+#+end_src
+
 *** Explicit bin path
 According to
 https://www.reddit.com/r/emacs/comments/fhr72q/solution_performance_problem_with_magit_on_macos/
@@ -668,7 +707,8 @@ it makes magit a fair bit faster.
     (global-set-key (kbd "H-e") 'helm-projectile-switch-to-buffer)
     (global-set-key (kbd "H-E") 'helm-mini)
     (global-set-key (kbd "H-o") 'helm-projectile-find-file)
-    (global-set-key (kbd "H-g") 'magit-status)
+    (global-set-key (kbd "H-g") 'jm/magit-status-or-dotfiles)
+    (global-set-key (kbd "H-G") 'jm/magit-dotfiles)
     (global-set-key (kbd "H-[") 'evil-jump-backward)
     (global-set-key (kbd "H-]") 'evil-jump-forward)
     (global-set-key (kbd "C-H-g") 'evil-iedit-state/iedit-mode)
@@ -686,6 +726,7 @@ it makes magit a fair bit faster.
     (spacemacs/set-leader-keys "by" 'spacemacs/copy-whole-buffer-to-clipboard)
     (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
     (spacemacs/set-leader-keys "gc" 'magit-commit)
+    (spacemacs/set-leader-keys "gd" 'jm/magit-dotfiles)
     (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
     (spacemacs/set-leader-keys "ih" 'jm/insert-left)
     (spacemacs/set-leader-keys "il" 'jm/insert-right)
