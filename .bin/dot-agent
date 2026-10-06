@@ -7,6 +7,7 @@ set -o nounset
 IFS=$'\n\t'
 
 readonly BINPATH="$(realpath "$(dirname "$0")")"
+readonly CLAUDE_MODEL="claude-opus-5.5"
 
 _info() {
   echo >&2 "[info] $*"
@@ -52,7 +53,7 @@ _agent() {
       args+=(--allowedTools "Read(~/${file})" --allowedTools "Edit(~/${file})")
     done
     set -o xtrace
-    claude "$@" "${args[@]}" --model claude-opus-5-5
+    claude "$@" "${args[@]}" --model "${CLAUDE_MODEL//./-}" --permission-mode acceptEdits 
   else
     _info 'Starting Copilot'
     # Copilot has no read(path) rule; write(path) needs an absolute path to match a single file
@@ -60,7 +61,7 @@ _agent() {
       args+=(--allow-tool "write(${HOME}/${file})")
     done
     set -o xtrace
-    copilot "$@" "${args[@]}" --model claude-opus-5.5
+    copilot "$@" "${args[@]}" --model "${CLAUDE_MODEL}"
   fi
 }
 
