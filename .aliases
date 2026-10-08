@@ -235,6 +235,7 @@ alias gbc='_git_current_branch | _pbcopy'
 alias gbclean='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^$(__git_get_default_branch_name)$" | fzf -m | xargs git branch -D'
 alias gbcleanall='git fetch --all --prune && git branch | grep -v "^*" | grep -v "^$(__git_get_default_branch_name)$" | xargs git branch -D'
 alias gbp='_git_pick_any_branches | _copy'
+alias gc='git commit --no-verify'
 alias gcm='git checkout "$(__git_get_default_branch_name)"'
 alias gcmf='git reset :/ && git checkout :/ && gcm && gl'
 alias gcml='git checkout "$(__git_get_default_branch_name)" && git pull'
@@ -471,3 +472,7 @@ alias gomt='go mod tidy'
 
 # cert
 alias certv='openssl x509 -serial  -subject -issuer -dates -alias -noout -in'
+
+# claude
+
+alias claude='\claude --model opus --permission-mode acceptEdits'
