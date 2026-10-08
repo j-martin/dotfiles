@@ -135,3 +135,4 @@ export SDKMAN_DIR="/Users/jm/.sdkman"
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/jm/.lmstudio/bin"
 # End of LM Studio CLI section
+command -v mise > /dev/null 2>&1 && eval "$(mise activate zsh)"
