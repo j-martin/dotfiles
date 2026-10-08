@@ -6,6 +6,7 @@ local apps = require "apps"
 local audio = require "audio"
 local battery = require "battery"
 local keybindings = require "keybindings"
+local meetingbar = require "meetingbar"
 local usb = require "usb"
 
 keybindings.init()
@@ -13,5 +14,9 @@ keybindings.init()
 audio.init()
 usb.init()
 apps.init()
--- hs.ipc.cliInstall("/opt/homebrew")
+meetingbar.init()
+require "hs.ipc"
+if not hs.ipc.cliStatus("/opt/homebrew", true) then
+  hs.ipc.cliInstall("/opt/homebrew")
+end
 hs.alert.show("Config loaded")
