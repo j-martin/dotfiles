@@ -414,6 +414,7 @@ alias hdf='home icdiff'
 hadd() {
   echo "$*" | grep -vi '.org\|.config\|.private\|work\|Dropbox' && home add -f "$@"
 }
+alias hlsi='home list-ignored'
 alias hms='home commit -m'
 alias hll='home log -p'
 alias hdot='open https://github.com/j-martin/dotfiles'

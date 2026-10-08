@@ -7,29 +7,19 @@ local watchedDevices = {}
 local pluggedFn = nil
 local unpluggedFn = nil
 
-local previousTime = 0
-
-local function debounce(message, fn)
-  logger.d(message)
-  if os.time() - 1 > previousTime then
-    hs.alert(message)
-    previousTime = os.time()
-  end
-  if fn then
-    fn()
-  end
-end
-
 local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   logger.df("Audiodevwatch args: %s, %s, %s, %s", dev_uid, event_name, event_scope, event_element)
-  if dev_uid == 'dev#' then
+  -- 'dIn ' is the default input changing, which `setDefaultInputDevice` itself triggers.
+  if dev_uid == 'dev#' or dev_uid == 'dIn ' then
     return
   end
   local device = hs.audiodevice.findDeviceByUID(dev_uid)
   if device and device:jackConnected() then
-    debounce("Headphones plugged", mod.pluggedFn)
+    logger.d("Headphones plugged")
+    mod.pluggedFn()
   else
-    debounce("Audio Output Change → External Speakers muted", mod.unpluggedFn)
+    logger.d("Audio output changed, external speakers muted")
+    mod.unpluggedFn()
   end
 end
 

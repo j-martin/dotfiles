@@ -9,6 +9,8 @@ mod.volumes = {}
 mod.volumes[dacName] = 100
 mod.volumes[appleUSBWithDT1990Pro] = 25
 
+local inputDeviceCheckSeconds = 30
+
 inputDevicePriority = {
   "RØDE VideoMic GO II",
   "Samson Q2U Microphone",
@@ -21,10 +23,15 @@ outputDevicePriority = {
   dacName
 }
 
+-- Sets the default input to the first connected device of `inputDevicePriority`, alerting only when it changes.
 function mod.setDefaultInputDevice()
+  local current = hs.audiodevice.defaultInputDevice()
   for _, deviceName in ipairs(inputDevicePriority) do
-    device = hs.audiodevice.findDeviceByName(deviceName)
+    local device = hs.audiodevice.findInputByName(deviceName)
     if device then
+      if current and current:uid() == device:uid() then
+        return
+      end
       if device:setDefaultInputDevice() then
         hs.alert.show("Input Device: " .. deviceName)
         return
@@ -36,7 +43,7 @@ end
 function mod.setDefaultOutputDevice()
   for _, deviceName in ipairs(outputDevicePriority) do
     hs.alert.show(deviceName)
-    device = hs.audiodevice.findDeviceByName(deviceName)
+    local device = hs.audiodevice.findDeviceByName(deviceName)
     if hs.audiodevice.defaultOutputDevice() == device then
       hs.alert.show('x')
     elseif device then
@@ -128,7 +135,7 @@ function mod.init()
     mod.muteSpeakers('MacBook Pro Speakers')
     local outputDevice = hs.audiodevice.defaultOutputDevice()
     outputDevice:setMuted(false)
-    value = mod.volumes[device:name()] or 15
+    value = mod.volumes[outputDevice:name()] or 15
     outputDevice:setVolume(value)
   end
 
@@ -141,6 +148,8 @@ function mod.init()
 
   hs.caffeinate.watcher.new(parseEvent):start()
   headphones_watcher.init(plugged, unplugged)
+  mod.setDefaultInputDevice()
+  mod.inputDeviceTimer = hs.timer.doEvery(inputDeviceCheckSeconds, mod.setDefaultInputDevice)
 end
 
 return mod

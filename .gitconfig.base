@@ -43,6 +43,8 @@
   g = grep
   l = ls-files
   ls = ls-files
+  lsi = list-ignored
+  list-ignored = ls-files --others --ignored --exclude-standard
   m = merge
   p = push --no-verify
   r = rebase
