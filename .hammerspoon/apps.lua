@@ -223,6 +223,63 @@ function mod.open(bundleId, url)
   hs.urlevent.openURLWithBundle(url, bundleId)
 end
 
+-- Hosts that cannot be opened in Brave Browser, so their tabs stay in Google Chrome.
+mod.chromeOnlyHosts = {
+  'drive.google.com',
+  'mail.google.com',
+  'calendar.google.com',
+}
+
+-- Moves every Google Chrome tab, across all windows, to Brave Browser, except tabs on `mod.chromeOnlyHosts`.
+-- Only runs if Chrome is the frontmost application.
+function mod.moveChromeTabsToBrave()
+  local ok, urls = hs.osascript.javascript([[
+    var chromeOnlyHosts = ]] .. hs.json.encode(mod.chromeOnlyHosts) .. [[;
+    var chrome = Application('Google Chrome');
+    var urls = [];
+
+    function isChromeOnly(url) {
+      var match = url.match(/^[a-z]+:\/\/([^\/?#:]+)/i);
+      return match !== null && chromeOnlyHosts.indexOf(match[1].toLowerCase()) > -1;
+    }
+
+    // Close in reverse so the remaining window and tab indexes stay valid.
+    chrome.windows().reverse().forEach(function(win) {
+      var tabUrls = win.tabs.url();
+      var moved = [];
+      for (var i = tabUrls.length - 1; i >= 0; i--) {
+        if (!isChromeOnly(tabUrls[i])) {
+          moved.unshift(tabUrls[i]);
+          win.tabs[i].close();
+        }
+      }
+      urls = moved.concat(urls);
+    });
+
+    urls;
+  ]])
+  if not ok or type(urls) ~= 'table' then
+    logger.e("Could not get the URLs of the Google Chrome tabs.")
+    return
+  end
+  if #urls == 0 then
+    logger.i("No Google Chrome tabs to move to Brave Browser.")
+    return
+  end
+
+  hs.pasteboard.setContents(table.concat(urls, '\n'))
+  hs.application.launchOrFocusByBundleID('com.brave.Browser')
+  for _, url in ipairs(urls) do
+    hs.urlevent.openURLWithBundle(url, 'com.brave.Browser')
+  end
+end
+
+local function onApplicationEvent(appName, event)
+  if appName == 'Google Chrome' and event == hs.application.watcher.activated then
+    mod.moveChromeTabsToBrave()
+  end
+end
+
 function mod.init()
   local privateConfigPath = os.getenv('HOME') .. "/.private/hammerspoon.json"
   local privateConfigFile = io.open(privateConfigPath)
@@ -234,6 +291,9 @@ function mod.init()
   -- hs.urlevent.httpCallback = mod.httpCallback
   -- hs.urlevent.slackCallback = logger.i
   -- hs.urlevent.setDefaultHandler('http')
+
+  mod.chromeWatcher = hs.application.watcher.new(onApplicationEvent)
+  mod.chromeWatcher:start()
 end
 
 
