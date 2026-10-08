@@ -223,16 +223,21 @@ function mod.open(bundleId, url)
   hs.urlevent.openURLWithBundle(url, bundleId)
 end
 
--- Hosts that cannot be opened in Brave Browser, so their tabs stay in Google Chrome.
+-- Hosts that cannot be opened in the default browser, so their tabs stay in Google Chrome.
 mod.chromeOnlyHosts = {
   'drive.google.com',
   'mail.google.com',
   'calendar.google.com',
 }
 
--- Moves every Google Chrome tab, across all windows, to Brave Browser, except tabs on `mod.chromeOnlyHosts`.
--- Only runs if Chrome is the frontmost application.
-function mod.moveChromeTabsToBrave()
+-- Moves every Google Chrome tab, across all windows, to the default browser, except tabs on `mod.chromeOnlyHosts`.
+function mod.moveChromeTabsToDefaultBrowser()
+  local browserBundleId = hs.urlevent.getDefaultHandler('http')
+  if not browserBundleId or browserBundleId:lower() == 'com.google.chrome' then
+    logger.wf("Default browser is '%s', not moving Google Chrome tabs.", browserBundleId)
+    return
+  end
+
   local ok, urls = hs.osascript.javascript([[
     var chromeOnlyHosts = ]] .. hs.json.encode(mod.chromeOnlyHosts) .. [[;
     var chrome = Application('Google Chrome');
@@ -263,20 +268,20 @@ function mod.moveChromeTabsToBrave()
     return
   end
   if #urls == 0 then
-    logger.i("No Google Chrome tabs to move to Brave Browser.")
+    logger.i("No Google Chrome tabs to move to the default browser.")
     return
   end
 
   hs.pasteboard.setContents(table.concat(urls, '\n'))
-  hs.application.launchOrFocusByBundleID('com.brave.Browser')
+  hs.application.launchOrFocusByBundleID(browserBundleId)
   for _, url in ipairs(urls) do
-    hs.urlevent.openURLWithBundle(url, 'com.brave.Browser')
+    hs.urlevent.openURLWithBundle(url, browserBundleId)
   end
 end
 
 local function onApplicationEvent(appName, event)
   if appName == 'Google Chrome' and event == hs.application.watcher.activated then
-    mod.moveChromeTabsToBrave()
+    mod.moveChromeTabsToDefaultBrowser()
   end
 end
 
