@@ -225,6 +225,7 @@ end
 
 -- Hosts that cannot be opened in the default browser, so their tabs stay in Google Chrome.
 mod.chromeOnlyHosts = {
+  'docs.google.com',
   'drive.google.com',
   'mail.google.com',
   'calendar.google.com',
