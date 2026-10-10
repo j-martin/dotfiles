@@ -355,7 +355,6 @@ alias gupd='git stash && git pull --rebase origin HEAD && git stash apply && git
 gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt; }
 alias ge="emacsclient --no-wait --eval '(magit-status)' && osascript -e 'tell application \"Emacs\" to activate'"
 # Github
-alias ha='open "$GITHUB_URL"'
 alias hpo='open "$GITHUB_URL/$(_git_repo)/pulls"'
 alias hc='_github_open_commit'
 alias hca='open "$GITHUB_URL/$(_git_repo)/actions"'
@@ -475,6 +474,7 @@ alias gomt='go mod tidy'
 # cert
 alias certv='openssl x509 -serial  -subject -issuer -dates -alias -noout -in'
 
-# claude
+# agent
 
+alias da='dot-agent'
 alias claude='\claude --model opus --permission-mode acceptEdits'
