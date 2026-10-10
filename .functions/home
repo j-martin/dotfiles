@@ -4,6 +4,16 @@ _home_git() {
   git --work-tree="$HOME" --git-dir="$HOME/.files.git" "$@"
 }
 
+# Same logic as magit (jm/magit-status-or-dotfiles): use the current repo,
+# or fall back to the dotfiles repo when not inside one.
+_git_or_home() {
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git "$@"
+  else
+    _home_git "$@"
+  fi
+}
+
 _home_submodule_update() {
   (
     cd "$HOME" || return 1

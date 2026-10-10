@@ -408,7 +408,8 @@ alias pgcli='echo $PGHOST && pgcli'
 
 # Home/.files
 alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
-alias h=home
+alias h=_home_git
+alias git=_git_or_home
 alias hd='home diff'
 alias hdf='home icdiff'
 hadd() {
