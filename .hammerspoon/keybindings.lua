@@ -124,6 +124,12 @@ local bindings = {
       {modifiers = cmdCtrl, key = 'return', fn = chrome.clickSignIn, desc = 'Press the Sign in button'},
     },
   },
+  {
+    name = 'Messages',
+    bindings = {
+      {modifiers = cmd, key = 'k', remap = {modifiers = cmd, key = 'f'}, desc = 'Search conversations'},
+    },
+  },
 }
 
 ----------------

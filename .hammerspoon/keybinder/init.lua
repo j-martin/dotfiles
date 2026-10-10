@@ -30,6 +30,10 @@ local function buildBindFunction(binding)
     return windows.launchOrCycleFocus(binding.name)
   elseif binding.tab then
     return chrome.activateTab(binding.tab)
+  elseif binding.remap then
+    return function()
+      hs.eventtap.keyStroke(binding.remap.modifiers or {}, binding.remap.key)
+    end
   elseif binding.fn then
     return binding.fn
   end
@@ -42,6 +46,9 @@ local function bind(binding)
     if binding.shift then
       modifiers = hyperShift
     end
+  end
+  if binding.remap and binding.desc == nil then
+    binding.desc = 'Remap to ' .. cheatsheet.modifiersString(binding.remap.modifiers) .. binding.remap.key:upper()
   end
   local fn = buildBindFunction(binding)
   if fn == nil then
@@ -97,7 +104,14 @@ function mod.init(appBindingList)
   end
   registerCheatsheet(appBindingList)
   enableBindings(appBindingMap[globalBindings])
-  initWatcher(appBindingMap):start()
+  -- Keep a reference so the watcher is not garbage collected.
+  mod.watcher = initWatcher(appBindingMap):start()
+
+  local frontmost = hs.application.frontmostApplication()
+  local frontmostBindings = frontmost and appBindingMap[frontmost:name()]
+  if frontmostBindings and frontmost:name() ~= globalBindings then
+    enableBindings(frontmostBindings)
+  end
 end
 
 return mod
