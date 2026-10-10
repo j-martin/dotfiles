@@ -42,6 +42,47 @@ function mod.openOmni()
   apps.switchToAndType(mod.name, {'shift'}, 'o')
 end
 
+local signInLabels = {'^sign ?in$', '^log ?in$'}
+
+local function isSignInButton(element)
+  if element.AXRole ~= 'AXButton' then
+    return false
+  end
+  for _, attribute in ipairs({'AXTitle', 'AXDescription'}) do
+    local label = element[attribute]
+    if type(label) == 'string' then
+      label = label:lower():match('^%s*(.-)%s*$')
+      for _, pattern in ipairs(signInLabels) do
+        if label:match(pattern) then
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+-- Presses the "Sign in" or "Log in" button of the focused Brave window, for forms that ignore the return key.
+function mod.clickSignIn()
+  local app = hs.application.get(mod.name)
+  local window = app and app:focusedWindow()
+  if not window then
+    logger.w('No focused Brave window to sign in from.')
+    return
+  end
+
+  -- Chromium only exposes the web page accessibility tree once asked to.
+  hs.axuielement.applicationElement(app):setAttributeValue('AXManualAccessibility', true)
+
+  hs.axuielement.windowElement(window):elementSearch(function(message, results)
+    if not results or #results == 0 then
+      logger.wf('No sign in button found in "%s": %s', window:title(), message)
+      return
+    end
+    results[1]:performAction('AXPress')
+  end, isSignInButton, {count = 1})
+end
+
 function mod.activateTab(name)
   return function()
     hs.osascript.javascript([[

@@ -121,6 +121,7 @@ local bindings = {
       {modifiers = cmdCtrl, key = 'u', fn = chrome.slackReactionEmoji('thup'), desc = 'Thumbs up'},
       {modifiers = cmdCtrl, key = 's', fn = chrome.slackReactionEmoji('slighsm'), desc = 'Smiling Face'},
       {modifiers = cmdCtrl, key = 'e', fn = chrome.slackReactionEmoji('heart'), desc = 'Heart'},
+      {modifiers = cmdCtrl, key = 'return', fn = chrome.clickSignIn, desc = 'Press the Sign in button'},
     },
   },
 }
