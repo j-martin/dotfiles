@@ -223,15 +223,12 @@ function mod.open(bundleId, url)
   hs.urlevent.openURLWithBundle(url, bundleId)
 end
 
--- Hosts that cannot be opened in the default browser, so their tabs stay in Google Chrome.
+-- Hosts, including their subdomains, that cannot be opened in the default browser, so their tabs stay in Google Chrome.
 mod.chromeOnlyHosts = {
-  'docs.google.com',
-  'drive.google.com',
-  'mail.google.com',
-  'calendar.google.com',
+  'google.com',
 }
 
--- Moves every Google Chrome tab, across all windows, to the default browser, except tabs on `mod.chromeOnlyHosts`.
+-- Moves every http(s) Google Chrome tab, across all windows, to the default browser, except tabs on `mod.chromeOnlyHosts`.
 function mod.moveChromeTabsToDefaultBrowser()
   local browserBundleId = hs.urlevent.getDefaultHandler('http')
   if not browserBundleId or browserBundleId:lower() == 'com.google.chrome' then
@@ -244,9 +241,15 @@ function mod.moveChromeTabsToDefaultBrowser()
     var chrome = Application('Google Chrome');
     var urls = [];
 
-    function isChromeOnly(url) {
-      var match = url.match(/^[a-z]+:\/\/([^\/?#:]+)/i);
-      return match !== null && chromeOnlyHosts.indexOf(match[1].toLowerCase()) > -1;
+    function shouldStayInChrome(url) {
+      var match = url.match(/^https?:\/\/([^\/?#:]+)/i);
+      if (match === null) {
+        return true;
+      }
+      var host = match[1].toLowerCase();
+      return chromeOnlyHosts.some(function(chromeOnlyHost) {
+        return host === chromeOnlyHost || host.endsWith('.' + chromeOnlyHost);
+      });
     }
 
     // Close in reverse so the remaining window and tab indexes stay valid.
@@ -254,7 +257,7 @@ function mod.moveChromeTabsToDefaultBrowser()
       var tabUrls = win.tabs.url();
       var moved = [];
       for (var i = tabUrls.length - 1; i >= 0; i--) {
-        if (!isChromeOnly(tabUrls[i])) {
+        if (!shouldStayInChrome(tabUrls[i])) {
           moved.unshift(tabUrls[i]);
           win.tabs[i].close();
         }
@@ -300,6 +303,12 @@ function mod.init()
 
   mod.chromeWatcher = hs.application.watcher.new(onApplicationEvent)
   mod.chromeWatcher:start()
+
+  -- Activation alone misses tabs opened while Chrome is already frontmost, e.g. a link clicked in Gmail.
+  mod.chromeWindowFilter = hs.window.filter.new('Google Chrome')
+  mod.chromeWindowFilter:subscribe(hs.window.filter.windowTitleChanged, function()
+    mod.moveChromeTabsToDefaultBrowser()
+  end)
 end
 
 
