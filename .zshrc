@@ -67,7 +67,6 @@ plugins=(
   # fzf
   # node
   macos
-  ripgrep
   # terraform
   # vault
   zsh-autosuggestions
