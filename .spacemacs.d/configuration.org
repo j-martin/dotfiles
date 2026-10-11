@@ -209,6 +209,29 @@ From http://akrl.sdf.org/.
       super-save-idle-duration 0.1
       super-save-all-buffers t
       super-save-auto-save-when-idle t)
+
+     ;; Alfred (clipboard picker, etc.) steals keyboard focus from Emacs without
+     ;; becoming the frontmost app.  Saving then would strip the trailing space
+     ;; just typed, so only save on focus loss when another app is in front.
+     (defun jm/emacs-frontmost-p ()
+       "Non-nil when Emacs is still the frontmost macOS application."
+       (when-let* ((front (car (ignore-errors (process-lines "lsappinfo" "front")))))
+         (string-match-p (format "pid = %d\\b" (emacs-pid))
+                         (string-join (ignore-errors
+                                        (process-lines "lsappinfo" "info" "-only" "pid" front))
+                                      "\n"))))
+
+     (defun jm/super-save-unless-emacs-frontmost (orig-fn)
+       (unless (jm/emacs-frontmost-p)
+         (funcall orig-fn)))
+
+     (defun jm/super-save-focus-change-advice (orig-fn &rest _)
+       ;; Give macOS a moment to update the frontmost application.
+       (run-at-time 0.1 nil #'jm/super-save-unless-emacs-frontmost orig-fn))
+
+     (with-eval-after-load 'super-save
+       (advice-add 'super-save-focus-change-handler :around
+                   #'jm/super-save-focus-change-advice))
    #+end_src
 ** Smart-Jump
    #+begin_src emacs-lisp :results none
