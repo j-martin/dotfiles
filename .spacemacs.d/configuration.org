@@ -725,6 +725,7 @@ it makes magit a fair bit faster.
     (global-set-key (kbd "C-'") (lambda() (interactive) (insert "'")))
     (global-set-key (kbd "C-\"") (lambda() (interactive) (insert "\"")))
     (global-set-key (kbd "C-M-H-I") 'jm/open-with-idea)
+    (global-set-key (kbd "C-M-H-O") 'jm/open-with-obsidian)
     ;; (global-set-key (kbd "C-SPC") 'helm-company)
     (global-set-key (kbd "C-M-SPC") 'helm-yas-complete)
 
@@ -742,6 +743,7 @@ it makes magit a fair bit faster.
     (spacemacs/set-leader-keys "o0" 'langtool-check-done)
     (spacemacs/set-leader-keys "o8" 'langtool-check)
     (spacemacs/set-leader-keys "o9" 'langtool-correct-buffer)
+    (spacemacs/set-leader-keys "ob" 'jm/open-with-obsidian)
     (spacemacs/set-leader-keys "oC" 'jm/open-config-private)
     (spacemacs/set-leader-keys "oI" 'jm/org-github-in)
     (spacemacs/set-leader-keys "oO" 'jm/org-github-out)
@@ -1029,6 +1031,38 @@ helm-core calls it with the optional =no-properties= argument.
     (interactive)
     (jm/open-with-reveal "GoLand")
     (jm/open-with-line-column-idea "/Applications/GoLand.app/Contents/MacOS/goland"))
+
+  (defun jm/obsidian-vault-for-file (file)
+    "Return (NAME . PATH) of the Obsidian vault containing FILE, or nil."
+    (let ((file (file-truename file)))
+      (seq-find
+       (lambda (vault) (file-in-directory-p file (cdr vault)))
+       (mapcar
+        (lambda (line)
+          (let ((parts (split-string line "\t")))
+            (cons (car parts) (file-truename (cadr parts)))))
+        (seq-filter
+         (lambda (line) (string-match-p "\t" line))
+         (process-lines "obsidian" "vaults" "verbose"))))))
+
+  (defun jm/open-with-obsidian ()
+    (interactive)
+    (when buffer-file-name
+      (let ((vault (jm/obsidian-vault-for-file buffer-file-name)))
+        (if (not vault)
+            (message "Not in an Obsidian vault: %s" buffer-file-name)
+          (basic-save-buffer-1)
+          (let ((vault-arg (concat "vault=" (car vault)))
+                (relative (file-relative-name (file-truename buffer-file-name) (cdr vault)))
+                (line (1- (line-number-at-pos)))
+                (column (current-column)))
+            (jm/open-with-reveal "Obsidian")
+            (call-process "obsidian" nil 0 nil vault-arg "open" (concat "path=" relative))
+            (run-at-time
+             0.5 nil
+             #'call-process "obsidian" nil 0 nil vault-arg "eval"
+             (format "code=const e=app.workspace.activeEditor?.editor;if(e){const p={line:%d,ch:%d};e.setCursor(p);e.scrollIntoView({from:p,to:p},true);e.focus()}"
+                     line column)))))))
 
   (defun jm/open-with-vscode ()
     (interactive)
