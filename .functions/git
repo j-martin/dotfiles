@@ -26,6 +26,21 @@ _git_current_branch_url() {
     | sed "s/#/%23/g"
 }
 
+_git_sync() {
+  if ! _git_or_home pull; then
+    echo 'Failed to pull from upstream.' >&2
+    return 1
+  fi
+  if [ -z "$(_git_or_home rev-list '@{upstream}..HEAD')" ]; then
+    echo "Nothing to push."
+    return 0
+  fi
+  _git_or_home --no-pager log --oneline '@{upstream}..HEAD'
+  _git_or_home --no-pager diff '@{upstream}'
+  gum confirm "Push to $(_git_or_home rev-parse --abbrev-ref '@{upstream}')?" \
+    && _git_or_home push --no-verify
+}
+
 _git_filter_issue_key() {
   sed 's/patch-//' \
     | grep -oE '^[A-Z]+-[0-9]+'
