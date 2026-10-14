@@ -9,6 +9,7 @@ local selection = require 'selection'
 local windows = require 'windows'
 local chrome = require 'chrome'
 local reload = require 'reload'
+local reminders = require 'reminders'
 local usb = require 'usb'
 local wifi = require 'wifi'
 
@@ -30,6 +31,7 @@ local bindings = {
     bindings = {
       -- cmd + h reserved for notification
       -- key = '5' reserved for Alfred snippets
+      {key = '0', fn = reminders.add, desc = 'Reminders - Add'},
       {key = '1', name = apps.name.activityMonitor, shift = true},
       {key = '8', name = 'Slack'},
       {key = '9', name = 'Music'},
