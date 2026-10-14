@@ -285,6 +285,7 @@ alias gwip='(git log --oneline $(__git_get_default_branch_name)..HEAD | grep -ei
 alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias groo='groot'
 alias gcf='git commit --fixup "$(git log --oneline | fzf --no-sort | awk "{print \$1}")"'
+alias gai='_git_add_ignored'
 alias gcp='git add -p && git commit' # Commiting part of a file.
 __git_push() {
   local current_branch

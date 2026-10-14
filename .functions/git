@@ -51,6 +51,15 @@ _git_pick_unstaged_files() {
     | fzf -1 --multi --literal --query "${1:-}" "${@:2}"
 }
 
+# Force adds ignored files picked with fzf (multi-select), optionally pre-filtered by a query.
+_git_add_ignored() {
+  (
+    IFS=$'\n\t'
+    # shellcheck disable=SC2046
+    git add --force -- $(git ls-files --others --ignored --exclude-standard | _fzf "${1:-}" --multi)
+  )
+}
+
 _git_command_with_fzf() {
   local command="$1"
   local query="$2"
