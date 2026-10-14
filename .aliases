@@ -268,7 +268,7 @@ alias gwf='$(git worktree list | fzf | _pick_first_col)'
 gcof() { git checkout "$(_git_pick_branch_no_origin "'$1")"; }
 alias gocf=gcof
 alias gcoh='git checkout HEAD^'
-alias gsync=_git_sync
+alias gsync='git sync'
 alias gsp='git show "$(_git_pick_branch):$(fzf)"'
 alias gdp='git diff "$(_git_pick_branch)" -- "$(fzf)"'
 alias gdcf='git diff "$(_git_pick_commit)" -- "$(fzf)"'

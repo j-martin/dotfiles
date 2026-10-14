@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# `git sync`: pull, show unpushed changes, then confirm before pushing.
+# GIT_DIR/GIT_WORK_TREE are inherited from `git --git-dir --work-tree sync`,
+# so this also works for the dotfiles repo via `_git_or_home`/`home`.
+
+set -o errexit
+set -o pipefail
+
+if ! git pull; then
+  echo 'Failed to pull from upstream.' >&2
+  exit 1
+fi
+if [ -z "$(git rev-list '@{upstream}..HEAD')" ]; then
+  echo "Nothing to push."
+  exit 0
+fi
+git --no-pager log --oneline '@{upstream}..HEAD'
+git --no-pager diff '@{upstream}'
+if gum confirm "Push to $(git rev-parse --abbrev-ref '@{upstream}')?"; then
+  git push --no-verify
+fi
