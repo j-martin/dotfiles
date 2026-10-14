@@ -140,6 +140,16 @@ _git_stack_add_from_last_commit() {
   git cherry-pick "${commit}"
 }
 
+# Adds a branch picked with fzf on top of the active gh stack.
+_git_stack_add_pick_branch() {
+  local branch
+  branch="$(_git_pick_branch_no_origin "$1")"
+  if [[ -z "${branch}" ]]; then
+    return 1
+  fi
+  gh stack add "${branch}"
+}
+
 __git_get_default_branch_name() {
   git symbolic-ref --short refs/remotes/origin/HEAD \
     | sed 's#.*/##'
