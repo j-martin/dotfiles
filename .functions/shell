@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+
+
 FMT_END="\e[0m"
 
 FMT_GREEN="\e[32m"
@@ -7,4 +10,27 @@ FMT_BOLD="\e[1m"
 
 _echo_green_bold() {
   echo -e "${FMT_GREEN}${FMT_BOLD}${@}${FMT_END}"
+}
+
+# Copies the given command followed by the current working directory to the clipboard.
+__copy_command_with_pwd() {
+  local command="$1"
+  command="${command#"${command%%[![:space:]]*}"}"
+  _pbcopy <<< "${command} (${PWD})"
+}
+
+# Copies the previously run command and the working directory to the clipboard.
+_copy_last_command() {
+  local offset=-2
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    offset=-1
+  fi
+  __copy_command_with_pwd "$(fc -ln "${offset}" "${offset}")"
+}
+
+# Picks a command from the history with fzf (most recent first) and copies it with the working directory.
+_copy_command_from_history() {
+  local command
+  command="$(fc -ln 1 | fzf --tac --no-sort --query "${*:-}")" || return
+  __copy_command_with_pwd "${command}"
 }
