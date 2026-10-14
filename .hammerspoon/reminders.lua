@@ -175,7 +175,8 @@ end
 function mod.add()
   local window = hs.window.focusedWindow()
   local context = __context(window)
-  local selected = __selectedText():gsub('%s+', ' '):gsub('^%s+', ''):gsub('%s+$', '')
+  local raw = __selectedText():gsub('^%s+', ''):gsub('%s+$', '')
+  local selected = raw:gsub('%s+', ' ')
 
   hs.focus()
   local help = 'e.g. "call bob tomorrow 9am", "in 30m", "fri at 14:30", "tonight"'
@@ -192,7 +193,14 @@ function mod.add()
   end
 
   local title, due = mod.parse(text)
-  local notes = context and (context.title .. '\n' .. context.url) or nil
+  local parts = {}
+  if raw ~= '' then
+    table.insert(parts, raw)
+  end
+  if context then
+    table.insert(parts, context.title .. '\n' .. context.url)
+  end
+  local notes = #parts > 0 and table.concat(parts, '\n\n') or nil
   local ok, err = __create(title, due, notes)
   if ok then
     local when = due and (' — ' .. os.date('%a %b %d %H:%M', due)) or ''
