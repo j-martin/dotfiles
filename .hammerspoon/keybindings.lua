@@ -1,6 +1,7 @@
 local apps = require 'apps'
 local audio = require 'audio'
 local keybinder = require 'keybinder'
+local messages = require 'messages'
 local emacs = require 'emacs'
 local mode = require 'mode'
 local mounts = require 'mounts'
@@ -156,6 +157,7 @@ local hyperModeBindings = {
   {key = 'r', fn = reload.reload, desc = 'Reloading configuration ...'},
   {key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Music'},
   {key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%'},
+  {key = 'x', fn = messages.sendClipboard, exitMode = true, desc = 'iMessage - Send clipboard'},
   {key = 'y', fn = audio.changeVolume(-100), desc = 'Mute'},
   {key = 'z', fn = usb.workSetup, desc = 'Work setup'},
 }
