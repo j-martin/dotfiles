@@ -10,8 +10,8 @@ set surround
 set commentary
 set multiple-cursors
 set ideajoin
-set idearefactormode select
-set selectmode ideaselection
+set idearefactormode=select
+set selectmode=ideaselection
 
 " actionlist <item>
 " https://gist.github.com/zchee/9c78f91cc5ad771c1f5d
@@ -59,6 +59,11 @@ nmap <leader>ff :action GotoFile<CR>
 nmap gf :action GotoFile<CR>
 nmap gs :action GotoSymbol<CR>
 nmap gm :action GotoImplementation<CR>
+" Copilot: add selection/code at point to chat and focus the prompt
+nmap <leader>cc <Action>(copilot.chat.addSelection)
+nmap <leader>cc <Action>(copilot.chat.addSelection)
+nmap <leader>oc <Action>(copilot.chat.addSelection)<Action>(ActivateGitHubCopilotChatToolWindow)
+vmap <leader>oc <Action>(copilot.chat.addSelection)<Action>(ActivateGitHubCopilotChatToolWindow)
 nmap [p ko<ESC>p
 nmap ]p o<ESC>p
 
