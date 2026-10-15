@@ -156,6 +156,9 @@ function mod.add()
   local apps = require 'apps'
   local window = hs.window.focusedWindow()
   local context = apps.context(window)
+  if not context and window then
+    context = {title = window:application():name() .. ' — ' .. window:title()}
+  end
   local selected = context and context.selection or selection.getSelectedText()
   local raw = selected:gsub('^%s+', ''):gsub('%s+$', '')
   local oneLine = raw:gsub('%s+', ' ')
