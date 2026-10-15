@@ -2,6 +2,7 @@
 local reload = require "reload"
 reload.init()
 
+local activity = require "activity"
 local apps = require "apps"
 local audio = require "audio"
 local battery = require "battery"
@@ -10,6 +11,7 @@ local meetingbar = require "meetingbar"
 local usb = require "usb"
 
 keybindings.init()
+activity.init()
 -- battery.init()
 audio.init()
 usb.init()
