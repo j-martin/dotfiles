@@ -1,6 +1,6 @@
 local logger = hs.logger.new('keybinder', 'info')
 local windows = require 'windows'
-local brave = require 'apps/brave'
+local apps = require 'apps'
 local cheatsheet = require 'keybinder/cheatsheet'
 
 local hyper = {'cmd', 'alt', 'ctrl'}
@@ -29,7 +29,7 @@ local function buildBindFunction(binding)
   elseif binding.name then
     return windows.launchOrCycleFocus(binding.name)
   elseif binding.tab then
-    return brave.activateTab(binding.tab)
+    return apps.brave.activateTab(binding.tab)
   elseif binding.remap then
     return function()
       hs.eventtap.keyStroke(binding.remap.modifiers or {}, binding.remap.key)
@@ -58,14 +58,14 @@ local function bind(binding)
   return binding
 end
 
-function initWatcher(appBindingMap)
+local function subscribeToApplicationEvents(appBindingMap)
   local activated = {}
   activated[hs.application.watcher.activated] = true
   activated[hs.application.watcher.launched] = true
   activated[hs.application.watcher.launching] = true
   activated[hs.application.watcher.unhidden] = true
 
-  return hs.application.watcher.new(function(appName, event, appObj)
+  apps.subscribe(function(appName, event)
     local bindings = appBindingMap[appName]
     if bindings == nil then
       return
@@ -104,8 +104,7 @@ function mod.init(appBindingList)
   end
   registerCheatsheet(appBindingList)
   enableBindings(appBindingMap[globalBindings])
-  -- Keep a reference so the watcher is not garbage collected.
-  mod.watcher = initWatcher(appBindingMap):start()
+  subscribeToApplicationEvents(appBindingMap)
 
   local frontmost = hs.application.frontmostApplication()
   local frontmostBindings = frontmost and appBindingMap[frontmost:name()]

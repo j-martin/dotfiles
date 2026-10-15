@@ -19,10 +19,27 @@ local mod = {
   zoom = require 'apps/zoom',
 }
 
-local contextProviders = {}
+local registered = {}
 for _, app in pairs(mod) do
-  if app.name and app.context then
-    contextProviders[app.name] = app.context
+  if app.name then
+    registered[app.name] = app
+  end
+end
+
+local listeners = {}
+
+--- Calls `fn(appName, event, app)` on every application event, for any application.
+function mod.subscribe(fn)
+  table.insert(listeners, fn)
+end
+
+local function onApplicationEvent(appName, event, app)
+  local registeredApp = registered[appName]
+  if registeredApp and registeredApp.onApplicationEvent then
+    registeredApp.onApplicationEvent(event, app)
+  end
+  for _, listener in ipairs(listeners) do
+    listener(appName, event, app)
   end
 end
 
@@ -30,11 +47,11 @@ end
 --- {title, url, details = {lines}, selection}. `selection` is only set when the app knows it better than the clipboard.
 function mod.context(window)
   local app = window and window:application()
-  local provider = app and contextProviders[app:name()]
-  if not provider then
+  local registeredApp = app and registered[app:name()]
+  if not registeredApp or not registeredApp.context then
     return nil
   end
-  local ok, context = pcall(provider, window)
+  local ok, context = pcall(registeredApp.context, window)
   if not ok then
     logger.ef('Failed to get the %s context: %s', app:name(), context)
     return nil
@@ -83,8 +100,10 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
   utils.open(bundleId, url)
 end
 
---- Starts the app watchers.
+--- Starts the application watcher, and the app specific watchers.
 function mod.init()
+  -- Keep a reference so the watcher is not garbage collected.
+  mod.watcher = hs.application.watcher.new(onApplicationEvent):start()
   mod.slack.init()
   -- hs.urlevent.httpCallback = mod.httpCallback
   -- hs.urlevent.slackCallback = logger.i

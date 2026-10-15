@@ -64,17 +64,15 @@ function mod.moveTabsToDefaultBrowser()
   end
 end
 
-local function onApplicationEvent(appName, event)
-  if appName == mod.name and event == hs.application.watcher.activated then
+--- Moves the tabs to the default browser when Google Chrome is activated.
+function mod.onApplicationEvent(event)
+  if event == hs.application.watcher.activated then
     mod.moveTabsToDefaultBrowser()
   end
 end
 
---- Moves Google Chrome tabs to the default browser whenever Google Chrome is used.
+--- Moves Google Chrome tabs to the default browser whenever their title changes.
 function mod.init()
-  mod.watcher = hs.application.watcher.new(onApplicationEvent)
-  mod.watcher:start()
-
   -- Activation alone misses tabs opened while Chrome is already frontmost, e.g. a link clicked in Gmail.
   mod.windowFilter = hs.window.filter.new(mod.name)
   mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, function()
