@@ -183,13 +183,16 @@ function mod.add()
     table.insert(parts, __describe(context))
   end
   local notes = #parts > 0 and table.concat(parts, '\n\n') or nil
-  local ok, err = mod.create(title, due, notes)
-  if ok then
-    local when = due and (' — ' .. os.date('%a %b %d %H:%M', due)) or ''
-    hs.alert.show('⏰ ' .. title .. when)
-  else
-    hs.alert.show(err, 5)
-  end
+  -- Deferred so the dialog closes before the blocking AppleScript runs
+  mod.createTimer = hs.timer.doAfter(0.1, function()
+    local ok, err = mod.create(title, due, notes)
+    if ok then
+      local when = due and (' — ' .. os.date('%a %b %d %H:%M', due)) or ''
+      hs.alert.show('⏰ ' .. title .. when)
+    else
+      hs.alert.show(err, 5)
+    end
+  end)
 end
 
 return mod
