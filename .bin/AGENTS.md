@@ -1,5 +1,8 @@
 # ALWAYS
-Add 🤖 at the end of your responses as the last word. Do not create new lines.
+
+- Add 🤖 at the end of your responses as the last word. Do not create new lines.
+- Never write any secrets or sensitive informations in files that may be commited.
+- Avoid refererence to machine speficic local dir/file paths as much as possible.
 
 # Shell
 
