@@ -55,8 +55,9 @@ _git_pick_unstaged_files() {
 _git_add_ignored() {
   (
     IFS=$'\n\t'
+    local noise='(^|/)(node_modules|\.idea|\.vscode|\.venv|venv|__pycache__|\.gradle|\.next|dist|build|target)/|(^|/)\.DS_Store$'
     # shellcheck disable=SC2046
-    git add --force -- $(git ls-files --others --ignored --exclude-standard | _fzf "${1:-}" --multi)
+    git add --force -- $(git ls-files --others --ignored --exclude-standard | grep -vE "${noise}" | _fzf "${1:-}" --multi)
   )
 }
 
