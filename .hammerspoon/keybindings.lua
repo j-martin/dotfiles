@@ -1,16 +1,12 @@
 local apps = require 'apps'
 local audio = require 'audio'
 local keybinder = require 'keybinder'
-local messages = require 'messages'
-local emacs = require 'emacs'
 local mode = require 'mode'
 local mounts = require 'mounts'
 local screen = require 'screen'
 local selection = require 'selection'
 local windows = require 'windows'
-local chrome = require 'chrome'
 local reload = require 'reload'
-local reminders = require 'reminders'
 local usb = require 'usb'
 local wifi = require 'wifi'
 
@@ -32,22 +28,22 @@ local bindings = {
     bindings = {
       -- cmd + h reserved for notification
       -- key = '5' reserved for Alfred snippets
-      {key = '0', fn = reminders.add, desc = 'Reminders - Add'},
-      {key = '1', name = apps.name.activityMonitor, shift = true},
+      {key = '0', fn = apps.reminders.add, desc = 'Reminders - Add'},
+      {key = '1', name = apps.activityMonitor.name, shift = true},
       {key = '8', name = 'Slack'},
       {key = '9', name = 'Music'},
       {key = '9', shift = true, name = 'Nintendo Music'},
       {key = '\\', name = '1Password'},
       {key = 'a', name = 'Figma'},
-      {key = 'b', fn = apps.openNotification, desc = 'Notification - Open'},
-      {key = 'b', fn = apps.closeNotification, shift = true, desc = 'Notification - Action'},
+      {key = 'b', fn = apps.notificationCenter.open, desc = 'Notification - Open'},
+      {key = 'b', fn = apps.notificationCenter.close, shift = true, desc = 'Notification - Action'},
       {key = 'c', name = 'Google Calendar'},
       {key = 'd', fn = selection.actOn('google'), desc = 'Search selection'},
       {key = 'f', name = 'Finder'},
       {key = 'f', name = 'Preview', shift = true},
       {key = 'g', name = 'Claude'},
       {key = 'i', name = 'iTerm2'},
-      {key = 'i', fn = apps.iTermOmni, shift = true},
+      {key = 'i', fn = apps.iterm.omni, shift = true},
       {
         key = 'j',
         pos = {{0.0, 0.0, 0.5, 1.0}, {0.0, 0.0, 0.7, 1.0}},
@@ -88,26 +84,26 @@ local bindings = {
       },
       {key = 'm', pos = {0.00, 0.00, 1.00, 1.00}, desc = 'Full Screen (Current)'},
       {key = 'm', fn = windows.previousScreen, shift = true, desc = 'Move window the next screen'},
-      {key = 'o', name = apps.name.goland},
-      {key = 'o', name = apps.name.idea, shift = true},
+      {key = 'o', name = apps.goland.name},
+      {key = 'o', name = apps.idea.name, shift = true},
       {key = 'p', name = 'Sublime Text'},
       {key = 'p', name = 'Preview', shift = true},
       {key = 'q', name = 'Tuple'},
       {key = 'q', fn = hs.toggleConsole, shift = true, desc = 'HS - Console'},
-      {key = 'r', fn = emacs.orgRifle, desc = 'Org - Capture selection to Resources'},
-      {key = 'r', fn = emacs.references, shift = true, desc = 'Org - Show Resources'},
+      {key = 'r', fn = apps.emacs.orgRifle, desc = 'Org - Capture selection to Resources'},
+      {key = 'r', fn = apps.emacs.references, shift = true, desc = 'Org - Show Resources'},
       {key = 's', name = 'Obsidian'},
-      {key = 't', fn = emacs.capture(), desc = 'Org - Capture'},
-      {key = 't', fn = emacs.inbox, shift = true, desc = 'Org - Inbox'},
+      {key = 't', fn = apps.emacs.capture(), desc = 'Org - Capture'},
+      {key = 't', fn = apps.emacs.inbox, shift = true, desc = 'Org - Inbox'},
       {key = 'u', name = 'Emacs'},
-      {key = 'u', fn = emacs.helmBuffers, shift = true},
+      {key = 'u', fn = apps.emacs.helmBuffers, shift = true},
       -- key v, reserved for Alfred paste
       {key = 'v', fn = selection.paste, shift = true, desc = 'Paste - Type'},
-      -- {key = 'w', fn = emacs.capture('w'), desc = 'Org - Capture selection to Work'},
-      {key = 'w', fn = emacs.workInbox, shift = true, desc = 'Org - Show work'},
+      -- {key = 'w', fn = apps.emacs.capture('w'), desc = 'Org - Capture selection to Work'},
+      {key = 'w', fn = apps.emacs.workInbox, shift = true, desc = 'Org - Show work'},
       {key = 'y', name = 'Gmail'},
       {key = 'z', name = 'Google Meet'},
-      {key = 'z', fn = apps.googleMeetToggleMute, shift = true, desc = 'Google Meet - Toggle Mute'},
+      {key = 'z', fn = apps.googleMeet.toggleMute, shift = true, desc = 'Google Meet - Toggle Mute'},
       {key = '-', fn = hs.grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter'},
       {key = '=', fn = hs.grid.resizeWindowTaller, shift = true, desc = 'Windows - Taller'},
       {key = 'up', fn = hs.grid.pushWindowUp, shift = true, desc = 'Windows - Up'},
@@ -117,12 +113,12 @@ local bindings = {
     },
   },
   {
-    name = chrome.name,
+    name = apps.brave.name,
     bindings = {
-      {modifiers = cmdCtrl, key = 'u', fn = chrome.slackReactionEmoji('thup'), desc = 'Thumbs up'},
-      {modifiers = cmdCtrl, key = 's', fn = chrome.slackReactionEmoji('slighsm'), desc = 'Smiling Face'},
-      {modifiers = cmdCtrl, key = 'e', fn = chrome.slackReactionEmoji('heart'), desc = 'Heart'},
-      {modifiers = cmdCtrl, key = 'return', fn = chrome.clickSignIn, desc = 'Press the Sign in button'},
+      {modifiers = cmdCtrl, key = 'u', fn = apps.brave.slackReactionEmoji('thup'), desc = 'Thumbs up'},
+      {modifiers = cmdCtrl, key = 's', fn = apps.brave.slackReactionEmoji('slighsm'), desc = 'Smiling Face'},
+      {modifiers = cmdCtrl, key = 'e', fn = apps.brave.slackReactionEmoji('heart'), desc = 'Heart'},
+      {modifiers = cmdCtrl, key = 'return', fn = apps.brave.clickSignIn, desc = 'Press the Sign in button'},
     },
   },
   {
@@ -155,7 +151,7 @@ local hyperModeBindings = {
   {key = 'r', fn = reload.reload, desc = 'Reloading configuration ...'},
   {key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Music'},
   {key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%'},
-  {key = 'x', fn = messages.sendClipboard, exitMode = true, desc = 'iMessage - Send clipboard'},
+  {key = 'x', fn = apps.messages.sendClipboard, exitMode = true, desc = 'iMessage - Send clipboard'},
   {key = 'y', fn = audio.changeVolume(-100), desc = 'Mute'},
   {key = 'z', fn = usb.workSetup, desc = 'Work setup'},
 }

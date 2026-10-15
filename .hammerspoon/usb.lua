@@ -1,6 +1,6 @@
 local logger = hs.logger.new('usb', 'debug')
 
-local apps = require "apps"
+local appsUtils = require "apps/utils"
 local audio = require "audio"
 local process = require "utils/process"
 local screen = require 'screen'
@@ -48,7 +48,7 @@ function mod.officeAutomation(scene, command)
         -- hs.urlevent.openURL("neewerlite://turnOffLight")
       end
     end
-    process.start(apps.getExecPath('office-automation'), {'--scene', scene, command }, nil, 10)
+    process.start(appsUtils.getExecPath('office-automation'), {'--scene', scene, command }, nil, 10)
     if scene == 'desk' and command == 'off' then
       hs.itunes.pause()
       hs.caffeinate.systemSleep()

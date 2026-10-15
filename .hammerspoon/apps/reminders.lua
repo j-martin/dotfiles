@@ -6,9 +6,11 @@
 --   "call bob tonight"         -> due today at 20:00
 --   "call bob 9pm"             -> due today at 21:00 (tomorrow if already past)
 local logger = hs.logger.new('reminders', 'info')
-local chrome = require 'chrome'
+local selection = require 'selection'
 
 local mod = {}
+
+mod.name = 'Reminders'
 
 -- Empty means the default Reminders list
 mod.list = ''
@@ -74,7 +76,7 @@ local function __takeTime(text)
   return text
 end
 
--- Returns title and due date (epoch seconds, or nil)
+--- Returns title and due date (epoch seconds, or nil)
 function mod.parse(text, nowEpoch)
   text = text:gsub('^%s+', ''):gsub('%s+$', '')
   nowEpoch = nowEpoch or os.time()
@@ -110,25 +112,12 @@ function mod.parse(text, nowEpoch)
   return title, due
 end
 
--- Extra details about where the reminder was created from, stored in its notes
-local function __context(window)
-  local app = window and window:application()
-  if not app or app:name() ~= chrome.name then
-    return nil
-  end
-  local ok, tab = hs.osascript.javascript(
-    "const t = Application('" .. chrome.name .. "').windows[0].activeTab(); [t.title(), t.url()]")
-  if not ok or type(tab) ~= 'table' then
-    return nil
-  end
-  return {title = tab[1], url = tab[2]}
-end
-
-local function __create(title, due, notes)
+--- Creates a reminder in `mod.list`. Returns ok, and an error message when not ok.
+function mod.create(title, due, notes)
   local params = hs.json.encode({name = title, due = due, list = mod.list, notes = notes})
   local script = [[
     const p = ]] .. params .. [[;
-    const app = Application('Reminders');
+    const app = Application(']] .. mod.name .. [[');
     const props = {name: p.name};
     if (p.notes) props.body = p.notes;
     if (p.due) {
@@ -149,41 +138,34 @@ local function __create(title, due, notes)
   return ok, 'Failed to create reminder, see console'
 end
 
--- Only use real selections, never stale clipboard contents
-local function __selectedText()
-  local element = hs.uielement.focusedElement()
-  local ok, text = pcall(function()
-    return element and element:selectedText()
-  end)
-  if ok and text and text ~= '' then
-    return text
+-- Title, link and details, one per line
+local function __describe(context)
+  local lines = {context.title}
+  if context.url then
+    table.insert(lines, context.url)
   end
-  local before = hs.pasteboard.changeCount()
-  local initial = hs.pasteboard.readString()
-  hs.eventtap.keyStroke({'cmd'}, 'c')
-  hs.timer.usleep(150 * 1000)
-  if hs.pasteboard.changeCount() == before then
-    return ''
+  for _, detail in ipairs(context.details or {}) do
+    table.insert(lines, detail)
   end
-  text = hs.pasteboard.readString() or ''
-  if initial then
-    hs.pasteboard.setContents(initial)
-  end
-  return text
+  return table.concat(lines, '\n')
 end
 
+--- Prompts for a reminder, prefilled with the selected text, and with what the focused window shows in its notes.
 function mod.add()
+  -- Required here since apps requires this module.
+  local apps = require 'apps'
   local window = hs.window.focusedWindow()
-  local context = __context(window)
-  local raw = __selectedText():gsub('^%s+', ''):gsub('%s+$', '')
-  local selected = raw:gsub('%s+', ' ')
+  local context = apps.context(window)
+  local selected = context and context.selection or selection.getSelectedText()
+  local raw = selected:gsub('^%s+', ''):gsub('%s+$', '')
+  local oneLine = raw:gsub('%s+', ' ')
 
   hs.focus()
   local help = 'e.g. "call bob tomorrow 9am", "in 30m", "fri at 14:30", "tonight"'
   if context then
-    help = help .. '\n\n🔗 ' .. context.title .. '\n' .. context.url
+    help = help .. '\n\n🔗 ' .. __describe(context)
   end
-  local default = selected ~= '' and selected or (context and context.title or '')
+  local default = oneLine ~= '' and oneLine or (context and context.title or '')
   local button, text = hs.dialog.textPrompt('New Reminder', help, default, 'Add', 'Cancel')
   if window then
     window:focus()
@@ -198,10 +180,10 @@ function mod.add()
     table.insert(parts, raw)
   end
   if context then
-    table.insert(parts, context.title .. '\n' .. context.url)
+    table.insert(parts, __describe(context))
   end
   local notes = #parts > 0 and table.concat(parts, '\n\n') or nil
-  local ok, err = __create(title, due, notes)
+  local ok, err = mod.create(title, due, notes)
   if ok then
     local when = due and (' — ' .. os.date('%a %b %d %H:%M', due)) or ''
     hs.alert.show('⏰ ' .. title .. when)

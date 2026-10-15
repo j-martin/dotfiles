@@ -1,6 +1,6 @@
 local logger = hs.logger.new('keybinder', 'info')
 local windows = require 'windows'
-local chrome = require 'chrome'
+local brave = require 'apps/brave'
 local cheatsheet = require 'keybinder/cheatsheet'
 
 local hyper = {'cmd', 'alt', 'ctrl'}
@@ -29,7 +29,7 @@ local function buildBindFunction(binding)
   elseif binding.name then
     return windows.launchOrCycleFocus(binding.name)
   elseif binding.tab then
-    return chrome.activateTab(binding.tab)
+    return brave.activateTab(binding.tab)
   elseif binding.remap then
     return function()
       hs.eventtap.keyStroke(binding.remap.modifiers or {}, binding.remap.key)

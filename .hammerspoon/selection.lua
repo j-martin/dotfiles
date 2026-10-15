@@ -4,48 +4,42 @@ local mod = {}
 
 local engines = {google = 'https://www.google.ca/search?q='}
 
-local function selectedTextFromClipboard(currentApp)
-  local selection
-  local function getClipboard(initial, retries)
-    if retries < 0 then
-      return initial
-    end
-    hs.timer.usleep(0.1 * 1000000)
-    local selection = hs.pasteboard.readString()
-    if selection == initial and currentApp ~= 'Brave Browser' then
-      logger.d('Same result. Retrying')
-      return getClipboard(initial, retries - 1)
-    else
-      return selection
-    end
-  end
-
-  local initial = hs.pasteboard.readString()
-  hs.eventtap.keyStroke({'cmd'}, 'c')
-  selection = getClipboard(initial, 3)
-  logger.df('clipboard: %s', selection)
-  hs.pasteboard:setContents(initial)
-  return selection
-end
-
-function mod.getSelectedText()
-  local currentWindow = hs.window.focusedWindow()
-  local currentApp = 'unknown'
-  if currentWindow then
-    currentApp = currentWindow:application():name()
+-- Emacs does not expose its region through accessibility
+local function selectedTextFromAccessibility()
+  local app = hs.application.frontmostApplication()
+  if app and app:name() == 'Emacs' then
+    return nil
   end
   local element = hs.uielement.focusedElement()
-  local selection
-
-  if element then
-    selection = element:selectedText()
+  local ok, text = pcall(function()
+    return element and element:selectedText()
+  end)
+  if ok and text and text ~= '' then
+    return text
   end
+  return nil
+end
 
-  if not selection or currentApp == 'Emacs' then
-    return selectedTextFromClipboard(currentApp)
+-- Only use real selections, never stale clipboard contents
+local function selectedTextFromClipboard()
+  local before = hs.pasteboard.changeCount()
+  local initial = hs.pasteboard.readString()
+  hs.eventtap.keyStroke({'cmd'}, 'c')
+  hs.timer.usleep(150 * 1000)
+  if hs.pasteboard.changeCount() == before then
+    logger.d('Nothing copied, nothing is selected.')
+    return ''
   end
+  local text = hs.pasteboard.readString() or ''
+  if initial then
+    hs.pasteboard.setContents(initial)
+  end
+  return text
+end
 
-  return selection
+--- Returns the selected text of the focused app, or an empty string when nothing is selected.
+function mod.getSelectedText()
+  return selectedTextFromAccessibility() or selectedTextFromClipboard()
 end
 
 local function openUrl(url)

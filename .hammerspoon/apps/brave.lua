@@ -1,5 +1,5 @@
-local apps = require 'apps'
-local logger = hs.logger.new('chrome', 'debug')
+local logger = hs.logger.new('brave', 'debug')
+local utils = require 'apps/utils'
 
 local mod = {}
 
@@ -7,39 +7,38 @@ mod.name = 'Brave Browser'
 
 mod.tab = {slack = ' Alloy Slack', mail = {work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail'}}
 
-local function wait(n)
-  local n = n or 1
-  hs.timer.usleep(10000 * n)
-end
-
-function openSlack()
+local function openSlack()
   mod.activateTab(mod.tab.slack)()
 end
 
+--- Opens the Slack quick switcher of the Slack tab.
 function mod.slackQuickSwitcher()
   openSlack()
-  wait(2)
+  utils.wait(2)
   hs.eventtap.keyStroke({'cmd'}, 'k')
 end
 
+--- Returns a callback reacting to the hovered Slack message with the first emoji matching `chars`.
 function mod.slackReactionEmoji(chars)
   return function()
     hs.eventtap.keyStroke({'cmd', 'shift'}, '\\')
-    wait()
+    utils.wait()
     hs.eventtap.keyStrokes(chars)
-    wait(20)
+    utils.wait(20)
     hs.eventtap.keyStroke({}, 'return')
   end
 end
 
+--- Opens the unread messages of the Slack tab.
 function mod.slackUnread()
   openSlack()
-  wait()
+  utils.wait()
   hs.eventtap.keyStroke({'cmd', 'shift'}, 'a')
 end
 
+--- Opens the tab search.
 function mod.openOmni()
-  apps.switchToAndType(mod.name, {'shift'}, 'o')
+  utils.switchToAndType(mod.name, {'shift'}, 'o')
 end
 
 local signInLabels = {'^sign ?in$', '^log ?in$'}
@@ -62,7 +61,7 @@ local function isSignInButton(element)
   return false
 end
 
--- Presses the "Sign in" or "Log in" button of the focused Brave window, for forms that ignore the return key.
+--- Presses the "Sign in" or "Log in" button of the focused Brave window, for forms that ignore the return key.
 function mod.clickSignIn()
   local app = hs.application.get(mod.name)
   local window = app and app:focusedWindow()
@@ -71,8 +70,7 @@ function mod.clickSignIn()
     return
   end
 
-  -- Chromium only exposes the web page accessibility tree once asked to.
-  hs.axuielement.applicationElement(app):setAttributeValue('AXManualAccessibility', true)
+  utils.enableManualAccessibility(app)
 
   hs.axuielement.windowElement(window):elementSearch(function(message, results)
     if not results or #results == 0 then
@@ -83,12 +81,13 @@ function mod.clickSignIn()
   end, isSignInButton, {count = 1})
 end
 
+--- Returns a callback activating the first tab whose title contains `name`.
 function mod.activateTab(name)
   return function()
     hs.osascript.javascript([[
-      var chrome = Application('Brave Browser');
-      chrome.activate();
-      var wins = chrome.windows;
+      var browser = Application(']] .. mod.name .. [[');
+      browser.activate();
+      var wins = browser.windows;
 
       // loop tabs to find a web page with a title of <name>
       function main() {
@@ -110,6 +109,16 @@ function mod.activateTab(name)
     ]])
     hs.window.find(name):focus()
   end
+end
+
+--- Returns the title and URL of the active tab.
+function mod.context()
+  local ok, tab = hs.osascript.javascript(
+    "const t = Application('" .. mod.name .. "').windows[0].activeTab(); [t.title(), t.url()]")
+  if not ok or type(tab) ~= 'table' then
+    return nil
+  end
+  return {title = tab[1], url = tab[2]}
 end
 
 return mod
