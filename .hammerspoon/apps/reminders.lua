@@ -176,7 +176,7 @@ function mod.add()
 
   local title, due = mod.parse(text)
   local parts = {}
-  if raw ~= '' then
+  if raw ~= '' and title:gsub('%s+', ' ') ~= oneLine then
     table.insert(parts, raw)
   end
   if context then
