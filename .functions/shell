@@ -16,7 +16,7 @@ _echo_green_bold() {
 __copy_command_with_pwd() {
   local command="$1"
   command="${command#"${command%%[![:space:]]*}"}"
-  _pbcopy <<< "${command} (${PWD})"
+  _clipboard_copy <<< "${command} (${PWD})"
 }
 
 # Copies the previously run command and the working directory to the clipboard.

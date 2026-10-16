@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+_k8s_remove_finalizer() {
+  local resource="$1"
+  kubectl patch "${resource}" \
+          --type json \
+          --patch='[ { "op": "remove", "path": "/metadata/finalizers" } ]'
+}

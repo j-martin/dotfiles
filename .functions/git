@@ -307,13 +307,13 @@ _github_commit_url() {
 _github_copy_commit_url() {
   local commit="$1"
   _github_commit_url "${commit}" \
-    | _pbcopy
+    | _clipboard_copy
 }
 
 _github_copy_pr_url_for_commit() {
   local commit="$1"
   _github_pull_request_for_commit "${commit}" \
-    | _pbcopy
+    | _clipboard_copy
 }
 
 _github_open_commit() {
@@ -517,7 +517,7 @@ _github_pr() {
   local url
   url="$(grep -oE 'https://github\.com/[^[:space:]]+/pull/[0-9]+' "${output}" | tail -n1)"
   if [[ -n "${url}" ]]; then
-    _pbcopy <<< "${url}"
+    _clipboard_copy <<< "${url}"
     _notify 'PR created. The URL is in the clipboard.'
   else
     _info 'No pull request URL found in the output.'
@@ -589,7 +589,7 @@ _git_list_files_not_under_source_control() {
 }
 
 _gh_generate_approve_commands_from_url() {
-  pbpaste | sed 's/^/gh pr review --approve /' | _pbcopy
+  pbpaste | sed 's/^/gh pr review --approve /' | _clipboard_copy
 }
 
 _git_compare_releases() {

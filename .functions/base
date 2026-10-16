@@ -111,7 +111,8 @@ _fzf_with_preview() {
     --query "$@"
 }
 
-_prefix() {
+# Not named _prefix: that would shadow zsh's _prefix completer.
+_dir_prefix() {
   basename "$(pwd)" | sed 's/\-.*//g'
 }
 
@@ -132,7 +133,8 @@ _close_tunnel() {
   _safe
 }
 
-_touch() {
+# Not named _touch: that would shadow zsh's completion for touch.
+_touch_mkdir() {
   local filepath="$1"
   mkdir -p "$(dirname "$filepath")"
   \touch "$filepath" "${@:2}"
@@ -158,7 +160,8 @@ _temp() {
   _info "Saved to: ${location}"
 }
 
-_pbcopy() {
+# Not named _pbcopy: that would shadow zsh's completion for pbcopy.
+_clipboard_copy() {
   local content
   content="$(cat)"
 

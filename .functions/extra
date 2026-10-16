@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-_rg() {
+# Not named _rg: that would shadow ripgrep's zsh completion for rg.
+_rg_less() {
   rg \
     --color=always \
     --line-number \
@@ -14,7 +15,7 @@ _rg_cased() {
   local pattern="$1"
   pattern="$(_to_snake_case <<< "${pattern}" | sed 's#[-_]#[-_]?#g')"
   _info "Using pattern: '${pattern}' case insensitive..."
-  _rg "${pattern}" "${@:2}"
+  _rg_less "${pattern}" "${@:2}"
 }
 
 # dockerPickImage
@@ -187,7 +188,7 @@ _rsync_watch() {
   local remote_path="$2"
 
   _info "Syncing files: '${local_path}', Syncing to: '${remote_path}'"
-  _rsync "${local_path}" "${remote_path}"
+  _rsync_mirror "${local_path}" "${remote_path}"
   _info "Watching: '${local_path}', Syncing to: '${remote_path}'"
 
   fswatch \
@@ -198,12 +199,13 @@ _rsync_watch() {
     --exclude '.git' \
     --exclude 'node_modules' \
     | while read count; do
-      _rsync "${local_path}" "${remote_path}"
+      _rsync_mirror "${local_path}" "${remote_path}"
       _notify "Synced ${count} file(s)"
     done
 }
 
-_rsync() {
+# Not named _rsync: that would shadow zsh's completion for rsync.
+_rsync_mirror() {
   local local_path="$1"
   local remote_path="$2"
   rsync --archive \
@@ -445,5 +447,5 @@ _paste_to_tempfile() {
 
   _info 'Copying clipboard contents to temporary file: '"${file}"
   pbpaste > "${file}"
-  _pbcopy <<< "${file}"
+  _clipboard_copy <<< "${file}"
 }
