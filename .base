@@ -61,6 +61,12 @@ _safe
 # shellcheck source=.aliases
 source "$HOME/.aliases"
 
+# zsh's _compadd claims every command starting with '_' so our functions would
+# otherwise complete compadd flags instead of falling back to file paths.
+if [[ -n "${ZSH_VERSION:-}" ]]; then
+  unset '_postpatcomps[_*]'
+fi
+
 export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:$HOME/.local/bin:$PATH"
 
 export JAVA_HOME="$(find /opt/homebrew/Cellar/openjdk -type d -maxdepth 1 -mindepth 1 | tail)/libexec/openjdk.jdk/Contents/Home"
