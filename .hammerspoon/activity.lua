@@ -11,12 +11,20 @@ local eventTypes = {
   [hs.caffeinate.watcher.screensDidUnlock] = 'unlock',
 }
 
+local function localTimestamp()
+  local offset = os.date('%z')
+  return os.date('%Y-%m-%dT%H:%M:%S') .. offset:sub(1, 3) .. ':' .. offset:sub(4, 5)
+end
+
 local function append(eventType)
-  local entries = hs.json.read(mod.path) or {}
-  table.insert(entries, {type = eventType, timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ')})
-  if not hs.json.write(entries, mod.path, true, true) then
-    logger.ef('Failed to write %s event to %s', eventType, mod.path)
+  local line = hs.json.encode({type = eventType, timestamp = localTimestamp()})
+  local file, err = io.open(mod.path, 'a')
+  if not file then
+    logger.ef('Failed to open %s for %s event: %s', mod.path, eventType, err)
+    return
   end
+  file:write(line, '\n')
+  file:close()
 end
 
 local function handleEvent(event)
@@ -27,7 +35,7 @@ local function handleEvent(event)
   end
 end
 
---- Start recording screen lock and unlock events to ~/.activity.json.
+--- Start recording screen lock and unlock events as JSON Lines to ~/.activity.json.
 function mod.init()
   watcher = hs.caffeinate.watcher.new(handleEvent)
   watcher:start()
