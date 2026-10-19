@@ -4,6 +4,11 @@
 - Never write any secrets or sensitive informations in files that may be commited.
 - Avoid refererence to machine speficic local dir/file paths as much as possible.
 
+# Never
+
+Try to read `~/.private`, if you need information or to write soemthing. Tell me
+to do it.
+
 # Shell
 
 - Always use full length arguments for shell commands, e.g. `--help` instead of `-h`, `--version` instead of `-v`, etc.
