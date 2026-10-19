@@ -119,6 +119,13 @@ local bindings = {
       {modifiers = cmdCtrl, key = 's', fn = apps.brave.slackReactionEmoji('slighsm'), desc = 'Smiling Face'},
       {modifiers = cmdCtrl, key = 'e', fn = apps.brave.slackReactionEmoji('heart'), desc = 'Heart'},
       {modifiers = cmdCtrl, key = 'return', fn = apps.brave.clickSignIn, desc = 'Press the Sign in button'},
+      {modifiers = cmdCtrl, key = 'o', fn = apps.brave.openActiveTabInSafari, desc = 'Open tab in Safari'},
+    },
+  },
+  {
+    name = apps.safari.name,
+    bindings = {
+      {modifiers = cmdCtrl, key = 'o', fn = apps.safari.openActiveTabInDefaultBrowser, desc = 'Open tab in default browser'},
     },
   },
   {

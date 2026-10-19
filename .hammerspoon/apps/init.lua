@@ -15,6 +15,7 @@ local mod = {
   messages = require 'apps/messages',
   notificationCenter = require 'apps/notification_center',
   reminders = require 'apps/reminders',
+  safari = require 'apps/safari',
   slack = require 'apps/slack',
   zoom = require 'apps/zoom',
 }

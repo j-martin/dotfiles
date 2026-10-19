@@ -121,4 +121,14 @@ function mod.context()
   return {title = tab[1], url = tab[2]}
 end
 
+--- Opens the URL of the active tab in Safari.
+function mod.openActiveTabInSafari()
+  local tab = mod.context()
+  if not tab then
+    logger.e('Could not get the URL of the active Brave tab.')
+    return
+  end
+  hs.urlevent.openURLWithBundle(tab.url, 'com.apple.Safari')
+end
+
 return mod
