@@ -17,6 +17,8 @@ to do it.
 - There is `~/.private/profile` for config I do not want to be public.
 - `shellcheck` must pass
 - "Like" python, functions should start with `_` and private functions should start with `__`
+- Before implenting a new function check if we have matching ones. e.g. `_fzf_` etc.
+- fuzzy ==> `_fzf` functions
 
 # Hammersppon
 
