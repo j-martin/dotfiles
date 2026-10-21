@@ -33,5 +33,7 @@
 --follow
 --hidden
 
---glob=!{.git,node_modules,out}/
+--glob=!node_modules/
+--glob=!**/.git/{objects,refs,rr-cache,logs,lfs,modules,worktrees}/
+--glob=!**/.git/{packed-refs,index,FETCH_HEAD,ORIG_HEAD}
 --glob=!*.lock
