@@ -1,0 +1,111 @@
+[tools]
+# Languages
+node = "20"
+python = "3.11"
+ruby = "latest"
+rust = "latest"
+deno = "latest"
+
+# Package managers / build
+pnpm = "latest"
+yarn = "latest"
+poetry = "latest"
+uv = "latest"
+gradle = "latest"
+cmake = "latest"
+task = "latest"
+just = "latest"
+lefthook = "latest"
+
+# CLI utilities
+bat = "latest"
+fd = "latest"
+fzf = "latest"
+ripgrep = "latest"
+jq = "latest"
+yq = "latest"
+jless = "latest"
+hexyl = "latest"
+hyperfine = "latest"
+difftastic = "latest"
+delta = "latest"
+cloc = "latest"
+croc = "latest"
+gum = "latest"
+mole = "latest"
+rclone = "latest"
+duckdb = "latest"
+exiftool = "latest"
+poppler = "latest"
+"aqua:sibprogrammer/xq" = "latest"
+"github:alexpovel/srgn" = "latest"
+"cargo:mergiraf" = "latest"
+
+# Git / VCS
+gh = "latest"
+jj = "latest"
+lazygit = "latest"
+act = "latest"
+
+# Editors / terminal
+neovim = "latest"
+tmux = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+
+# Go tooling
+gofumpt = "latest"
+protoc-gen-go = "latest"
+cue = "latest"
+
+# Containers / Kubernetes
+dive = "latest"
+docker-compose = "latest"
+lima = "latest"
+container = "latest"
+kind = "latest"
+k9s = "latest"
+helm = "latest"
+krew = "latest"
+kustomize = "latest"
+kubeseal = "latest"
+kube-linter = "latest"
+kube-score = "latest"
+argocd = "latest"
+
+# Infra / cloud
+terraform = "latest"
+pulumi = "latest"
+atlas = "latest"
+caddy = "latest"
+ollama = "latest"
+"aqua:binwiederhier/ntfy" = "latest"
+"github:launchdarkly/ldcli" = "latest"
+
+# Databases
+mysql = "8.4"
+redis = "latest"
+
+# Quality / security
+allure = "latest"
+snyk = "latest"
+sonar-scanner-cli = "latest"
+"npm:renovate" = "latest"
+"pypi:detect-secrets" = "latest"
+
+# AI / dev CLIs
+claude = "latest"
+codex = "latest"
+copilot-cli = "latest"
+1password-cli = "latest"
+mitmproxy = "latest"
+
+# Python CLIs
+"pypi:bpython" = "latest"
+"pypi:pgcli" = "latest"
+"pypi:mycli" = "latest"
+"pypi:keyring" = "latest"
+"pypi:gcalcli" = "latest"
+"pypi:jiratui" = "latest"
+"pypi:icdiff" = "latest"
+"pypi:speedtest-cli" = "latest"
