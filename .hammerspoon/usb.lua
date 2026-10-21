@@ -2,6 +2,7 @@ local logger = hs.logger.new('usb', 'debug')
 
 local appsUtils = require "apps/utils"
 local audio = require "audio"
+local kinesis = require "kinesis"
 local process = require "utils/process"
 local screen = require 'screen'
 
@@ -10,8 +11,7 @@ local mod = {
   switchDesk = 'switch.office_desk'
 }
 
--- Global USB handler to workaround.
--- There seems to be a bug where the USB handler will stop responding after the first invocation.
+-- Kept at module level so it is not garbage collected.
 local globalHandler = nil
 
 -- Event Example
@@ -81,20 +81,14 @@ local function buildGlobalHandler(watchedEvents)
 
   local handlers = hs.fnutils.map(watchedEvents, buildHandler)
 
-  local lastExecuted = 0
-
   return function(event)
     logger.d(hs.inspect(event))
-    hs.fnutils.each(handlers, function(handler) handler(event) end)
-
-    -- Trying to prevent too many executions
-    local currentEpoch = process.getEpoch()
-    -- Workaround the watcher hanging after a few execution.
-    if lastExecuted + 2 <  currentEpoch then
-      logger.d('Restarting USB event handler...')
-      globalHandler:stop():start()
-      lastExecuted = currentEpoch
+    -- Some devices (e.g. the keyboard behind the Kinesis hub) report an empty product name.
+    local hasProductName = event.productName ~= nil and event.productName ~= ''
+    if event.eventType == "added" and hasProductName then
+      hs.alert.show('USB connected: ' .. event.productName)
     end
+    hs.fnutils.each(handlers, function(handler) handler(event) end)
   end
 end
 
@@ -109,12 +103,17 @@ local watchedEvents = {
   -- ZV-1 with webcam in USB streaming mod
   {eventType = "added", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("office_call", "on")},
   {eventType = "removed", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("office_call", "off")},
+
+  -- Kinesis behind the physical USB switch (Mac <-> iPad)
+  {eventType = "added", productID = kinesis.productID, productName = "Kinesis Keyboard Hub", vendorID = kinesis.vendorID, vendorName = "PI Engineering", fn = kinesis.onConnected},
+  {eventType = "removed", productID = kinesis.productID, productName = "Kinesis Keyboard Hub", vendorID = kinesis.vendorID, vendorName = "PI Engineering", fn = kinesis.refreshLater},
 }
 
 function mod.init()
   local handlers = buildGlobalHandler(watchedEvents)
   globalHandler = hs.usb.watcher.new(handlers)
   globalHandler:start()
+  kinesis.init()
 end
 
 return mod

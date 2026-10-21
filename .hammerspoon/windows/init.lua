@@ -14,9 +14,18 @@ hs.grid.MARGINY = 0
 hs.window.animationDuration = 0
 hs.window.timeout(1)
 
-function mod.isUltraWide(win)
-  local frame = win:screen():frame()
+function mod.isUltraWideScreen(screen)
+  local frame = screen:frame()
   return frame.w / frame.h > 2
+end
+
+function mod.isUltraWide(win)
+  return mod.isUltraWideScreen(win:screen())
+end
+
+-- Returns true if any connected screen is an ultrawide.
+function mod.hasUltraWideScreen()
+  return hs.fnutils.some(hs.screen.allScreens(), mod.isUltraWideScreen)
 end
 
 function mod.applyLayout(commonLayout, selectedLayout)

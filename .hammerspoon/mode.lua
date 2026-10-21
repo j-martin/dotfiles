@@ -11,16 +11,22 @@ function mod.create(modifiers, key, name, bindings)
   local trigger = cheatsheet.modifiersString(modifiers) .. ' ' .. (key == 'space' and 'Space' or key:upper())
   cheatsheet.register(string.format('%s Mode (%s, then key)', name, trigger), bindings)
 
+  local alertId = nil
+
   function mode:entered()
-    hs.alert.show(name .. ' Mode', 120)
+    alertId = hs.alert.show(name .. ' Mode', 120)
   end
 
   local function exit()
     mode:exit()
   end
 
+  -- Not using closeAll to keep persistent alerts (e.g. kinesis) visible.
   function mode:exited()
-    hs.alert.closeAll()
+    if alertId then
+      hs.alert.closeSpecific(alertId)
+      alertId = nil
+    end
   end
 
   local function callAndExit(fn)
