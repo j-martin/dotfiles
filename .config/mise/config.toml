@@ -90,7 +90,6 @@ redis = "latest"
 allure = "latest"
 snyk = "latest"
 sonar-scanner-cli = "latest"
-"npm:renovate" = "latest"
 "pypi:detect-secrets" = "latest"
 
 # AI / dev CLIs
@@ -98,15 +97,13 @@ claude = "latest"
 codex = "latest"
 copilot-cli = "latest"
 1password-cli = "latest"
-mitmproxy = "latest"
 
 # Python CLIs
 "pypi:bpython" = "latest"
-"pypi:pgcli" = "latest"
+"pypi:pgcli" = { version = "latest", uvx_args = "--with psycopg[binary]" }
 "pypi:mycli" = "latest"
 "pypi:keyring" = "latest"
 "pypi:gcalcli" = "latest"
-"pypi:jiratui" = "latest"
 "pypi:icdiff" = "latest"
 "pypi:speedtest-cli" = "latest"
 "pypi:httpie" = "latest"
