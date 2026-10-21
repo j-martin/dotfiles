@@ -5,7 +5,7 @@ local mod = {}
 
 mod.name = 'Brave Browser'
 
-mod.tab = {slack = ' Alloy Slack', mail = {work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail'}}
+mod.tab = { slack = ' Alloy Slack', mail = { work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail' } }
 
 local function openSlack()
   mod.activateTab(mod.tab.slack)()
@@ -15,13 +15,13 @@ end
 function mod.slackQuickSwitcher()
   openSlack()
   utils.wait(2)
-  hs.eventtap.keyStroke({'cmd'}, 'k')
+  hs.eventtap.keyStroke({ 'cmd' }, 'k')
 end
 
 --- Returns a callback reacting to the hovered Slack message with the first emoji matching `chars`.
 function mod.slackReactionEmoji(chars)
   return function()
-    hs.eventtap.keyStroke({'cmd', 'shift'}, '\\')
+    hs.eventtap.keyStroke({ 'cmd', 'shift' }, '\\')
     utils.wait()
     hs.eventtap.keyStrokes(chars)
     utils.wait(20)
@@ -33,21 +33,21 @@ end
 function mod.slackUnread()
   openSlack()
   utils.wait()
-  hs.eventtap.keyStroke({'cmd', 'shift'}, 'a')
+  hs.eventtap.keyStroke({ 'cmd', 'shift' }, 'a')
 end
 
 --- Opens the tab search.
 function mod.openOmni()
-  utils.switchToAndType(mod.name, {'shift'}, 'o')
+  utils.switchToAndType(mod.name, { 'shift' }, 'o')
 end
 
-local signInLabels = {'^sign ?in$', '^log ?in$'}
+local signInLabels = { '^sign ?in$', '^log ?in$' }
 
 local function isSignInButton(element)
   if element.AXRole ~= 'AXButton' then
     return false
   end
-  for _, attribute in ipairs({'AXTitle', 'AXDescription'}) do
+  for _, attribute in ipairs({ 'AXTitle', 'AXDescription' }) do
     local label = element[attribute]
     if type(label) == 'string' then
       label = label:lower():match('^%s*(.-)%s*$')
@@ -78,7 +78,7 @@ function mod.clickSignIn()
       return
     end
     results[1]:performAction('AXPress')
-  end, isSignInButton, {count = 1})
+  end, isSignInButton, { count = 1 })
 end
 
 --- Returns a callback activating the first tab whose title contains `name`.
@@ -113,12 +113,12 @@ end
 
 --- Returns the title and URL of the active tab.
 function mod.context()
-  local ok, tab = hs.osascript.javascript(
-    "const t = Application('" .. mod.name .. "').windows[0].activeTab(); [t.title(), t.url()]")
+  local ok, tab =
+    hs.osascript.javascript("const t = Application('" .. mod.name .. "').windows[0].activeTab(); [t.title(), t.url()]")
   if not ok or type(tab) ~= 'table' then
     return nil
   end
-  return {title = tab[1], url = tab[2]}
+  return { title = tab[1], url = tab[2] }
 end
 
 --- Opens the URL of the active tab in Safari.

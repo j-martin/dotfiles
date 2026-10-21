@@ -1,14 +1,14 @@
 local logger = hs.logger.new('usb', 'debug')
 
-local appsUtils = require "apps/utils"
-local audio = require "audio"
-local kinesis = require "kinesis"
-local process = require "utils/process"
+local appsUtils = require 'apps/utils'
+local audio = require 'audio'
+local kinesis = require 'kinesis'
+local process = require 'utils/process'
 local screen = require 'screen'
 
 local mod = {
   switchLights = 'switch.desk_lights',
-  switchDesk = 'switch.office_desk'
+  switchDesk = 'switch.office_desk',
 }
 
 -- Kept at module level so it is not garbage collected.
@@ -48,7 +48,7 @@ function mod.officeAutomation(scene, command)
         -- hs.urlevent.openURL("neewerlite://turnOffLight")
       end
     end
-    process.start(appsUtils.getExecPath('office-automation'), {'--scene', scene, command }, nil, 10)
+    process.start(appsUtils.getExecPath('office-automation'), { '--scene', scene, command }, nil, 10)
     if scene == 'desk' and command == 'off' then
       hs.itunes.pause()
       hs.caffeinate.systemSleep()
@@ -72,7 +72,7 @@ local function buildGlobalHandler(watchedEvents)
       local hasBeenDebounced = (watchedEvent.lastExecuted or 0) + 2 < currentEpoch
 
       if isEventType and isProductID and isVendorID and hasBeenDebounced then
-        logger.df("event matched %s", hs.inspect(watchedEvent))
+        logger.df('event matched %s', hs.inspect(watchedEvent))
         watchedEvent.lastExecuted = currentEpoch
         watchedEvent.fn()
       end
@@ -85,10 +85,12 @@ local function buildGlobalHandler(watchedEvents)
     logger.d(hs.inspect(event))
     -- Some devices (e.g. the keyboard behind the Kinesis hub) report an empty product name.
     local hasProductName = event.productName ~= nil and event.productName ~= ''
-    if event.eventType == "added" and hasProductName then
+    if event.eventType == 'added' and hasProductName then
       hs.alert.show('USB connected: ' .. event.productName)
     end
-    hs.fnutils.each(handlers, function(handler) handler(event) end)
+    hs.fnutils.each(handlers, function(handler)
+      handler(event)
+    end)
   end
 end
 
@@ -101,12 +103,40 @@ local watchedEvents = {
   -- {eventType = "removed", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
 
   -- ZV-1 with webcam in USB streaming mod
-  {eventType = "added", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("office_call", "on")},
-  {eventType = "removed", productID = 3556, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("office_call", "off")},
+  {
+    eventType = 'added',
+    productID = 3556,
+    productName = 'ZV-1',
+    vendorID = 1356,
+    vendorName = 'Sony',
+    fn = mod.officeAutomation('office_call', 'on'),
+  },
+  {
+    eventType = 'removed',
+    productID = 3556,
+    productName = 'ZV-1',
+    vendorID = 1356,
+    vendorName = 'Sony',
+    fn = mod.officeAutomation('office_call', 'off'),
+  },
 
   -- Kinesis behind the physical USB switch (Mac <-> iPad)
-  {eventType = "added", productID = kinesis.productID, productName = "Kinesis Keyboard Hub", vendorID = kinesis.vendorID, vendorName = "PI Engineering", fn = kinesis.onConnected},
-  {eventType = "removed", productID = kinesis.productID, productName = "Kinesis Keyboard Hub", vendorID = kinesis.vendorID, vendorName = "PI Engineering", fn = kinesis.refreshLater},
+  {
+    eventType = 'added',
+    productID = kinesis.productID,
+    productName = 'Kinesis Keyboard Hub',
+    vendorID = kinesis.vendorID,
+    vendorName = 'PI Engineering',
+    fn = kinesis.onConnected,
+  },
+  {
+    eventType = 'removed',
+    productID = kinesis.productID,
+    productName = 'Kinesis Keyboard Hub',
+    vendorID = kinesis.vendorID,
+    vendorName = 'PI Engineering',
+    fn = kinesis.refreshLater,
+  },
 }
 
 function mod.init()

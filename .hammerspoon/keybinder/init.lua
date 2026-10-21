@@ -3,13 +3,13 @@ local windows = require 'windows'
 local apps = require 'apps'
 local cheatsheet = require 'keybinder/cheatsheet'
 
-local hyper = {'cmd', 'alt', 'ctrl'}
-local hyperShift = {'cmd', 'alt', 'ctrl', 'shift'}
+local hyper = { 'cmd', 'alt', 'ctrl' }
+local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
 local globalBindings = '*'
 
 hs.hotkey.alertDuration = 2.5
 
-local mod = {cmd = {'cmd'}, hyper = hyper, globalBindings = globalBindings}
+local mod = { cmd = { 'cmd' }, hyper = hyper, globalBindings = globalBindings }
 
 function enableBindings(bindings, window)
   for _, binding in pairs(bindings) do
@@ -54,7 +54,7 @@ local function bind(binding)
   if fn == nil then
     logger.ef('Missing binding function for: %s', hs.inspect(binding))
   end
-  binding.hotkey = hs.hotkey.new(modifiers, binding.key, fn, message)
+  binding.hotkey = hs.hotkey.new(modifiers, binding.key, fn)
   return binding
 end
 

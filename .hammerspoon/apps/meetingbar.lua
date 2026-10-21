@@ -28,11 +28,11 @@ function mod.restart()
 
   logger.i('Restarting MeetingBar')
   app:kill()
-  hs.timer.waitWhile(
-    function() return hs.application.get(bundleID) ~= nil end,
-    function() hs.application.open(bundleID) end,
-    0.5
-  )
+  hs.timer.waitWhile(function()
+    return hs.application.get(bundleID) ~= nil
+  end, function()
+    hs.application.open(bundleID)
+  end, 0.5)
 end
 
 local function restartWhenOnline()
@@ -41,19 +41,15 @@ local function restartWhenOnline()
   end
 
   local startedAt = os.time()
-  pendingTimer = hs.timer.waitUntil(
-    function()
-      return isNetworkReachable() or os.time() - startedAt > networkTimeoutSeconds
-    end,
-    function()
-      pendingTimer = nil
-      if not isNetworkReachable() then
-        logger.w('Network still unreachable after wake, restarting MeetingBar anyway')
-      end
-      mod.restart()
-    end,
-    pollIntervalSeconds
-  )
+  pendingTimer = hs.timer.waitUntil(function()
+    return isNetworkReachable() or os.time() - startedAt > networkTimeoutSeconds
+  end, function()
+    pendingTimer = nil
+    if not isNetworkReachable() then
+      logger.w('Network still unreachable after wake, restarting MeetingBar anyway')
+    end
+    mod.restart()
+  end, pollIntervalSeconds)
 end
 
 local function handleSleepEvent(event)

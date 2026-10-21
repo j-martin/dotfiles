@@ -7,7 +7,7 @@ local closer
 -- Sections registered by the binding modules, in registration order.
 local registry = {}
 
-local modifierSymbols = {cmd = '⌘', alt = '⌥', ctrl = '⌃', shift = '⇧'}
+local modifierSymbols = { cmd = '⌘', alt = '⌥', ctrl = '⌃', shift = '⇧' }
 
 -- Render a modifier list, e.g. {'cmd', 'alt', 'ctrl'} -> '⌘⌥⌃'.
 function mod.modifiersString(modifiers)
@@ -26,7 +26,7 @@ function mod.register(title, bindings)
       return
     end
   end
-  table.insert(registry, {title = title, bindings = bindings})
+  table.insert(registry, { title = title, bindings = bindings })
 end
 
 function mod.close()
@@ -70,9 +70,14 @@ local function renderSection(section, fnNames)
     if binding.modifiers then
       key = mod.modifiersString(binding.modifiers) .. key
     end
-    table.insert(rows, string.format(
-      '<div class="row"><span class="key">%s</span><span class="desc">%s</span></div>',
-      escapeHtml(key), escapeHtml(binding.desc or binding.name or fnNames[binding.fn] or '?')))
+    table.insert(
+      rows,
+      string.format(
+        '<div class="row"><span class="key">%s</span><span class="desc">%s</span></div>',
+        escapeHtml(key),
+        escapeHtml(binding.desc or binding.name or fnNames[binding.fn] or '?')
+      )
+    )
   end
   return string.format('<h2>%s</h2>%s', escapeHtml(section.title), table.concat(rows))
 end
@@ -103,12 +108,15 @@ function mod.show(sections)
     table.insert(rendered, renderSection(section, fnNames))
   end
 
-  local html = '<html><head><style>' .. style .. '</style></head><body><div class="cols">'
+  local html = '<html><head><style>'
+    .. style
+    .. '</style></head><body><div class="cols">'
     .. table.concat(rendered)
     .. '</div><div class="hint">Esc / q to close</div></body></html>'
 
-  view = hs.webview.new(hs.screen.mainScreen():fullFrame())
-    :windowStyle({'borderless'})
+  view = hs.webview
+    .new(hs.screen.mainScreen():fullFrame())
+    :windowStyle({ 'borderless' })
     :level(hs.drawing.windowLevels.modalPanel)
     :transparent(true)
     :allowTextEntry(false)

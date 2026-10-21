@@ -2,7 +2,6 @@ Stack = {}
 
 -- Create a Table with stack functions
 function Stack:Create()
-
   -- stack table
   local t = {}
   -- entry table
@@ -11,7 +10,7 @@ function Stack:Create()
   -- push a value on to the stack
   function t:push(...)
     if ... then
-      local targs = {...}
+      local targs = { ... }
       -- add values
       for _, v in ipairs(targs) do
         table.insert(self._et, v)
@@ -21,7 +20,6 @@ function Stack:Create()
 
   -- pop a value from the stack
   function t:pop(num)
-
     -- get num values from stack
     local num = num or 1
 
@@ -40,7 +38,7 @@ function Stack:Create()
       end
     end
     -- return unpacked entries
-    return unpack(entries)
+    return table.unpack(entries)
   end
 
   -- get entries

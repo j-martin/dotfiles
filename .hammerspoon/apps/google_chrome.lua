@@ -49,11 +49,11 @@ function mod.moveTabsToDefaultBrowser()
     urls;
   ]])
   if not ok or type(urls) ~= 'table' then
-    logger.e("Could not get the URLs of the Google Chrome tabs.")
+    logger.e('Could not get the URLs of the Google Chrome tabs.')
     return
   end
   if #urls == 0 then
-    logger.i("No Google Chrome tabs to move to the default browser.")
+    logger.i('No Google Chrome tabs to move to the default browser.')
     return
   end
 

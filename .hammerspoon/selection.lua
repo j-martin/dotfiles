@@ -2,7 +2,7 @@ local logger = hs.logger.new('selection', 'debug')
 
 local mod = {}
 
-local engines = {google = 'https://www.google.ca/search?q='}
+local engines = { google = 'https://www.google.ca/search?q=' }
 
 -- Emacs does not expose its region through accessibility
 local function selectedTextFromAccessibility()
@@ -24,7 +24,7 @@ end
 local function selectedTextFromClipboard()
   local before = hs.pasteboard.changeCount()
   local initial = hs.pasteboard.readString()
-  hs.eventtap.keyStroke({'cmd'}, 'c')
+  hs.eventtap.keyStroke({ 'cmd' }, 'c')
   hs.timer.usleep(150 * 1000)
   if hs.pasteboard.changeCount() == before then
     logger.d('Nothing copied, nothing is selected.')
@@ -43,8 +43,7 @@ function mod.getSelectedText()
 end
 
 local function openUrl(url)
-  hs.task.new('/usr/bin/open', nil, function()
-  end, {url}):start()
+  hs.task.new('/usr/bin/open', nil, function() end, { url }):start()
 end
 
 local function query(url, text)
@@ -58,10 +57,10 @@ end
 function mod.actOn(engine)
   return function()
     local text = mod.getSelectedText()
-    if text:gmatch("https?://")() then
+    if text:gmatch('https?://')() then
       openUrl(text)
       -- TODO: Cleanup silly regex
-    elseif text:gmatch("1%d%d%d%d%d%d%d%d%d+")() then
+    elseif text:gmatch('1%d%d%d%d%d%d%d%d%d+')() then
       mod.epochSinceNow(text)
     else
       google(text, engine)
@@ -72,9 +71,9 @@ end
 function mod.paste()
   local content = hs.pasteboard.getContents()
   hs.alert("Pasting/Typing: '" .. content .. "'")
-  for line in content:gmatch("[^\r\n]+") do
+  for line in content:gmatch('[^\r\n]+') do
     hs.eventtap.keyStrokes(line)
-    hs.eventtap.keyStroke({}, "return")
+    hs.eventtap.keyStroke({}, 'return')
   end
 end
 
@@ -91,8 +90,16 @@ function mod.epochSinceNow(text)
   end
 
   local diff = initial - selection
-  hs.alert.show(round(diff / 60) .. ' mins / ' .. round(diff / 60 / 60) .. ' hours / ' .. round(diff / 60 / 60 / 24)
-               .. ' days / ' .. round(diff / 60 / 60 / 24 / 30) .. ' months ago')
+  hs.alert.show(
+    round(diff / 60)
+      .. ' mins / '
+      .. round(diff / 60 / 60)
+      .. ' hours / '
+      .. round(diff / 60 / 60 / 24)
+      .. ' days / '
+      .. round(diff / 60 / 60 / 24 / 30)
+      .. ' months ago'
+  )
 end
 
 return mod

@@ -1,4 +1,4 @@
-local headphones_watcher = require "audio/headphones_watcher"
+local headphones_watcher = require 'audio/headphones_watcher'
 
 local mod = {}
 
@@ -12,15 +12,15 @@ mod.volumes[appleUSBWithDT1990Pro] = 25
 local inputDeviceCheckSeconds = 30
 
 inputDevicePriority = {
-  "RØDE VideoMic GO II",
-  "Samson Q2U Microphone",
-  "MacBook Pro Microphone",
+  'RØDE VideoMic GO II',
+  'Samson Q2U Microphone',
+  'MacBook Pro Microphone',
 }
 
 outputDevicePriority = {
-  "WH-1000XM3",
+  'WH-1000XM3',
   appleUSBWithDT1990Pro,
-  dacName
+  dacName,
 }
 
 -- Sets the default input to the first connected device of `inputDevicePriority`, alerting only when it changes.
@@ -33,7 +33,7 @@ function mod.setDefaultInputDevice()
         return
       end
       if device:setDefaultInputDevice() then
-        hs.alert.show("Input Device: " .. deviceName)
+        hs.alert.show('Input Device: ' .. deviceName)
         return
       end
     end
@@ -48,7 +48,7 @@ function mod.setDefaultOutputDevice()
       hs.alert.show('x')
     elseif device then
       device:setDefaultOutputDevice()
-      hs.alert.show("Output Device: " .. deviceName)
+      hs.alert.show('Output Device: ' .. deviceName)
       return
     end
   end

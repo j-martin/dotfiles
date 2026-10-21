@@ -18,15 +18,43 @@ local defaultHour = 9
 local tonightHour = 20
 
 local units = {
-  m = 60, min = 60, mins = 60, minute = 60, minutes = 60,
-  h = 3600, hr = 3600, hrs = 3600, hour = 3600, hours = 3600,
-  d = 86400, day = 86400, days = 86400,
-  w = 604800, wk = 604800, week = 604800, weeks = 604800,
+  m = 60,
+  min = 60,
+  mins = 60,
+  minute = 60,
+  minutes = 60,
+  h = 3600,
+  hr = 3600,
+  hrs = 3600,
+  hour = 3600,
+  hours = 3600,
+  d = 86400,
+  day = 86400,
+  days = 86400,
+  w = 604800,
+  wk = 604800,
+  week = 604800,
+  weeks = 604800,
 }
 
 local weekdays = {
-  sun = 1, sunday = 1, mon = 2, monday = 2, tue = 3, tues = 3, tuesday = 3, wed = 4, wednesday = 4,
-  thu = 5, thur = 5, thurs = 5, thursday = 5, fri = 6, friday = 6, sat = 7, saturday = 7,
+  sun = 1,
+  sunday = 1,
+  mon = 2,
+  monday = 2,
+  tue = 3,
+  tues = 3,
+  tuesday = 3,
+  wed = 4,
+  wednesday = 4,
+  thu = 5,
+  thur = 5,
+  thurs = 5,
+  thursday = 5,
+  fri = 6,
+  friday = 6,
+  sat = 7,
+  saturday = 7,
 }
 
 -- Strip a trailing day word; returns rest, days offset from today (or nil), default hour
@@ -102,19 +130,23 @@ function mod.parse(text, nowEpoch)
   end
 
   local due = os.time({
-    year = now.year, month = now.month, day = now.day + (days or 0),
-    hour = hour or dayHour or defaultHour, min = minute or 0, sec = 0,
+    year = now.year,
+    month = now.month,
+    day = now.day + (days or 0),
+    hour = hour or dayHour or defaultHour,
+    min = minute or 0,
+    sec = 0,
   })
   -- A bare time that already passed means tomorrow
   if not days and due <= nowEpoch then
-    due = os.time({year = now.year, month = now.month, day = now.day + 1, hour = hour, min = minute, sec = 0})
+    due = os.time({ year = now.year, month = now.month, day = now.day + 1, hour = hour, min = minute, sec = 0 })
   end
   return title, due
 end
 
 --- Creates a reminder in `mod.list`. Returns ok, and an error message when not ok.
 function mod.create(title, due, notes)
-  local params = hs.json.encode({name = title, due = due, list = mod.list, notes = notes})
+  local params = hs.json.encode({ name = title, due = due, list = mod.list, notes = notes })
   local script = [[
     const p = ]] .. params .. [[;
     const app = Application(']] .. mod.name .. [[');
@@ -140,7 +172,7 @@ end
 
 -- Title, link and details, one per line
 local function __describe(context)
-  local lines = {context.title}
+  local lines = { context.title }
   if context.url then
     table.insert(lines, context.url)
   end
@@ -157,7 +189,7 @@ function mod.add()
   local window = hs.window.focusedWindow()
   local context = apps.context(window)
   if not context and window then
-    context = {title = window:application():name() .. ' — ' .. window:title()}
+    context = { title = window:application():name() .. ' — ' .. window:title() }
   end
   local selected = context and context.selection or selection.getSelectedText()
   local raw = selected:gsub('^%s+', ''):gsub('%s+$', '')

@@ -6,12 +6,12 @@ mod.name = 'Safari'
 
 --- Returns the title and URL of the active tab.
 function mod.context()
-  local ok, tab = hs.osascript.javascript(
-    "const t = Application('" .. mod.name .. "').windows[0].currentTab(); [t.name(), t.url()]")
+  local ok, tab =
+    hs.osascript.javascript("const t = Application('" .. mod.name .. "').windows[0].currentTab(); [t.name(), t.url()]")
   if not ok or type(tab) ~= 'table' then
     return nil
   end
-  return {title = tab[1], url = tab[2]}
+  return { title = tab[1], url = tab[2] }
 end
 
 --- Opens the URL of the active tab in the default browser.

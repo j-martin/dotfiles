@@ -10,7 +10,7 @@ hs.application.enableSpotlightForNameSearches(true)
 ---------------------------------------------------------
 
 local function isFunction(a)
-  return type(a) == "function"
+  return type(a) == 'function'
 end
 
 -- gets propery or method value
@@ -58,8 +58,8 @@ local mouseCircleTimer = nil
 
 function mod.mouseHighlight()
   -- Delete an existing highlight if it exists
-  result(mouseCircle, "delete")
-  result(mouseCircleTimer, "stop")
+  result(mouseCircle, 'delete')
+  result(mouseCircleTimer, 'stop')
 
   -- Get the current co-ordinates of the mouse pointer
   local mousePoint = hs.mouse.getAbsolutePosition()
@@ -68,7 +68,7 @@ function mod.mouseHighlight()
 
   local circle = hs.geometry.rect(mousePoint.x - (radius / 2), mousePoint.y - (radius / 2), radius, radius)
 
-  local fillColor = {red = 0.5, blue = 0.5, green = 0.5, alpha = 1}
+  local fillColor = { red = 0.5, blue = 0.5, green = 0.5, alpha = 1 }
 
   mouseCircle = hs.drawing.circle(circle)
   mouseCircle:setFillColor(fillColor)
@@ -181,9 +181,9 @@ function mod.launchOrCycleFocus(applicationName)
     end
     if applicationName == 'GoLand' then
       local windowTitle = targetWindow:title()
-      print("Forefront window title: " .. windowTitle)
-      if windowTitle == "File Cache Conflict" then
-        hs.eventtap.keyStroke({"alt"}, "l")
+      print('Forefront window title: ' .. windowTitle)
+      if windowTitle == 'File Cache Conflict' then
+        hs.eventtap.keyStroke({ 'alt' }, 'l')
       end
     end
     -- mod.mouseHighlight()

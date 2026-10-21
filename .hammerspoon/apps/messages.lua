@@ -24,13 +24,17 @@ local function escapeAppleScript(text)
 end
 
 local function send(recipient, text)
-  local script = string.format([[
+  local script = string.format(
+    [[
     tell application "Messages"
       set targetService to 1st account whose service type = iMessage
       set targetParticipant to participant "%s" of targetService
       send "%s" to targetParticipant
     end tell
-  ]], escapeAppleScript(recipient), escapeAppleScript(text))
+  ]],
+    escapeAppleScript(recipient),
+    escapeAppleScript(text)
+  )
   local ok, _, details = hs.osascript.applescript(script)
   if not ok then
     logger.ef('Could not send the iMessage to %s: %s', recipient, hs.inspect(details))

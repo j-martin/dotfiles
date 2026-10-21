@@ -14,7 +14,7 @@ local function clickNotification(offset_x, offset_y)
     offset_y = offset_y + 40
   end
 
-  local targetPos = {x = targetFrame.w - offset_x, y = offset_y}
+  local targetPos = { x = targetFrame.w - offset_x, y = offset_y }
 
   hs.mouse.setRelativePosition(targetPos, targetScreen)
   utils.wait(5)

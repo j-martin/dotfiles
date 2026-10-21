@@ -5,7 +5,7 @@ local mod = {}
 
 --- Returns the full path of an executable installed by Homebrew or in ~/bin, or its name if not found.
 function mod.getExecPath(exec)
-  local dirs = {'/opt/homebrew/bin/', '/usr/local/bin/', os.getenv("HOME") .. "/bin/"}
+  local dirs = { '/opt/homebrew/bin/', '/usr/local/bin/', os.getenv('HOME') .. '/bin/' }
   for _, dir in ipairs(dirs) do
     local path = dir .. exec
     if hs.fs.attributes(path) then

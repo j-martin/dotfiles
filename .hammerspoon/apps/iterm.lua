@@ -8,7 +8,7 @@ local maxCommandLength = 200
 
 --- Opens the iTerm2 Open Quickly window.
 function mod.omni()
-  utils.switchToAndType(mod.name, {'cmd'}, 'o')
+  utils.switchToAndType(mod.name, { 'cmd' }, 'o')
 end
 
 --- Returns the current session title, directory, host and running command.
@@ -22,7 +22,7 @@ function mod.context()
     return nil
   end
   local title, path, host, user, job, commandLine = table.unpack(session)
-  local details = {user .. '@' .. host}
+  local details = { user .. '@' .. host }
   if #commandLine > maxCommandLength then
     table.insert(details, '$ ' .. commandLine:sub(1, maxCommandLength) .. '…')
   elseif commandLine ~= '' then
@@ -30,7 +30,7 @@ function mod.context()
   elseif job ~= '' then
     table.insert(details, '$ ' .. job)
   end
-  return {title = title, url = path, details = details}
+  return { title = title, url = path, details = details }
 end
 
 return mod

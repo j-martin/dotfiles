@@ -1,7 +1,7 @@
 local logger = hs.logger.new('activity', 'debug')
 
 local mod = {
-  path = os.getenv('HOME') .. '/.activity.json'
+  path = os.getenv('HOME') .. '/.activity.json',
 }
 
 local watcher = nil
@@ -12,12 +12,12 @@ local eventTypes = {
 }
 
 local function localTimestamp()
-  local offset = os.date('%z')
-  return os.date('%Y-%m-%dT%H:%M:%S') .. offset:sub(1, 3) .. ':' .. offset:sub(4, 5)
+  local offset = os.date('%z') --[[@as string]]
+  return os.date('%Y-%m-%dT%H:%M:%S') --[[@as string]] .. offset:sub(1, 3) .. ':' .. offset:sub(4, 5)
 end
 
 local function append(eventType)
-  local line = hs.json.encode({type = eventType, timestamp = localTimestamp()})
+  local line = hs.json.encode({ type = eventType, timestamp = localTimestamp() })
   local file, err = io.open(mod.path, 'a')
   if not file then
     logger.ef('Failed to open %s for %s event: %s', mod.path, eventType, err)

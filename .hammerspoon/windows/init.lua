@@ -1,4 +1,4 @@
-local ext = require "windows/extensions"
+local ext = require 'windows/extensions'
 local logger = hs.logger.new('windows', 'debug')
 
 local mod = {}
@@ -36,7 +36,7 @@ function mod.applyLayout(commonLayout, selectedLayout)
     else
       scr = hs.screen.primaryScreen():name()
     end
-    return {entry.name, nil, scr, entry.pos, nil, nil}
+    return { entry.name, nil, scr, entry.pos, nil, nil }
   end
 
   return function()
@@ -51,12 +51,14 @@ local function toUnitRect(win)
   end
 
   local unitRect = hs.fnutils.map(win:screen():toUnitRect(win:frame()), round)
-  return {unitRect._x, unitRect._y, unitRect._w, unitRect._h}
+  return { unitRect._x, unitRect._y, unitRect._w, unitRect._h }
 end
 
 local function isSamePos(currentPos, previousPos)
-  return currentPos[0] == previousPos[0] and currentPos[1] == previousPos[1] and currentPos[2] == previousPos[2]
-           and currentPos[3] == previousPos[3]
+  return currentPos[0] == previousPos[0]
+    and currentPos[1] == previousPos[1]
+    and currentPos[2] == previousPos[2]
+    and currentPos[3] == previousPos[3]
 end
 
 local function inPostions(currentPos, positions)
@@ -86,13 +88,12 @@ function mod.moveWindowTo(position, positionsUltraWide)
       _position = positionsUltraWide
     end
 
-
     if previousState and isSamePos(_position, winPos) then
       win:move(previousState.positionj, previousState.screen)
       previousStates[winKey] = nil
       logger.d('reverted to previousState')
     else
-      previousStates[winKey] = {screen = win:screen(), _position = winPos}
+      previousStates[winKey] = { screen = win:screen(), _position = winPos }
       win:move(_position)
       logger.d('saved previousState')
     end

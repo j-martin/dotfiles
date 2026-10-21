@@ -4,7 +4,7 @@ local mod = {}
 
 local running_processes = {}
 local HOME = os.getenv('HOME')
-local env = {PATH = '/usr/local/bin:/usr/bin:/bin', LC_ALL = 'en_US.UTF-8', LANG = 'en_US.UTF-8', HOME = HOME}
+local env = { PATH = '/usr/local/bin:/usr/bin:/bin', LC_ALL = 'en_US.UTF-8', LANG = 'en_US.UTF-8', HOME = HOME }
 
 local function returnCallback(exitCode, stdOut, stdErr)
   if exitCode ~= 0 then
@@ -24,12 +24,12 @@ local function streamCallback(_, stdOut, stdErr)
 end
 
 function getn(t)
-  if type(t.n) == "number" then
+  if type(t.n) == 'number' then
     return t.n
   end
   local max = 0
   for i, _ in t do
-    if type(i) == "number" and i > max then
+    if type(i) == 'number' and i > max then
       max = i
     end
   end
@@ -38,16 +38,16 @@ end
 
 local function cleanupProcess(process)
   task = process.task
-  logger.df("Checking if still running: %s", task:pid())
+  logger.df('Checking if still running: %s', task:pid())
   if not task:isRunning() then
-    logger.df("The process is not running anymore: %s", task:pid())
+    logger.df('The process is not running anymore: %s', task:pid())
     return false
   end
   if process.ttl < mod.getEpoch then
-    logger.df("Terminating due to TTL: %s", task:pid())
+    logger.df('Terminating due to TTL: %s', task:pid())
     task:terminate()
   end
-  logger.df("The process is still running: %s", task:pid())
+  logger.df('The process is still running: %s', task:pid())
   return true
 end
 
@@ -55,9 +55,8 @@ local function expand(path)
   return path:gsub('~', HOME)
 end
 
-
 function mod.getEpoch()
-  return os.time(os.date("!*t"))
+  return os.time(os.date('!*t') --[[@as osdateparam]])
 end
 
 function mod.start(cmd, args, pwd, ttl)
@@ -68,7 +67,7 @@ function mod.start(cmd, args, pwd, ttl)
   pwd = expand(pwd or '~/.bin')
 
   task = hs.task.new(cmd, returnCallback, streamCallback, args)
-  table.insert(running_processes, {task = task, ttl = mod.getEpoch() + (ttl or 30) })
+  table.insert(running_processes, { task = task, ttl = mod.getEpoch() + (ttl or 30) })
 
   logger.f('starting %s %s in %s', cmd, hs.inspect(args), pwd)
   task:setWorkingDirectory(pwd)

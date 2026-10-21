@@ -10,7 +10,7 @@ mod.name = 'Emacs'
 local emacsclientPath = utils.getExecPath('emacsclient')
 
 local function eval(sexp)
-  process.start('~/.bin/ec', {'--quiet', '--suppress-output', '--eval', sexp})
+  process.start('~/.bin/ec', { '--quiet', '--suppress-output', '--eval', sexp })
   hs.application.launchOrFocus(mod.name)
 end
 
@@ -19,7 +19,7 @@ local function evalInCurrentBuffer(sexp)
 end
 
 local function open(url)
-  process.start('~/.bin/ec', {'--quiet', '--suppress-output', url})
+  process.start('~/.bin/ec', { '--quiet', '--suppress-output', url })
   hs.application.launchOrFocus(mod.name)
 end
 
@@ -77,14 +77,18 @@ function mod.capture(captureTemplate)
     end
 
     local context = captureContext(focusedWindow)
-    local protocolUrl = 'org-protocol://capture?' .. 'title=' .. hs.http.encodeForQuery(context.title) .. '&url='
-                          .. hs.http.encodeForQuery(context.url) .. '&body='
-                          .. hs.http.encodeForQuery(context.body or '')
+    local protocolUrl = 'org-protocol://capture?'
+      .. 'title='
+      .. hs.http.encodeForQuery(context.title)
+      .. '&url='
+      .. hs.http.encodeForQuery(context.url)
+      .. '&body='
+      .. hs.http.encodeForQuery(context.body or '')
     if captureTemplate then
       protocolUrl = protocolUrl .. '&template=' .. captureTemplate
     end
 
-    logger.df("URL: %s", protocolUrl)
+    logger.df('URL: %s', protocolUrl)
     open(protocolUrl)
   end
 end

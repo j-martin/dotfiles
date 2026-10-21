@@ -69,7 +69,7 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
   local bundleId = 'com.brave.Browser'
   local url = fullUrl
   if mod.lastUrl == fullUrl then
-    logger.i("Same URL as before. Defaulting to Chrome...")
+    logger.i('Same URL as before. Defaulting to Chrome...')
     utils.open(bundleId, fullUrl)
     return
   end
@@ -82,7 +82,7 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
   end
 
   if not host then
-    logger.i("No host, assuming it is a file.")
+    logger.i('No host, assuming it is a file.')
     hs.urlevent.openURL(url:gsub('^http:[ab]/', 'file://'))
     return
   end

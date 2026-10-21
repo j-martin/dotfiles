@@ -18,7 +18,7 @@ mod.bundleId = 'com.tinyspeck.slackmacgap'
 mod.teamMapping = {
   -- slack domain (with or without '.slack.com') = "teamId"
   -- example:
-  afakecompany = "T00000000"
+  afakecompany = 'T00000000',
 }
 
 local prefixMapping = {
@@ -64,8 +64,16 @@ function mod.deepLink(url, encodedParams)
   if not urlPrefix or not teamId then
     return nil
   end
-  return 'slack://' .. urlPrefix .. '?team=' .. teamId .. '&id=' .. itemId .. '&message=' .. (messageId or '') .. '&'
-           .. encodedParams
+  return 'slack://'
+    .. urlPrefix
+    .. '?team='
+    .. teamId
+    .. '&id='
+    .. itemId
+    .. '&message='
+    .. (messageId or '')
+    .. '&'
+    .. encodedParams
 end
 
 -- e.g. "* Mike (DM) - Workspace - 2 new items - Slack" -> "Mike (DM) - Workspace"
@@ -108,7 +116,7 @@ function mod.messageUrl(element)
     if role == 'AXList' or role == 'AXWebArea' or role == 'AXWindow' then
       return nil
     end
-    local found = collectPermalinks(element, 8, 1, {count = 0})
+    local found = collectPermalinks(element, 8, 1, { count = 0 })
     if found.count > 1 then
       return nil
     elseif found.count == 1 then
@@ -140,16 +148,16 @@ function mod.context(window)
   utils.enableManualAccessibility(app)
   local messageUrl = selectedMessageUrl(app)
   if messageUrl then
-    return {title = cleanTitle(window:title()), url = messageUrl}
+    return { title = cleanTitle(window:title()), url = messageUrl }
   end
   local webArea = utils.findElement(hs.axuielement.windowElement(window), utils.hasRole('AXWebArea'), 8)
   local url = webArea and webArea:attributeValue('AXURL')
-  return {title = cleanTitle(window:title()), url = type(url) == 'table' and url.url or nil}
+  return { title = cleanTitle(window:title()), url = type(url) == 'table' and url.url or nil }
 end
 
 --- Loads the team mapping from ~/.private/hammerspoon.json.
 function mod.init()
-  local privateConfigPath = os.getenv('HOME') .. "/.private/hammerspoon.json"
+  local privateConfigPath = os.getenv('HOME') .. '/.private/hammerspoon.json'
   if hs.fs.attributes(privateConfigPath) then
     logger.f("Loading private config from '%s'...", privateConfigPath)
     mod.teamMapping = hs.json.read(privateConfigPath).slackTeamMapping or mod.teamMapping

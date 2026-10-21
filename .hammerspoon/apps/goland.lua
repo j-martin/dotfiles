@@ -6,8 +6,10 @@ mod.name = 'GoLand'
 
 local function isFocusedEditor(element)
   local description = element:attributeValue('AXDescription')
-  return element:attributeValue('AXRole') == 'AXTextArea' and element:attributeValue('AXFocused') == true
-           and type(description) == 'string' and description:match('^Editor for ') ~= nil
+  return element:attributeValue('AXRole') == 'AXTextArea'
+    and element:attributeValue('AXFocused') == true
+    and type(description) == 'string'
+    and description:match('^Editor for ') ~= nil
 end
 
 -- The focused element of GoLand is sometimes an invalid reference, so search the window as a fallback
@@ -58,7 +60,7 @@ function mod.context(window)
   local editor = focusedEditor(window, windowElement)
   file = editor and editor:attributeValue('AXDescription'):match('^Editor for (.+)$') or file
   if not file then
-    return {title = window:title()}
+    return { title = window:title() }
   end
   local root = projectRoot(windowElement)
   local path = root and filePath(root, file) or file
@@ -67,7 +69,7 @@ function mod.context(window)
     title = file,
     -- The line number is 0-based
     url = line and (path .. ':' .. (line + 1)) or path,
-    details = {'GoLand project: ' .. (root or project or '?')},
+    details = { 'GoLand project: ' .. (root or project or '?') },
     selection = editor and editor:attributeValue('AXSelectedText') or nil,
   }
 end

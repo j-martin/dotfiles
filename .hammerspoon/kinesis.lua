@@ -22,7 +22,12 @@ local function showAlert()
   if alertId then
     return
   end
-  alertId = hs.alert.show('⌨️ Kinesis is not connected (USB switch on iPad?)', hs.alert.defaultStyle, hs.screen.mainScreen(), true)
+  alertId = hs.alert.show(
+    '⌨️ Kinesis is not connected (USB switch on iPad?)',
+    hs.alert.defaultStyle,
+    hs.screen.mainScreen(),
+    true
+  )
 end
 
 local function closeAlert()

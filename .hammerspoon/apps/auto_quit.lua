@@ -5,8 +5,8 @@ local mod = {
   defaultTtl = 15 * 60,
   -- { bundleId = 'string', ttl = seconds (optional), prompt = true to ask before quitting (optional) }
   apps = {
-    {bundleId = 'com.apple.weather'},
-    {bundleId = 'com.autodesk.fusion360', prompt = true},
+    { bundleId = 'com.apple.weather' },
+    { bundleId = 'com.autodesk.fusion360', prompt = true },
   },
 }
 
@@ -28,7 +28,9 @@ local watchedEvents = {
 }
 
 local function findConfig(bundleId)
-  return hs.fnutils.find(mod.apps, function(config) return config.bundleId == bundleId end)
+  return hs.fnutils.find(mod.apps, function(config)
+    return config.bundleId == bundleId
+  end)
 end
 
 local function withdrawPrompt(bundleId)

@@ -4,7 +4,7 @@ local logger = hs.logger.new('hs.battery', 'debug')
 
 local mod = {}
 
-local state = {min = 40, remaining = 0}
+local state = { min = 40, remaining = 0 }
 
 local function watchBattery()
   local currentPercentage = hs.battery.percentage()
@@ -15,12 +15,12 @@ local function watchBattery()
   local isDischarging = hs.battery.powerSource() == 'Battery Power' or hs.battery.amperage() < 0
   local isMutlipleOf = (currentPercentage % 5 == 0)
 
-  logger.df("Current percentage: %s", currentPercentage)
+  logger.df('Current percentage: %s', currentPercentage)
   if isLowerThanMin and stateHasChanged and isDischarging and isMutlipleOf then
     state.remaining = currentPercentage
     local message = {
       title = hs.battery.title,
-      informativeText = 'Battery left: ' .. state.remaining .. "%\nPower Source: " .. source,
+      informativeText = 'Battery left: ' .. state.remaining .. '%\nPower Source: ' .. source,
     }
     hs.notify.new(message):send()
   end
