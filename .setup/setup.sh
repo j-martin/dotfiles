@@ -4,8 +4,6 @@ set -o errexit
 set -o pipefail
 set -x
 
-BINPATH="$(dirname "$0")"
-
 _macos_customizations () {
   sudo pmset -a standbydelay 86400
   sudo pmset -a sms 0
@@ -79,9 +77,10 @@ _macos_customizations () {
 _macos_apps () {
   xcode-select --install || true
   brew bundle --global
-
   brew cleanup
-  brew cask cleanup
+
+  curl --fail --silent --show-error --location https://mise.run | sh
+  "$HOME/.local/bin/mise" install
 
   which zsh \
     | head -n1 \
@@ -102,7 +101,6 @@ _general () {
 
   chsh -s "$(grep /zsh$ /etc/shells | tail -1)"
   npm install -g vmd
-  pip3 install -r "$BINPATH/requirements.txt"
   xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
 }
 
