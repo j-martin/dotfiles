@@ -1,4 +1,5 @@
 local logger = hs.logger.new('apps', 'info')
+local autoQuit = require 'apps/auto_quit'
 local utils = require 'apps/utils'
 
 local mod = {
@@ -105,6 +106,7 @@ end
 function mod.init()
   -- Keep a reference so the watcher is not garbage collected.
   mod.watcher = hs.application.watcher.new(onApplicationEvent):start()
+  autoQuit.init(mod.subscribe)
   mod.slack.init()
   -- hs.urlevent.httpCallback = mod.httpCallback
   -- hs.urlevent.slackCallback = logger.i
