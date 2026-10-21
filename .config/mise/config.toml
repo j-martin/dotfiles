@@ -113,6 +113,7 @@ copilot-cli = "latest"
 "pypi:pygments" = "latest"
 "pypi:virtualenv" = "latest"
 "pypi:watchdog" = "latest"
+gcloud = "latest"
 
 [tasks.brew]
 description = "Install GUI apps and formulae not managed by mise"

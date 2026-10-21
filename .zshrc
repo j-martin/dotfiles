@@ -49,6 +49,8 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 
+source <("$HOME/.local/bin/mise" activate zsh)
+
 plugins=(
   autojump
   # brew
@@ -102,25 +104,13 @@ bindkey '^[[1;9D' backward-word
 
 source "$HOME/.base"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[[ -f /opt/dev/sh/chruby/chruby.sh ]] && type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; }
-[ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
+source <(fzf --zsh)
 
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
 [[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/jm/.bin/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/jm/.bin/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/jm/.bin/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/jm/.bin/google-cloud-sdk/completion.zsh.inc'; fi
-
-# bun completions
-[ -s "/Users/jm/.bun/_bun" ] && source "/Users/jm/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -134,4 +124,3 @@ export SDKMAN_DIR="/Users/jm/.sdkman"
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/jm/.lmstudio/bin"
 # End of LM Studio CLI section
-command -v mise > /dev/null 2>&1 && eval "$(mise activate zsh)"
