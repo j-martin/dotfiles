@@ -76,11 +76,12 @@ _macos_customizations () {
 
 _macos_apps () {
   xcode-select --install || true
-  brew bundle --global
-  brew cleanup
-
+  NONINTERACTIVE=1 /bin/bash -c "$(curl --fail --silent --show-error --location https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   curl --fail --silent --show-error --location https://mise.run | sh
+  "$HOME/.local/bin/mise" bootstrap packages apply
   "$HOME/.local/bin/mise" install
+  # mise cannot evaluate emacs-plus: the formula requires sibling files from its tap.
+  /opt/homebrew/bin/brew install d12frosted/emacs-plus/emacs-plus@31
 
   which zsh \
     | head -n1 \

@@ -52,9 +52,6 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 source <("$HOME/.local/bin/mise" activate zsh)
 
 plugins=(
-  autojump
-  # brew
-  # cargo
   common-aliases
   # dircycle
   # dirhistory
@@ -72,7 +69,7 @@ plugins=(
   # terraform
   # vault
   zsh-autosuggestions
-  # z
+  zoxide
 )
 
 source "$ZSH/oh-my-zsh.sh"
