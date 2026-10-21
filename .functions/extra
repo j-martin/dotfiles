@@ -264,7 +264,7 @@ __maybe_link() {
 _brew_link_current() {
   __maybe_link /opt/homebrew/bin/poetry /usr/local/bin/poetry
 
-  for i in $(find "$(brew --prefix)/Cellar" -mindepth 2 -maxdepth 2 -type d); do
+  for i in $(find "${BREW_PREFIX}/Cellar" -mindepth 2 -maxdepth 2 -type d); do
     ln -sf "${i}" "$(dirname "${i}")/current"
   done
 }
