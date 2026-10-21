@@ -169,4 +169,5 @@ When multiple valid approaches exist, choose based on:
 
 ## Git Worktree
 
+- Unless told to use a worktree, use the current worktree.
 - Create git worktrees under `~/src/worktrees/<repo>-<branch-or-ticket>`
