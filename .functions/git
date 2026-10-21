@@ -551,8 +551,10 @@ _git_clone() {
 
   if [[ ! -d "${repo_dir}" ]]; then
     mkdir -p "$(dirname "${repo_dir}")"
-    git clone "$repo" "${repo_dir}" \
-      || return
+    (
+    unset -f git
+    \git clone "$repo" "${repo_dir}"
+    ) || return
   fi
 
   cd "${repo_dir}" \
