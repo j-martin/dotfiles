@@ -29,7 +29,6 @@ jq = "latest"
 yq = "latest"
 jless = "latest"
 hexyl = "latest"
-hyperfine = "latest"
 difftastic = "latest"
 delta = "latest"
 cloc = "latest"
@@ -117,6 +116,7 @@ copilot-cli = "latest"
 "pypi:watchdog" = "latest"
 gcloud = "latest"
 zoxide = "latest"
+"github:sharkdp/hyperfine" = "latest"
 
 
 [bootstrap.brew.taps]
