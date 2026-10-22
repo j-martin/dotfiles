@@ -121,7 +121,6 @@ zoxide = "latest"
 [bootstrap.brew.taps]
 "d12frosted/emacs-plus" = "https://github.com/d12frosted/homebrew-emacs-plus.git"
 "incident-io/tap" = "https://github.com/incident-io/homebrew-tap.git"
-"nestoca/public" = "https://github.com/nestoca/homebrew-public.git"
 
 [bootstrap.packages]
 "brew:autojump" = "latest"
@@ -152,7 +151,6 @@ zoxide = "latest"
 "brew:watch" = "latest"
 "brew:wget" = "latest"
 "brew:incident-io/tap/inc" = "latest"
-"brew:nestoca/public/joy" = "latest"
 "brew:jiratui" = "latest"
 
 "brew-cask:1password" = "latest"
