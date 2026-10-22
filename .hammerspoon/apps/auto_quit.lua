@@ -2,11 +2,12 @@ local logger = hs.logger.new('autoQuit', 'info')
 
 local mod = {
   -- Seconds an app can stay unused before being quit, when it does not set its own `ttl`.
-  defaultTtl = 15 * 60,
+  defaultTtl = 2 * 60 * 60,
   -- { bundleId = 'string', ttl = seconds (optional), prompt = true to ask before quitting (optional) }
   apps = {
-    { bundleId = 'com.apple.weather' },
+    { bundleId = 'com.apple.weather', ttl = 5 * 60 },
     { bundleId = 'com.autodesk.fusion360', prompt = true },
+    { bundleId = 'com.bambulab.bambu-studio', prompt = true },
   },
 }
 
