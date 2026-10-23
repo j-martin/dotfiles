@@ -2,11 +2,7 @@ local logger = hs.logger.new('messages', 'info')
 
 local mod = {}
 
--- Config example:
--- ~/.private/hammerspoon.json
--- {
---   "iMessageRecipient": "+15145550000"
--- }
+-- See hammerspoon.example.json
 local privateConfigPath = os.getenv('HOME') .. '/.private/hammerspoon.json'
 
 local previewLength = 300
