@@ -149,6 +149,7 @@ local bindings = {
 local hyperModeBindings = {
   { key = '/', fn = keybinder.showBindings, exitMode = true, desc = 'List hyper keybindings' },
   { key = '9', fn = audio.open, desc = 'Spotify' },
+  { key = 'a', fn = audio.pickOutputDevice, exitMode = true, desc = 'Audio - Pick output device' },
   { key = 'b', fn = screen.setBrightness(0.8), desc = 'Set brightness to 80%.' },
   { key = 'c', fn = usb.officeAutomation('coffee', 'on'), desc = 'Turn coffee machine on' },
   { key = 'd', fn = usb.officeAutomation('desk', 'on'), desc = 'Turn desk on' },
@@ -159,6 +160,7 @@ local hyperModeBindings = {
   { key = 'i', fn = audio.changeVolume(-5), desc = 'Decrease the volume by 5%' },
   { key = 'j', fn = audio.next, desc = 'Next song' },
   { key = 'k', fn = audio.previous, desc = 'Previous song' },
+  { key = 'm', fn = audio.pickInputDevice, exitMode = true, desc = 'Audio - Pick input device' },
   { key = 'o', fn = audio.setVolume('default'), desc = 'Default volume level' },
   { key = 'p', fn = audio.setVolume(100), desc = 'High volume level' },
   { key = 'r', fn = reload.reload, desc = 'Reloading configuration ...' },
