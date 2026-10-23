@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: shell
+# name: src
 # key: <src
 # --
 #+begin_src $1 :tangle yes

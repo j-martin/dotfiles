@@ -103,7 +103,6 @@ This function should only modify configuration layer settings."
      editorconfig
      evil-string-inflection
      evil-textobj-syntax
-     ivy
      jq-mode
      jsonnet-mode
      org-roam
