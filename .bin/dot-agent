@@ -47,22 +47,22 @@ _agent() {
     args+=(--add-dir "${HOME}/${dir%/}")
   done
 
-  if command -v claude > /dev/null 2>&1; then
+  if [[ "${AGENT:-}" == 'claude' ]]; then
     _info 'Starting Claude Code'
     for file in $(_home_files); do
       args+=(--allowedTools "Read(~/${file})" --allowedTools "Edit(~/${file})")
     done
     set -o xtrace
-    claude "$@" "${args[@]}" --model "${CLAUDE_MODEL//./-}" --permission-mode acceptEdits 
-  else
-    _info 'Starting Copilot'
-    # Copilot has no read(path) rule; write(path) needs an absolute path to match a single file
-    for file in $(_home_files); do
-      args+=(--allow-tool "write(${HOME}/${file})")
-    done
-    set -o xtrace
-    copilot "$@" "${args[@]}" --model "${CLAUDE_MODEL}"
+    exec claude "$@" "${args[@]}" --model "${CLAUDE_MODEL//./-}" --permission-mode acceptEdits
   fi
+
+  _info 'Starting Copilot'
+  # Copilot has no read(path) rule; write(path) needs an absolute path to match a single file
+  for file in $(_home_files); do
+    args+=(--allow-tool "write(${HOME}/${file})")
+  done
+  set -o xtrace
+  exec copilot "$@" "${args[@]}" --model "${CLAUDE_MODEL}"
 }
 
 _main() {
