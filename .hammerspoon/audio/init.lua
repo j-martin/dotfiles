@@ -23,8 +23,17 @@ outputDevicePriority = {
   dacName,
 }
 
+-- UID of an input device picked manually; overrides `inputDevicePriority` while connected.
+mod.manualInputUID = nil
+
 -- Sets the default input to the first connected device of `inputDevicePriority`, alerting only when it changes.
 function mod.setDefaultInputDevice()
+  if mod.manualInputUID then
+    if hs.audiodevice.findDeviceByUID(mod.manualInputUID) then
+      return
+    end
+    mod.manualInputUID = nil
+  end
   local current = hs.audiodevice.defaultInputDevice()
   for _, deviceName in ipairs(inputDevicePriority) do
     local device = hs.audiodevice.findInputByName(deviceName)
@@ -53,6 +62,60 @@ function mod.setDefaultOutputDevice()
     end
   end
 end
+
+local function devicePicker(kind)
+  local isInput = kind == 'input'
+  local list = isInput and hs.audiodevice.allInputDevices or hs.audiodevice.allOutputDevices
+  local default = isInput and hs.audiodevice.defaultInputDevice or hs.audiodevice.defaultOutputDevice
+
+  return function()
+    local current = default()
+    local currentUID = current and current:uid()
+    local choices = {}
+    for _, device in ipairs(list()) do
+      local isCurrent = device:uid() == currentUID
+      table.insert(choices, {
+        text = (isCurrent and '✓ ' or '   ') .. device:name(),
+        subText = device:transportType(),
+        uid = device:uid(),
+        name = device:name(),
+      })
+    end
+    table.sort(choices, function(a, b)
+      return a.name:lower() < b.name:lower()
+    end)
+
+    local chooser = hs.chooser.new(function(choice)
+      if not choice then
+        return
+      end
+      local device = hs.audiodevice.findDeviceByUID(choice.uid)
+      if not device then
+        hs.alert.show('Device not found')
+        return
+      end
+      local ok
+      if isInput then
+        ok = device:setDefaultInputDevice()
+        if ok then
+          mod.manualInputUID = choice.uid
+        end
+      else
+        ok = device:setDefaultOutputDevice()
+        if ok then
+          device:setDefaultEffectDevice()
+        end
+      end
+      hs.alert.show((ok and '' or 'Failed: ') .. (isInput and 'Input' or 'Output') .. ' Device: ' .. device:name())
+    end)
+    chooser:placeholderText(isInput and 'Audio input device' or 'Audio output device')
+    chooser:choices(choices)
+    chooser:show()
+  end
+end
+
+mod.pickOutputDevice = devicePicker('output')
+mod.pickInputDevice = devicePicker('input')
 
 function mod.workSetup()
   local dac = hs.audiodevice.findOutputByName(dacName)
