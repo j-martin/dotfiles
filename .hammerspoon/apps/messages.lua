@@ -1,4 +1,6 @@
 local logger = hs.logger.new('messages', 'info')
+local selection = require 'selection'
+local confirm = require 'utils/confirm'
 
 local mod = {}
 
@@ -40,17 +42,20 @@ local function send(recipient, text)
   hs.alert.show('iMessage sent to ' .. recipient)
 end
 
--- Sends the clipboard content to the `iMessageRecipient` from ~/.private/hammerspoon.json after a confirmation prompt.
-function mod.sendClipboard()
+-- Sends the selected text, or the clipboard when nothing is selected, to the `iMessageRecipient` from ~/.private/hammerspoon.json after a confirmation prompt.
+function mod.sendSelection()
   local recipient = readRecipient()
   if not recipient then
     hs.alert.show("No 'iMessageRecipient' in " .. privateConfigPath)
     return
   end
 
-  local text = hs.pasteboard.readString()
+  local text = selection.getSelectedText()
+  if text == '' then
+    text = hs.pasteboard.readString()
+  end
   if not text or text == '' then
-    hs.alert.show('Clipboard is empty')
+    hs.alert.show('Nothing selected and clipboard is empty')
     return
   end
 
@@ -59,12 +64,12 @@ function mod.sendClipboard()
     preview = preview:sub(1, previewLength) .. '…'
   end
 
-  hs.focus()
-  local answer = hs.dialog.blockAlert('Send clipboard to ' .. recipient .. '?', preview, 'Send', 'Cancel')
-  if answer ~= 'Send' then
-    return
-  end
-  send(recipient, text)
+  confirm.show('💬 Send to ' .. recipient .. '?', preview, function()
+    -- Deferred so the chooser closes before the blocking AppleScript runs
+    mod.sendTimer = hs.timer.doAfter(0.1, function()
+      send(recipient, text)
+    end)
+  end)
 end
 
 return mod
