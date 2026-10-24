@@ -5,6 +5,10 @@
 --   "call bob fri at 14:30"    -> next Friday at 14:30
 --   "call bob tonight"         -> today at 20:00
 --   "call bob 9pm"             -> today at 21:00 (tomorrow if already past)
+---@class NlpDateModule
+---@field defaultHour number
+---@field tonightHour number
+---@field parse fun(text: string, nowEpoch: number|nil): string, number|nil
 local mod = {}
 
 mod.defaultHour = 9
@@ -51,6 +55,9 @@ local weekdays = {
 }
 
 -- Strip a trailing day word; returns rest, days offset from today (or nil), default hour
+---@param text string
+---@param now table
+---@return string, number|nil, number|nil
 local function __takeDay(text, now)
   local rest, word = text:match('^(.-)%s+on%s+(%a+)$')
   if not word then
@@ -74,6 +81,8 @@ local function __takeDay(text, now)
 end
 
 -- Strip a trailing time; returns rest, hour, minute (or nil)
+---@param text string
+---@return string, number|nil, number|nil
 local function __takeTime(text)
   local patterns = {
     '^(.-)%s+at%s+(%d%d?):?(%d?%d?)%s*([aApP]?[mM]?)$',
@@ -98,6 +107,9 @@ local function __takeTime(text)
 end
 
 --- Returns the text without its trailing date, and that date (epoch seconds, or nil)
+---@param text string
+---@param nowEpoch number|nil
+---@return string, number|nil
 function mod.parse(text, nowEpoch)
   text = text:gsub('^%s+', ''):gsub('%s+$', '')
   nowEpoch = nowEpoch or os.time()
@@ -108,7 +120,6 @@ function mod.parse(text, nowEpoch)
     return rest, nowEpoch + tonumber(amount) * units[unit:lower()]
   end
 
-  -- Day and time in either order: "tomorrow 9am" or "9am tomorrow"
   local title, days, dayHour, hour, minute = text, nil, nil, nil, nil
   for _ = 1, 2 do
     if not hour then
@@ -130,7 +141,6 @@ function mod.parse(text, nowEpoch)
     min = minute or 0,
     sec = 0,
   })
-  -- A bare time that already passed means tomorrow
   if not days and due <= nowEpoch then
     due = os.time({ year = now.year, month = now.month, day = now.day + 1, hour = hour, min = minute, sec = 0 })
   end

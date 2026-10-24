@@ -2,6 +2,10 @@
 
 local logger = hs.logger.new('windows.ext', 'debug')
 
+---@class WindowsExtensionModule
+---@field mouseHighlight fun()
+---@field centerOnTitle fun(rect: table): nil
+---@field launchOrCycleFocus fun(applicationName: string): fun()
 local mod = {}
 
 hs.application.enableSpotlightForNameSearches(true)
@@ -9,12 +13,17 @@ hs.application.enableSpotlightForNameSearches(true)
 -- functools
 ---------------------------------------------------------
 
+---@param a any
+---@return boolean
 local function isFunction(a)
   return type(a) == 'function'
 end
 
--- gets propery or method value
+-- gets property or method value
 -- on a table
+---@param obj table|nil
+---@param property any
+---@return any
 local function result(obj, property)
   if not obj then
     return nil
@@ -22,8 +31,8 @@ local function result(obj, property)
 
   if isFunction(property) then
     return property(obj)
-  elseif isFunction(obj[property]) then -- string
-    return obj[property](obj) -- <- this will be the source of bugs
+  elseif isFunction(obj[property]) then
+    return obj[property](obj)
   else
     return obj[property]
   end
@@ -40,9 +49,12 @@ end
 -- > getNextIndex({1}, 1)
 -- 1
 -- @return int
-local function getNextIndex(table, currentIndex)
+---@param tableValue table
+---@param currentIndex number
+---@return number
+local function getNextIndex(tableValue, currentIndex)
   local nextIndex = currentIndex + 1
-  if nextIndex > #table then
+  if nextIndex > #tableValue then
     nextIndex = 1
   end
 
@@ -57,11 +69,9 @@ local mouseCircle = nil
 local mouseCircleTimer = nil
 
 function mod.mouseHighlight()
-  -- Delete an existing highlight if it exists
   result(mouseCircle, 'delete')
   result(mouseCircleTimer, 'stop')
 
-  -- Get the current co-ordinates of the mouse pointer
   local mousePoint = hs.mouse.getAbsolutePosition()
 
   local radius = 100
@@ -79,6 +89,7 @@ function mod.mouseHighlight()
   end)
 end
 
+---@param rect table
 function mod.centerOnTitle(rect)
   local point = hs.geometry.point(rect.x + rect.w / 5, rect.y + rect.h / 5)
   hs.mouse.absolutePosition(point)
@@ -94,6 +105,8 @@ end
 -- @param  windows  list of hs.window or applicationName
 -- @param  window   instance of hs.window
 -- @return hs.window
+---@param currentWindow hs.window
+---@return hs.window|nil
 local function getNextWindow(currentWindow)
   local windows = currentWindow:application():allWindows()
 
@@ -102,12 +115,7 @@ local function getNextWindow(currentWindow)
   end
 
   windows = hs.fnutils.filter(windows, filterStd)
-  -- windows = hs.fnutils.filter(windows, hs.window.isVisible)
 
-  -- need to sort by ID, since the default order of the window
-  -- isn't usable when we change the mainWindow
-  -- since mainWindow is always the first of the windows
-  -- hence we would always get the window succeeding mainWindow
   table.sort(windows, function(w1, w2)
     return w1:id() > w2:id()
   end)
@@ -116,11 +124,12 @@ local function getNextWindow(currentWindow)
   return windows[getNextIndex(windows, lastIndex)]
 end
 
--- Needed to enable cycling of application windows
 local lastToggledAppName = ''
 
 local cursorPositions = {}
 
+---@param applicationName string
+---@return fun()
 function mod.launchOrCycleFocus(applicationName)
   local function cleanupName(name)
     return name:gsub('.app$', '')
@@ -130,7 +139,9 @@ function mod.launchOrCycleFocus(applicationName)
     local nextWindow = nil
     local targetWindow
     local focusedWindow = hs.window.frontmostWindow()
-    cursorPositions[focusedWindow:title()] = hs.mouse.absolutePosition()
+    if focusedWindow then
+      cursorPositions[focusedWindow:title()] = hs.mouse.absolutePosition()
+    end
     if not focusedWindow then
       hs.application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
       return
@@ -148,7 +159,9 @@ function mod.launchOrCycleFocus(applicationName)
     logger.df('last: %s, current: %s', currentAppName, appName)
     if currentAppName == appName:gsub('[0-9]+', '') then
       nextWindow = getNextWindow(focusedWindow)
-      nextWindow:becomeMain()
+      if nextWindow then
+        nextWindow:becomeMain()
+      end
     else
       logger.df('launch or focus %s', app)
       if not hs.application.launchOrFocus(applicationName) then
@@ -165,7 +178,7 @@ function mod.launchOrCycleFocus(applicationName)
 
     if not targetWindow then
       logger.df('failed finding a window for application: %s', applicationName)
-      return nil
+      return
     end
 
     local previousCursorPosition = cursorPositions[targetWindow:title()]
@@ -173,7 +186,6 @@ function mod.launchOrCycleFocus(applicationName)
       hs.mouse.absolutePosition(previousCursorPosition)
     else
       if applicationName == 'iTerm2' then
-        -- moving the cursor out the window, to preserve iTerm currently focused split
         hs.mouse.absolutePosition(hs.geometry.point(hs.screen.mainScreen():fullFrame().w / 2, 5))
       else
         mod.centerOnTitle(targetWindow:frame())
@@ -186,7 +198,6 @@ function mod.launchOrCycleFocus(applicationName)
         hs.eventtap.keyStroke({ 'alt' }, 'l')
       end
     end
-    -- mod.mouseHighlight()
   end
 end
 

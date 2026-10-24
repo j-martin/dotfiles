@@ -9,6 +9,17 @@ local logger = hs.logger.new('reminders', 'info')
 local selection = require 'selection'
 local nlpDate = require 'utils/nlp_date'
 
+---@class ReminderContext
+---@field title string
+---@field url string|nil
+---@field details string[]|nil
+---@field selection string|nil
+
+---@class RemindersApp
+---@field name string
+---@field list string
+---@field create fun(title: string, due: number|nil, notes: string|nil): boolean, string
+---@field add fun()
 local mod = {}
 
 mod.name = 'Reminders'
@@ -17,6 +28,10 @@ mod.name = 'Reminders'
 mod.list = ''
 
 --- Creates a reminder in `mod.list`. Returns ok, and an error message when not ok.
+---@param title string
+---@param due number|nil
+---@param notes string|nil
+---@return boolean, string
 function mod.create(title, due, notes)
   local params = hs.json.encode({ name = title, due = due, list = mod.list, notes = notes })
   local script = [[
@@ -43,6 +58,8 @@ function mod.create(title, due, notes)
 end
 
 -- Title, link and details, one per line
+---@param context ReminderContext
+---@return string
 local function __describe(context)
   local lines = { context.title }
   if context.url then
@@ -55,6 +72,9 @@ local function __describe(context)
 end
 
 -- Single row previewing the parsed title and due date
+---@param query string
+---@param context ReminderContext|nil
+---@return table
 local function __preview(query, context)
   local title, due = nlpDate.parse(query)
   local subText = due and ('⏰ ' .. os.date('%a %b %d %H:%M', due)) or 'No due date'
@@ -63,7 +83,12 @@ local function __preview(query, context)
   end
   return { { text = title ~= '' and title or 'New reminder', subText = subText, query = query } }
 end
+
 -- Creates the reminder from the typed text, keeping the selection and context in its notes
+---@param text string
+---@param raw string
+---@param oneLine string
+---@param context ReminderContext|nil
 local function __submit(text, raw, oneLine, context)
   local title, due = nlpDate.parse(text)
   local parts = {}
@@ -74,7 +99,6 @@ local function __submit(text, raw, oneLine, context)
     table.insert(parts, __describe(context))
   end
   local notes = #parts > 0 and table.concat(parts, '\n\n') or nil
-  -- Deferred so the dialog closes before the blocking AppleScript runs
   mod.createTimer = hs.timer.doAfter(0.1, function()
     local ok, err = mod.create(title, due, notes)
     if ok then
@@ -88,7 +112,6 @@ end
 
 --- Prompts for a reminder, prefilled with the selected text, and with what the focused window shows in its notes.
 function mod.add()
-  -- Required here since apps requires this module.
   local apps = require 'apps'
   local window = hs.window.focusedWindow()
   local context = apps.context(window)

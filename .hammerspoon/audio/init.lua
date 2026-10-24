@@ -1,5 +1,22 @@
 local headphones_watcher = require 'audio/headphones_watcher'
 
+---@class AudioModule
+---@field volumes table<string, number>
+---@field manualInputUID string|nil
+---@field setDefaultInputDevice fun()
+---@field setDefaultOutputDevice fun()
+---@field workSetup fun()
+---@field muteSpeakers fun(name: string|nil)
+---@field changeVolume fun(inc: number): fun()
+---@field setVolume fun(value: number|string): fun()
+---@field open fun()
+---@field playpause fun()
+---@field next fun()
+---@field previous fun()
+---@field current fun()
+---@field pickOutputDevice fun()
+---@field pickInputDevice fun()
+---@field init fun()
 local mod = {}
 
 dacName = 'FiiO USB DAC-E10'
@@ -63,6 +80,8 @@ function mod.setDefaultOutputDevice()
   end
 end
 
+---@param kind string
+---@return fun()
 local function devicePicker(kind)
   local isInput = kind == 'input'
   local list = isInput and hs.audiodevice.allInputDevices or hs.audiodevice.allOutputDevices
@@ -170,6 +189,8 @@ function mod.open()
   hs.application.launchOrFocus('Spotify')
 end
 
+---@param fn function
+---@return function
 local function callAndDisplay(fn)
   return function()
     fn()
@@ -186,6 +207,7 @@ function mod.playpause()
   hs.itunes.playpause()
 end
 
+---@param event number
 local function parseEvent(event)
   if event == hs.caffeinate.watcher.screensDidLock then
     hs.itunes.pause()

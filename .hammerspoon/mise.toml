@@ -12,7 +12,7 @@ run = "stylua --check ."
 
 [tasks.lint]
 description = "Lint Lua files"
-run = "lua-language-server --check . --checklevel=Warning --check_format=pretty"
+run = "lua-language-server --check . --checklevel=Warning --check_format=pretty --type-check --config .luarc.json"
 
 [tasks.check]
 description = "Check formatting and lint"

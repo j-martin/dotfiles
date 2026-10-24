@@ -1,3 +1,6 @@
+---@class GoogleMeetApp
+---@field name string
+---@field toggleMute fun()
 local mod = {}
 
 mod.name = 'Google Meet'

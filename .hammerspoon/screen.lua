@@ -1,3 +1,5 @@
+---@class ScreenModule
+---@field setBrightness fun(value: number): fun()
 local mod = {}
 
 function mod.setBrightness(value)

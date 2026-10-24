@@ -1,5 +1,8 @@
 local utils = require 'apps/utils'
 
+---@class IdeaApp
+---@field name string
+---@field omni fun()
 local mod = {}
 
 mod.name = 'IntelliJ IDEA CE'

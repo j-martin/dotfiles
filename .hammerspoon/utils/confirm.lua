@@ -1,7 +1,12 @@
 -- Spotlight-like confirmation: Enter confirms, Escape cancels.
+---@class ConfirmModule
+---@field show fun(title: string, details: string|nil, onConfirm: fun())
 local mod = {}
 
 --- Shows `title` with `details` underneath and calls `onConfirm` when Enter is pressed.
+---@param title string
+---@param details string|nil
+---@param onConfirm fun()
 function mod.show(title, details, onConfirm)
   local window = hs.window.focusedWindow()
   if mod.chooser then
@@ -18,7 +23,6 @@ function mod.show(title, details, onConfirm)
   mod.chooser:bgDark(true)
   mod.chooser:rows(1)
   mod.chooser:placeholderText('⏎ to confirm, esc to cancel')
-  -- Ignore typing so the single row is never filtered out
   mod.chooser:queryChangedCallback(function() end)
   mod.chooser:choices({ { text = title, subText = (details or ''):gsub('%s+', ' ') } })
   mod.chooser:show()

@@ -1,10 +1,16 @@
 local logger = hs.logger.new('selection', 'debug')
 
+---@class SelectionModule
+---@field getSelectedText fun(): string
+---@field actOn fun(engine: string): fun()
+---@field paste fun()
+---@field epochSinceNow fun(text: string|nil)
 local mod = {}
 
 local engines = { google = 'https://www.google.ca/search?q=' }
 
 -- Emacs does not expose its region through accessibility
+---@return string|nil
 local function selectedTextFromAccessibility()
   local app = hs.application.frontmostApplication()
   if app and app:name() == 'Emacs' then
@@ -21,6 +27,7 @@ local function selectedTextFromAccessibility()
 end
 
 -- Only use real selections, never stale clipboard contents
+---@return string
 local function selectedTextFromClipboard()
   local before = hs.pasteboard.changeCount()
   local initial = hs.pasteboard.readString()
@@ -38,28 +45,35 @@ local function selectedTextFromClipboard()
 end
 
 --- Returns the selected text of the focused app, or an empty string when nothing is selected.
+---@return string
 function mod.getSelectedText()
   return selectedTextFromAccessibility() or selectedTextFromClipboard()
 end
 
+---@param url string
 local function openUrl(url)
   hs.task.new('/usr/bin/open', nil, function() end, { url }):start()
 end
 
+---@param url string
+---@param text string
 local function query(url, text)
   openUrl(url .. hs.http.encodeForQuery(text))
 end
 
+---@param text string|nil
+---@param engine string
 local function google(text, engine)
   query(engines[engine], text or mod.getSelectedText())
 end
 
+---@param engine string
+---@return fun()
 function mod.actOn(engine)
   return function()
     local text = mod.getSelectedText()
     if text:gmatch('https?://')() then
       openUrl(text)
-      -- TODO: Cleanup silly regex
     elseif text:gmatch('1%d%d%d%d%d%d%d%d%d+')() then
       mod.epochSinceNow(text)
     else
@@ -77,10 +91,13 @@ function mod.paste()
   end
 end
 
+---@param number number
+---@return string
 local function round(number)
   return tostring(math.floor(number))
 end
 
+---@param text string|nil
 function mod.epochSinceNow(text)
   local initial = hs.timer.secondsSinceEpoch()
   local selection = tonumber(text or mod.getSelectedText())

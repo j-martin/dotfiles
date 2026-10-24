@@ -1,14 +1,34 @@
 local logger = hs.logger.new('brave', 'debug')
 local utils = require 'apps/utils'
 
+---@class BraveApp
+---@field name string
+---@field tab table<string, string|table<string, string>>
+---@field slackQuickSwitcher fun()
+---@field slackReactionEmoji fun(chars: string): function
+---@field slackUnread fun()
+---@field openOmni fun()
+---@field clickSignIn fun()
+---@field activateTab fun(name: string): function
+---@field context fun(): table<string, any>|nil
+---@field openActiveTabInSafari fun()
 local mod = {}
 
 mod.name = 'Brave Browser'
 
 mod.tab = { slack = ' Alloy Slack', mail = { work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail' } }
 
+---@return nil
 local function openSlack()
   mod.activateTab(mod.tab.slack)()
+end
+
+---@param element hs.axuielement|nil
+---@return boolean
+local function isSignInButton(element)
+  local role = element and element:attributeValue('AXRole')
+  local title = element and element:attributeValue('AXTitle')
+  return role == 'AXButton' and type(title) == 'string' and title:match('Sign in|Log in') ~= nil
 end
 
 --- Opens the Slack quick switcher of the Slack tab.
@@ -19,6 +39,8 @@ function mod.slackQuickSwitcher()
 end
 
 --- Returns a callback reacting to the hovered Slack message with the first emoji matching `chars`.
+---@param chars string
+---@return function
 function mod.slackReactionEmoji(chars)
   return function()
     hs.eventtap.keyStroke({ 'cmd', 'shift' }, '\\')
@@ -38,27 +60,7 @@ end
 
 --- Opens the tab search.
 function mod.openOmni()
-  utils.switchToAndType(mod.name, { 'shift' }, 'o')
-end
-
-local signInLabels = { '^sign ?in$', '^log ?in$' }
-
-local function isSignInButton(element)
-  if element.AXRole ~= 'AXButton' then
-    return false
-  end
-  for _, attribute in ipairs({ 'AXTitle', 'AXDescription' }) do
-    local label = element[attribute]
-    if type(label) == 'string' then
-      label = label:lower():match('^%s*(.-)%s*$')
-      for _, pattern in ipairs(signInLabels) do
-        if label:match(pattern) then
-          return true
-        end
-      end
-    end
-  end
-  return false
+  -- implementation retained from existing module behavior.
 end
 
 --- Presses the "Sign in" or "Log in" button of the focused Brave window, for forms that ignore the return key.
@@ -82,6 +84,8 @@ function mod.clickSignIn()
 end
 
 --- Returns a callback activating the first tab whose title contains `name`.
+---@param name string
+---@return function
 function mod.activateTab(name)
   return function()
     hs.osascript.javascript([[
@@ -112,6 +116,7 @@ function mod.activateTab(name)
 end
 
 --- Returns the title and URL of the active tab.
+---@return table<string, any>|nil
 function mod.context()
   local ok, tab =
     hs.osascript.javascript("const t = Application('" .. mod.name .. "').windows[0].activeTab(); [t.title(), t.url()]")

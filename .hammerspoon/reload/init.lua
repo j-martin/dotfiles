@@ -1,5 +1,9 @@
 local logger = hs.logger.new('reload', 'debug')
 
+---@class ReloadModule
+---@field init fun()
+---@field reload fun()
+---@field watcher hs.pathwatcher|nil
 local mod = {}
 
 local function reloadConfig(files)

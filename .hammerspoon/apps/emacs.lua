@@ -3,21 +3,34 @@ local process = require 'utils/process'
 local selection = require 'selection'
 local utils = require 'apps/utils'
 
+---@class EmacsApp
+---@field name string
+---@field helmBuffers fun()
+---@field inbox fun()
+---@field references fun()
+---@field orgRifle fun()
+---@field workInbox fun()
+---@field agenda fun()
+---@field capture fun(captureTemplate: string|nil): fun()
+---@field context fun(): table<string, any>|nil
 local mod = {}
 
 mod.name = 'Emacs'
 
 local emacsclientPath = utils.getExecPath('emacsclient')
 
+---@param sexp string
 local function eval(sexp)
   process.start('~/.bin/ec', { '--quiet', '--suppress-output', '--eval', sexp })
   hs.application.launchOrFocus(mod.name)
 end
 
+---@param sexp string
 local function evalInCurrentBuffer(sexp)
   eval('(with-current-buffer (window-buffer (selected-window)) ' .. sexp .. ')')
 end
 
+---@param url string
 local function open(url)
   process.start('~/.bin/ec', { '--quiet', '--suppress-output', url })
   hs.application.launchOrFocus(mod.name)
@@ -54,8 +67,9 @@ function mod.agenda()
 end
 
 -- Falls back to the window title and the application path for apps without context.
+---@param window hs.window
+---@return table<string, any>
 local function captureContext(window)
-  -- Required here since apps requires this module.
   local apps = require 'apps'
   local context = apps.context(window) or {}
   local app = window:application()
@@ -67,6 +81,8 @@ local function captureContext(window)
 end
 
 --- Returns a callback capturing the focused window, with its link and selected text, with org-protocol.
+---@param captureTemplate string|nil
+---@return fun()
 function mod.capture(captureTemplate)
   return function()
     local focusedWindow = hs.window.focusedWindow()
@@ -106,10 +122,11 @@ local contextSexp = [[
            (cons (quote line) (line-number-at-pos))
            (cons (quote heading) (and (derived-mode-p (quote org-mode)) (ignore-errors (org-get-heading t t t t))))
            (cons (quote region) (and (use-region-p) (buffer-substring-no-properties (region-beginning) (region-end))))))
-    (quote utf-8))
-   t))]]
+     (quote utf-8))
+    t))]]
 
 --- Returns the current buffer, its file and line, org heading, and active region.
+---@return table<string, any>|nil
 function mod.context()
   local output, ok = hs.execute(emacsclientPath .. " --eval '" .. contextSexp:gsub('\n', ' ') .. "' 2>/dev/null")
   local encoded = ok and output:match('"([%w+/=]+)"')

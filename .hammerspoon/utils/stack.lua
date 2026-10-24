@@ -1,6 +1,13 @@
+---@class StackTable
+---@field _et any[]
+---@field push fun(...: any)
+---@field pop fun(num: number|nil): any
+---@field getn fun(): number
+---@field list fun()
 Stack = {}
 
 -- Create a Table with stack functions
+---@return StackTable
 function Stack:Create()
   -- stack table
   local t = {}
@@ -20,24 +27,18 @@ function Stack:Create()
 
   -- pop a value from the stack
   function t:pop(num)
-    -- get num values from stack
     local num = num or 1
 
-    -- return table
     local entries = {}
 
-    -- get values into entries
     for i = 1, num do
-      -- get last entry
       if #self._et ~= 0 then
         table.insert(entries, self._et[#self._et])
-        -- remove last value
         table.remove(self._et)
       else
         break
       end
     end
-    -- return unpacked entries
     return table.unpack(entries)
   end
 

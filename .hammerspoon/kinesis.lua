@@ -2,6 +2,13 @@ local logger = hs.logger.new('kinesis', 'debug')
 
 local windows = require 'windows'
 
+---@class KinesisModule
+---@field vendorID number
+---@field productID number
+---@field refresh fun()
+---@field onConnected fun()
+---@field refreshLater fun()
+---@field init fun()
 local mod = {
   vendorID = 1523,
   productID = 129,
@@ -12,12 +19,14 @@ local alertId = nil
 local screenWatcher = nil
 local refreshTimer = nil
 
+---@return boolean
 local function isConnected()
   return hs.fnutils.some(hs.usb.attachedDevices() or {}, function(device)
     return device.vendorID == mod.vendorID and device.productID == mod.productID
   end)
 end
 
+---@return nil
 local function showAlert()
   if alertId then
     return
@@ -30,6 +39,7 @@ local function showAlert()
   )
 end
 
+---@return nil
 local function closeAlert()
   if alertId then
     hs.alert.closeSpecific(alertId)
@@ -73,4 +83,3 @@ function mod.init()
 end
 
 return mod
-

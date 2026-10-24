@@ -3,6 +3,9 @@
 -- https://github.com/leits/MeetingBar/pull/974
 local logger = require('utils/file_logger').new('meetingbar', 'info')
 
+---@class MeetingBarModule
+---@field restart fun()
+---@field init fun()
 local mod = {}
 
 local bundleID = 'leits.MeetingBar'
@@ -13,6 +16,7 @@ local pollIntervalSeconds = 5
 local sleepWatcher = nil
 local pendingTimer = nil
 
+---@return boolean
 local function isNetworkReachable()
   local status = hs.network.reachability.forHostName(probeHost):status()
   return (status & hs.network.reachability.flags.reachable) > 0
@@ -35,6 +39,7 @@ function mod.restart()
   end, 0.5)
 end
 
+---@return nil
 local function restartWhenOnline()
   if pendingTimer then
     pendingTimer:stop()
@@ -52,6 +57,7 @@ local function restartWhenOnline()
   end, pollIntervalSeconds)
 end
 
+---@param event number
 local function handleSleepEvent(event)
   if event == hs.caffeinate.watcher.systemDidWake then
     restartWhenOnline()

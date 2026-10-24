@@ -1,10 +1,15 @@
 local logger = hs.logger.new('safari', 'info')
 
+---@class SafariApp
+---@field name string
+---@field context fun(): table<string, string>|nil
+---@field openActiveTabInDefaultBrowser fun()
 local mod = {}
 
 mod.name = 'Safari'
 
 --- Returns the title and URL of the active tab.
+---@return table<string, string>|nil
 function mod.context()
   local ok, tab =
     hs.osascript.javascript("const t = Application('" .. mod.name .. "').windows[0].currentTab(); [t.name(), t.url()]")

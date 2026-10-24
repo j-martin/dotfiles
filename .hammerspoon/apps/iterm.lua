@@ -1,5 +1,9 @@
 local utils = require 'apps/utils'
 
+---@class ItermApp
+---@field name string
+---@field omni fun()
+---@field context fun(): table<string, any>|nil
 local mod = {}
 
 mod.name = 'iTerm2'
@@ -12,6 +16,7 @@ function mod.omni()
 end
 
 --- Returns the current session title, directory, host and running command.
+---@return table<string, any>|nil
 function mod.context()
   local ok, session = hs.osascript.javascript([[
     const s = Application(']] .. mod.name .. [[').currentWindow().currentSession();

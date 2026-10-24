@@ -1,12 +1,19 @@
+---@class HeadphonesWatcherModule
+---@field pluggedFn fun()|nil
+---@field unpluggedFn fun()|nil
+---@field init fun(pluggedFn: fun(), unpluggedFn: fun())
 local mod = {}
 
 local logger = hs.logger.new('headphones', 'debug')
 
 local watchedDevices = {}
 
+---@param dev_uid string
+---@param event_name string
+---@param event_scope string
+---@param event_element any
 local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   logger.df('Audiodevwatch args: %s, %s, %s, %s', dev_uid, event_name, event_scope, event_element)
-  -- 'dIn ' is the default input changing, which `setDefaultInputDevice` itself triggers.
   if dev_uid == 'dev#' or dev_uid == 'dIn ' then
     return
   end
@@ -20,6 +27,8 @@ local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   end
 end
 
+---@param pluggedFn fun()
+---@param unpluggedFn fun()
 function mod.init(pluggedFn, unpluggedFn)
   mod.pluggedFn = pluggedFn
   mod.unpluggedFn = unpluggedFn

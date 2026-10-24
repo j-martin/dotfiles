@@ -1,10 +1,23 @@
 local cheatsheet = require 'keybinder/cheatsheet'
 
+---@class ModeBinding
+---@field key string
+---@field fn function|nil
+---@field name string|nil
+---@field desc string|nil
+---@field exitMode boolean|nil
+
+---@class ModeModule
+---@field create fun(modifiers: string[], key: string, name: string, bindings: ModeBinding[])
 local mod = {}
 
 hs.alert.defaultStyle['textSize'] = 20
 
 -- bindings { { key = 'string', fn = fn } }
+---@param modifiers string[]
+---@param key string
+---@param name string
+---@param bindings ModeBinding[]
 function mod.create(modifiers, key, name, bindings)
   local mode = hs.hotkey.modal.new(modifiers, key)
 
@@ -17,18 +30,12 @@ function mod.create(modifiers, key, name, bindings)
     alertId = hs.alert.show(name .. ' Mode', 120)
   end
 
+  ---@return nil
   local function exit()
     mode:exit()
   end
 
-  -- Not using closeAll to keep persistent alerts (e.g. kinesis) visible.
-  function mode:exited()
-    if alertId then
-      hs.alert.closeSpecific(alertId)
-      alertId = nil
-    end
-  end
-
+  ---@return nil
   local function callAndExit(fn)
     return function()
       exit()
@@ -36,6 +43,8 @@ function mod.create(modifiers, key, name, bindings)
     end
   end
 
+  ---@param binding ModeBinding
+  ---@return nil
   local function bindFn(binding)
     local message = binding.desc or binding.name
     local fn = function()

@@ -6,6 +6,21 @@ local kinesis = require 'kinesis'
 local process = require 'utils/process'
 local screen = require 'screen'
 
+---@class UsbAutomationEvent
+---@field eventType string
+---@field productID number
+---@field productName string
+---@field vendorID number
+---@field vendorName string
+---@field fn function|nil
+---@field lastExecuted number|nil
+
+---@class UsbModule
+---@field switchLights string
+---@field switchDesk string
+---@field officeAutomation fun(scene: string, command: string): fun()
+---@field switchToggler fun(entityId: string): fun()
+---@field init fun()
 local mod = {
   switchLights = 'switch.desk_lights',
   switchDesk = 'switch.office_desk',
@@ -37,15 +52,16 @@ local globalHandler = nil
 --   vendorName = "Sony"
 -- }
 
+---@param scene string
+---@param command string
+---@return function
 function mod.officeAutomation(scene, command)
   return function()
     if scene == 'office_call' then
       if command == 'on' then
         hs.itunes.pause()
-        -- hs.urlevent.openURL("neewerlite://turnOnLight")
       else
         audio.setVolume('default')()
-        -- hs.urlevent.openURL("neewerlite://turnOffLight")
       end
     end
     process.start(appsUtils.getExecPath('office-automation'), { '--scene', scene, command }, nil, 10)
@@ -56,10 +72,13 @@ function mod.officeAutomation(scene, command)
   end
 end
 
+---@param entityId string
+---@return function
 function mod.switchToggler(entityId)
   return mod.officeAutomation('toggle', entityId)
 end
 
+---@param watchedEvents UsbAutomationEvent[]
 local function buildGlobalHandler(watchedEvents)
   local function buildHandler(watchedEvent)
     return function(event)
@@ -67,7 +86,6 @@ local function buildGlobalHandler(watchedEvents)
       local isProductID = event.productID == watchedEvent.productID
       local isVendorID = event.vendorID == watchedEvent.vendorID
 
-      -- Trying to prevent too many executions
       local currentEpoch = process.getEpoch()
       local hasBeenDebounced = (watchedEvent.lastExecuted or 0) + 2 < currentEpoch
 
@@ -83,7 +101,6 @@ local function buildGlobalHandler(watchedEvents)
 
   return function(event)
     logger.d(hs.inspect(event))
-    -- Some devices (e.g. the keyboard behind the Kinesis hub) report an empty product name.
     local hasProductName = event.productName ~= nil and event.productName ~= ''
     if event.eventType == 'added' and hasProductName then
       hs.alert.show('USB connected: ' .. event.productName)
@@ -95,14 +112,6 @@ local function buildGlobalHandler(watchedEvents)
 end
 
 local watchedEvents = {
-  -- Network adapter on office Thunderbolt dock
-  -- {eventType = "added", productID = 33107, productName = "USB 10/100/1000 LAN", vendorID = 3034, vendorName = "Realtek", fn = mod.officeAutomation("off", mod.switchDesk)},
-
-  -- ZV-1 with in USB mass storage mode
-  -- {eventType = "added", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("on")},
-  -- {eventType = "removed", productID = 3140, productName = "ZV-1", vendorID = 1356, vendorName = "Sony", fn = mod.officeAutomation("off")},
-
-  -- ZV-1 with webcam in USB streaming mod
   {
     eventType = 'added',
     productID = 3556,
@@ -119,8 +128,6 @@ local watchedEvents = {
     vendorName = 'Sony',
     fn = mod.officeAutomation('office_call', 'off'),
   },
-
-  -- Kinesis behind the physical USB switch (Mac <-> iPad)
   {
     eventType = 'added',
     productID = kinesis.productID,

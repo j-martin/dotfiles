@@ -3,6 +3,30 @@ local windows = require 'windows'
 local apps = require 'apps'
 local cheatsheet = require 'keybinder/cheatsheet'
 
+---@class KeybindingDefinition
+---@field key string
+---@field fn function|nil
+---@field name string|nil
+---@field desc string|nil
+---@field modifiers string[]|nil
+---@field shift boolean|nil
+---@field pos table[]|nil
+---@field posUltraWide table[]|nil
+---@field reversable boolean|nil
+---@field remap table|nil
+---@field hotkey hs.hotkey|nil
+---@field tab string|nil
+
+---@class AppBinding
+---@field name string
+---@field bindings KeybindingDefinition[]
+
+---@class KeybinderModule
+---@field cmd string[]
+---@field hyper string[]
+---@field globalBindings string
+---@field showBindings fun()
+---@field init fun(appBindingList: AppBinding[])
 local hyper = { 'cmd', 'alt', 'ctrl' }
 local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
 local globalBindings = '*'
@@ -11,18 +35,23 @@ hs.hotkey.alertDuration = 2.5
 
 local mod = { cmd = { 'cmd' }, hyper = hyper, globalBindings = globalBindings }
 
-function enableBindings(bindings, window)
+---@param bindings KeybindingDefinition[]
+---@param window hs.window|nil
+local function enableBindings(bindings, window)
   for _, binding in pairs(bindings) do
     binding.hotkey:enable()
   end
 end
 
-function disableBindings(bindings)
+---@param bindings KeybindingDefinition[]
+local function disableBindings(bindings)
   for _, binding in pairs(bindings) do
     binding.hotkey:disable()
   end
 end
 
+---@param binding KeybindingDefinition
+---@return function|nil
 local function buildBindFunction(binding)
   if binding.pos then
     return windows.setPosition(binding.pos, binding.posUltraWide, binding.reversable)
@@ -39,8 +68,10 @@ local function buildBindFunction(binding)
   end
 end
 
+---@param binding KeybindingDefinition
+---@return KeybindingDefinition
 local function bind(binding)
-  modifiers = binding.modifiers
+  local modifiers = binding.modifiers
   if modifiers == nil then
     modifiers = hyper
     if binding.shift then
@@ -58,6 +89,7 @@ local function bind(binding)
   return binding
 end
 
+---@param appBindingMap table<string, KeybindingDefinition[]>
 local function subscribeToApplicationEvents(appBindingMap)
   local activated = {}
   activated[hs.application.watcher.activated] = true
@@ -84,6 +116,7 @@ end
 
 -- Register a cheatsheet section per application; bindings without explicit
 -- modifiers use hyper, so the section title shows it.
+---@param appBindingList AppBinding[]
 local function registerCheatsheet(appBindingList)
   local hyperTitle = ' (' .. cheatsheet.modifiersString(hyper) .. ')'
   for _, app in ipairs(appBindingList) do
@@ -97,6 +130,7 @@ function mod.showBindings()
   cheatsheet.show()
 end
 
+---@param appBindingList AppBinding[]
 function mod.init(appBindingList)
   local appBindingMap = {}
   for _, app in ipairs(appBindingList) do

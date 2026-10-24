@@ -3,14 +3,20 @@ local selection = require 'selection'
 local confirm = require 'utils/confirm'
 local privateConfig = require 'utils/private_config'
 
+---@class MessagesApp
+---@field sendSelection fun()
 local mod = {}
 
 local previewLength = 300
 
+---@param text string
+---@return string
 local function escapeAppleScript(text)
   return (text:gsub('\\', '\\\\'):gsub('"', '\\"'))
 end
 
+---@param recipient string
+---@param text string
 local function send(recipient, text)
   local script = string.format(
     [[
@@ -55,7 +61,6 @@ function mod.sendSelection()
   end
 
   confirm.show('💬 Send to ' .. recipient .. '?', preview, function()
-    -- Deferred so the chooser closes before the blocking AppleScript runs
     mod.sendTimer = hs.timer.doAfter(0.1, function()
       send(recipient, text)
     end)

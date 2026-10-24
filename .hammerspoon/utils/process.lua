@@ -1,11 +1,18 @@
 local logger = hs.logger.new('execute', 'debug')
 
+---@class ProcessModule
+---@field getEpoch fun(): number
+---@field start fun(cmd: string, args: string[]|nil, pwd: string|nil, ttl: number|nil): hs.task
 local mod = {}
 
 local running_processes = {}
 local HOME = os.getenv('HOME')
 local env = { PATH = '/usr/local/bin:/usr/bin:/bin', LC_ALL = 'en_US.UTF-8', LANG = 'en_US.UTF-8', HOME = HOME }
 
+---@param exitCode number
+---@param stdOut string
+---@param stdErr string
+---@return boolean
 local function returnCallback(exitCode, stdOut, stdErr)
   if exitCode ~= 0 then
     hs.alert.show('the process failed to run, see logs')
@@ -17,12 +24,18 @@ local function returnCallback(exitCode, stdOut, stdErr)
   return true
 end
 
+---@param _ any
+---@param stdOut string
+---@param stdErr string
+---@return boolean
 local function streamCallback(_, stdOut, stdErr)
   logger.d(stdOut)
   logger.d(stdErr)
   return true
 end
 
+---@param t table
+---@return number
 function getn(t)
   if type(t.n) == 'number' then
     return t.n
@@ -36,8 +49,10 @@ function getn(t)
   return max
 end
 
+---@param process table
+---@return boolean
 local function cleanupProcess(process)
-  task = process.task
+  local task = process.task
   logger.df('Checking if still running: %s', task:pid())
   if not task:isRunning() then
     logger.df('The process is not running anymore: %s', task:pid())
@@ -51,14 +66,23 @@ local function cleanupProcess(process)
   return true
 end
 
+---@param path string
+---@return string, integer
 local function expand(path)
   return path:gsub('~', HOME)
 end
 
+--- Returns the current Unix epoch in seconds.
+---@return number
 function mod.getEpoch()
   return os.time(os.date('!*t') --[[@as osdateparam]])
 end
 
+---@param cmd string
+---@param args string[]|nil
+---@param pwd string|nil
+---@param ttl number|nil
+---@return hs.task
 function mod.start(cmd, args, pwd, ttl)
   running_processes = hs.fnutils.filter(running_processes, cleanupProcess)
 
@@ -66,7 +90,7 @@ function mod.start(cmd, args, pwd, ttl)
   args = hs.fnutils.map(args or {}, expand)
   pwd = expand(pwd or '~/.bin')
 
-  task = hs.task.new(cmd, returnCallback, streamCallback, args)
+  local task = hs.task.new(cmd, returnCallback, streamCallback, args)
   table.insert(running_processes, { task = task, ttl = mod.getEpoch() + (ttl or 30) })
 
   logger.f('starting %s %s in %s', cmd, hs.inspect(args), pwd)

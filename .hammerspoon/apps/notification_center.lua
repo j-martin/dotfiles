@@ -1,5 +1,8 @@
 local utils = require 'apps/utils'
 
+---@class NotificationCenterApp
+---@field open fun()
+---@field close fun()
 local mod = {}
 
 local screenRatioNotch = 1125.0
@@ -24,13 +27,11 @@ end
 
 --- Clicks the latest notification.
 function mod.open()
-  -- Use offset_y=40 if hiding menu bar
   clickNotification(120, 70)
 end
 
 --- Clicks the close button of the latest notification.
 function mod.close()
-  -- Use offset_y=20 if hiding menu bar
   clickNotification(355, 50)
 end
 

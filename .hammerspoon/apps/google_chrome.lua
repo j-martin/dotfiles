@@ -1,5 +1,11 @@
 local logger = hs.logger.new('google_chrome', 'info')
 
+---@class GoogleChromeApp
+---@field name string
+---@field chromeOnlyHosts string[]
+---@field moveTabsToDefaultBrowser fun()
+---@field onApplicationEvent fun(event: number)
+---@field init fun()
 local mod = {}
 
 mod.name = 'Google Chrome'
@@ -33,7 +39,6 @@ function mod.moveTabsToDefaultBrowser()
       });
     }
 
-    // Close in reverse so the remaining window and tab indexes stay valid.
     chrome.windows().reverse().forEach(function(win) {
       var tabUrls = win.tabs.url();
       var moved = [];
@@ -65,6 +70,7 @@ function mod.moveTabsToDefaultBrowser()
 end
 
 --- Moves the tabs to the default browser when Google Chrome is activated.
+---@param event number
 function mod.onApplicationEvent(event)
   if event == hs.application.watcher.activated then
     mod.moveTabsToDefaultBrowser()
@@ -73,7 +79,6 @@ end
 
 --- Moves Google Chrome tabs to the default browser whenever their title changes.
 function mod.init()
-  -- Activation alone misses tabs opened while Chrome is already frontmost, e.g. a link clicked in Gmail.
   mod.windowFilter = hs.window.filter.new(mod.name)
   mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, function()
     mod.moveTabsToDefaultBrowser()

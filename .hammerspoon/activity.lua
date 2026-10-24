@@ -1,6 +1,8 @@
 local fileLogger = require 'utils/file_logger'
 local logger = fileLogger.new('activity', 'debug')
 
+---@class ActivityModule
+---@field init fun()
 local mod = {}
 
 local watcher = nil
@@ -10,6 +12,7 @@ local eventTypes = {
   [hs.caffeinate.watcher.screensDidUnlock] = 'unlock',
 }
 
+---@param event number
 local function handleEvent(event)
   local eventType = eventTypes[event]
   if eventType then

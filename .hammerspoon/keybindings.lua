@@ -8,6 +8,20 @@ local windows = require 'windows'
 local reload = require 'reload'
 local usb = require 'usb'
 
+---@class BindingTableEntry
+---@field key string
+---@field fn function|nil
+---@field name string|nil
+---@field desc string|nil
+---@field modifiers string[]|nil
+---@field shift boolean|nil
+---@field pos table[]|nil
+---@field posUltraWide table[]|nil
+---@field reversable boolean|nil
+---@field remap table|nil
+
+---@class KeybindingsModule
+---@field init fun()
 local cmd = keybinder.cmd
 local cmdCtrl = { 'cmd', 'ctrl' }
 local hyper = keybinder.hyper
@@ -24,8 +38,6 @@ local bindings = {
   {
     name = keybinder.globalBindings,
     bindings = {
-      -- cmd + h reserved for notification
-      -- key = '5' reserved for Alfred snippets
       { key = '0', fn = apps.reminders.add, desc = 'Reminders - Add' },
       { key = '1', name = apps.activityMonitor.name, shift = true },
       { key = '8', name = 'Slack' },
@@ -95,9 +107,7 @@ local bindings = {
       { key = 't', fn = apps.emacs.inbox, shift = true, desc = 'Org - Inbox' },
       { key = 'u', name = 'Emacs' },
       { key = 'u', fn = apps.emacs.helmBuffers, shift = true },
-      -- key v, reserved for Alfred paste
       { key = 'v', fn = selection.paste, shift = true, desc = 'Paste - Type' },
-      -- {key = 'w', fn = apps.emacs.capture('w'), desc = 'Org - Capture selection to Work'},
       { key = 'w', fn = apps.emacs.workInbox, shift = true, desc = 'Org - Show work' },
       { key = 'y', name = 'Gmail' },
       { key = 'z', name = 'Google Meet' },
@@ -165,7 +175,6 @@ local hyperModeBindings = {
   { key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%' },
   { key = 'x', fn = apps.messages.sendSelection, exitMode = true, desc = 'iMessage - Send selection' },
   { key = 'y', fn = audio.changeVolume(-100), desc = 'Mute' },
-  { key = 'z', fn = usb.workSetup, desc = 'Work setup' },
 }
 
 function mod.init()

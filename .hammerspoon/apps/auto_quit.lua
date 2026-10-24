@@ -1,11 +1,21 @@
 local logger = require('utils/file_logger').new('autoQuit', 'info')
 
+---@class AutoQuitAppConfig
+---@field bundleId string
+---@field ttlSeconds number|nil
+---@field prompt boolean|nil
+
+---@class AutoQuitModule
+---@field defaultTtlSeconds number
+---@field apps AutoQuitAppConfig[]
+---@field check fun()
+---@field init fun(subscribe: fun(string, string, hs.application): nil)
 local mod = {
   -- Seconds an app can stay unused before being quit, when it does not set its own `ttlSeconds`.
   defaultTtlSeconds = 2 * 60 * 60,
   -- { bundleId = 'string', ttlSeconds = number (optional), prompt = true to ask before quitting (optional) }
   apps = {
-    { bundleId = 'com.apple.weather', ttlSeconds = 60 },
+    { bundleId = 'com.apple.weather', ttlSeconds = 6 },
     { bundleId = 'com.autodesk.fusion360', prompt = true },
     { bundleId = 'com.bambulab.bambu-studio', ttlSeconds = 30 * 60, prompt = false },
   },
@@ -28,12 +38,15 @@ local watchedEvents = {
   [hs.application.watcher.deactivated] = true,
 }
 
+---@param bundleId string
+---@return AutoQuitAppConfig|nil
 local function findConfig(bundleId)
   return hs.fnutils.find(mod.apps, function(config)
     return config.bundleId == bundleId
   end)
 end
 
+---@param bundleId string
 local function withdrawPrompt(bundleId)
   if pendingPrompts[bundleId] then
     pendingPrompts[bundleId]:withdraw()
@@ -41,6 +54,9 @@ local function withdrawPrompt(bundleId)
   end
 end
 
+---@param _ any
+---@param event number
+---@param app hs.application|nil
 local function onApplicationEvent(_, event, app)
   local bundleId = app and app:bundleID()
   if watchedEvents[event] and bundleId and findConfig(bundleId) then
@@ -49,6 +65,9 @@ local function onApplicationEvent(_, event, app)
   end
 end
 
+---@param app hs.application
+---@param bundleId string
+---@param ttl number
 local function quit(app, bundleId, ttl)
   logger.event('autoQuit', {
     app = app:name(),
@@ -61,6 +80,9 @@ local function quit(app, bundleId, ttl)
 end
 
 -- Using a notification since a blocking dialog would freeze Hammerspoon until answered.
+---@param app hs.application
+---@param bundleId string
+---@param ttl number
 local function prompt(app, bundleId, ttl)
   if pendingPrompts[bundleId] then
     return
@@ -83,6 +105,7 @@ local function prompt(app, bundleId, ttl)
   pendingPrompts[bundleId] = notification:send()
 end
 
+---@param config AutoQuitAppConfig
 local function quitIfUnused(config)
   local ttl = config.ttlSeconds or mod.defaultTtlSeconds
   local frontmost = hs.application.frontmostApplication()
@@ -103,12 +126,13 @@ local function quitIfUnused(config)
   end
 end
 
---- Quits the configured apps that have not been used for longer than their TTL.
+--- Check whether any idle apps should be quit and prompt as needed.
 function mod.check()
   hs.fnutils.each(mod.apps, quitIfUnused)
 end
 
---- Starts tracking app usage, through `subscribe(fn)` application events, and periodically quits unused apps.
+--- Start the auto-quit watcher and subscribe to app lifecycle events.
+---@param subscribe fun(fn: fun(appName: string, event: number, app: hs.application): nil)
 function mod.init(subscribe)
   subscribe(onApplicationEvent)
   timer = hs.timer.doEvery(checkInterval, mod.check)

@@ -4,6 +4,9 @@ local internal = hs.logger.new('fileLogger', 'info')
 
 local directory = os.getenv('HOME') .. '/Library/Logs/hammerspoon'
 
+---@class FileLoggerModule
+---@field path string
+---@field new fun(id: string, level: string): table
 local mod = {
   path = directory .. '/logs.jsonl',
 }
@@ -24,11 +27,14 @@ local methods = {
   vf = { level = 'verbose', formatted = true },
 }
 
+---@return string
 local function localTimestamp()
   local offset = os.date('%z') --[[@as string]]
   return os.date('%Y-%m-%dT%H:%M:%S') --[[@as string]] .. offset:sub(1, 3) .. ':' .. offset:sub(4, 5)
 end
 
+---@vararg any
+---@return string
 local function join(...)
   local parts = {}
   for i = 1, select('#', ...) do
@@ -37,6 +43,7 @@ local function join(...)
   return table.concat(parts, ' ')
 end
 
+---@param entry table
 local function write(entry)
   entry.timestamp = localTimestamp()
   if not hs.fs.attributes(directory) then
@@ -52,6 +59,9 @@ local function write(entry)
 end
 
 --- Creates a logger like `hs.logger.new(id, level)` that also writes its enabled messages to `mod.path`.
+---@param id string
+---@param level string
+---@return table
 function mod.new(id, level)
   local console = hs.logger.new(id, level)
   local logger = {}
@@ -67,6 +77,8 @@ function mod.new(id, level)
   end
 
   --- Records an `eventType` event at info level, with the optional `fields` stored as top-level keys.
+  ---@param eventType string
+  ---@param fields table<string, any>|nil
   function logger.event(eventType, fields)
     fields = fields or {}
     console.f('%s %s', eventType, hs.json.encode(fields))

@@ -1,0 +1,2 @@
+- There is `~/.private/hammerspoon.json` for config I do not want to be public.
+- Always use or add luadoc types, this includes local variables, function parameters, and return values. Use `---@class` for tables that are used as objects. Use `---@field` for fields in a table. Use `---@param` for function parameters. Use `---@return` for function return values.

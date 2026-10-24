@@ -1,11 +1,25 @@
 local ext = require 'windows/extensions'
 local logger = hs.logger.new('windows', 'debug')
 
+---@class WindowsModule
+---@field launchOrCycleFocus fun(applicationName: string): fun()
+---@field isUltraWideScreen fun(screen: hs.screen): boolean
+---@field isUltraWide fun(win: hs.window): boolean
+---@field hasUltraWideScreen fun(): boolean
+---@field applyLayout fun(commonLayout: table[], selectedLayout: table[]): fun()
+---@field moveWindowTo fun(position: table, positionsUltraWide: table[]|nil): fun()
+---@field maximize fun()
+---@field setPosition fun(positions: table[]|table, positionsUltraWide: table[]|nil, reversable: boolean|nil): fun()
+---@field snapAll fun()
+---@field moveTo fun(pos: table): fun()
+---@field previousScreen fun()
+---@field nextScreen fun()
+---@field cycleScreen fun()
+---@field cycleScreenBack fun()
 local mod = {}
 
 mod.launchOrCycleFocus = ext.launchOrCycleFocus
 
--- grid/window settings
 hs.grid.ui.textSize = 15
 hs.grid.GRIDWIDTH = 10
 hs.grid.GRIDHEIGHT = 4
@@ -14,21 +28,31 @@ hs.grid.MARGINY = 0
 hs.window.animationDuration = 0
 hs.window.timeout(1)
 
+---@param screen hs.screen
+---@return boolean
 function mod.isUltraWideScreen(screen)
   local frame = screen:frame()
   return frame.w / frame.h > 2
 end
 
+---@param win hs.window
+---@return boolean
 function mod.isUltraWide(win)
   return mod.isUltraWideScreen(win:screen())
 end
 
 -- Returns true if any connected screen is an ultrawide.
+---@return boolean
 function mod.hasUltraWideScreen()
   return hs.fnutils.some(hs.screen.allScreens(), mod.isUltraWideScreen)
 end
 
+---@param commonLayout table[]
+---@param selectedLayout table[]
+---@return fun()
 function mod.applyLayout(commonLayout, selectedLayout)
+  ---@param entry table
+  ---@return table
   local function expandLayout(entry)
     local scr
     if entry.screenFn then
@@ -45,7 +69,11 @@ function mod.applyLayout(commonLayout, selectedLayout)
   end
 end
 
+---@param win hs.window
+---@return table
 local function toUnitRect(win)
+  ---@param value number
+  ---@return number
   local function round(value)
     return math.ceil(value * 10) / 10
   end
@@ -54,6 +82,9 @@ local function toUnitRect(win)
   return { unitRect._x, unitRect._y, unitRect._w, unitRect._h }
 end
 
+---@param currentPos table
+---@param previousPos table
+---@return boolean
 local function isSamePos(currentPos, previousPos)
   return currentPos[0] == previousPos[0]
     and currentPos[1] == previousPos[1]
@@ -61,6 +92,9 @@ local function isSamePos(currentPos, previousPos)
     and currentPos[3] == previousPos[3]
 end
 
+---@param currentPos table
+---@param positions table[]
+---@return boolean
 local function inPostions(currentPos, positions)
   for _, p in ipairs(positions) do
     if isSamePos(currentPos, p) then
@@ -72,7 +106,12 @@ end
 
 local previousStates = {}
 
+---@param position table[]
+---@param positionsUltraWide table[]|nil
+---@return fun()
 function mod.moveWindowTo(position, positionsUltraWide)
+  ---@param win hs.window
+  ---@return string
   local function buildKey(win)
     return table.concat(position, '\0') .. win:id()
   end
@@ -105,6 +144,8 @@ function mod.maximize()
   hs.window.focusedWindow():maximize()
 end
 
+---@param t table
+---@return boolean
 local function isTableOfTables(t)
   for _, v in ipairs(t) do
     if type(v) ~= 'table' then
@@ -114,6 +155,7 @@ local function isTableOfTables(t)
   return true
 end
 
+---@param arr table
 local function reverse(arr)
   local i, j = 1, #arr
   while i < j do
@@ -123,10 +165,12 @@ local function reverse(arr)
   end
 end
 
--- required for reseting the previous state.
 local cycleStates = {}
 
--- cycles window size
+---@param positions table[]|table
+---@param positionsUltraWide table[]|nil
+---@param reversable boolean|nil
+---@return fun()
 function mod.setPosition(positions, positionsUltraWide, reversable)
   if not isTableOfTables(positions) then
     return mod.moveWindowTo(positions, positionsUltraWide)
@@ -165,6 +209,8 @@ function mod.snapAll()
   hs.fnutils.each(hs.window.visibleWindows(), hs.grid.snap)
 end
 
+---@param pos table
+---@return fun()
 function mod.moveTo(pos)
   return function()
     hs.window.focusedWindow():move(pos)
@@ -182,6 +228,7 @@ function mod.nextScreen()
   win:moveToScreen(win:screen():next())
 end
 
+---@return hs.window, hs.screen|nil
 local function maximizeOrCycleScreen()
   local win = hs.window.focusedWindow()
   if win:frame().w + 10 <= win:screen():frame().w then

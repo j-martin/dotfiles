@@ -2,6 +2,34 @@ local logger = hs.logger.new('apps', 'info')
 local autoQuit = require 'apps/auto_quit'
 local utils = require 'apps/utils'
 
+---@class AppContext
+---@field title string
+---@field url string|nil
+---@field details string[]|nil
+---@field selection string|nil
+
+---@class AppsModule
+---@field activityMonitor table
+---@field brave table
+---@field emacs table
+---@field finder table
+---@field goland table
+---@field googleChrome table
+---@field googleMeet table
+---@field idea table
+---@field iterm table
+---@field meetingbar table
+---@field messages table
+---@field notificationCenter table
+---@field reminders table
+---@field safari table
+---@field slack table
+---@field zoom table
+---@field lastUrl string|nil
+---@field subscribe fun(fn: function)
+---@field context fun(window: hs.window): AppContext|nil
+---@field httpCallback fun(scheme: string, host: string|nil, params: table, fullUrl: string, senderPID: number)
+---@field init fun()
 local mod = {
   activityMonitor = require 'apps/activity_monitor',
   brave = require 'apps/brave',
@@ -31,6 +59,7 @@ end
 local listeners = {}
 
 --- Calls `fn(appName, event, app)` on every application event, for any application.
+---@param fn fun(appName: string, event: number, app: hs.application)
 function mod.subscribe(fn)
   table.insert(listeners, fn)
 end
@@ -47,6 +76,8 @@ end
 
 --- Returns what the window is showing, when its app supports it, as
 --- {title, url, details = {lines}, selection}. `selection` is only set when the app knows it better than the clipboard.
+---@param window hs.window|nil
+---@return AppContext|nil
 function mod.context(window)
   local app = window and window:application()
   local registeredApp = app and registered[app:name()]
@@ -55,7 +86,10 @@ function mod.context(window)
   end
   local ok, context = pcall(registeredApp.context, window)
   if not ok then
-    logger.ef('Failed to get the %s context: %s', app:name(), context)
+    local appName = app and app:name()
+    if appName then
+      logger.ef('Failed to get the %s context: %s', appName, context)
+    end
     return nil
   end
   return context
@@ -64,6 +98,11 @@ end
 mod.lastUrl = nil
 
 --- Opens http(s) URLs in their desktop app when possible, e.g. Zoom and Slack, and in Brave otherwise.
+---@param scheme string
+---@param host string|nil
+---@param params table
+---@param fullUrl string
+---@param senderPID number
 function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
   logger.i(scheme, host, hs.inspect(params), fullUrl, senderPID)
   local bundleId = 'com.brave.Browser'
@@ -104,13 +143,9 @@ end
 
 --- Starts the application watcher, and the app specific watchers.
 function mod.init()
-  -- Keep a reference so the watcher is not garbage collected.
   mod.watcher = hs.application.watcher.new(onApplicationEvent):start()
   autoQuit.init(mod.subscribe)
   mod.slack.init()
-  -- hs.urlevent.httpCallback = mod.httpCallback
-  -- hs.urlevent.slackCallback = logger.i
-  -- hs.urlevent.setDefaultHandler('http')
   mod.googleChrome.init()
   mod.meetingbar.init()
 end

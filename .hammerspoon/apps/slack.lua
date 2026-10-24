@@ -2,6 +2,14 @@ local logger = hs.logger.new('slack', 'info')
 local utils = require 'apps/utils'
 local privateConfig = require 'utils/private_config'
 
+---@class SlackApp
+---@field name string
+---@field bundleId string
+---@field teamMapping table<string, string>
+---@field deepLink fun(url: string, encodedParams: string): string|nil
+---@field messageUrl fun(element: hs.axuielement): string|nil
+---@field context fun(window: hs.window): table<string, string>|nil
+---@field init fun()
 local mod = {}
 
 mod.name = 'Slack'
@@ -15,6 +23,10 @@ local prefixMapping = {
   DA = 'user',
 }
 
+---@param haystack string
+---@param patternPrefix string
+---@param pattern string
+---@return string|nil
 local function match(haystack, patternPrefix, pattern)
   local result = string.match(haystack, patternPrefix .. pattern)
   if not result then
@@ -24,8 +36,9 @@ local function match(haystack, patternPrefix, pattern)
 end
 
 --- Converts a https://<domain>.slack.com/archives/... URL to a slack:// deep link, or nil if it cannot be inferred.
--- e.g. https://xxxxxxxxx.slack.com/archives/C019DD3QJKY/p1639615885056700?thread_ts=1639615239.055000&cid=C019DD3QJKY
---   -> slack://channel?team=T00000000&id=C019DD3QJKY&message=1639615885.056700&thread_ts=1639615239.055000&cid=...
+---@param url string
+---@param encodedParams string
+---@return string|nil
 function mod.deepLink(url, encodedParams)
   local teamId = nil
   for domain, value in pairs(mod.teamMapping) do
@@ -66,10 +79,14 @@ function mod.deepLink(url, encodedParams)
 end
 
 -- e.g. "* Mike (DM) - Workspace - 2 new items - Slack" -> "Mike (DM) - Workspace"
+---@param title string
+---@return string
 local function cleanTitle(title)
   return (title:gsub('^%*%s*', ''):gsub('%s+%-%s+Slack$', ''):gsub('%s+%-%s+%d+ new items?$', ''))
 end
 
+---@param element hs.axuielement
+---@return string|nil
 local function permalink(element)
   if element:attributeValue('AXRole') ~= 'AXLink' then
     return nil
@@ -80,6 +97,11 @@ local function permalink(element)
 end
 
 -- Distinct message permalinks under `element`, stopping once more than `limit` are found
+---@param element hs.axuielement
+---@param depth number
+---@param limit number
+---@param found table<string, any>
+---@return table<string, any>
 local function collectPermalinks(element, depth, limit, found)
   local url = permalink(element)
   if url and not found[url:match('^[^?]+')] then
@@ -99,6 +121,8 @@ local function collectPermalinks(element, depth, limit, found)
 end
 
 --- Returns the permalink of the message containing `element`, or nil when it is not inside a single message.
+---@param element hs.axuielement
+---@return string|nil
 function mod.messageUrl(element)
   while element do
     local role = element:attributeValue('AXRole')
@@ -121,6 +145,8 @@ function mod.messageUrl(element)
 end
 
 -- The message under the mouse, or else the keyboard focused one
+---@param app hs.application
+---@return string|nil
 local function selectedMessageUrl(app)
   local hovered = hs.axuielement.systemElementAtPosition(hs.mouse.absolutePosition())
   local url = hovered and hovered:pid() == app:pid() and mod.messageUrl(hovered)
@@ -132,6 +158,8 @@ local function selectedMessageUrl(app)
 end
 
 --- Returns the current channel, and the permalink of the hovered or focused message, else the channel URL.
+---@param window hs.window
+---@return table<string, string>|nil
 function mod.context(window)
   local app = window:application()
   utils.enableManualAccessibility(app)

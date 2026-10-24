@@ -1,17 +1,17 @@
 -- Loading this early before we load potentially broken code.
+---@class HammerspoonBootstrap
+---@field init fun(): nil
 local reload = require 'reload'
 reload.init()
 
 local activity = require 'activity'
 local apps = require 'apps'
 local audio = require 'audio'
-local battery = require 'battery'
 local keybindings = require 'keybindings'
 local usb = require 'usb'
 
 keybindings.init()
 activity.init()
--- battery.init()
 audio.init()
 usb.init()
 apps.init()

@@ -1,4 +1,21 @@
 -- Full screen overlay listing keybindings.
+---@class CheatsheetBinding
+---@field key string
+---@field desc string|nil
+---@field name string|nil
+---@field fn function|nil
+---@field modifiers string[]|nil
+---@field shift boolean|nil
+
+---@class CheatsheetSection
+---@field title string
+---@field bindings CheatsheetBinding[]
+
+---@class CheatsheetModule
+---@field modifiersString fun(modifiers: string[]|nil): string
+---@field register fun(title: string, bindings: CheatsheetBinding[])
+---@field close fun()
+---@field show fun(sections: CheatsheetSection[]|nil)
 local mod = {}
 
 local view
@@ -10,6 +27,8 @@ local registry = {}
 local modifierSymbols = { cmd = '⌘', alt = '⌥', ctrl = '⌃', shift = '⇧' }
 
 -- Render a modifier list, e.g. {'cmd', 'alt', 'ctrl'} -> '⌘⌥⌃'.
+---@param modifiers string[]|nil
+---@return string
 function mod.modifiersString(modifiers)
   local parts = {}
   for _, modifier in ipairs(modifiers or {}) do
@@ -19,6 +38,8 @@ function mod.modifiersString(modifiers)
 end
 
 -- Register (or replace, when the title already exists) a section of bindings.
+---@param title string
+---@param bindings CheatsheetBinding[]
 function mod.register(title, bindings)
   for _, section in ipairs(registry) do
     if section.title == title then
@@ -39,11 +60,14 @@ function mod.close()
   end
 end
 
+---@param s string
+---@return string
 local function escapeHtml(s)
   return (s:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;'))
 end
 
 -- Map functions to 'module.name' by scanning loaded modules.
+---@return table<function, string>
 local function functionNames()
   local names = {}
   for modName, module in pairs(package.loaded) do
@@ -60,6 +84,9 @@ local function functionNames()
   return names
 end
 
+---@param section CheatsheetSection
+---@param fnNames table<function, string>
+---@return string
 local function renderSection(section, fnNames)
   local rows = {}
   for _, binding in ipairs(section.bindings) do
@@ -98,6 +125,7 @@ local style = [[
 
 -- sections: { { title = 'string', bindings = { binding, ... } }, ... }
 -- Defaults to all registered sections.
+---@param sections CheatsheetSection[]|nil
 function mod.show(sections)
   mod.close()
   sections = sections or registry

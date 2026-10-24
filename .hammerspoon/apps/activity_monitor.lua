@@ -1,5 +1,8 @@
 local utils = require 'apps/utils'
 
+---@class ActivityMonitorApp
+---@field name string
+---@field open fun()
 local mod = {}
 
 mod.name = 'Activity Monitor'

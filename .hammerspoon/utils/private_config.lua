@@ -1,18 +1,36 @@
 -- Settings kept out of this public repository, in ~/.private/hammerspoon.json.
 local logger = require('utils/file_logger').new('privateConfig', 'info')
 
+---@class PrivateConfig
+---@field path string
+---@field iMessageRecipient string
+---@field slackTeamMapping table<string, string>
+---@field read fun(): table<string, any>
+---@field get fun(key: string): string|nil
+
+---@type PrivateConfig
 local mod = {
   path = os.getenv('HOME') .. '/.private/hammerspoon.json',
-}
-
--- Written to `mod.path` when it does not exist yet.
-local defaults = {
-  -- Phone number or email
   iMessageRecipient = '',
-  -- Slack domain (with or without '.slack.com') -> team ID
-  slackTeamMapping = { afakecompany = 'T00000000' },
+  slackTeamMapping = {},
+  read = function()
+    return {}
+  end,
+  get = function(key)
+    return nil
+  end,
 }
 
+---@type PrivateConfig
+local defaults = {
+  path = mod.path,
+  iMessageRecipient = '',
+  slackTeamMapping = { afakecompany = 'T00000000' },
+  read = mod.read,
+  get = mod.get,
+}
+
+---@return nil
 local function create()
   local directory = mod.path:match('^(.*)/[^/]+$')
   if not hs.fs.attributes(directory) then
@@ -26,6 +44,7 @@ local function create()
 end
 
 --- Returns the whole private config, creating the file with the defaults when missing.
+---@return table<string, any>
 function mod.read()
   if not hs.fs.attributes(mod.path) then
     create()
@@ -39,6 +58,8 @@ function mod.read()
 end
 
 --- Returns the value of `key`, or nil when it is unset or empty.
+---@param key string
+---@return string|nil
 function mod.get(key)
   local value = mod.read()[key]
   if value == '' then
