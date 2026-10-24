@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -u
+shopt -s inherit_errexit 2> /dev/null || true
+
+IFS=$'\n\t'
+
+readonly bundle_id='org.hammerspoon.Hammerspoon'
+readonly hs_cli='/opt/homebrew/bin/hs'
+
+app='Reminders'
+probe='get name of default list'
+reset='false'
+
+_usage() {
+  cat << EOF
+Diagnose why Hammerspoon cannot script an app (Automation / TCC permissions).
+
+Usage: $(basename "$0") [--app NAME] [--probe EXPRESSION] [--reset]
+
+  --app NAME          App to script (default: ${app})
+  --probe EXPRESSION  AppleScript run inside 'tell application NAME' (default: ${probe})
+  --reset             Reset Hammerspoon's Automation grants and restart it before probing
+  --help              Show this help
+EOF
+}
+
+_info() {
+  echo >&2 "[info] $*"
+}
+
+_ok() {
+  echo >&2 "[ok]   $*"
+}
+
+_warn() {
+  echo >&2 "[warn] $*"
+}
+
+_fatal() {
+  local message="$1"
+  local code="${2:-255}"
+  echo >&2 "[fatal] ${message} Exit code: ${code}"
+  exit "${code}"
+}
+
+# Run Lua in Hammerspoon, dropping the extension loading noise
+__hs() {
+  timeout 15 "${hs_cli}" -c "$1" 2>&1 | grep --invert-match '^-- Loading extension' || true
+}
+
+__hammerspoon_path() {
+  local paths
+  paths="$(mdfind "kMDItemCFBundleIdentifier == '${bundle_id}'")"
+  if [[ -z "${paths}" ]]; then
+    _fatal "Hammerspoon is not installed." 1
+  fi
+  if [[ "$(wc -l <<< "${paths}")" -gt 1 ]]; then
+    _warn "Multiple Hammerspoon installs, TCC grants may point to the wrong one:"
+    echo >&2 "${paths}"
+  fi
+  head -1 <<< "${paths}"
+}
+
+__check_install() {
+  local path="$1"
+  local plist="${path}/Contents/Info.plist"
+  local version
+  version="$(defaults read "${plist}" CFBundleShortVersionString)"
+  _ok "Hammerspoon ${version} at ${path}"
+
+  if codesign --verify --deep --strict "${path}" 2> /dev/null; then
+    _ok "Code signature is valid"
+  else
+    _warn "Code signature is invalid, TCC will not match existing grants"
+  fi
+
+  _info "Usage description keys in Info.plist:"
+  defaults read "${plist}" | grep --extended-regexp --only-matching 'NS[A-Za-z]+UsageDescription' | sort --unique | sed 's/^/         /' >&2 || true
+}
+
+__wait_for_hammerspoon() {
+  local attempt
+  for attempt in $(seq 1 30); do
+    if [[ "$(__hs 'return "pong"')" == 'pong' ]]; then
+      return 0
+    fi
+    sleep 1
+  done
+  _fatal "Hammerspoon did not answer after ${attempt}s, is hs.ipc loaded?" 1
+}
+
+__reset() {
+  _info "Resetting AppleEvents grants for ${bundle_id}"
+  tccutil reset AppleEvents "${bundle_id}"
+  _info "Restarting Hammerspoon so it drops cached permissions"
+  pkill -x Hammerspoon || true
+  sleep 2
+  open -b "${bundle_id}"
+  __wait_for_hammerspoon
+}
+
+__probe() {
+  local lua
+  lua="local ok, out, err = hs.osascript.applescript([[tell application \"${app}\" to ${probe}]])
+if ok then return 'ok\t' .. tostring(out) end
+return 'error\t' .. tostring(err.OSAScriptErrorNumberKey) .. '\t' .. tostring(err.OSAScriptErrorBriefMessageKey)"
+  __hs "${lua}"
+}
+
+# Hammerspoon cannot prompt itself without the usage key, but an osascript child can
+__request_grant() {
+  local lua
+  lua="hs.task.new('/usr/bin/osascript', nil, {'-e', [[tell application \"${app}\" to ${probe}]]}):start()
+return 'started'"
+  __hs "${lua}" > /dev/null
+}
+
+__wait_for_grant() {
+  local deadline=$((SECONDS + 120))
+  local status
+  while [[ "${SECONDS}" -lt "${deadline}" ]]; do
+    IFS=$'\t' read -r status _ <<< "$(__probe)"
+    if [[ "${status}" == 'ok' ]]; then
+      return 0
+    fi
+    sleep 2
+  done
+  return 1
+}
+
+__print_indented() {
+  local lines
+  mapfile -t lines <<< "$1"
+  printf '         %s\n' "${lines[@]}" >&2
+}
+
+__tcc_refusals() {
+  local since="$1"
+  /usr/bin/log show --start "${since}" --predicate 'process == "tccd"' --style compact 2> /dev/null \
+    | grep --ignore-case 'Refusing.*hammerspoon' \
+    | grep --extended-regexp --only-matching 'service [A-Za-z]+|without [A-Za-z]+ key' \
+    | sort --unique || true
+}
+
+_main() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --app)
+        app="$2"
+        shift 2
+        ;;
+      --probe)
+        probe="$2"
+        shift 2
+        ;;
+      --reset)
+        reset='true'
+        shift
+        ;;
+      --help)
+        _usage
+        exit 0
+        ;;
+      *)
+        _usage
+        _fatal "Unknown argument: $1" 2
+        ;;
+    esac
+  done
+
+  if [[ ! -x "${hs_cli}" ]]; then
+    _fatal "Hammerspoon CLI not found at ${hs_cli}, run hs.ipc.cliInstall('/opt/homebrew')." 1
+  fi
+
+  local path
+  path="$(__hammerspoon_path)"
+  __check_install "${path}"
+
+  if [[ "${reset}" == 'true' ]]; then
+    __reset
+  else
+    __wait_for_hammerspoon
+  fi
+  _ok "Hammerspoon IPC is answering"
+
+  local since result
+  since="$(date '+%Y-%m-%d %H:%M:%S')"
+  _info "Probing: tell application \"${app}\" to ${probe}"
+  _info "If a permission prompt shows up, click OK."
+  result="$(__probe)"
+  sleep 1
+
+  local status code message
+  IFS=$'\t' read -r status code message <<< "${result}"
+  if [[ "${status}" == 'ok' ]]; then
+    _ok "${app} answered: ${code}"
+    exit 0
+  fi
+  # A permission prompt blocks Hammerspoon until it is answered
+  if [[ -z "${result}" || "${result}" == *'receive timeout'* ]]; then
+    _info "Hammerspoon is busy, most likely showing a permission prompt. Click OK (waiting up to 2 minutes)..."
+    if __wait_for_grant; then
+      _ok "${app} access granted"
+      exit 0
+    fi
+    _fatal "Still no answer from ${app}, check Privacy & Security > Automation > Hammerspoon." 1
+  fi
+  if [[ "${status}" != 'error' ]]; then
+    _fatal "Unexpected answer from Hammerspoon: ${result}" 1
+  fi
+  _warn "${app} refused with ${code}: ${message}"
+
+  local refusals
+  refusals="$(__tcc_refusals "${since}")"
+  if [[ -n "${refusals}" ]]; then
+    _warn "tccd refused Hammerspoon:"
+    __print_indented "${refusals}"
+    if grep --quiet 'without' <<< "${refusals}"; then
+      _warn "Hammerspoon's Info.plist lacks the key above, so macOS refuses without prompting."
+      _info "Requesting access through an osascript child process instead."
+      _info "Click OK on the permission prompt (waiting up to 2 minutes)..."
+      __request_grant
+      if __wait_for_grant; then
+        _ok "${app} access granted, Hammerspoon can script ${app} now"
+        exit 0
+      fi
+      _warn "No grant recorded. Check Privacy & Security > ${app} for Hammerspoon."
+    fi
+  elif [[ "${code}" == '-1743' ]]; then
+    _warn "Automation denied. Check Privacy & Security > Automation > Hammerspoon > ${app}, or rerun with --reset."
+  fi
+  exit 1
+}
+
+_main "$@"
