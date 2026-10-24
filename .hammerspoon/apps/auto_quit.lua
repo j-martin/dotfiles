@@ -1,13 +1,13 @@
 local logger = require('utils/file_logger').new('autoQuit', 'info')
 
 local mod = {
-  -- Seconds an app can stay unused before being quit, when it does not set its own `ttl`.
-  defaultTtl = 2 * 60 * 60,
-  -- { bundleId = 'string', ttl = seconds (optional), prompt = true to ask before quitting (optional) }
+  -- Seconds an app can stay unused before being quit, when it does not set its own `ttlSeconds`.
+  defaultTtlSeconds = 2 * 60 * 60,
+  -- { bundleId = 'string', ttlSeconds = number (optional), prompt = true to ask before quitting (optional) }
   apps = {
-    { bundleId = 'com.apple.weather', ttl = 5 * 60 },
+    { bundleId = 'com.apple.weather', ttlSeconds = 60 },
     { bundleId = 'com.autodesk.fusion360', prompt = true },
-    { bundleId = 'com.bambulab.bambu-studio', prompt = true },
+    { bundleId = 'com.bambulab.bambu-studio', ttlSeconds = 30 * 60, prompt = false },
   },
 }
 
@@ -84,7 +84,7 @@ local function prompt(app, bundleId, ttl)
 end
 
 local function quitIfUnused(config)
-  local ttl = config.ttl or mod.defaultTtl
+  local ttl = config.ttlSeconds or mod.defaultTtlSeconds
   local frontmost = hs.application.frontmostApplication()
   for _, app in ipairs(hs.application.applicationsForBundleID(config.bundleId)) do
     if frontmost and frontmost:bundleID() == config.bundleId then
