@@ -1,4 +1,4 @@
-local logger = hs.logger.new('autoQuit', 'info')
+local logger = require('utils/file_logger').new('autoQuit', 'info')
 
 local mod = {
   -- Seconds an app can stay unused before being quit, when it does not set its own `ttl`.
@@ -50,7 +50,12 @@ local function onApplicationEvent(_, event, app)
 end
 
 local function quit(app, bundleId, ttl)
-  logger.f('Quitting %s, unused for %d seconds', app:name(), ttl)
+  logger.event('autoQuit', {
+    app = app:name(),
+    bundleId = bundleId,
+    ttlSeconds = ttl,
+    unusedSeconds = os.time() - (lastUsed[bundleId] or os.time()),
+  })
   app:kill()
   lastUsed[bundleId] = nil
 end

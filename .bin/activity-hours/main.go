@@ -34,7 +34,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("failed to resolve home directory: %w", err)
 	}
-	path := flag.String("file", filepath.Join(home, ".activity.json"), "JSON Lines file of lock/unlock events")
+	path := flag.String("file", filepath.Join(home, "Library", "Logs", "hammerspoon", "logs.jsonl"), "JSON Lines file of lock/unlock events")
 	days := flag.Int("days", 7, "number of days to show, including today")
 	flag.Parse()
 

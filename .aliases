@@ -131,7 +131,6 @@ alias goo='google ' # Depends on ZSH google plugin.
 alias hey="growlnotify 'Command Done!' -m 'Yes!'"
 alias hi='history | grep '
 alias hosts='sudo vi /etc/hosts'
-alias hsl='grep key "$HOME/.hammerspoon/bindings.lua"'
 jqx() { jq . -C "$@" | less -SRi; }
 alias jq-serialized='jq -R -s .'
 alias jqc='pbpaste | jq .'
@@ -493,3 +492,6 @@ alias certv='openssl x509 -serial  -subject -issuer -dates -alias -noout -in'
 
 alias da='dot-agent'
 alias claude='\claude --model opus --permission-mode acceptEdits'
+
+# hammerspoon
+alias hsl='tail -f "$HOME/Library/Logs/hammerspoon/logs.jsonl" | jq'

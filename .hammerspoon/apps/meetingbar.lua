@@ -1,7 +1,7 @@
 -- Restart MeetingBar on wake to work around its Google Calendar refresh hanging
 -- when the system wakes before the network is up.
 -- https://github.com/leits/MeetingBar/pull/974
-local logger = hs.logger.new('meetingbar', 'info')
+local logger = require('utils/file_logger').new('meetingbar', 'info')
 
 local mod = {}
 

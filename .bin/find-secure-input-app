@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import subprocess
+import re
+
+# Query macOS I/O Registry for SecureInput
+cmd = "ioreg -r -w 0 | grep SecureInput"
+result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+output = result.stdout
+
+if "SecureInput" in output:
+    print("Secure Input is active!")
+    # Search for the PID number in the output
+    match = re.search(r'"kCGSSessionSecureInputPID"\s*=\s*(\d+)', output)
+    if match:
+        pid = match.group(1)
+        # Find process name using ps
+        ps_result = subprocess.run(f"ps -p {pid} -o comm=", shell=True, capture_output=True, text=True)
+        print(f"Offending PID: {pid}")
+        print(f"Process: {ps_result.stdout.strip()}")
+    else:
+        print("Could not extract specific PID from ioreg data.")
+else:
+    print("Secure Input is not active.")
