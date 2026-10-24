@@ -15,6 +15,8 @@ ali() {
   ) | grep "$@" | sort
 }
 
+alias c=z
+
 # Editor
 alias vi='nvim'
 alias v='nvim'
