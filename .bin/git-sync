@@ -14,8 +14,20 @@ if [ -z "$(git rev-list '@{upstream}..HEAD')" ]; then
   echo "Nothing to push."
   exit 0
 fi
+clear
+
+echo "Commits:"
 git --no-pager log --oneline '@{upstream}..HEAD'
+
+
+echo
+echo "Diff:"
 git --no-pager diff '@{upstream}'
+
+echo
+echo "Modified files:"
+git --no-pager diff --name-only '@{upstream}'
+echo
 if gum confirm "Push to $(git rev-parse --abbrev-ref '@{upstream}')?"; then
   git push --no-verify
 fi
