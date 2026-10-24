@@ -2,13 +2,11 @@ local apps = require 'apps'
 local audio = require 'audio'
 local keybinder = require 'keybinder'
 local mode = require 'mode'
-local mounts = require 'mounts'
 local screen = require 'screen'
 local selection = require 'selection'
 local windows = require 'windows'
 local reload = require 'reload'
 local usb = require 'usb'
-local wifi = require 'wifi'
 
 local cmd = keybinder.cmd
 local cmdCtrl = { 'cmd', 'ctrl' }

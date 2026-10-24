@@ -2,5 +2,13 @@
   "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
   "runtime.version": "Lua 5.4",
   "diagnostics.globals": ["hs", "spoon"],
+  "diagnostics.disable": ["lowercase-global"],
+  "diagnostics.unused-local": "Error",
+  "diagnostics.unused-function": "Error",
+  "diagnostics.unused-label": "Error",
+  "diagnostics.unused-vararg": "Error",
+  "diagnostics.unreachable-code": "Error",
+  "diagnostics.code-after-break": "Error",
+  "diagnostics.empty-block": "Error",
   "workspace.ignoreDir": ["Spoons"]
 }
