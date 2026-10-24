@@ -4,9 +4,6 @@ local logger = hs.logger.new('headphones', 'debug')
 
 local watchedDevices = {}
 
-local pluggedFn = nil
-local unpluggedFn = nil
-
 local function audioDeviceWatch(dev_uid, event_name, event_scope, event_element)
   logger.df('Audiodevwatch args: %s, %s, %s, %s', dev_uid, event_name, event_scope, event_element)
   -- 'dIn ' is the default input changing, which `setDefaultInputDevice` itself triggers.
