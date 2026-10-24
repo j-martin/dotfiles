@@ -171,3 +171,7 @@ When multiple valid approaches exist, choose based on:
 
 - Unless told to use a worktree, use the current worktree.
 - Create git worktrees under `~/src/worktrees/<repo>-<branch-or-ticket>`
+
+## General
+
+- Always look the file structure of the project to understand where the new code should live.
