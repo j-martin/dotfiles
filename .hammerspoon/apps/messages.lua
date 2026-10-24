@@ -1,21 +1,11 @@
 local logger = hs.logger.new('messages', 'info')
 local selection = require 'selection'
 local confirm = require 'utils/confirm'
+local privateConfig = require 'utils/private_config'
 
 local mod = {}
 
--- See hammerspoon.example.json
-local privateConfigPath = os.getenv('HOME') .. '/.private/hammerspoon.json'
-
 local previewLength = 300
-
-local function readRecipient()
-  if not hs.fs.attributes(privateConfigPath) then
-    return nil
-  end
-  local config = hs.json.read(privateConfigPath)
-  return config and config.iMessageRecipient
-end
 
 local function escapeAppleScript(text)
   return (text:gsub('\\', '\\\\'):gsub('"', '\\"'))
@@ -42,11 +32,11 @@ local function send(recipient, text)
   hs.alert.show('iMessage sent to ' .. recipient)
 end
 
--- Sends the selected text, or the clipboard when nothing is selected, to the `iMessageRecipient` from ~/.private/hammerspoon.json after a confirmation prompt.
+-- Sends the selected text, or the clipboard when nothing is selected, to the private config `iMessageRecipient` after a confirmation prompt.
 function mod.sendSelection()
-  local recipient = readRecipient()
+  local recipient = privateConfig.get('iMessageRecipient')
   if not recipient then
-    hs.alert.show("No 'iMessageRecipient' in " .. privateConfigPath)
+    hs.alert.show("No 'iMessageRecipient' in " .. privateConfig.path)
     return
   end
 

@@ -1,25 +1,14 @@
 local logger = hs.logger.new('slack', 'info')
 local utils = require 'apps/utils'
+local privateConfig = require 'utils/private_config'
 
 local mod = {}
 
 mod.name = 'Slack'
 mod.bundleId = 'com.tinyspeck.slackmacgap'
 
--- Config example:
--- ~/.private/hammerspoon.json
--- {
---  "slackTeamMapping": {
---    "team1": "T00000000",
---    "team2": "T11111111"
---  }
---}
-
-mod.teamMapping = {
-  -- slack domain (with or without '.slack.com') = "teamId"
-  -- example:
-  afakecompany = 'T00000000',
-}
+-- Slack domain (with or without '.slack.com') -> team ID, from the private config `slackTeamMapping`
+mod.teamMapping = {}
 
 local prefixMapping = {
   C = 'channel',
@@ -155,13 +144,9 @@ function mod.context(window)
   return { title = cleanTitle(window:title()), url = type(url) == 'table' and url.url or nil }
 end
 
---- Loads the team mapping from ~/.private/hammerspoon.json.
+--- Loads the team mapping from the private config.
 function mod.init()
-  local privateConfigPath = os.getenv('HOME') .. '/.private/hammerspoon.json'
-  if hs.fs.attributes(privateConfigPath) then
-    logger.f("Loading private config from '%s'...", privateConfigPath)
-    mod.teamMapping = hs.json.read(privateConfigPath).slackTeamMapping or mod.teamMapping
-  end
+  mod.teamMapping = privateConfig.get('slackTeamMapping') or mod.teamMapping
 end
 
 return mod
