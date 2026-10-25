@@ -15,7 +15,7 @@ local mod = {
   defaultTtlSeconds = 2 * 60 * 60,
   -- { bundleId = 'string', ttlSeconds = number (optional), prompt = true to ask before quitting (optional) }
   apps = {
-    { bundleId = 'com.apple.weather', ttlSeconds = 6 },
+    { bundleId = 'com.apple.weather', ttlSeconds = 30 },
     { bundleId = 'com.autodesk.fusion360', prompt = true },
     { bundleId = 'com.bambulab.bambu-studio', ttlSeconds = 30 * 60, prompt = false },
   },
