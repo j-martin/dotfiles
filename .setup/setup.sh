@@ -4,7 +4,7 @@ set -o errexit
 set -o pipefail
 set -x
 
-_macos_customizations () {
+_macos_customizations() {
   sudo pmset -a standbydelay 86400
   sudo pmset -a sms 0
 
@@ -74,7 +74,7 @@ _macos_customizations () {
   tic -o ~/.terminfo "$(find "$(/opt/homebrew/bin/brew --prefix)/Cellar" -type f -name 'eterm-color.ti' | head -n 1)"
 }
 
-_macos_apps () {
+_macos_apps() {
   xcode-select --install || true
   NONINTERACTIVE=1 /bin/bash -c "$(curl --fail --silent --show-error --location https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   curl --fail --silent --show-error --location https://mise.run | sh
@@ -92,27 +92,15 @@ _macos_apps () {
     | sudo tee -a /etc/shells
 }
 
-_linux_apps () {
-  add-apt-repository ppa:git-core/ppa
-  apt-add-repository ppa:ubuntu-elisp/ppa
-  add-apt-repository ppa:neovim-ppa/unstable
-  apt-get update
-  apt-get install zsh git silversearcher-ag neovim
-}
-
-_general () {
+_main() {
   chmod 700 "$HOME/.gnupg"
   chmod -R 600 "$HOME/.gnupg"
 
-  chsh -s "$(grep /zsh$ /etc/shells | tail -1)"
-  xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
-}
-
-if [[ "$(uname)" == 'Darwin' ]]; then
   _macos_apps
   _macos_customizations
-elif [[ "$(uname)" == 'Linux' ]]; then
-  _linux_apps
-fi
 
-_general
+  xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
+
+}
+
+_main
