@@ -54,13 +54,13 @@ _macos_customizations () {
   defaults write com.apple.systempreferences TMShowUnsupportedNetworkVolumes 1
   defaults write com.google.Chrome ExternalProtocolDialogShowAlwaysOpenCheckbox -bool true
 
-  # allow to drag windows by holding cmd+ctrl
+  # allow dragging windows by holding Cmd+Ctrl
   defaults write -g NSWindowShouldDragOnGesture YES
 
   # Disable the desktop
   defaults write com.apple.finder CreateDesktop false
 
-  # Disable relauching application.
+  # Disable relaunching applications.
   defaults write -g ApplePersistence -bool no
 
   # Make key repeat faster.
@@ -68,10 +68,10 @@ _macos_customizations () {
   defaults write -g KeyRepeat -int 2
 
   killall Dock || true
-  Killall Finder || true
+  killall Finder || true
 
-  # fix emacs ansi-term escape code
-  tic -o ~/.terminfo "$(find /usr/local/Cellar -type f -name '*.ti' | head -n 1)"
+  # fix emacs ansi-term escape code, eterm-color.ti ships with emacs-plus
+  tic -o ~/.terminfo "$(find "$(/opt/homebrew/bin/brew --prefix)/Cellar" -type f -name 'eterm-color.ti' | head -n 1)"
 }
 
 _macos_apps () {
@@ -82,6 +82,10 @@ _macos_apps () {
   "$HOME/.local/bin/mise" install
   # mise cannot evaluate emacs-plus: the formula requires sibling files from its tap.
   /opt/homebrew/bin/brew install d12frosted/emacs-plus/emacs-plus@31
+
+  # The rest of the setup needs the freshly installed tools (npm, code, ...)
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
 
   which zsh \
     | head -n1 \
@@ -101,20 +105,11 @@ _general () {
   chmod -R 600 "$HOME/.gnupg"
 
   chsh -s "$(grep /zsh$ /etc/shells | tail -1)"
-  npm install -g vmd
   xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
 }
 
-_go_specific () {
-  # mostly imports for emacs
-  go get -u -v github.com/nsf/gocode
-  go get -u -v github.com/rogpeppe/godef
-  go get -u -v golang.org/x/tools/cmd/guru
-  go get -u -v golang.org/x/tools/cmd/gorename
-  go get -u -v golang.org/x/tools/cmd/goimports
-}
-
 if [[ "$(uname)" == 'Darwin' ]]; then
+  _macos_apps
   _macos_customizations
 elif [[ "$(uname)" == 'Linux' ]]; then
   _linux_apps

@@ -5,6 +5,7 @@
 #
 # Creates the ~/.ssh/github key when missing and walks through adding it to GitHub.
 # Existing files that would be overwritten are moved to ~/.files-backup/<timestamp>/.
+# Then runs ~/.setup/setup.sh, unless DOTFILES_SKIP_SETUP=true.
 # Safe to rerun, e.g. after a failed submodule update.
 
 set -o errexit
@@ -129,7 +130,12 @@ _main() {
   __copy_reference "${HOME}/.gitconfig.ref" "${HOME}/.gitconfig"
   __copy_reference "${HOME}/.ssh.config" "${HOME}/.ssh/config"
 
-  echo "[ok] Dotfiles installed. Next: ~/.setup/setup.sh"
+  echo "[ok] Dotfiles installed"
+
+  if [[ "${DOTFILES_SKIP_SETUP:-}" != 'true' ]]; then
+    # setup.sh prompts for sudo and chsh, which need the terminal
+    "${HOME}/.setup/setup.sh" < /dev/tty
+  fi
 }
 
 _main "$@"
