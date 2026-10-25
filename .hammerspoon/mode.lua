@@ -35,6 +35,14 @@ function mod.create(modifiers, key, name, bindings)
     mode:exit()
   end
 
+  -- Not using closeAll to keep persistent alerts (e.g. kinesis) visible.
+  function mode:exited()
+    if alertId then
+      hs.alert.closeSpecific(alertId)
+      alertId = nil
+    end
+  end
+
   ---@return nil
   local function callAndExit(fn)
     return function()

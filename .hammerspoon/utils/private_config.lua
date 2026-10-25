@@ -1,33 +1,18 @@
 -- Settings kept out of this public repository, in ~/.private/hammerspoon.json.
 local logger = require('utils/file_logger').new('privateConfig', 'info')
 
----@class PrivateConfig
+---@class PrivateConfigModule
 ---@field path string
----@field iMessageRecipient string
----@field slackTeamMapping table<string, string>
----@field read fun(): table<string, any>
----@field get fun(key: string): string|nil
-
----@type PrivateConfig
 local mod = {
   path = os.getenv('HOME') .. '/.private/hammerspoon.json',
-  iMessageRecipient = '',
-  slackTeamMapping = {},
-  read = function()
-    return {}
-  end,
-  get = function(key)
-    return nil
-  end,
 }
 
----@type PrivateConfig
+-- Written to `mod.path` when it does not exist yet.
 local defaults = {
-  path = mod.path,
+  -- Phone number or email
   iMessageRecipient = '',
+  -- Slack domain (with or without '.slack.com') -> team ID
   slackTeamMapping = { afakecompany = 'T00000000' },
-  read = mod.read,
-  get = mod.get,
 }
 
 ---@return nil

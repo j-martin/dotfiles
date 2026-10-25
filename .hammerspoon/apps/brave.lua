@@ -23,12 +23,26 @@ local function openSlack()
   mod.activateTab(mod.tab.slack)()
 end
 
----@param element hs.axuielement|nil
+local signInLabels = { '^sign ?in$', '^log ?in$' }
+
+---@param element hs.axuielement
 ---@return boolean
 local function isSignInButton(element)
-  local role = element and element:attributeValue('AXRole')
-  local title = element and element:attributeValue('AXTitle')
-  return role == 'AXButton' and type(title) == 'string' and title:match('Sign in|Log in') ~= nil
+  if element:attributeValue('AXRole') ~= 'AXButton' then
+    return false
+  end
+  for _, attribute in ipairs({ 'AXTitle', 'AXDescription' }) do
+    local label = element:attributeValue(attribute)
+    if type(label) == 'string' then
+      label = label:lower():match('^%s*(.-)%s*$')
+      for _, pattern in ipairs(signInLabels) do
+        if label:match(pattern) then
+          return true
+        end
+      end
+    end
+  end
+  return false
 end
 
 --- Opens the Slack quick switcher of the Slack tab.
@@ -60,7 +74,7 @@ end
 
 --- Opens the tab search.
 function mod.openOmni()
-  -- implementation retained from existing module behavior.
+  utils.switchToAndType(mod.name, { 'shift' }, 'o')
 end
 
 --- Presses the "Sign in" or "Log in" button of the focused Brave window, for forms that ignore the return key.
