@@ -198,8 +198,6 @@ From http://akrl.sdf.org/.
      (setq-default abbrev-mode t)
      (setq save-abbrevs 'silently)
      (super-save-mode +1)
-     (setq super-save-auto-save-when-idle t)
-     (setq-default super-save-auto-save-when-idle t)
    #+end_src
 ** Company
    #+begin_src emacs-lisp :results none
@@ -207,11 +205,9 @@ From http://akrl.sdf.org/.
    #+end_src
 ** Super Save
    #+begin_src emacs-lisp :results none
-     (setq
-      super-save-mode +1
-      super-save-idle-duration 0.1
-      super-save-all-buffers t
-      super-save-auto-save-when-idle t)
+     ;; No idle saving: the whitespace cleanup on save would strip the space
+     ;; just typed. Saves on focus loss and buffer switch only.
+     (setq super-save-all-buffers t)
 
      ;; Alfred (clipboard picker, etc.) steals keyboard focus from Emacs without
      ;; becoming the frontmost app.  Saving then would strip the trailing space
