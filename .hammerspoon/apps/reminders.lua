@@ -24,7 +24,8 @@ local mod = {}
 
 mod.name = 'Reminders'
 
--- Empty means the default Reminders list
+-- Empty means the default Reminders list.
+-- Lists inside a list group are not scriptable, only top level lists can be named here.
 mod.list = ''
 
 --- Creates a reminder in `mod.list`. Returns ok, and an error message when not ok.
@@ -43,7 +44,7 @@ function mod.create(title, due, notes)
       props.dueDate = new Date(p.due * 1000);
       props.remindMeDate = new Date(p.due * 1000);
     }
-    const list = p.list ? app.lists.byName(p.list) : app.defaultList();
+    const list = p.list ? app.lists.byName(p.list) : app.defaultList;
     list.reminders.push(app.Reminder(props));
     true;
   ]]
