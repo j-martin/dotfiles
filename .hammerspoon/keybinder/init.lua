@@ -31,8 +31,6 @@ local hyper = { 'cmd', 'alt', 'ctrl' }
 local hyperShift = { 'cmd', 'alt', 'ctrl', 'shift' }
 local globalBindings = '*'
 
-hs.hotkey.alertDuration = 2.5
-
 local mod = { cmd = { 'cmd' }, hyper = hyper, globalBindings = globalBindings }
 
 ---@param bindings KeybindingDefinition[]

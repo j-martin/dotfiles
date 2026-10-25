@@ -4,6 +4,8 @@
 local reload = require 'reload'
 reload.init()
 
+require 'config'
+
 local activity = require 'activity'
 local apps = require 'apps'
 local audio = require 'audio'
@@ -15,8 +17,4 @@ activity.init()
 audio.init()
 usb.init()
 apps.init()
-require 'hs.ipc'
-if not hs.ipc.cliStatus('/opt/homebrew', true) then
-  hs.ipc.cliInstall('/opt/homebrew')
-end
 hs.alert.show('Config loaded')

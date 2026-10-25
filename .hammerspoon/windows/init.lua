@@ -20,14 +20,6 @@ local mod = {}
 
 mod.launchOrCycleFocus = ext.launchOrCycleFocus
 
-hs.grid.ui.textSize = 15
-hs.grid.GRIDWIDTH = 10
-hs.grid.GRIDHEIGHT = 4
-hs.grid.MARGINX = 0
-hs.grid.MARGINY = 0
-hs.window.animationDuration = 0
-hs.window.timeout(1)
-
 ---@param screen hs.screen
 ---@return boolean
 function mod.isUltraWideScreen(screen)

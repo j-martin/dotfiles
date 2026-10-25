@@ -8,7 +8,6 @@ local logger = hs.logger.new('windows.ext', 'debug')
 ---@field launchOrCycleFocus fun(applicationName: string): fun()
 local mod = {}
 
-hs.application.enableSpotlightForNameSearches(true)
 ---------------------------------------------------------
 -- functools
 ---------------------------------------------------------

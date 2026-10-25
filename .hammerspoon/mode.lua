@@ -11,8 +11,6 @@ local cheatsheet = require 'keybinder/cheatsheet'
 ---@field create fun(modifiers: string[], key: string, name: string, bindings: ModeBinding[])
 local mod = {}
 
-hs.alert.defaultStyle['textSize'] = 20
-
 -- bindings { { key = 'string', fn = fn } }
 ---@param modifiers string[]
 ---@param key string
