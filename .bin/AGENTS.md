@@ -9,6 +9,10 @@
 Try to read `~/.private`, if you need information or to write soemthing. Tell me
 to do it.
 
+# Platform
+
+- Assume all machines are running macOS.
+
 # Shell
 
 - Always use full length arguments for shell commands, e.g. `--help` instead of `-h`, `--version` instead of `-v`, etc.
