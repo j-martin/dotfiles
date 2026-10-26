@@ -23,6 +23,9 @@ to do it.
 - "Like" python, functions should start with `_` and private functions should start with `__`
 - Before implenting a new function check if we have matching ones. e.g. `_fzf_` etc.
 - fuzzy ==> `_fzf` functions
+- Prefer  `[[ ... ]]` over `[ ... ]`
+- If writting a script always wrap code in a function.
+- Always quote strings
 
 # Hammersppon
 

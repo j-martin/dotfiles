@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# `git sync`: pull, show unpushed changes, then confirm before pushing.
+# `git sync`: abort if there are uncommitted changes (submodules ignored),
+# pull, show unpushed changes, then confirm before pushing.
 # GIT_DIR/GIT_WORK_TREE are inherited from `git --git-dir --work-tree sync`,
 # so this also works for the dotfiles repo via `_git_or_home`/`home`.
 
@@ -7,35 +8,59 @@ set -o errexit
 set -o pipefail
 
 _clear() {
-  if [ -n "$TMUX" ]; then
+  if [[ -n "$TMUX" ]]; then
     tmux clear-history && tmux send-keys C-l
   else
     clear && printf '\e[3J'
   fi
 }
 
-if ! git pull; then
-  echo 'Failed to pull from upstream.' >&2
-  exit 1
-fi
-if [ -z "$(git rev-list '@{upstream}..HEAD')" ]; then
-  echo "Nothing to push."
-  exit 0
-fi
-_clear
+_abort_if_uncommitted() {
+  local uncommitted
+  uncommitted="$(git status --short --ignore-submodules=all)"
+  if [[ -n "$uncommitted" ]]; then
+    echo "Uncommitted changes:"
+    echo "$uncommitted"
+    echo
+    echo "Diff:"
+    git --no-pager diff --ignore-submodules=all HEAD
+    echo
+    echo 'Commit or stash your changes before syncing.' >&2
+    exit 1
+  fi
+}
 
-echo "Commits:"
-git --no-pager log --oneline '@{upstream}..HEAD'
+_show_unpushed() {
+  echo "Commits:"
+  git --no-pager log --oneline '@{upstream}..HEAD'
 
+  echo
+  echo "Diff:"
+  git --no-pager diff '@{upstream}'
 
-echo
-echo "Diff:"
-git --no-pager diff '@{upstream}'
+  echo
+  echo "Modified files:"
+  git --no-pager diff --name-only '@{upstream}'
+  echo
+}
 
-echo
-echo "Modified files:"
-git --no-pager diff --name-only '@{upstream}'
-echo
-if gum confirm "Push to $(git rev-parse --abbrev-ref '@{upstream}')?"; then
-  git push --no-verify
-fi
+_main() {
+  _clear
+  _abort_if_uncommitted
+
+  if ! git pull; then
+    echo 'Failed to pull from upstream.' >&2
+    exit 1
+  fi
+  if [[ -z "$(git rev-list '@{upstream}..HEAD')" ]]; then
+    echo "Nothing to push."
+    exit 0
+  fi
+
+  _show_unpushed
+  if gum confirm "Push to $(git rev-parse --abbrev-ref '@{upstream}')?"; then
+    git push --no-verify
+  fi
+}
+
+_main "$@"
