@@ -38,7 +38,6 @@ local bindings = {
   {
     name = keybinder.globalBindings,
     bindings = {
-      { key = '0', fn = apps.reminders.add, desc = 'Reminders - Add' },
       { key = '1', name = apps.activityMonitor.name, shift = true },
       { key = '8', name = 'Slack' },
       { key = '9', name = 'Music' },
@@ -101,7 +100,7 @@ local bindings = {
       { key = 'p', name = 'Preview', shift = true },
       { key = 'q', fn = hs.toggleConsole, shift = true, desc = 'HS - Console' },
       { key = 'r', name = 'Reminders' },
-      { key = 'r', fn = apps.emacs.references, shift = true, desc = 'Org - Show Resources' },
+      { key = 'r', shift = true, fn = apps.reminders.add, desc = 'Reminders - Add' },
       { key = 's', name = 'Obsidian' },
       { key = 't', fn = apps.emacs.capture(), desc = 'Org - Capture' },
       { key = 't', fn = apps.emacs.inbox, shift = true, desc = 'Org - Inbox' },
