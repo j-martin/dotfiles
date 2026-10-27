@@ -321,6 +321,7 @@ alias glf='git log --patch --pretty=fuller -- "$(_fzf)"'
 alias glg='git log --stat --pretty=fuller --date local'
 alias glgg='git log --graph --decorate'
 alias gllg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias gla='_git_log_author'
 alias gmc='git commit -vnm'
 alias gmcp='_git_copy_last_commit'
 # alias gms='bub workflow commit'

@@ -738,3 +738,8 @@ _gh_action_sha() {
   {"ref": "${action}", "sha": "${repo}@${sha}", "allowTag": true}
 EOF
 }
+
+_git_log_author() {
+  local author="${1:-$(git config user.name | awk '{print $NF}')}"
+  git log -p --regexp-ignore-case --author="${author}" "${@:2}"
+}
