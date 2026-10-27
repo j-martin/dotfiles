@@ -5,6 +5,7 @@
 --   "call bob fri at 14:30"    -> next Friday at 14:30
 --   "call bob tonight"         -> today at 20:00
 --   "call bob 9pm"             -> today at 21:00 (tomorrow if already past)
+--   "call bob at 7"            -> 19:00 (bare 1-11 means pm; "at 07" or "7am" for morning)
 ---@class NlpDateModule
 ---@field defaultHour number
 ---@field tonightHour number
@@ -92,8 +93,11 @@ local function __takeTime(text)
   for _, pattern in ipairs(patterns) do
     local rest, hour, minute, ampm = text:match(pattern)
     if rest then
+      local hasLeadingZero = hour:sub(1, 1) == '0'
       hour, minute, ampm = tonumber(hour), tonumber(minute) or 0, ampm:lower()
-      if ampm == 'pm' and hour < 12 then
+      if ampm == '' and not hasLeadingZero and hour >= 1 and hour < 12 then
+        hour = hour + 12
+      elseif ampm == 'pm' and hour < 12 then
         hour = hour + 12
       elseif ampm == 'am' and hour == 12 then
         hour = 0

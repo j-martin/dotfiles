@@ -1,5 +1,6 @@
 [tools]
 stylua = "2.6.0"
+lua = "5.4.9"
 lua-language-server = "3.19.2"
 
 [tasks.fmt]
@@ -14,6 +15,10 @@ run = "stylua --check ."
 description = "Lint Lua files"
 run = "lua-language-server --check . --checklevel=Warning --check_format=pretty --type-check --config .luarc.json"
 
+[tasks.test]
+description = "Run unit tests outside Hammerspoon"
+run = "lua run_tests.lua"
+
 [tasks.check]
-description = "Check formatting and lint"
-depends = ["fmt:check", "lint"]
+description = "Check formatting, lint and tests"
+depends = ["fmt:check", "lint", "test"]

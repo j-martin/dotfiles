@@ -13,7 +13,7 @@ local function reloadConfig(files)
 
   local doReload = false
   for _, file in pairs(files) do
-    if file:sub(-4) == '.lua' then
+    if file:sub(-4) == '.lua' and not file:find('/tests/', 1, true) then
       doReload = true
     end
   end
