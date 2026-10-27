@@ -1,6 +1,9 @@
 [settings.github]
 credential_command = 'gh auth token --hostname "$MISE_CREDENTIAL_HOST"'
 
+[settings.self_update]
+auto = true
+
 [tools]
 # Languages
 node = "20"
@@ -116,6 +119,7 @@ copilot-cli = "latest"
 gcloud = "latest"
 zoxide = "latest"
 "github:sharkdp/hyperfine" = "latest"
+go = "1.27.1"
 
 
 [bootstrap.brew.taps]
