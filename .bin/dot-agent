@@ -6,7 +6,6 @@ set -o nounset
 
 IFS=$'\n\t'
 
-readonly BINPATH="$(realpath "$(dirname "$0")")"
 readonly CLAUDE_MODEL="claude-opus-5.5"
 
 _info() {
@@ -66,7 +65,7 @@ _agent() {
 }
 
 _main() {
-  cd "${BINPATH}"
+  cd "${HOME}/.hammerspoon"
   _agent "$@"
 }
 
