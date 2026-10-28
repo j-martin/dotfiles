@@ -29,5 +29,6 @@ to do it.
 # Emacs Config
 
 - Prioritize custom config in `~/.spacemacs.d/configuration.org` and if not possible `~/.spacemacs.d/.spacemacs`.
+- Never modify files in `~/.emacs.d/` or `~/.spacemacs.d/configuration.el`
 - There is `~/.private/configuration.org` for config I do not want to be public.
 - Do not modify the config in `~/.emacs.d` beyond removing `.elc` files.
