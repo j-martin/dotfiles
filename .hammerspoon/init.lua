@@ -9,6 +9,7 @@ require 'config'
 local activity = require 'activity'
 local apps = require 'apps'
 local audio = require 'audio'
+local githubReviews = require 'github_reviews'
 local keybindings = require 'keybindings'
 local usb = require 'usb'
 
@@ -17,4 +18,5 @@ activity.init()
 audio.init()
 usb.init()
 apps.init()
+githubReviews.init()
 hs.alert.show('Config loaded')

@@ -24,7 +24,7 @@
 ---@field itunes hs.itunes
 ---@field caffeinate hs.caffeinate
 ---@field reload fun()
----@field execute fun(command: string): string, boolean
+---@field execute fun(command: string, withUserEnv: boolean|nil): string, boolean
 
 ---@class hs.logger
 ---@field i fun(...: any)
@@ -43,6 +43,7 @@
 ---@class hs.timer
 ---@field usleep fun(microseconds: number): nil
 ---@field doAfter fun(delay: number, callback: fun()): hs.timer
+---@field doEvery fun(interval: number, callback: fun()): hs.timer
 
 ---@class hs.mouse
 ---@field getAbsolutePosition fun(): table
@@ -144,7 +145,13 @@
 ---@field stop fun(self): nil
 
 ---@class hs.task
----@field start fun(cmd: string, args: string[]|nil, pwd: string|nil, ttl: number|nil): hs.task
+---@field new fun(launchPath: string, callback: fun(exitCode: number, stdOut: string, stdErr: string)|nil, streamCallbackOrArgs: function|string[]|nil, args: string[]|nil): hs.task
+---@field start fun(self): hs.task|false
+---@field isRunning fun(self): boolean
+---@field terminate fun(self): hs.task
+---@field pid fun(self): number
+---@field setEnvironment fun(self, env: table<string, string>): boolean
+---@field setWorkingDirectory fun(self, path: string): boolean
 
 ---@class hs.alert
 ---@field show fun(message: string): nil
