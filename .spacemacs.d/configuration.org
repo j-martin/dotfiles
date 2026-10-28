@@ -476,20 +476,21 @@ https://github.com/syl20bnr/spacemacs/issues/15089
 
 *** Dotfiles (bare repo in ~/.files.git)
 Equivalent of =git --work-tree=$HOME --git-dir=$HOME/.files.git=. Any magit
-command run from =$HOME= (e.g. the status buffer) uses the dotfiles repo.
+command run from under =$HOME=, outside another repository (e.g. the status
+buffer, or visiting a file from a diff), uses the dotfiles repo.
 #+begin_src emacs-lisp :results none
   (defvar jm/dotfiles-git-dir (expand-file-name "~/.files.git"))
   (defvar jm/dotfiles-work-tree (expand-file-name "~/"))
 
-  (defun jm/dotfiles-directory-p (&optional dir)
+  (defun jm/dotfiles-file-p (&optional dir)
+    "Non-nil when DIR is under $HOME but not inside another git repository."
     (let ((dir (expand-file-name (or dir default-directory))))
       (and (not (file-remote-p dir))
-           (or (string= (file-name-as-directory dir) jm/dotfiles-work-tree)
-               (string= (file-name-as-directory dir)
-                        (file-name-as-directory jm/dotfiles-git-dir))))))
+           (file-in-directory-p dir jm/dotfiles-work-tree)
+           (not (locate-dominating-file dir ".git")))))
 
   (defun jm/magit-dotfiles-environment (env)
-    (if (jm/dotfiles-directory-p)
+    (if (jm/dotfiles-file-p)
         (append (list (concat "GIT_DIR=" jm/dotfiles-git-dir)
                       (concat "GIT_WORK_TREE=" jm/dotfiles-work-tree))
                 env)
@@ -713,15 +714,8 @@ it makes magit a fair bit faster.
 
 *** Dotfiles support
 Files under =$HOME= that are not inside another repository belong to the
-dotfiles repo, so point git at it.
+dotfiles repo (see =jm/dotfiles-file-p=), so point git at it.
  #+begin_src emacs-lisp :results none
-   (defun jm/dotfiles-file-p (&optional dir)
-     "Non-nil when DIR is under $HOME but not inside another git repository."
-     (let ((dir (expand-file-name (or dir default-directory))))
-       (and (not (file-remote-p dir))
-            (file-in-directory-p dir jm/dotfiles-work-tree)
-            (not (locate-dominating-file dir ".git")))))
-
    (defun jm/git-link-dotfiles (fn &rest args)
      (let ((process-environment
             (if (jm/dotfiles-file-p)
