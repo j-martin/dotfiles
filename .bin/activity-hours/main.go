@@ -13,9 +13,18 @@ import (
 	"time"
 )
 
+// activityLogger is the Hammerspoon logger id that records screen lock and unlock events.
+const activityLogger = "activity"
+
 type event struct {
+	Logger    string    `json:"logger"`
 	Type      string    `json:"type"`
 	Timestamp time.Time `json:"timestamp"`
+}
+
+// isLockEvent reports whether e is a screen lock or unlock recorded by the activity logger.
+func isLockEvent(e event) bool {
+	return e.Logger == activityLogger && (e.Type == "lock" || e.Type == "unlock")
 }
 
 type dayTotal struct {
@@ -58,7 +67,7 @@ func run() error {
 	return nil
 }
 
-// parseEvents reads one JSON event per line, skipping blank lines.
+// parseEvents reads one JSON entry per line and keeps only lock and unlock events, skipping blank lines and other log entries.
 func parseEvents(reader io.Reader) ([]event, error) {
 	var events []event
 	scanner := bufio.NewScanner(reader)
@@ -73,7 +82,9 @@ func parseEvents(reader io.Reader) ([]event, error) {
 		if err := json.Unmarshal(line, &e); err != nil {
 			return nil, fmt.Errorf("line %d: %w", lineNumber, err)
 		}
-		events = append(events, e)
+		if isLockEvent(e) {
+			events = append(events, e)
+		}
 	}
 	return events, scanner.Err()
 }

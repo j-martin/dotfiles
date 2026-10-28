@@ -96,9 +96,9 @@ func TestSumUnlockedReturnsOnlyRequestedDaysOldestFirst(t *testing.T) {
 }
 
 func TestParseEventsReadsJSONLines(t *testing.T) {
-	input := `{"type":"lock","timestamp":"2026-10-16T16:53:42-07:00"}
+	input := `{"logger":"activity","type":"lock","timestamp":"2026-10-16T16:53:42-07:00"}
 
-{"type":"unlock","timestamp":"2026-10-16T23:53:45Z"}
+{"logger":"activity","type":"unlock","timestamp":"2026-10-16T23:53:45Z"}
 `
 
 	events, err := parseEvents(strings.NewReader(input))
@@ -116,5 +116,23 @@ func TestParseEventsReportsLineNumberOnInvalidJSON(t *testing.T) {
 
 	if err == nil || !strings.Contains(err.Error(), "line 2") {
 		t.Errorf("expected error mentioning line 2, got %v", err)
+	}
+}
+
+func TestParseEventsKeepsOnlyActivityLockEvents(t *testing.T) {
+	input := `{"logger":"activity","type":"unlock","timestamp":"2026-10-16T09:00:00-07:00"}
+{"logger":"meetingbar","level":"info","message":"Restarting MeetingBar","timestamp":"2026-10-16T09:01:00-07:00"}
+{"logger":"other","type":"lock","timestamp":"2026-10-16T09:30:00-07:00"}
+{"logger":"activity","type":"wake","timestamp":"2026-10-16T09:45:00-07:00"}
+{"logger":"activity","type":"lock","timestamp":"2026-10-16T10:00:00-07:00"}
+`
+
+	events, err := parseEvents(strings.NewReader(input))
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(events) != 2 || events[0].Type != "unlock" || events[1].Type != "lock" {
+		t.Errorf("expected only the activity unlock and lock, got %+v", events)
 	}
 }
