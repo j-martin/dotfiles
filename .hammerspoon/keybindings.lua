@@ -127,6 +127,18 @@ local bindings = {
       { modifiers = cmdCtrl, key = 'e', fn = apps.brave.slackReactionEmoji('heart'), desc = 'Heart' },
       { modifiers = cmdCtrl, key = 'return', fn = apps.brave.clickSignIn, desc = 'Press the Sign in button' },
       { modifiers = cmdCtrl, key = 'o', fn = apps.brave.openActiveTabInSafari, desc = 'Open tab in Safari' },
+      { modifiers = cmdCtrl, key = 'g', fn = apps.brave.openActiveTabInChrome, desc = 'Open tab in Google Chrome' },
+    },
+  },
+  {
+    name = apps.googleChrome.name,
+    bindings = {
+      {
+        modifiers = cmdCtrl,
+        key = 'g',
+        fn = apps.googleChrome.openActiveTabInDefaultBrowser,
+        desc = 'Open tab in default browser',
+      },
     },
   },
   {

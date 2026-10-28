@@ -1,5 +1,7 @@
 local logger = hs.logger.new('brave', 'debug')
 local utils = require 'apps/utils'
+local chromium = require 'apps/chromium'
+local googleChrome = require 'apps/google_chrome'
 
 ---@class BraveApp
 ---@field name string
@@ -12,6 +14,7 @@ local utils = require 'apps/utils'
 ---@field activateTab fun(name: string): function
 ---@field context fun(): table<string, any>|nil
 ---@field openActiveTabInSafari fun()
+---@field openActiveTabInChrome fun()
 local mod = {}
 
 mod.name = 'Brave Browser'
@@ -132,22 +135,19 @@ end
 --- Returns the title and URL of the active tab.
 ---@return table<string, any>|nil
 function mod.context()
-  local ok, tab =
-    hs.osascript.javascript("const t = Application('" .. mod.name .. "').windows[0].activeTab(); [t.title(), t.url()]")
-  if not ok or type(tab) ~= 'table' then
-    return nil
-  end
-  return { title = tab[1], url = tab[2] }
+  return chromium.context(mod.name)
 end
 
 --- Opens the URL of the active tab in Safari.
 function mod.openActiveTabInSafari()
-  local tab = mod.context()
-  if not tab then
-    logger.e('Could not get the URL of the active Brave tab.')
-    return
-  end
-  hs.urlevent.openURLWithBundle(tab.url, 'com.apple.Safari')
+  chromium.openActiveTab(mod.name, function(url)
+    hs.urlevent.openURLWithBundle(url, 'com.apple.Safari')
+  end)
+end
+
+--- Opens the URL of the active tab in Google Chrome.
+function mod.openActiveTabInChrome()
+  chromium.openActiveTab(mod.name, googleChrome.openUrl)
 end
 
 return mod
