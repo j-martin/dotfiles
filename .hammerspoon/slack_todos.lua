@@ -33,6 +33,7 @@ local slack = require 'apps/slack'
 ---@field skipped string|nil Why the last sync was skipped, logged once until it changes.
 ---@field sync fun()
 ---@field showAndSync fun()
+---@field focusAndSync fun()
 ---@field init fun()
 local mod = { busy = false }
 
@@ -286,6 +287,19 @@ function mod.showAndSync()
   end, function()
     mod.pending = hs.timer.doAfter(0.5, mod.sync)
   end, 0.2)
+end
+
+--- Focuses Slack, then switches it to its To-dos tab and syncs.
+function mod.focusAndSync()
+  hs.application.launchOrFocusByBundleID(slack.bundleId)
+  if mod.pending then
+    mod.pending:stop()
+  end
+  local deadline = hs.timer.secondsSinceEpoch() + 3
+  mod.pending = hs.timer.waitUntil(function()
+    local app = hs.application.frontmostApplication()
+    return (app ~= nil and app:bundleID() == slack.bundleId) or hs.timer.secondsSinceEpoch() > deadline
+  end, mod.showAndSync, 0.1)
 end
 
 --- Syncs every `mod.interval` seconds, and whenever a Slack window title changes, e.g. on opening the To-dos tab.

@@ -99,7 +99,9 @@ end
 ---@param title string
 ---@return string
 local function cleanTitle(title)
-  return (title:gsub('^%*%s*', ''):gsub('%s+%-%s+Slack$', ''):gsub('%s+%-%s+%d+ new items?$', ''))
+  return (
+    title:gsub('^%*%s*', ''):gsub('%s+%[Main%]$', ''):gsub('%s+%-%s+Slack$', ''):gsub('%s+%-%s+%d+ new items?$', '')
+  )
 end
 
 ---@param element hs.axuielement
@@ -208,19 +210,31 @@ function mod.todosWindow()
   return nil
 end
 
---- Switches the focused Slack window to its To-dos tab, like ctrl+4. Returns false when the tab is not found.
+--- Focuses the main Slack window, the one with the tabs, e.g. not a thread window, and switches it to
+--- its To-dos tab, like ctrl+4. Returns false when no window has the tab.
 ---@return boolean
 function mod.showTodos()
   local app = hs.application.get(mod.bundleId)
-  local window = app and app:focusedWindow()
-  if not window then
+  if not app then
     return false
   end
   utils.enableManualAccessibility(app)
-  local tab = utils.findElement(hs.axuielement.windowElement(window), function(element)
-    return element:attributeValue('AXRole') == 'AXRadioButton' and element:attributeValue('AXDOMIdentifier') == 'later'
-  end, 20)
-  return (tab and tab:performAction('AXPress')) and true or false
+  local windows = app:allWindows()
+  local focused = app:focusedWindow()
+  if focused then
+    table.insert(windows, 1, focused)
+  end
+  for _, window in ipairs(windows) do
+    local tab = utils.findElement(hs.axuielement.windowElement(window), function(element)
+      return element:attributeValue('AXRole') == 'AXRadioButton'
+        and element:attributeValue('AXDOMIdentifier') == 'later'
+    end, 20)
+    if tab then
+      window:focus()
+      return tab:performAction('AXPress') and true or false
+    end
+  end
+  return false
 end
 
 -- Message permalink, a https one when the workspace domain is known

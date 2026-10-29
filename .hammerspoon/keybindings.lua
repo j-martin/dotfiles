@@ -41,6 +41,7 @@ local bindings = {
     bindings = {
       { key = '1', name = apps.activityMonitor.name, shift = true },
       { key = '8', name = 'Slack' },
+      { key = '8', shift = true, fn = slackTodos.focusAndSync, desc = 'Slack - To-dos and sync with Reminders' },
       { key = '9', name = 'Music' },
       { key = '9', shift = true, name = 'Nintendo Music' },
       { key = '\\', name = '1Password' },
