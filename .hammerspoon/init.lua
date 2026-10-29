@@ -11,6 +11,7 @@ local apps = require 'apps'
 local audio = require 'audio'
 local githubReviews = require 'github_reviews'
 local keybindings = require 'keybindings'
+local slackTodos = require 'slack_todos'
 local usb = require 'usb'
 
 keybindings.init()
@@ -19,4 +20,5 @@ audio.init()
 usb.init()
 apps.init()
 githubReviews.init()
+slackTodos.init()
 hs.alert.show('Config loaded')

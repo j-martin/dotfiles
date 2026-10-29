@@ -44,10 +44,11 @@
 ---@field usleep fun(microseconds: number): nil
 ---@field doAfter fun(delay: number, callback: fun()): hs.timer
 ---@field doEvery fun(interval: number, callback: fun()): hs.timer
+---@field stop fun(self): hs.timer
 
 ---@class hs.mouse
 ---@field getAbsolutePosition fun(): table
----@field absolutePosition fun(point: table): nil
+---@field absolutePosition fun(point: table|nil): table
 
 ---@class hs.geometry
 ---@field point fun(x: number, y: number): table
@@ -93,6 +94,7 @@
 ---@field stop fun(self): nil
 
 ---@class hs.window
+---@field filter hs.window.filter
 ---@field find fun(name: string): hs.window|nil
 ---@field frontmostWindow fun(): hs.window|nil
 ---@field focusedWindow fun(): hs.window|nil
@@ -127,7 +129,7 @@
 ---@field title fun(self): string
 ---@field application fun(self): hs.application
 ---@field elementSearch fun(self, fn: fun(message: string, results: table): nil, predicate: fun(element: hs.axuielement): boolean, options: table): nil
----@field performAction fun(self, action: string): nil
+---@field performAction fun(self, action: string): hs.axuielement|false|nil
 
 ---@class hs.urlevent
 ---@field openURL fun(url: string): nil
@@ -143,6 +145,11 @@
 ---@field new fun(fn: fun(files: table): nil): hs.pathwatcher
 ---@field start fun(self): hs.pathwatcher
 ---@field stop fun(self): nil
+
+---@class hs.window.filter
+---@field windowTitleChanged string
+---@field new fun(appName: string): hs.window.filter
+---@field subscribe fun(self, event: string, callback: fun(window: hs.window, appName: string, event: string)): hs.window.filter
 
 ---@class hs.task
 ---@field new fun(launchPath: string, callback: fun(exitCode: number, stdOut: string, stdErr: string)|nil, streamCallbackOrArgs: function|string[]|nil, args: string[]|nil): hs.task

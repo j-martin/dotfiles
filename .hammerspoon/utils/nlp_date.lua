@@ -10,6 +10,7 @@
 ---@field defaultHour number
 ---@field tonightHour number
 ---@field parse fun(text: string, nowEpoch: number|nil): string, number|nil
+---@field parseSlack fun(text: string, nowEpoch: number|nil): number|nil
 local mod = {}
 
 mod.defaultHour = 9
@@ -149,6 +150,42 @@ function mod.parse(text, nowEpoch)
     due = os.time({ year = now.year, month = now.month, day = now.day + 1, hour = hour, min = minute, sec = 0 })
   end
   return title, due
+end
+
+---@type table<string, integer>
+local months =
+  { jan = 1, feb = 2, mar = 3, apr = 4, may = 5, jun = 6, jul = 7, aug = 8, sep = 9, oct = 10, nov = 11, dec = 12 }
+
+--- Returns the date as Slack shows it, e.g. "Yesterday at 10:54", "Oct 30th at 9:00 AM" (epoch seconds, or nil)
+---@param text string
+---@param nowEpoch number|nil
+---@return number|nil
+function mod.parseSlack(text, nowEpoch)
+  local day, hour, minute, ampm = text:lower():match('^(.-)%s+at%s+(%d%d?):(%d%d)%s*([ap]?m?)$')
+  if not day then
+    return nil
+  end
+  local now = os.date('*t', nowEpoch or os.time())
+  ---@type osdateparam
+  local date =
+    { year = now.year, month = now.month, day = now.day, hour = tonumber(hour), min = tonumber(minute), sec = 0 }
+  if ampm == 'pm' and date.hour < 12 then
+    date.hour = date.hour + 12
+  elseif ampm == 'am' and date.hour == 12 then
+    date.hour = 0
+  end
+  local offsets = { today = 0, tomorrow = 1, yesterday = -1 }
+  local monthName, dayOfMonth = day:match('^(%a%a%a)%a*%.?%s+(%d%d?)%a*$')
+  if offsets[day] then
+    date.day = date.day + offsets[day]
+  elseif weekdays[day] then
+    date.day = date.day + (weekdays[day] - now.wday) % 7
+  elseif monthName and months[monthName] then
+    date.month, date.day = months[monthName], tonumber(dayOfMonth)
+  else
+    return nil
+  end
+  return os.time(date)
 end
 
 return mod

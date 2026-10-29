@@ -17,8 +17,38 @@ local function assertParses(text, expectedTitle, expected)
   assert(actual == expected, string.format('%q: expected %s, got %s', text, expected, actual))
 end
 
+--- Asserts that the Slack date `text` parses to the given local date and time
+---@param text string
+---@param expected string formatted as '%Y-%m-%d %H:%M'
+local function assertParsesSlack(text, expected)
+  local due = nlpDate.parseSlack(text, now)
+  assert(due, string.format('%q: expected a due date', text))
+  ---@type string
+  local actual = os.date('%Y-%m-%d %H:%M', due) --[[@as string]]
+  assert(actual == expected, string.format('%q: expected %s, got %s', text, expected, actual))
+end
+
 ---@type table<string, fun()>
 return {
+  ['slack yesterday'] = function()
+    assertParsesSlack('Yesterday at 10:54', '2026-10-26 10:54')
+  end,
+  ['slack tomorrow with pm'] = function()
+    assertParsesSlack('Tomorrow at 1:30 PM', '2026-10-28 13:30')
+  end,
+  ['slack 12 am is midnight'] = function()
+    assertParsesSlack('Today at 12:15 AM', '2026-10-27 00:15')
+  end,
+  ['slack weekday is upcoming'] = function()
+    assertParsesSlack('Friday at 09:00', '2026-10-30 09:00')
+  end,
+  ['slack month and ordinal day'] = function()
+    assertParsesSlack('Nov 3rd at 14:00', '2026-11-03 14:00')
+  end,
+  ['slack unknown date is nil'] = function()
+    assert(nlpDate.parseSlack('Someday at 10:00', now) == nil)
+    assert(nlpDate.parseSlack('Tomorrow', now) == nil)
+  end,
   ['bare hour 7 means 19:00'] = function()
     assertParses('call bob at 7', 'call bob', '2026-10-27 19:00')
   end,
