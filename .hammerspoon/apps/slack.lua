@@ -10,6 +10,7 @@ local privateConfig = require 'utils/private_config'
 ---@field messageUrl fun(element: hs.axuielement): string|nil
 ---@field context fun(window: hs.window): table<string, string>|nil
 ---@field todosWindow fun(): hs.window|nil
+---@field showTodos fun(): boolean
 ---@field todos fun(window: hs.window): SlackTodos|nil
 ---@field completeTodo fun(window: hs.window, key: string, callback: fun(ok: boolean, err: string|nil))
 ---@field hoverTimer hs.timer|nil
@@ -207,6 +208,21 @@ function mod.todosWindow()
   return nil
 end
 
+--- Switches the focused Slack window to its To-dos tab, like ctrl+4. Returns false when the tab is not found.
+---@return boolean
+function mod.showTodos()
+  local app = hs.application.get(mod.bundleId)
+  local window = app and app:focusedWindow()
+  if not window then
+    return false
+  end
+  utils.enableManualAccessibility(app)
+  local tab = utils.findElement(hs.axuielement.windowElement(window), function(element)
+    return element:attributeValue('AXRole') == 'AXRadioButton' and element:attributeValue('AXDOMIdentifier') == 'later'
+  end, 20)
+  return (tab and tab:performAction('AXPress')) and true or false
+end
+
 -- Message permalink, a https one when the workspace domain is known
 ---@param host string|nil e.g. "afakecompany.slack.com"
 ---@param teamId string|nil
@@ -320,16 +336,43 @@ function mod.todos(window)
   return { todos = todos, complete = expected ~= nil and #todos == expected }
 end
 
+-- Calls `check` every 0.1 second until it returns true, or with false once `timeout` seconds passed.
+---@param timeout number
+---@param check fun(): boolean
+---@param done fun(ok: boolean)
+local function poll(timeout, check, done)
+  local deadline = hs.timer.secondsSinceEpoch() + timeout
+  if mod.hoverTimer then
+    mod.hoverTimer:stop()
+  end
+  mod.hoverTimer = hs.timer.doEvery(0.1, function()
+    local ok = check()
+    if ok or hs.timer.secondsSinceEpoch() > deadline then
+      mod.hoverTimer:stop()
+      done(ok)
+    end
+  end)
+end
+
+-- The row of the to-do of `key` in `window`, or nil.
+---@param window hs.window
+---@param key string
+---@return hs.axuielement|nil
+local function findTodoRow(window, key)
+  return utils.findElement(hs.axuielement.windowElement(window), function(element)
+    local id = element:attributeValue('AXDOMIdentifier')
+    return type(id) == 'string' and id:sub(1, #key + 1) == key .. '_' and isTodoRow(element)
+  end, 30)
+end
+
 --- Marks the to-do of `key` complete in the To-dos tab of `window`. Its buttons only exist while
---- hovered, so the mouse is moved over the row for a moment, then put back.
+--- hovered, so the mouse is moved over the row for a moment, then put back. Only succeeds once
+--- the to-do left the in progress ones.
 ---@param window hs.window
 ---@param key string
 ---@param callback fun(ok: boolean, err: string|nil)
 function mod.completeTodo(window, key, callback)
-  local row = utils.findElement(hs.axuielement.windowElement(window), function(element)
-    local id = element:attributeValue('AXDOMIdentifier')
-    return type(id) == 'string' and id:sub(1, #key + 1) == key .. '_' and isTodoRow(element)
-  end, 30)
+  local row = findTodoRow(window, key)
   if not row then
     callback(false, 'row not found')
     return
@@ -347,19 +390,32 @@ function mod.completeTodo(window, key, callback)
     return
   end
   local saved = hs.mouse.absolutePosition()
-  hs.mouse.absolutePosition(point)
-  mod.hoverTimer = hs.timer.doAfter(0.5, function()
-    local button = utils.findElement(row, function(element)
+  -- Warping the mouse sends no event, a mouse moved event without modifiers makes Slack show the buttons.
+  hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.mouseMoved, point, {}):post()
+
+  ---@type hs.axuielement|nil
+  local button = nil
+  poll(1.5, function()
+    button = utils.findElement(row, function(element)
       return element:attributeValue('AXRole') == 'AXButton'
         and element:attributeValue('AXDescription') == 'Mark complete'
     end, 10)
-    local pressed = button and button:performAction('AXPress')
-    hs.mouse.absolutePosition(saved)
-    if pressed then
-      callback(true, nil)
-    else
+    return button ~= nil
+  end, function(found)
+    local pressed = found and button and button:performAction('AXPress')
+    hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.mouseMoved, saved, {}):post()
+    if not pressed then
       callback(false, 'Mark complete button not found')
+      return
     end
+    poll(2, function()
+      local todos = mod.todos(window)
+      return todos ~= nil and not hs.fnutils.some(todos.todos, function(todo)
+        return todo.key == key
+      end)
+    end, function(gone)
+      callback(gone, not gone and 'still in progress after pressing Mark complete' or nil)
+    end)
   end)
 end
 

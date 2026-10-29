@@ -4,6 +4,7 @@ local keybinder = require 'keybinder'
 local mode = require 'mode'
 local screen = require 'screen'
 local selection = require 'selection'
+local slackTodos = require 'slack_todos'
 local windows = require 'windows'
 local reload = require 'reload'
 local usb = require 'usb'
@@ -149,6 +150,17 @@ local bindings = {
         key = 'o',
         fn = apps.safari.openActiveTabInDefaultBrowser,
         desc = 'Open tab in default browser',
+      },
+    },
+  },
+  {
+    name = apps.slack.name,
+    bindings = {
+      {
+        modifiers = { 'ctrl' },
+        key = '4',
+        fn = slackTodos.showAndSync,
+        desc = 'To-dos - Show and sync with Reminders',
       },
     },
   },

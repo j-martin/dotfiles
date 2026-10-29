@@ -32,6 +32,7 @@ local slack = require 'apps/slack'
 ---@field pending hs.timer|nil
 ---@field skipped string|nil Why the last sync was skipped, logged once until it changes.
 ---@field sync fun()
+---@field showAndSync fun()
 ---@field init fun()
 local mod = { busy = false }
 
@@ -266,6 +267,25 @@ function mod.sync()
     end
     completeInSlack(window, plan.toSlack)
   end)
+end
+
+--- Switches Slack to its To-dos tab, then syncs once its to-dos are shown.
+function mod.showAndSync()
+  if not slack.showTodos() then
+    hs.alert.show('Slack To-dos tab not found')
+    return
+  end
+  if mod.pending then
+    mod.pending:stop()
+  end
+  -- Waits for the to-dos to render, for up to 3 seconds, then lets them settle.
+  local deadline = hs.timer.secondsSinceEpoch() + 3
+  mod.pending = hs.timer.waitUntil(function()
+    local window = slack.todosWindow()
+    return (window ~= nil and slack.todos(window) ~= nil) or hs.timer.secondsSinceEpoch() > deadline
+  end, function()
+    mod.pending = hs.timer.doAfter(0.5, mod.sync)
+  end, 0.2)
 end
 
 --- Syncs every `mod.interval` seconds, and whenever a Slack window title changes, e.g. on opening the To-dos tab.
