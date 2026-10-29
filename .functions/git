@@ -438,19 +438,54 @@ _git_root_dir() {
   git rev-parse --show-toplevel
 }
 
+_git_new_worktree() {
+  local name="$1"
+  local main_repo
+  main_repo="$(git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')"
+  local repo_name
+  repo_name="$(basename "${main_repo}")"
+  local worktrees_dir="${HOME}/src/worktrees"
+  if [[ -z "${name}" ]]; then
+    local i=1
+    while [[ -e "${worktrees_dir}/${repo_name}-${i}" ]]; do
+      i=$((i + 1))
+    done
+    name="${i}"
+  fi
+  local new_dir="${worktrees_dir}/${repo_name}-${name}"
+  if [[ ! -d "${new_dir}" ]]; then
+    mkdir -p "${worktrees_dir}"
+    git worktree prune
+    git worktree add --detach "${new_dir}" "origin/HEAD" || return 1
+  fi
+  cd "${new_dir}" || _error "Failed to switch to '${new_dir}'"
+}
+
 _git_switch_worktree() {
-  local suffix="${1:-alt}"
+  if [[ -n "$1" ]]; then
+    _git_new_worktree "$1"
+    return
+  fi
   local cur_repo
-  cur_repo="$(_git_root_dir)"
-  if [[ "${cur_repo}" == *"${suffix}" ]]; then
-    cd "${cur_repo//\-${suffix}//}" || _error "Failed to switch to '${cur_repo}'"
+  cur_repo="$(_git_root_dir)" || return 1
+  git worktree prune
+  local new_entry="[new worktree]"
+  local others
+  others="$(git worktree list --porcelain \
+    | awk '/^worktree /{sub(/^worktree /, ""); print}' \
+    | grep --invert-match --line-regexp --fixed-strings "${cur_repo}")"
+  if [[ -z "${others}" ]]; then
+    _git_new_worktree
+    return
+  fi
+  local selected
+  selected="$(printf '%s\n%s\n' "${others}" "${new_entry}" | fzf --prompt 'worktree> ')"
+  if [[ -z "${selected}" ]]; then
+    return
+  elif [[ "${selected}" == "${new_entry}" ]]; then
+    _git_new_worktree
   else
-    new_dir="${cur_repo}-${suffix}"
-    if [[ ! -d "${new_dir}" ]]; then
-      git worktree prune
-      git worktree add "${new_dir}" "origin/HEAD"
-    fi
-    cd "${new_dir}" || _error "Failed to switch to '${new_dir}'"
+    cd "${selected}" || _error "Failed to switch to '${selected}'"
   fi
 }
 
