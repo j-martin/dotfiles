@@ -414,7 +414,6 @@ if [[ "$(uname)" == 'Darwin' ]]; then
   alias brwe=brew
 fi
 
-alias da='date && date -u'
 alias qrc='pbpaste | qr'
 alias pgcli='echo $PGHOST && pgcli'
 
@@ -495,7 +494,8 @@ alias certv='openssl x509 -serial  -subject -issuer -dates -alias -noout -in'
 
 # agent
 
-alias da='dot-agent'
+alias da=dot-agent
+alias ha=dot-agent
 alias claude='\claude --model opus --permission-mode acceptEdits'
 
 # hammerspoon
