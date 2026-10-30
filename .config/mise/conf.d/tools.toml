@@ -1,0 +1,96 @@
+[tools]
+# Languages
+node = "24"
+python = "latest"
+ruby = "latest"
+rust = "latest"
+
+# Package managers / build
+pnpm = "latest"
+yarn = "latest"
+poetry = "latest"
+uv = "latest"
+task = "latest"
+just = "latest"
+lefthook = "latest"
+
+# CLI utilities
+bat = "latest"
+fd = "latest"
+fzf = "latest"
+ripgrep = "latest"
+jq = "latest"
+yq = "latest"
+jless = "latest"
+hexyl = "latest"
+difftastic = "latest"
+cloc = "latest"
+croc = "latest"
+gum = "latest"
+mole = "latest" # mac cleanup tool
+rclone = "latest"
+exiftool = "latest"
+"aqua:sibprogrammer/xq" = "latest"
+"github:alexpovel/srgn" = "latest"
+"cargo:mergiraf" = "latest"
+
+# Git / VCS
+gh = "latest"
+jj = "latest"
+lazygit = "latest"
+
+# Editors / terminal
+neovim = "latest"
+tmux = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+
+# Go tooling
+gofumpt = "latest"
+
+# Containers / Kubernetes
+dive = "latest"
+docker-compose = "latest"
+lima = "latest"
+container = "latest"
+kind = "latest"
+k9s = "latest"
+helm = "latest"
+krew = "latest"
+kustomize = "latest"
+kube-linter = "latest"
+kube-score = "latest"
+
+# Infra / cloud
+ollama = "latest"
+"aqua:binwiederhier/ntfy" = "latest"
+
+# Databases
+mysql = "8.4"
+redis = "latest"
+
+# Quality / security
+"pypi:detect-secrets" = "latest"
+
+copilot-cli = "latest"
+1password-cli = "latest"
+
+# Python CLIs
+"pypi:bpython" = "latest"
+"pypi:pgcli" = { version = "latest", uvx_args = "--with psycopg[binary]" }
+"pypi:mycli" = "latest"
+"pypi:keyring" = "latest"
+"pypi:gcalcli" = "latest"
+"pypi:icdiff" = "latest"
+"pypi:speedtest-cli" = "latest"
+"pypi:httpie" = "latest"
+"pypi:ipython" = "latest"
+"pypi:magic-wormhole" = "latest"
+"pypi:proselint" = "latest"
+"pypi:pygments" = "latest"
+"pypi:virtualenv" = "latest"
+"pypi:watchdog" = "latest"
+gcloud = "latest"
+zoxide = "latest"
+"github:sharkdp/hyperfine" = "latest"
+go = "1.27.1"

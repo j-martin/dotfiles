@@ -1,0 +1,22 @@
+# Loaded only when MISE_ENV includes "work"
+
+[tools]
+kubeseal = "latest"
+argocd = "latest"
+"github:launchdarkly/ldcli" = "latest"
+allure = "latest"
+snyk = "latest"
+act = "latest"
+poppler = "latest"
+terraform = "latest"
+pulumi = "latest"
+atlas = "latest"
+caddy = "latest"
+
+# AI / dev CLIs
+claude = "latest"
+codex = "latest"
+
+# Go tooling
+protoc-gen-go = "latest"
+cue = "latest"

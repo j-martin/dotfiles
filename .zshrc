@@ -49,6 +49,14 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 
+# Select mise config env (conf.d/*.<env>.toml) by machine; must precede activate
+if [[ -z $MISE_ENV ]]; then
+  case ${HOST%%.*} in
+    nesto) export MISE_ENV=work ;;
+    *)     export MISE_ENV=personal ;;
+  esac
+fi
+
 source <("$HOME/.local/bin/mise" activate zsh)
 
 plugins=(

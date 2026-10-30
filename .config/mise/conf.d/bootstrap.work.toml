@@ -1,0 +1,12 @@
+# Loaded only when MISE_ENV includes "work"
+
+[bootstrap.brew.taps]
+"incident-io/tap" = "https://github.com/incident-io/homebrew-tap.git"
+
+[bootstrap.packages]
+"brew:vitess" = "latest"
+"brew:incident-io/tap/inc" = "latest"
+"brew:jiratui" = "latest"
+"brew-cask:mysql-shell" = "latest"
+"brew-cask:osquery" = "latest"
+"brew-cask:sdm" = "latest"

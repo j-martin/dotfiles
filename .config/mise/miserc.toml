@@ -1,0 +1,3 @@
+# Read before any other config; controls config discovery.
+# Enables env-suffixed conf.d fragments (e.g. conf.d/tools.work.toml).
+env_conf_d = true

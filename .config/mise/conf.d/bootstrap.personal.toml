@@ -1,0 +1,8 @@
+# Loaded only when MISE_ENV includes "personal"
+
+[bootstrap.packages]
+"brew:gifski" = "latest"
+"brew-cask:affinity-designer" = "latest"
+"brew-cask:affinity-photo" = "latest"
+"brew-cask:audacity" = "latest"
+"brew-cask:vlc" = "latest"
