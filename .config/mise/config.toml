@@ -1,8 +1,8 @@
 [settings.github]
 credential_command = 'gh auth token --hostname "$MISE_CREDENTIAL_HOST"'
 
-[settings.self_update]
-auto = true
+[settings]
+auto_update = true
 
 [tools]
 # Languages
