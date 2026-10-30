@@ -1,6 +1,3 @@
-[bootstrap.brew.taps]
-"d12frosted/emacs-plus" = "https://github.com/d12frosted/homebrew-emacs-plus.git"
-
 [bootstrap.packages]
 "brew:autojump" = "latest"
 "brew:bash" = "latest"

@@ -52,7 +52,7 @@ ZSH_CUSTOM="$HOME/.oh-my-zsh-custom"
 # Select mise config env (conf.d/*.<env>.toml) by machine; must precede activate
 if [[ -z $MISE_ENV ]]; then
   case ${HOST%%.*} in
-    nesto) export MISE_ENV=work ;;
+    nesto*) export MISE_ENV=work ;;
     *)     export MISE_ENV=personal ;;
   esac
 fi
