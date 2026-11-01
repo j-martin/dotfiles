@@ -72,17 +72,27 @@ local function __describe(context)
   return table.concat(lines, '\n')
 end
 
--- Single row previewing the parsed title and due date
+-- Rows previewing the parsed title and due date: with notes, and a second one without when there would be notes
 ---@param query string
 ---@param context ReminderContext|nil
+---@param hasNotes boolean
 ---@return table
-local function __preview(query, context)
+local function __preview(query, context, hasNotes)
   local title, due = nlpDate.parse(query)
-  local subText = due and ('⏰ ' .. os.date('%a %b %d %H:%M', due)) or 'No due date'
+  ---@type string
+  local text = title ~= '' and title or 'New reminder'
+  ---@type string
+  local dueText = due and ('⏰ ' .. os.date('%a %b %d %H:%M', due)) or 'No due date'
+  ---@type string
+  local subText = dueText
   if context then
     subText = subText .. '   🔗 ' .. context.title
   end
-  return { { text = title ~= '' and title or 'New reminder', subText = subText, query = query } }
+  local rows = { { text = text, subText = subText, query = query } }
+  if hasNotes then
+    table.insert(rows, { text = text, subText = dueText .. '   🚫 No note', query = query, noNote = true })
+  end
+  return rows
 end
 
 -- Creates the reminder from the typed text, keeping the selection and context in its notes
@@ -90,9 +100,14 @@ end
 ---@param raw string
 ---@param oneLine string
 ---@param context ReminderContext|nil
-local function __submit(text, raw, oneLine, context)
+---@param noNote boolean|nil When true, the reminder gets no notes at all
+local function __submit(text, raw, oneLine, context, noNote)
   local title, due = nlpDate.parse(text)
+  ---@type string[]
   local parts = {}
+  if noNote then
+    raw, context = '', nil
+  end
   if raw ~= '' and title:gsub('%s+', ' ') ~= oneLine then
     table.insert(parts, raw)
   end
@@ -124,6 +139,8 @@ function mod.add()
   local oneLine = raw:gsub('%s+', ' ')
 
   local default = oneLine ~= '' and oneLine or (context and context.title or '')
+  ---@type boolean
+  local hasNotes = context ~= nil or raw ~= ''
 
   if mod.chooser then
     mod.chooser:delete()
@@ -135,16 +152,16 @@ function mod.add()
     if not choice or choice.query:match('^%s*$') then
       return
     end
-    __submit(choice.query, raw, oneLine, context)
+    __submit(choice.query, raw, oneLine, context, choice.noNote)
   end)
   mod.chooser:placeholderText('Remind me to… e.g. "call bob tomorrow 9am", "in 30m", "fri at 14:30"')
-  mod.chooser:rows(1)
+  mod.chooser:rows(hasNotes and 2 or 1)
   mod.chooser:bgDark(true)
   mod.chooser:queryChangedCallback(function(query)
-    mod.chooser:choices(__preview(query, context))
+    mod.chooser:choices(__preview(query, context, hasNotes))
   end)
   mod.chooser:query(default)
-  mod.chooser:choices(__preview(default, context))
+  mod.chooser:choices(__preview(default, context, hasNotes))
   mod.chooser:show()
 end
 
