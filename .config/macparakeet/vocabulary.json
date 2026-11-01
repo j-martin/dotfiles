@@ -1,0 +1,23 @@
+{
+  "appVersion" : "0.8.10",
+  "customWords" : [
+    {
+      "createdAt" : "2026-11-01T15:45:58Z",
+      "isEnabled" : true,
+      "replacement" : "🙂",
+      "word" : "smiling emoji"
+    },
+    {
+      "createdAt" : "2026-11-01T15:46:36Z",
+      "isEnabled" : true,
+      "replacement" : "😉",
+      "word" : "wink emoji"
+    }
+  ],
+  "exportedAt" : "2026-11-01T15:46:41Z",
+  "schema" : "macparakeet.vocabulary",
+  "textSnippets" : [
+
+  ],
+  "version" : 1
+}
