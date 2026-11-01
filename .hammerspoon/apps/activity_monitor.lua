@@ -9,7 +9,9 @@ mod.name = 'Activity Monitor'
 
 --- Shows the Activity Monitor CPU history in a small window on the laptop screen.
 function mod.open()
-  utils.switchToAndType(mod.name, { 'cmd' }, '2')
+  if not utils.switchToAndType(mod.name, { 'cmd' }, '2') then
+    return
+  end
   local win = hs.window.focusedWindow()
   local laptopScreen = 'Color LCD'
 

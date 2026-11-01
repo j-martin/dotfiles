@@ -1,11 +1,12 @@
 -- initially from https://raw.githubusercontent.com/oskarols/dotfiles/0bd44443d00108e3c1a8d01520489e2d165f70ff/hammerspoon/extensions.lua
 
 local logger = hs.logger.new('windows.ext', 'debug')
+local appGuard = require 'utils/app_guard'
 
 ---@class WindowsExtensionModule
 ---@field mouseHighlight fun()
 ---@field centerOnTitle fun(rect: table): nil
----@field launchOrCycleFocus fun(applicationName: string): fun()
+---@field launchOrCycleFocus fun(applicationName: string): fun(): boolean
 local mod = {}
 
 ---------------------------------------------------------
@@ -127,8 +128,10 @@ local lastToggledAppName = ''
 
 local cursorPositions = {}
 
+--- Returns a callback focusing the application, or its next window when already focused. The callback returns false
+--- when the application is not responding or not frontmost in time, so that callers can abort.
 ---@param applicationName string
----@return fun()
+---@return fun(): boolean
 function mod.launchOrCycleFocus(applicationName)
   local function cleanupName(name)
     return name:gsub('.app$', '')
@@ -142,8 +145,7 @@ function mod.launchOrCycleFocus(applicationName)
       cursorPositions[focusedWindow:title()] = hs.mouse.absolutePosition()
     end
     if not focusedWindow then
-      hs.application.launchOrFocus(applicationName:gsub('[0-9]+', ''))
-      return
+      return (appGuard.launchOrFocus((applicationName:gsub('[0-9]+', ''))))
     end
     local app = focusedWindow:application()
 
@@ -163,9 +165,15 @@ function mod.launchOrCycleFocus(applicationName)
       end
     else
       logger.df('launch or focus %s', app)
-      if not hs.application.launchOrFocus(applicationName) then
+      ---@type boolean, string|nil
+      local ok, failure = appGuard.launchOrFocus(applicationName)
+      if not ok and failure == 'notFound' then
+        ---@type string
         local sanitizedName = applicationName:gsub('[0-9]+', '')
-        hs.application.launchOrFocus(sanitizedName)
+        ok = appGuard.launchOrFocus(sanitizedName)
+      end
+      if not ok then
+        return false
       end
     end
 
@@ -177,7 +185,7 @@ function mod.launchOrCycleFocus(applicationName)
 
     if not targetWindow then
       logger.df('failed finding a window for application: %s', applicationName)
-      return
+      return true
     end
 
     local previousCursorPosition = cursorPositions[targetWindow:title()]
@@ -197,6 +205,7 @@ function mod.launchOrCycleFocus(applicationName)
         hs.eventtap.keyStroke({ 'alt' }, 'l')
       end
     end
+    return true
   end
 end
 

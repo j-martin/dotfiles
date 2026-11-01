@@ -42,6 +42,7 @@
 
 ---@class hs.timer
 ---@field usleep fun(microseconds: number): nil
+---@field secondsSinceEpoch fun(): number
 ---@field doAfter fun(delay: number, callback: fun()): hs.timer
 ---@field doEvery fun(interval: number, callback: fun()): hs.timer
 ---@field stop fun(self): hs.timer
@@ -122,7 +123,10 @@
 ---@class hs.axuielement
 ---@field windowElement fun(window: hs.window): hs.axuielement
 ---@field systemElementAtPosition fun(point: table): hs.axuielement|nil
----@field applicationElement fun(app: hs.application): hs.axuielement
+---@field applicationElement fun(app: hs.application): hs.axuielement|nil
+---@field systemWideElement fun(): hs.axuielement
+---@field setTimeout fun(self, seconds: number): hs.axuielement
+---@field asHSApplication fun(self): hs.application|nil
 ---@field pid fun(self): number
 ---@field attributeValue fun(self, name: string): any
 ---@field setAttributeValue fun(self, name: string, value: any): nil

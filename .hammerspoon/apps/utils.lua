@@ -1,5 +1,6 @@
 local logger = hs.logger.new('apps', 'info')
 local windows = require 'windows'
+local appGuard = require 'utils/app_guard'
 
 local mod = {}
 
@@ -24,15 +25,19 @@ function mod.wait(n)
   hs.timer.usleep(10000 * (n or 1))
 end
 
---- Focuses the application, then sends it a key stroke.
+--- Focuses the application, then sends it a key stroke, unless it is not responding or not frontmost in time.
 ---@param application string
 ---@param modifiers table
 ---@param keyStroke string
 ---@param delay number|nil
+---@return boolean sent
 function mod.switchToAndType(application, modifiers, keyStroke, delay)
-  windows.launchOrCycleFocus(application)()
+  if not windows.launchOrCycleFocus(application)() then
+    return false
+  end
   mod.wait(delay)
   hs.eventtap.keyStroke(modifiers, keyStroke)
+  return true
 end
 
 --- Opens the URL with the application of the bundle id.
@@ -41,7 +46,9 @@ end
 function mod.open(bundleId, url)
   logger.i(bundleId, url)
 
-  hs.application.launchOrFocusByBundleID(bundleId)
+  if not appGuard.launchOrFocusByBundleID(bundleId) then
+    return
+  end
   hs.urlevent.openURLWithBundle(url, bundleId)
 end
 

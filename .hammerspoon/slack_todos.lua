@@ -18,6 +18,7 @@ local logger = require('utils/file_logger').new('slackTodos', 'info')
 local nlpDate = require 'utils/nlp_date'
 local reminders = require 'apps/reminders'
 local slack = require 'apps/slack'
+local appGuard = require 'utils/app_guard'
 
 ---@class SlackTodosModule
 ---@field marker string
@@ -291,15 +292,13 @@ end
 
 --- Focuses Slack, then switches it to its To-dos tab and syncs.
 function mod.focusAndSync()
-  hs.application.launchOrFocusByBundleID(slack.bundleId)
   if mod.pending then
     mod.pending:stop()
   end
-  local deadline = hs.timer.secondsSinceEpoch() + 3
-  mod.pending = hs.timer.waitUntil(function()
-    local app = hs.application.frontmostApplication()
-    return (app ~= nil and app:bundleID() == slack.bundleId) or hs.timer.secondsSinceEpoch() > deadline
-  end, mod.showAndSync, 0.1)
+  if not appGuard.launchOrFocusByBundleID(slack.bundleId) then
+    return
+  end
+  mod.showAndSync()
 end
 
 --- Syncs every `mod.interval` seconds, and whenever a Slack window title changes, e.g. on opening the To-dos tab.

@@ -2,6 +2,7 @@ local logger = hs.logger.new('emacs', 'debug')
 local process = require 'utils/process'
 local selection = require 'selection'
 local utils = require 'apps/utils'
+local appGuard = require 'utils/app_guard'
 
 ---@class EmacsApp
 ---@field name string
@@ -22,7 +23,7 @@ local emacsclientPath = utils.getExecPath('emacsclient')
 ---@param sexp string
 local function eval(sexp)
   process.start('~/.bin/ec', { '--quiet', '--suppress-output', '--eval', sexp })
-  hs.application.launchOrFocus(mod.name)
+  appGuard.launchOrFocus(mod.name)
 end
 
 ---@param sexp string
@@ -33,7 +34,7 @@ end
 ---@param url string
 local function open(url)
   process.start('~/.bin/ec', { '--quiet', '--suppress-output', url })
-  hs.application.launchOrFocus(mod.name)
+  appGuard.launchOrFocus(mod.name)
 end
 
 --- Lists the buffers.

@@ -2,7 +2,7 @@ local ext = require 'windows/extensions'
 local logger = hs.logger.new('windows', 'debug')
 
 ---@class WindowsModule
----@field launchOrCycleFocus fun(applicationName: string): fun()
+---@field launchOrCycleFocus fun(applicationName: string): fun(): boolean
 ---@field isUltraWideScreen fun(screen: hs.screen): boolean
 ---@field isUltraWide fun(win: hs.window): boolean
 ---@field hasUltraWideScreen fun(): boolean

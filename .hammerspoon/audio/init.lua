@@ -1,4 +1,5 @@
 local headphones_watcher = require 'audio/headphones_watcher'
+local appGuard = require 'utils/app_guard'
 
 ---@class AudioModule
 ---@field volumes table<string, number>
@@ -186,7 +187,7 @@ function mod.setVolume(value)
 end
 
 function mod.open()
-  hs.application.launchOrFocus('Spotify')
+  appGuard.launchOrFocus('Spotify')
 end
 
 ---@param fn function

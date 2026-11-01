@@ -1,5 +1,6 @@
 local logger = hs.logger.new('google_chrome', 'info')
 local chromium = require 'apps/chromium'
+local appGuard = require 'utils/app_guard'
 
 ---@class GoogleChromeApp
 ---@field name string
@@ -110,7 +111,9 @@ function mod.moveTabsToDefaultBrowser()
   end
 
   hs.pasteboard.setContents(table.concat(urls, '\n'))
-  hs.application.launchOrFocusByBundleID(browserBundleId)
+  if not appGuard.launchOrFocusByBundleID(browserBundleId) then
+    return
+  end
   for _, url in ipairs(urls) do
     hs.urlevent.openURLWithBundle(url, browserBundleId)
   end

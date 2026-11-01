@@ -2,6 +2,8 @@ local logger = hs.logger.new('brave', 'debug')
 local utils = require 'apps/utils'
 local chromium = require 'apps/chromium'
 local googleChrome = require 'apps/google_chrome'
+local appGuard = require 'utils/app_guard'
+local config = require 'config'
 
 ---@class BraveApp
 ---@field name string
@@ -11,7 +13,7 @@ local googleChrome = require 'apps/google_chrome'
 ---@field slackUnread fun()
 ---@field openOmni fun()
 ---@field clickSignIn fun()
----@field activateTab fun(name: string): function
+---@field activateTab fun(name: string): fun(): boolean
 ---@field context fun(): table<string, any>|nil
 ---@field openActiveTabInSafari fun()
 ---@field openActiveTabInChrome fun()
@@ -21,9 +23,9 @@ mod.name = 'Brave Browser'
 
 mod.tab = { slack = ' Alloy Slack', mail = { work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail' } }
 
----@return nil
+---@return boolean
 local function openSlack()
-  mod.activateTab(mod.tab.slack)()
+  return mod.activateTab(mod.tab.slack)()
 end
 
 local signInLabels = { '^sign ?in$', '^log ?in$' }
@@ -50,7 +52,9 @@ end
 
 --- Opens the Slack quick switcher of the Slack tab.
 function mod.slackQuickSwitcher()
-  openSlack()
+  if not openSlack() then
+    return
+  end
   utils.wait(2)
   hs.eventtap.keyStroke({ 'cmd' }, 'k')
 end
@@ -70,7 +74,9 @@ end
 
 --- Opens the unread messages of the Slack tab.
 function mod.slackUnread()
-  openSlack()
+  if not openSlack() then
+    return
+  end
   utils.wait()
   hs.eventtap.keyStroke({ 'cmd', 'shift' }, 'a')
 end
@@ -100,11 +106,15 @@ function mod.clickSignIn()
   end, isSignInButton, { count = 1 })
 end
 
---- Returns a callback activating the first tab whose title contains `name`.
+--- Returns a callback activating the first tab whose title contains `name`. The callback returns false, without
+--- activating Brave, when Brave is not responding, or when it is not frontmost in time.
 ---@param name string
----@return function
+---@return fun(): boolean
 function mod.activateTab(name)
   return function()
+    if not appGuard.ensureResponsive(mod.name) then
+      return false
+    end
     hs.osascript.javascript([[
       var browser = Application(']] .. mod.name .. [[');
       browser.activate();
@@ -128,7 +138,15 @@ function mod.activateTab(name)
 
       main();
     ]])
-    hs.window.find(name):focus()
+    if not appGuard.waitUntilFrontmost(mod.name, config.appLaunchTimeout) then
+      return false
+    end
+    ---@type hs.window|nil
+    local window = hs.window.find(name)
+    if window then
+      window:focus()
+    end
+    return true
   end
 end
 
