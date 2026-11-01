@@ -34,6 +34,7 @@
   cpa = cherry-pick --abort
   cpc = cherry-pick --continue
   dd = -c diff.external=difft diff
+  dc = -c diff.external=difft diff --cached
   df = difftool
   dfnt = difftool ':(exclude)*test*'
   dl = -c diff.external=difft log --ext-diff --patch --pretty=fuller --date local
