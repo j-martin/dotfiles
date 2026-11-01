@@ -16,6 +16,7 @@ to do it.
 # Shell
 
 - Starts in `~/.zshrc`, then `~/.base` which is the entrypoint into my own custom config, which loads `~/.aliases` and then all the functions in `~/.functions`.
+- Never add functions in `~/.aliases` unless they are very simple, non-cryptic, one-liners. Otherwise put them in `~/.functions`.
 - I do not want my custom config in `~/.zshrc`.
 - There is `~/.private/profile` for config I do not want to be public.
 - Before implenting a new function check if we have matching ones. e.g. `_fzf_` etc.

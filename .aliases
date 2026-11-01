@@ -16,6 +16,7 @@ ali() {
 }
 
 alias c=z
+yp() { rg --files $PWD | _fzf_query_all "$@" | _clipboard_copy }
 
 # Editor
 alias vi='nvim'

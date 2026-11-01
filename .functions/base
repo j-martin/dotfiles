@@ -98,8 +98,14 @@ _fzf() {
   __fzf --query "$@"
 }
 
+
+# Passes all arguments to fzf as part of the query.
+_fzf_query_all() {
+  _fzf "$*"
+}
+
 _fzf_pick() {
-  __fzf --header-lines=1 --query "$@" \
+  _fzf "$@" --header-lines=1  \
     | awk '{print $1}'
 }
 
@@ -108,7 +114,7 @@ _fzf_with_preview() {
   __fzf --height 70% \
     --preview 'bat --color always {}' \
     --preview-window="down:75%" \
-    --query "$@"
+    --query "$*"
 }
 
 # Not named _prefix: that would shadow zsh's _prefix completer.
