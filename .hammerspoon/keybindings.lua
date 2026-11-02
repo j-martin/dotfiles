@@ -163,6 +163,12 @@ local bindings = {
         fn = slackTodos.showAndSync,
         desc = 'To-dos - Show and sync with Reminders',
       },
+      {
+        modifiers = cmdCtrl,
+        key = 'a',
+        fn = apps.slack.todoAndAcknowledge,
+        desc = 'Add selected message to to-dos and react with 👀',
+      },
     },
   },
   {

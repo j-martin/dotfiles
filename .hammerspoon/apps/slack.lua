@@ -13,7 +13,9 @@ local privateConfig = require 'utils/private_config'
 ---@field showTodos fun(): boolean
 ---@field todos fun(window: hs.window): SlackTodos|nil
 ---@field completeTodo fun(window: hs.window, key: string, callback: fun(ok: boolean, err: string|nil))
+---@field todoAndAcknowledge fun()
 ---@field hoverTimer hs.timer|nil
+---@field modifiersTimer hs.timer|nil
 ---@field init fun()
 local mod = {}
 
@@ -431,6 +433,41 @@ function mod.completeTodo(window, key, callback)
       callback(gone, not gone and 'still in progress after pressing Mark complete' or nil)
     end)
   end)
+end
+
+-- Sends Slack's message shortcuts, so the modifiers must be released.
+local function sendTodoAndAcknowledge()
+  hs.eventtap.keyStroke({}, 'a')
+  utils.wait(30)
+  hs.eventtap.keyStroke({}, 'r')
+  utils.wait(30)
+  hs.eventtap.keyStrokes('eyes')
+  utils.wait(30)
+  hs.eventtap.keyStroke({}, 'return')
+end
+
+--- Adds the selected message to the to-dos and reacts to it with 👀, with Slack's message shortcuts.
+--- They act on the keyboard selected message, the one with the blue outline, not the hovered one.
+--- Waits for the hotkey's modifiers to be released, for up to 3 seconds.
+function mod.todoAndAcknowledge()
+  if mod.modifiersTimer then
+    mod.modifiersTimer:stop()
+  end
+  local deadline = hs.timer.secondsSinceEpoch() + 3
+  ---@return boolean
+  local function released()
+    local modifiers = hs.eventtap.checkKeyboardModifiers()
+    return not (modifiers.cmd or modifiers.ctrl or modifiers.alt or modifiers.shift)
+  end
+  mod.modifiersTimer = hs.timer.waitUntil(function()
+    return released() or hs.timer.secondsSinceEpoch() > deadline
+  end, function()
+    if not released() then
+      hs.alert.show('Slack - Modifiers still held, to-do not added')
+      return
+    end
+    sendTodoAndAcknowledge()
+  end, 0.05)
 end
 
 --- Loads the team mapping from the private config.
