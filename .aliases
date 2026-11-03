@@ -175,6 +175,7 @@ alias lo='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources
 alias no='e ~/.org/MAIN.org'
 alias noisy='pkill -f Noisy && open -a /Applications/NoisyTyper.app'
 alias m='mise'
+alias mr='mise run'
 alias myip='tail -n10 ~/.ip_history; { gdate "+%Y-%m-%dT%H:%M:%S" | tr "\n" ",";  for ip in 6 4; do; curl --silent "-${ip}" https://ifconfig.co | tr "\n" ","; done; echo } | tee -a ~/.ip_history'
 alias opb='open "$(pbpaste)"'
 alias opd='open "$(basename "$(pbpaste)")"'
