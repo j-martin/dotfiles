@@ -57,6 +57,7 @@ if [[ -z $MISE_ENV ]]; then
   esac
 fi
 
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
 source <("$HOME/.local/bin/mise" activate zsh)
 
 plugins=(
@@ -108,24 +109,6 @@ bindkey '^[[1;9C' forward-word
 bindkey '^[[1;9D' backward-word
 
 source "$HOME/.base"
-
 source <(fzf --zsh)
 
-export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-
-[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
-
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/Users/jm/.sdkman"
-[[ -s "/Users/jm/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/jm/.sdkman/bin/sdkman-init.sh"
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/jm/.lmstudio/bin"
-# End of LM Studio CLI section

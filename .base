@@ -22,16 +22,6 @@ export CDPATH=".:$WORK:$HOME:$HOME/src/github.com/j-martin:$GOWORK:$HOME/src/git
 export VISUAL="emacsclient"
 # export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
-if [[ -f /opt/homebrew/bin/brew ]]; then
-  export HOMEBREW_PREFIX="/opt/homebrew";
-  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-  export HOMEBREW_REPOSITORY="/opt/homebrew";
-  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
-  export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
-  export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-  export BREW_PREFIX="$(brew --prefix)"
-fi
-
 if command -v fzf > /dev/null 2>&1 && ! declare -f __fzf_comprun > /dev/null; then
   eval "$(fzf --zsh)"
 fi
@@ -43,15 +33,9 @@ GPG_TTY="$(tty)"
 export GPG_TTY
 export DO_NOT_TRACK=true
 
-__source "$HOME/.cargo/env"
-export PATH="$HOME/.cargo/bin:$PATH"
-
 # Use '/usr/bin/ssh-add --apple-use-keychain ~/.ssh/*' to add existing keys
 test -e "$TMPDIR/ssh-loaded" \
   || /usr/bin/ssh-add --apple-load-keychain && touch "$TMPDIR/ssh-loaded"
-
-__source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
-__source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
 
 __source "$HOME/.private/profile"
 
@@ -67,21 +51,13 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
   unset '_postpatcomps[_*]'
 fi
 
-export PATH="$GOPATH/bin:/usr/local/sbin:$HOME/.npm/bin:/usr/local/bin:$HOME/.bin:$HOME/.local/bin:$PATH"
-
-export JAVA_HOME="$(find /opt/homebrew/Cellar/openjdk -type d -maxdepth 1 -mindepth 1 | tail)/libexec/openjdk.jdk/Contents/Home"
-
-test -e /usr/local/bin/nvim \
-  && export EDITOR='/usr/local/bin/nvim'
+export PATH="$GOPATH/bin:$HOME/.bin:$HOME/.local/bin:$PATH"
 
 export PAGER='less -SRi'
 export HOSTNAME="$HOST"
 
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --glob='!{.git,node_modules,out}' 2> /dev/null"
-
-export SDKMAN_DIR="$HOME/.sdkman"
-__source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 if [[ -z "$DISPLAY" ]] && [[ -n "$XDG_VTNR" ]] && [[ "$XDG_VTNR" -eq 1 ]]; then
   exec startx
@@ -93,7 +69,3 @@ else
   # shellcheck disable=SC2046
   eval $(gpg-agent --daemon)
 fi
-
-# Work
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="${PYENV_ROOT}/shims:${PATH}"
