@@ -146,6 +146,7 @@ function mod.init()
   mod.watcher = hs.application.watcher.new(onApplicationEvent):start()
   autoQuit.init(mod.subscribe)
   mod.slack.init()
+  mod.brave.init()
   mod.googleChrome.init()
   mod.meetingbar.init()
 end

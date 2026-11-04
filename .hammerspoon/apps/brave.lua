@@ -17,9 +17,20 @@ local config = require 'config'
 ---@field context fun(): table<string, any>|nil
 ---@field openActiveTabInSafari fun()
 ---@field openActiveTabInChrome fun()
+---@field chromeOnlyTitles string[]
+---@field chromeOnlyUrlPrefixes string[]
+---@field moveChromeOnlyTabsToChrome fun()
+---@field windowFilter hs.window.filter|nil
+---@field init fun()
 local mod = {}
 
 mod.name = 'Brave Browser'
+
+--- Tab titles that only work in Google Chrome, so their tabs are moved there.
+mod.chromeOnlyTitles = { 'Remediation page' }
+
+--- URL prefixes that only work in Google Chrome, so their tabs are moved there.
+mod.chromeOnlyUrlPrefixes = { 'https://access.workspace.google.com/remediate' }
 
 mod.tab = { slack = ' Alloy Slack', mail = { work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail' } }
 
@@ -166,6 +177,50 @@ end
 --- Opens the URL of the active tab in Google Chrome.
 function mod.openActiveTabInChrome()
   chromium.openActiveTab(mod.name, googleChrome.openUrl)
+end
+
+--- Closes every Brave tab matching `mod.chromeOnlyTitles` or `mod.chromeOnlyUrlPrefixes`, and opens them in Google Chrome.
+function mod.moveChromeOnlyTabsToChrome()
+  local ok, urls = hs.osascript.javascript([[
+    var titles = ]] .. hs.json.encode(mod.chromeOnlyTitles) .. [[;
+    var urlPrefixes = ]] .. hs.json.encode(mod.chromeOnlyUrlPrefixes) .. [[;
+    var brave = Application(']] .. mod.name .. [[');
+    var urls = [];
+
+    function isChromeOnly(title, url) {
+      return titles.some(function(t) { return title.indexOf(t) > -1; })
+        || urlPrefixes.some(function(prefix) { return url.indexOf(prefix) === 0; });
+    }
+
+    brave.windows().forEach(function(win) {
+      var tabTitles = win.tabs.title();
+      var tabUrls = win.tabs.url();
+      for (var i = tabUrls.length - 1; i >= 0; i--) {
+        if (isChromeOnly(tabTitles[i], tabUrls[i])) {
+          urls.unshift(tabUrls[i]);
+          win.tabs[i].close();
+        }
+      }
+    });
+
+    urls;
+  ]])
+  if not ok or type(urls) ~= 'table' then
+    logger.e('Could not get the URLs of the Brave tabs.')
+    return
+  end
+  ---@cast urls string[]
+  for _, url in ipairs(urls) do
+    logger.i('Moving to Google Chrome: ' .. url)
+    googleChrome.openUrl(url)
+  end
+end
+
+--- Moves Chrome only Brave tabs to Google Chrome whenever a Brave window title changes.
+function mod.init()
+  mod.windowFilter = hs.window.filter.new(mod.name)
+  mod.windowFilter:subscribe(hs.window.filter.windowCreated, mod.moveChromeOnlyTabsToChrome)
+  mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, mod.moveChromeOnlyTabsToChrome)
 end
 
 return mod
