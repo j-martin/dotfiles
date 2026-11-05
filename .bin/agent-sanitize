@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+# Delete AI agent / LLM config (instructions, rules, MCP servers, hooks, settings)
+# from a repository so opening it with an agent does not load untrusted config.
+#
+# Usage: agent-sanitize [--dry-run] [--yes] [DIR]
+#   DIR defaults to the git root of the current directory, or the current directory.
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+IFS=$'\n\t'
+
+# Matched by basename anywhere in the tree (file or directory)
+readonly NAMES=(
+  'CLAUDE.md'
+  'CLAUDE.local.md'
+  'AGENTS.md'
+  'AGENT.md'
+  'AGENTS.override.md'
+  'GEMINI.md'
+  'QWEN.md'
+  'CRUSH.md'
+  'WARP.md'
+  '.claude'
+  '.claude-plugin'
+  '.mcp.json'
+  '.agents'
+  '.agent'
+  '.codex'
+  '.gemini'
+  '.qwen'
+  '.cursor'
+  '.cursorrules'
+  '.cursorignore'
+  '.cursorindexingignore'
+  '.windsurf'
+  '.windsurfrules'
+  '.codeiumignore'
+  '.clinerules'
+  '.clineignore'
+  '.roo'
+  '.roorules'
+  '.roomodes'
+  '.rooignore'
+  '.kilocode'
+  '.continue'
+  '.continuerc.json'
+  '.aider.conf.yml'
+  '.aider.model.settings.yml'
+  '.aider.model.metadata.json'
+  '.aiderignore'
+  '.goosehints'
+  '.junie'
+  '.kiro'
+  '.amazonq'
+  '.augment'
+  '.augment-guidelines'
+  '.opencode'
+  'opencode.json'
+  'opencode.jsonc'
+  '.crush.json'
+  'crush.json'
+  '.trae'
+  '.zed'
+  '.rules'
+  '.aiexclude'
+  '.tabnine'
+  '.sourcegraph'
+)
+
+# Matched by path relative to DIR, anywhere in the tree
+readonly PATHS=(
+  '*/.github/copilot-instructions.md'
+  '*/.github/instructions'
+  '*/.github/prompts'
+  '*/.github/chatmodes'
+  '*/.github/agents'
+  '*/.vscode/mcp.json'
+  '*/.idx/airules.md'
+  '*/.idx/mcp.json'
+)
+
+_info() {
+  echo >&2 "[info] $*"
+}
+
+_error() {
+  echo >&2 "[error] $*"
+}
+
+_usage() {
+  sed -n '2,7s/^# \{0,1\}//p' "$0"
+}
+
+_default_dir() {
+  git rev-parse --show-toplevel 2>/dev/null || pwd
+}
+
+# Print every agent config file/dir under the given directory, one per line, outermost first
+_find_targets() {
+  local dir="$1"
+  local expr=()
+  local item
+
+  expr+=('(')
+  for item in "${NAMES[@]}"; do
+    expr+=(-name "$item" -o)
+  done
+  for item in "${PATHS[@]}"; do
+    expr+=(-path "$item" -o)
+  done
+  expr[${#expr[@]}-1]=')'
+
+  # -prune on matches so nested hits inside a deleted dir are not listed twice
+  find "$dir" -mindepth 1 "${expr[@]}" -print -prune
+}
+
+_confirm() {
+  local answer
+  read -r -p 'Delete all of the above? [y/N] ' answer
+  [[ "$answer" == 'y' || "$answer" == 'Y' ]]
+}
+
+_main() {
+  local dry_run='false'
+  local yes='false'
+  local dir=''
+  local targets target
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --dry-run) dry_run='true' ;;
+      --yes) yes='true' ;;
+      --help) _usage; return 0 ;;
+      -*) _error "Unknown option: $1"; _usage; return 1 ;;
+      *) dir="$1" ;;
+    esac
+    shift
+  done
+
+  dir="${dir:-$(_default_dir)}"
+  if [[ ! -d "$dir" ]]; then
+    _error "Not a directory: $dir"
+    return 1
+  fi
+  dir="$(cd "$dir" && pwd)"
+
+  targets="$(_find_targets "$dir")"
+  if [[ -z "$targets" ]]; then
+    _info "No agent config found in $dir"
+    return 0
+  fi
+
+  _info "Agent config found in $dir:"
+  for target in $targets; do
+    echo "  ${target#"$dir"/}"
+  done
+
+  if [[ "$dry_run" == 'true' ]]; then
+    return 0
+  fi
+
+  if [[ "$yes" != 'true' ]] && ! _confirm; then
+    _info 'Aborted'
+    return 1
+  fi
+
+  for target in $targets; do
+    # macOS rm has no long options
+    rm -R -f "$target"
+  done
+  _info 'Deleted'
+}
+
+_main "$@"
