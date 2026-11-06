@@ -17,6 +17,7 @@ for path in listing:lines() do
     table.insert(names, name)
   end
   table.sort(names)
+  print(string.format('%s (%d tests)', path, #names))
   for _, name in ipairs(names) do
     total = total + 1
     local ok, err = pcall(cases[name])
