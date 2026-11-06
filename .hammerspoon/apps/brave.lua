@@ -2,6 +2,7 @@ local logger = hs.logger.new('brave', 'debug')
 local utils = require 'apps/utils'
 local chromium = require 'apps/chromium'
 local googleChrome = require 'apps/google_chrome'
+local googleMeet = require 'apps/google_meet'
 local appGuard = require 'utils/app_guard'
 local config = require 'config'
 
@@ -20,6 +21,8 @@ local config = require 'config'
 ---@field chromeOnlyTitles string[]
 ---@field chromeOnlyUrlPrefixes string[]
 ---@field moveChromeOnlyTabsToChrome fun()
+---@field meetUrlPrefixes string[]
+---@field moveMeetTabsToGoogleMeet fun()
 ---@field windowFilter hs.window.filter|nil
 ---@field init fun()
 local mod = {}
@@ -31,6 +34,9 @@ mod.chromeOnlyTitles = { 'Remediation page' }
 
 --- URL prefixes that only work in Google Chrome, so their tabs are moved there.
 mod.chromeOnlyUrlPrefixes = { 'https://access.workspace.google.com/remediate' }
+
+--- URL prefixes of tabs moved to the Google Meet app.
+mod.meetUrlPrefixes = { 'https://meet.google.com/' }
 
 mod.tab = { slack = ' Alloy Slack', mail = { work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail' } }
 
@@ -179,15 +185,18 @@ function mod.openActiveTabInChrome()
   chromium.openActiveTab(mod.name, googleChrome.openUrl)
 end
 
---- Closes every Brave tab matching `mod.chromeOnlyTitles` or `mod.chromeOnlyUrlPrefixes`, and opens them in Google Chrome.
-function mod.moveChromeOnlyTabsToChrome()
+--- Closes every Brave tab whose title contains one of `titles` or whose URL starts with one of `urlPrefixes`.
+---@param titles string[]
+---@param urlPrefixes string[]
+---@return string[]|nil urls of the closed tabs, nil when they could not be read
+local function closeTabs(titles, urlPrefixes)
   local ok, urls = hs.osascript.javascript([[
-    var titles = ]] .. hs.json.encode(mod.chromeOnlyTitles) .. [[;
-    var urlPrefixes = ]] .. hs.json.encode(mod.chromeOnlyUrlPrefixes) .. [[;
+    var titles = ]] .. hs.json.encode(titles) .. [[;
+    var urlPrefixes = ]] .. hs.json.encode(urlPrefixes) .. [[;
     var brave = Application(']] .. mod.name .. [[');
     var urls = [];
 
-    function isChromeOnly(title, url) {
+    function matches(title, url) {
       return titles.some(function(t) { return title.indexOf(t) > -1; })
         || urlPrefixes.some(function(prefix) { return url.indexOf(prefix) === 0; });
     }
@@ -196,7 +205,7 @@ function mod.moveChromeOnlyTabsToChrome()
       var tabTitles = win.tabs.title();
       var tabUrls = win.tabs.url();
       for (var i = tabUrls.length - 1; i >= 0; i--) {
-        if (isChromeOnly(tabTitles[i], tabUrls[i])) {
+        if (matches(tabTitles[i], tabUrls[i])) {
           urls.unshift(tabUrls[i]);
           win.tabs[i].close();
         }
@@ -207,20 +216,38 @@ function mod.moveChromeOnlyTabsToChrome()
   ]])
   if not ok or type(urls) ~= 'table' then
     logger.e('Could not get the URLs of the Brave tabs.')
-    return
+    return nil
   end
   ---@cast urls string[]
-  for _, url in ipairs(urls) do
+  return urls
+end
+
+--- Closes every Brave tab matching `mod.chromeOnlyTitles` or `mod.chromeOnlyUrlPrefixes`, and opens them in Google Chrome.
+function mod.moveChromeOnlyTabsToChrome()
+  for _, url in ipairs(closeTabs(mod.chromeOnlyTitles, mod.chromeOnlyUrlPrefixes) or {}) do
     logger.i('Moving to Google Chrome: ' .. url)
     googleChrome.openUrl(url)
   end
 end
 
---- Moves Chrome only Brave tabs to Google Chrome whenever a Brave window title changes.
+--- Closes every Brave tab matching `mod.meetUrlPrefixes`, and opens them in the Google Meet app.
+function mod.moveMeetTabsToGoogleMeet()
+  for _, url in ipairs(closeTabs({}, mod.meetUrlPrefixes) or {}) do
+    logger.i('Moving to Google Meet: ' .. url)
+    googleMeet.openUrl(url)
+  end
+end
+
+local function moveTabs()
+  mod.moveChromeOnlyTabsToChrome()
+  mod.moveMeetTabsToGoogleMeet()
+end
+
+--- Moves Chrome only Brave tabs to Google Chrome, and Meet tabs to Google Meet, whenever a Brave window title changes.
 function mod.init()
   mod.windowFilter = hs.window.filter.new(mod.name)
-  mod.windowFilter:subscribe(hs.window.filter.windowCreated, mod.moveChromeOnlyTabsToChrome)
-  mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, mod.moveChromeOnlyTabsToChrome)
+  mod.windowFilter:subscribe(hs.window.filter.windowCreated, moveTabs)
+  mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, moveTabs)
 end
 
 return mod

@@ -97,7 +97,7 @@ end
 
 mod.lastUrl = nil
 
---- Opens http(s) URLs in their desktop app when possible, e.g. Zoom and Slack, and in Brave otherwise.
+--- Opens http(s) URLs in their desktop app when possible, e.g. Zoom, Slack and Google Meet, and in Brave otherwise.
 ---@param scheme string
 ---@param host string|nil
 ---@param params table
@@ -126,7 +126,10 @@ function mod.httpCallback(scheme, host, params, fullUrl, senderPID)
     return
   end
 
-  if host:match('.*.zoom.us$') then
+  if mod.googleMeet.isMeetUrl(fullUrl) then
+    mod.googleMeet.openUrl(fullUrl)
+    return
+  elseif host:match('.*.zoom.us$') then
     bundleId = mod.zoom.bundleId
     url = mod.zoom.deepLink(fullUrl, encodedParams)
   elseif fullUrl:match('https://.*.slack.com/archives/.*') then
