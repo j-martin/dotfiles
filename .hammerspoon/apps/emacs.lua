@@ -1,7 +1,6 @@
 local logger = hs.logger.new('emacs', 'debug')
 local process = require 'utils/process'
 local selection = require 'selection'
-local utils = require 'apps/utils'
 local appGuard = require 'utils/app_guard'
 
 ---@class EmacsApp
@@ -18,7 +17,7 @@ local mod = {}
 
 mod.name = 'Emacs'
 
-local emacsclientPath = utils.getExecPath('emacsclient')
+local emacsclientPath = process.which('emacsclient')
 
 ---@param sexp string
 local function eval(sexp)
@@ -129,7 +128,7 @@ local contextSexp = [[
 --- Returns the current buffer, its file and line, org heading, and active region.
 ---@return table<string, any>|nil
 function mod.context()
-  local output, ok = hs.execute(emacsclientPath .. " --eval '" .. contextSexp:gsub('\n', ' ') .. "' 2>/dev/null")
+  local output, ok = process.execute(emacsclientPath .. " --eval '" .. contextSexp:gsub('\n', ' ') .. "' 2>/dev/null")
   local encoded = ok and output:match('"([%w+/=]+)"')
   local buffer = encoded and hs.json.decode(hs.base64.decode(encoded))
   if not buffer then

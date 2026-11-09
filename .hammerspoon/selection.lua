@@ -1,4 +1,5 @@
 local logger = hs.logger.new('selection', 'debug')
+local process = require 'utils/process'
 
 ---@class SelectionModule
 ---@field getSelectedText fun(): string
@@ -52,7 +53,7 @@ end
 
 ---@param url string
 local function openUrl(url)
-  hs.task.new('/usr/bin/open', nil, function() end, { url }):start()
+  process.start('/usr/bin/open', { url }, nil, 10, { callback = function() end })
 end
 
 ---@param url string

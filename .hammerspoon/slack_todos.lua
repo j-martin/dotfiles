@@ -19,6 +19,7 @@ local nlpDate = require 'utils/nlp_date'
 local reminders = require 'apps/reminders'
 local slack = require 'apps/slack'
 local appGuard = require 'utils/app_guard'
+local process = require 'utils/process'
 
 ---@class SlackTodosModule
 ---@field marker string
@@ -167,16 +168,18 @@ end
 ---@param params table
 ---@param callback fun(output: string|nil) Receives nil when the script failed.
 local function runScript(script, params, callback)
-  local task = hs.task.new('/usr/bin/osascript', function(exitCode, stdOut, stdErr)
-    if exitCode ~= 0 then
-      logger.ef('Script failed (%d): %s', exitCode, (stdOut .. stdErr):gsub('%s+$', ''))
-      callback(nil)
-      return
-    end
-    callback((stdOut:gsub('%s+$', '')))
-  end, { '-l', 'JavaScript', '-e', script, hs.json.encode(params) })
+  local task = process.start('/usr/bin/osascript', { '-l', 'JavaScript', '-e', script, hs.json.encode(params) }, nil, mod.ttl, {
+    quiet = true,
+    callback = function(exitCode, stdOut, stdErr)
+      if exitCode ~= 0 then
+        logger.ef('Script failed (%d): %s', exitCode, (stdOut .. stdErr):gsub('%s+$', ''))
+        callback(nil)
+        return
+      end
+      callback((stdOut:gsub('%s+$', '')))
+    end,
+  })
   mod.task = task
-  task:start()
   mod.ttlTimer = hs.timer.doAfter(mod.ttl, function()
     if task:isRunning() then
       task:terminate()

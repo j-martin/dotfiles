@@ -1,6 +1,5 @@
 local logger = hs.logger.new('usb', 'debug')
 
-local appsUtils = require 'apps/utils'
 local audio = require 'audio'
 local kinesis = require 'kinesis'
 local process = require 'utils/process'
@@ -64,7 +63,7 @@ function mod.officeAutomation(scene, command)
         audio.setVolume('default')()
       end
     end
-    process.start(appsUtils.getExecPath('office-automation'), { '--scene', scene, command }, nil, 10)
+    process.start('office-automation', { '--scene', scene, command }, nil, 10)
     if scene == 'desk' and command == 'off' then
       hs.itunes.pause()
       hs.caffeinate.systemSleep()

@@ -1,4 +1,5 @@
 local utils = require 'apps/utils'
+local process = require 'utils/process'
 
 ---@class GoLandApp
 ---@field name string
@@ -48,7 +49,7 @@ end
 ---@param args string
 ---@return string|nil
 local function git(root, args)
-  local output, ok = hs.execute('git -C ' .. string.format('%q', root) .. ' ' .. args .. ' 2>/dev/null')
+  local output, ok = process.execute('git -C ' .. string.format('%q', root) .. ' ' .. args .. ' 2>/dev/null')
   return ok and output or nil
 end
 

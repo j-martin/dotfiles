@@ -4,21 +4,6 @@ local appGuard = require 'utils/app_guard'
 
 local mod = {}
 
---- Returns the full path of an executable installed by Homebrew or in ~/bin, or its name if not found.
----@param exec string
----@return string
-function mod.getExecPath(exec)
-  local dirs = { '/opt/homebrew/bin/', '/usr/local/bin/', os.getenv('HOME') .. '/bin/' }
-  for _, dir in ipairs(dirs) do
-    local path = dir .. exec
-    if hs.fs.attributes(path) then
-      return path
-    end
-  end
-  logger.i("Could not find executable in PATHs. Defaulting to executable's name.")
-  return exec
-end
-
 --- Waits n hundredths of a second.
 ---@param n number|nil
 function mod.wait(n)
