@@ -5,6 +5,9 @@
 ---@field appSwitchTimeout number Seconds a running application has to become frontmost once focused.
 ---@field appLaunchTimeout number Seconds a launched application has to become frontmost.
 ---@field snippets Snippet[] Public snippets, merged with `snippets` from the private config, see `snippets/init.lua`.
+---@field snippetPrefix string Typed before a snippet trigger.
+---@field snippetSuffix string Typed after a snippet trigger to expand it.
+---@field macParakeetVocabularyPath string Vocabulary generated from `snippets/emojis.lua`, see `snippets/vocabulary.lua`.
 local mod = {}
 
 -- Limits how long Hammerspoon waits on stuck applications when switching to them, see `utils/app_guard.lua`.
@@ -12,13 +15,19 @@ mod.appResponseTimeout = 0.5
 mod.appSwitchTimeout = 2
 mod.appLaunchTimeout = 5
 
--- Typing a trigger replaces it with its text, hyper + s lists them all.
--- Triggers start with ';' to avoid expanding while typing normal words.
+-- Typing `;<trigger> ` (with the space) replaces it with its text, hyper + s lists them all.
+-- The prefix avoids expanding normal words, the space allows triggers that start like others.
+-- Emojis are in `snippets/emojis.lua` and do not use the prefix and suffix.
+mod.snippetPrefix = ';'
+mod.snippetSuffix = ' '
 mod.snippets = {
-  { trigger = ';shrug', text = '¯\\_(ツ)_/¯', desc = 'Shrug' },
-  { trigger = ';tflip', text = '(╯°□°)╯︵ ┻━┻', desc = 'Table flip' },
-  { trigger = ';lgtm', text = 'Looks good to me 👍', desc = 'LGTM' },
+  { trigger = 'shrug', text = '¯\\_(ツ)_/¯', desc = 'Shrug' },
+  { trigger = 'tflip', text = '(╯°□°)╯︵ ┻━┻', desc = 'Table flip' },
+  { trigger = 'lgtm', text = 'Looks good to me 👍', desc = 'LGTM' },
 }
+
+-- Emoji words for MacParakeet dictation, regenerated on load from `snippets/emojis.lua`.
+mod.macParakeetVocabularyPath = os.getenv('HOME') .. '/.config/macparakeet/vocabulary.json'
 
 -- Alerts, e.g. mode and kinesis alerts.
 -- https://www.hammerspoon.org/docs/hs.alert.html#defaultStyle

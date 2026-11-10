@@ -41,6 +41,7 @@ to do it.
 - Never call `hs.execute`, `hs.task.new`, `io.popen` or `os.execute` directly. Use `utils/process.lua` (`process.start`, `process.execute`, `process.which`), which provides a PATH with the mise shims first, then `~/bin` and Homebrew. Hammerspoon only has the bare launchd PATH, so tools installed with mise (e.g. `gh`, `go`) are not found otherwise.
 - Never hard-code a PATH or executable directories outside `utils/process.lua`.
 - `mise run test` must pass.
+- `mise run fmt` must be ran.
 
 # Emacs Config
 

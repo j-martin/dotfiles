@@ -182,6 +182,7 @@
 ---@field types table<string, number>
 ---@field getFlags fun(self): table<string, boolean>
 ---@field getKeyCode fun(self): number
+---@field getType fun(self): number
 ---@field getCharacters fun(self): string|nil
 
 ---@class hs.chooser
