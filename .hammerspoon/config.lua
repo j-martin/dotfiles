@@ -4,12 +4,21 @@
 ---@field appResponseTimeout number Seconds a running application has to answer before being considered not responding.
 ---@field appSwitchTimeout number Seconds a running application has to become frontmost once focused.
 ---@field appLaunchTimeout number Seconds a launched application has to become frontmost.
+---@field snippets Snippet[] Public snippets, merged with `snippets` from the private config, see `snippets/init.lua`.
 local mod = {}
 
 -- Limits how long Hammerspoon waits on stuck applications when switching to them, see `utils/app_guard.lua`.
 mod.appResponseTimeout = 0.5
 mod.appSwitchTimeout = 2
 mod.appLaunchTimeout = 5
+
+-- Typing a trigger replaces it with its text, hyper + s lists them all.
+-- Triggers start with ';' to avoid expanding while typing normal words.
+mod.snippets = {
+  { trigger = ';shrug', text = '¯\\_(ツ)_/¯', desc = 'Shrug' },
+  { trigger = ';tflip', text = '(╯°□°)╯︵ ┻━┻', desc = 'Table flip' },
+  { trigger = ';lgtm', text = 'Looks good to me 👍', desc = 'LGTM' },
+}
 
 -- Alerts, e.g. mode and kinesis alerts.
 -- https://www.hammerspoon.org/docs/hs.alert.html#defaultStyle

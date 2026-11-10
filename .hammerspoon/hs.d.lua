@@ -18,6 +18,7 @@
 ---@field task hs.task
 ---@field alert hs.alert
 ---@field eventtap hs.eventtap
+---@field chooser hs.chooser
 ---@field json hs.json
 ---@field osascript hs.osascript
 ---@field usb hs.usb
@@ -168,8 +169,29 @@
 ---@field show fun(message: string): nil
 
 ---@class hs.eventtap
----@field keyStroke fun(modifiers: string[], key: string): nil
+---@field keyStroke fun(modifiers: string[], key: string, delay: number|nil): nil
 ---@field keyStrokes fun(chars: string): nil
+---@field new fun(types: number[], fn: fun(event: hs.eventtap.event): boolean): hs.eventtap
+---@field isSecureInputEnabled fun(): boolean
+---@field event hs.eventtap.event
+---@field start fun(self): hs.eventtap
+---@field stop fun(self): hs.eventtap
+---@field isEnabled fun(self): boolean
+
+---@class hs.eventtap.event
+---@field types table<string, number>
+---@field getFlags fun(self): table<string, boolean>
+---@field getKeyCode fun(self): number
+---@field getCharacters fun(self): string|nil
+
+---@class hs.chooser
+---@field new fun(fn: fun(choice: table|nil)): hs.chooser
+---@field bgDark fun(self, dark: boolean): hs.chooser
+---@field placeholderText fun(self, text: string): hs.chooser
+---@field searchSubText fun(self, enabled: boolean): hs.chooser
+---@field choices fun(self, choices: table[]): hs.chooser
+---@field show fun(self): hs.chooser
+---@field delete fun(self): nil
 
 ---@class hs.json
 ---@field read fun(path: string): table|nil
