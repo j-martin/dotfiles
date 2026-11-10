@@ -195,6 +195,8 @@ local hyperModeBindings = {
   { key = 'w', fn = usb.officeAutomation('office_call', 'off'), shift = true },
   { key = 'h', fn = audio.current, desc = 'Current song' },
   { key = 'i', fn = audio.changeVolume(-5), desc = 'Decrease the volume by 5%' },
+  { key = 'l', fn = usb.officeAutomation('office_light', 'on'), desc = 'Turn office light on' },
+  { key = 'n', fn = usb.officeAutomation('office_light', 'off'), desc = 'Turn office light off' },
   { key = 'j', fn = audio.next, desc = 'Next song' },
   { key = 'k', fn = audio.previous, desc = 'Previous song' },
   { key = 'm', fn = audio.pickInputDevice, exitMode = true, desc = 'Audio - Pick input device' },
