@@ -13,7 +13,7 @@ local defaults = {
   iMessageRecipient = '',
   -- Slack domain (with or without '.slack.com') -> team ID
   slackTeamMapping = { afakecompany = 'T00000000' },
-  -- Added to the public snippets in config.lua, e.g. { "trigger": ";addr", "text": "...", "desc": "Address" }
+  -- Added to the public snippets in config.lua, e.g. { "trigger": "addr", "text": "...", "desc": "Address" }
   snippets = {},
 }
 
