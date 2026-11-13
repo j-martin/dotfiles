@@ -1,5 +1,5 @@
 -- Same API as hs.logger, plus every enabled message is appended as JSON Lines to ~/Library/Logs/hammerspoon/logs.jsonl.
--- Structured events, such as the lock/unlock read by ~/.bin/activity-hours, are recorded with `logger.event`.
+-- Structured events, such as the lock/unlock/sleep read by ~/.bin/activity-hours, are recorded with `logger.event`.
 local internal = hs.logger.new('fileLogger', 'info')
 
 local directory = os.getenv('HOME') .. '/Library/Logs/hammerspoon'

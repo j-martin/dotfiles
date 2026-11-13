@@ -13,8 +13,12 @@ import (
 	"time"
 )
 
-// activityLogger is the Hammerspoon logger id that records screen lock and unlock events.
+// activityLogger is the Hammerspoon logger id that records screen lock, unlock, sleep and shutdown events.
 const activityLogger = "activity"
+
+// sessionEndTypes are the event types that end an unlocked session. Sleep and shutdown are included because macOS
+// does not always emit a lock event before the system goes to sleep.
+var sessionEndTypes = map[string]bool{"lock": true, "sleep": true, "shutdown": true}
 
 type event struct {
 	Logger    string    `json:"logger"`
@@ -22,9 +26,9 @@ type event struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// isLockEvent reports whether e is a screen lock or unlock recorded by the activity logger.
-func isLockEvent(e event) bool {
-	return e.Logger == activityLogger && (e.Type == "lock" || e.Type == "unlock")
+// isActivityEvent reports whether e is an unlock or a session-ending event recorded by the activity logger.
+func isActivityEvent(e event) bool {
+	return e.Logger == activityLogger && (e.Type == "unlock" || sessionEndTypes[e.Type])
 }
 
 type dayTotal struct {
@@ -43,7 +47,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("failed to resolve home directory: %w", err)
 	}
-	path := flag.String("file", filepath.Join(home, "Library", "Logs", "hammerspoon", "logs.jsonl"), "JSON Lines file of lock/unlock events")
+	path := flag.String("file", filepath.Join(home, "Library", "Logs", "hammerspoon", "logs.jsonl"), "JSON Lines file of activity events")
 	days := flag.Int("days", 7, "number of days to show, including today")
 	flag.Parse()
 
@@ -67,7 +71,7 @@ func run() error {
 	return nil
 }
 
-// parseEvents reads one JSON entry per line and keeps only lock and unlock events, skipping blank lines and other log entries.
+// parseEvents reads one JSON entry per line and keeps only activity events, skipping blank lines and other log entries.
 func parseEvents(reader io.Reader) ([]event, error) {
 	var events []event
 	scanner := bufio.NewScanner(reader)
@@ -82,7 +86,7 @@ func parseEvents(reader io.Reader) ([]event, error) {
 		if err := json.Unmarshal(line, &e); err != nil {
 			return nil, fmt.Errorf("line %d: %w", lineNumber, err)
 		}
-		if isLockEvent(e) {
+		if isActivityEvent(e) {
 			events = append(events, e)
 		}
 	}
@@ -100,17 +104,16 @@ func sumUnlocked(events []event, now time.Time, days int) []dayTotal {
 
 	var unlockedAt *time.Time
 	for _, e := range events {
-		switch e.Type {
-		case "unlock":
+		if e.Type == "unlock" {
 			if unlockedAt == nil {
 				start := e.Timestamp.Local()
 				unlockedAt = &start
 			}
-		case "lock":
-			if unlockedAt != nil {
-				addInterval(totals, *unlockedAt, e.Timestamp.Local())
-				unlockedAt = nil
-			}
+			continue
+		}
+		if sessionEndTypes[e.Type] && unlockedAt != nil {
+			addInterval(totals, *unlockedAt, e.Timestamp.Local())
+			unlockedAt = nil
 		}
 	}
 	if unlockedAt != nil {

@@ -136,3 +136,33 @@ func TestParseEventsKeepsOnlyActivityLockEvents(t *testing.T) {
 		t.Errorf("expected only the activity unlock and lock, got %+v", events)
 	}
 }
+
+func TestSumUnlockedEndsIntervalOnSleep(t *testing.T) {
+	events := []event{
+		{Type: "unlock", Timestamp: at("2026-11-11 11:27")},
+		{Type: "sleep", Timestamp: at("2026-11-11 15:00")},
+		{Type: "unlock", Timestamp: at("2026-11-12 08:35")},
+		{Type: "lock", Timestamp: at("2026-11-12 09:35")},
+	}
+
+	got := totalsByDay(sumUnlocked(events, at("2026-11-12 20:00"), 7))
+
+	if got["2026-11-11"] != 213*time.Minute || got["2026-11-12"] != time.Hour {
+		t.Errorf("expected 3h33m on 2026-11-11 and 1h on 2026-11-12, got %v", got)
+	}
+}
+
+func TestParseEventsKeepsSleepAndShutdownEvents(t *testing.T) {
+	input := `{"logger":"activity","type":"sleep","timestamp":"2026-11-11T15:00:00-07:00"}
+{"logger":"activity","type":"shutdown","timestamp":"2026-11-11T16:00:00-07:00"}
+`
+
+	events, err := parseEvents(strings.NewReader(input))
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(events) != 2 {
+		t.Errorf("expected sleep and shutdown events, got %+v", events)
+	}
+}

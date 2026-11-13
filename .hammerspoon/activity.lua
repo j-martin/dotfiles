@@ -10,6 +10,8 @@ local watcher = nil
 local eventTypes = {
   [hs.caffeinate.watcher.screensDidLock] = 'lock',
   [hs.caffeinate.watcher.screensDidUnlock] = 'unlock',
+  [hs.caffeinate.watcher.systemWillSleep] = 'sleep',
+  [hs.caffeinate.watcher.systemWillPowerOff] = 'shutdown',
 }
 
 ---@param event number
@@ -20,7 +22,7 @@ local function handleEvent(event)
   end
 end
 
---- Start recording screen lock and unlock events to the activity log.
+--- Start recording screen lock, unlock, sleep and shutdown events to the activity log.
 function mod.init()
   watcher = hs.caffeinate.watcher.new(handleEvent)
   watcher:start()
