@@ -24,6 +24,10 @@
 ---@field usb hs.usb
 ---@field itunes hs.itunes
 ---@field caffeinate hs.caffeinate
+---@field wifi hs.wifi
+---@field network hs.network
+---@field location hs.location
+---@field settings hs.settings
 ---@field reload fun()
 ---@field execute fun(command: string, withUserEnv: boolean|nil): string, boolean
 
@@ -47,6 +51,11 @@
 ---@field doAfter fun(delay: number, callback: fun()): hs.timer
 ---@field doEvery fun(interval: number, callback: fun()): hs.timer
 ---@field stop fun(self): hs.timer
+---@field delayed hs.timer.delayed
+
+---@class hs.timer.delayed
+---@field new fun(delay: number, fn: fun()): hs.timer.delayed
+---@field start fun(self): hs.timer.delayed
 
 ---@class hs.mouse
 ---@field getAbsolutePosition fun(): table
@@ -213,3 +222,30 @@
 
 ---@class hs.caffeinate
 ---@field systemSleep fun(): nil
+
+---@class hs.wifi
+---@field interfaces fun(): string[]
+---@field currentNetwork fun(interface: string|nil): string|nil
+---@field watcher hs.wifi.watcher
+---@class hs.wifi.watcher
+---@field new fun(fn: fun(watcher: hs.wifi.watcher, message: string, interface: string)): hs.wifi.watcher
+---@field watchingFor fun(self, messages: string[]): hs.wifi.watcher
+---@field start fun(self): hs.wifi.watcher
+
+---@class hs.network
+---@field interfaceDetails fun(interface: string): table|nil
+---@field configuration hs.network.configuration
+---@class hs.network.configuration
+---@field open fun(): hs.network.configuration
+---@field setCallback fun(self, fn: fun(store: hs.network.configuration, keys: string[])): hs.network.configuration
+---@field monitorKeys fun(self, keys: string|string[]): hs.network.configuration
+---@field start fun(self): hs.network.configuration
+
+---@class hs.location
+---@field authorizationStatus fun(): string
+---@field start fun(): boolean
+---@field stop fun(): nil
+
+---@class hs.settings
+---@field get fun(key: string): any
+---@field set fun(key: string, value: any): nil

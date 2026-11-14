@@ -19,6 +19,9 @@ local defaults = {
   -- Added to the snippets in snippets/library, either a list, e.g. [{ "trigger": "addr", "text": "...", "desc": "Address" }],
   -- or a group with its own prefix and suffix, e.g. { "prefix": "", "suffix": "  ", "snippets": [...] }
   snippets = {},
+  -- Wi-Fi networks matched by SSID and address, see wifi.lua, `tailscale` being whether Tailscale is up on them,
+  -- e.g. [{ "ssid": "Office", "cidrs": ["192.168.1.0/24"], "tailscale": false }]
+  networks = {},
 }
 
 ---@return nil

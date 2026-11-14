@@ -14,11 +14,13 @@ local keybindings = require 'keybindings'
 local slackTodos = require 'slack_todos'
 local snippets = require 'snippets'
 local usb = require 'usb'
+local wifi = require 'wifi'
 
 keybindings.init()
 activity.init()
 audio.init()
 usb.init()
+wifi.init()
 apps.init()
 githubReviews.init()
 slackTodos.init()
