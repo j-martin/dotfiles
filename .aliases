@@ -439,7 +439,6 @@ alias hlsi='home list-ignored'
 alias hms='home commit -m'
 alias hll='home log -p'
 alias hdot='open https://github.com/j-martin/dotfiles'
-alias hs='home status'
 alias hsu=_home_submodule_update
 alias hsrm=_home_submodule_remove
 he() {
