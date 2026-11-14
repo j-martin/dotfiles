@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # `git sync`: abort if there are uncommitted changes (submodules ignored),
-# pull, show unpushed changes, check them for secrets/machine specific paths
+# pull, abort if unpushed commit titles contain `wip`, show unpushed changes, check them for secrets/machine specific paths
 # with a local ollama model, then confirm before pushing.
 # GIT_DIR/GIT_WORK_TREE are inherited from `git --git-dir --work-tree sync`,
 # so this also works for the dotfiles repo via `_git_or_home`/`home`.
@@ -27,6 +27,18 @@ _abort_if_uncommitted() {
     git --no-pager diff --ignore-submodules=all HEAD
     echo
     echo 'Commit or stash your changes before syncing.' >&2
+    exit 1
+  fi
+}
+
+_abort_if_wip() {
+  local wip
+  wip="$(git --no-pager log --format='%h %s' '@{upstream}..HEAD' | grep -iw 'wip' || true)"
+  if [[ -n "$wip" ]]; then
+    echo "WIP commits:"
+    echo "$wip"
+    echo
+    echo 'Reword or squash WIP commits before syncing.' >&2
     exit 1
   fi
 }
@@ -102,6 +114,7 @@ _main() {
     exit 0
   fi
 
+  _abort_if_wip
   _show_unpushed
   _check_leaks
   if gum confirm "Push to $(git rev-parse --abbrev-ref '@{upstream}')?"; then
