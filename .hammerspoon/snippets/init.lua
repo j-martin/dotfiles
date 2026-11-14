@@ -20,6 +20,9 @@ local tap = nil
 local watchdog = nil
 ---@type hs.chooser|nil
 local chooser = nil
+-- Enabled only while the picker is shown.
+---@type hs.hotkey|nil
+local copyHotkey = nil
 
 ---@type string
 local buffer = ''
@@ -43,15 +46,23 @@ local resetKeys = {
   [keyCodes['pagedown']] = true,
 }
 
---- Pastes `text` into the focused app with its placeholders replaced, then restores the previous clipboard.
+--- Returns `text` with its placeholders replaced, and how many characters the cursor moves back.
 ---@param text string
-function mod.insert(text)
-  local previous = hs.pasteboard.readAllData()
-  local rendered, cursorBack = matcher.render(text, {
+---@return string rendered
+---@return integer cursorBack
+local function render(text)
+  return matcher.render(text, {
     date = os.date('%Y-%m-%d') --[[@as string]],
     time = os.date('%H:%M') --[[@as string]],
     clipboard = hs.pasteboard.getContents() or '',
   })
+end
+
+--- Pastes `text` into the focused app with its placeholders replaced, then restores the previous clipboard.
+---@param text string
+function mod.insert(text)
+  local previous = hs.pasteboard.readAllData()
+  local rendered, cursorBack = render(text)
   hs.pasteboard.setContents(rendered)
   hs.eventtap.keyStroke({ 'cmd' }, 'v', 0)
   for _ = 1, cursorBack do
@@ -180,6 +191,29 @@ function mod.pick()
     end
   end)
   chooser:choices(choices(''))
+  -- Copies the highlighted snippet instead of inserting it.
+  copyHotkey = copyHotkey
+    or hs.hotkey.new({ 'cmd' }, 'c', function()
+      local row = chooser and chooser:selectedRowContents()
+      if not row or not row.snippetText then
+        return
+      end
+      hs.pasteboard.setContents((render(row.snippetText)))
+      if chooser then
+        chooser:hide()
+      end
+      hs.alert.show('Copied ' .. row.text)
+    end)
+  chooser:showCallback(function()
+    if copyHotkey then
+      copyHotkey:enable()
+    end
+  end)
+  chooser:hideCallback(function()
+    if copyHotkey then
+      copyHotkey:disable()
+    end
+  end)
   chooser:show()
 end
 
