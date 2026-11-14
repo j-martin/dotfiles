@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 # `git sync`: abort if there are uncommitted changes (submodules ignored),
 # pull, abort if unpushed commit titles contain `wip`, show unpushed changes, check them for secrets/machine specific paths
-# with a local ollama model, then confirm before pushing.
+# with a local ollama model, then with the $AGENT (claude or copilot) if it found nothing,
+# then confirm before pushing.
 # GIT_DIR/GIT_WORK_TREE are inherited from `git --git-dir --work-tree sync`,
 # so this also works for the dotfiles repo via `_git_or_home`/`home`.
 
 set -o errexit
 set -o pipefail
+
+_LEAK_OLLAMA_MODEL='gemma3:12b'
+_LEAK_AGENT_MODEL='claude-opus-5.5'
 
 _clear() {
   if [[ -n "$TMUX" ]]; then
@@ -57,10 +61,8 @@ _show_unpushed() {
   echo
 }
 
-_check_leaks() {
-  local model='gemma3:12b'
-  local prompt result findings
-  prompt="$(cat <<'EOF'
+_leak_prompt() {
+  cat <<'EOF'
 You are a security reviewer. Below is a git diff about to be pushed to a public repository.
 Only consider added lines (starting with "+", excluding "+++" file headers).
 Report:
@@ -72,32 +74,65 @@ Use an empty findings array when there is nothing to report.
 
 Diff:
 EOF
-)"
+}
 
-  echo "Checking diff for secrets and machine specific paths with $model..."
-  if ! result="$(git --no-pager diff -U0 '@{upstream}' |
-    ollama run --format json --hidethinking --nowordwrap "$model" "$prompt")"; then
-    echo "Leak check failed to run ($model)." >&2
-    exit 1
-  fi
-
+# Prints the findings of a JSON reply; agents may wrap the JSON in prose or code fences.
+_leak_findings() {
+  local result="$1"
+  # Keep only the outermost {...} block.
+  result="${result#*\{}"
+  result="{${result%\}*}}"
   # Small models over-report paths, so only keep paths that really are user specific.
-  if ! findings="$(jq -r '
+  jq -r '
     [.findings[]?
       | select(.type != "path" or ((.value // "") | test("/(Users|home)/[^/\\s]+")))]
     | .[] | "- [\(.type)] \(.file): \(.value)\n  \(.reason)"
-  ' <<<"$result" 2>/dev/null)"; then
-    echo "Leak check returned invalid output: $result" >&2
+  ' <<<"$result" 2>/dev/null
+}
+
+# Reviewer is `ollama` or an $AGENT value as in ~/.functions/agents (`claude`, else copilot).
+_leak_run() {
+  local reviewer="$1" input="$2"
+  case "$reviewer" in
+    ollama) ollama run --format json --hidethinking --nowordwrap "$_LEAK_OLLAMA_MODEL" "$input" ;;
+    claude) command claude -p "$input" --model "${_LEAK_AGENT_MODEL//./-}" --output-format text ;;
+    *) command copilot -p "$input" --model "$_LEAK_AGENT_MODEL" --silent --no-custom-instructions ;;
+  esac
+}
+
+# Returns 1 and prints the findings when leaks are found, exits when the check cannot run.
+_leak_check_with() {
+  local reviewer="$1" name="$2" input="$3"
+  local result findings
+
+  echo "Checking diff for secrets and machine specific paths with $name..."
+  if ! result="$(_leak_run "$reviewer" "$input")"; then
+    echo "Leak check failed to run ($name)." >&2
     exit 1
   fi
-
+  if ! findings="$(_leak_findings "$result")"; then
+    echo "Leak check returned invalid output ($name): $result" >&2
+    exit 1
+  fi
   if [[ -n "$findings" ]]; then
-    echo 'Possible secrets or machine specific paths found:' >&2
+    echo "Possible secrets or machine specific paths found ($name):" >&2
     echo "$findings" >&2
+    return 1
+  fi
+  echo "No leaks found ($name)."
+}
+
+# Gemma first; when it finds nothing, double check with the $AGENT using the same prompt.
+_check_leaks() {
+  local agent="${AGENT:-copilot}"
+  local input
+  input="$(_leak_prompt)"$'\n'"$(git --no-pager diff -U0 '@{upstream}')"
+
+  if ! _leak_check_with ollama "$_LEAK_OLLAMA_MODEL" "$input" ||
+    ! _leak_check_with "$agent" "$agent ($_LEAK_AGENT_MODEL)" "$input"; then
     echo 'Aborting.' >&2
     exit 1
   fi
-  echo 'No leaks found.'
   echo
 }
 
