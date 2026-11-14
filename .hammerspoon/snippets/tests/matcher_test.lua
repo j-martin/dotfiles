@@ -174,7 +174,7 @@ return {
     }
     local snippet = matcher.flatten(groups, ';', ' ')[1]
     assert(snippet.trigger == 'lgtm', string.format('expected "lgtm", got %q', snippet.trigger))
-    assert(matcher.appendFor(snippet, snippet.trigger) == '' and not snippet.anywhere, 'expected raw trigger behavior')
+    assert(matcher.appendFor(snippet, snippet.trigger) == '', 'expected raw trigger behavior')
   end,
 
   ['flatten lets a later group replace a snippet with the same wrapped trigger'] = function()
@@ -186,9 +186,16 @@ return {
     assert(#snippets == 1 and snippets[1].text == 'Private', 'expected the private snippet')
   end,
 
-  ['findMatch expands a separated trigger glued to the previous word'] = function()
+  ['findMatch expands after a vim insert command only in vim apps'] = function()
     local wrapped = matcher.withSeparators({ { trigger = 'lgtm', text = 'Looks good' } }, ';', ' ')
-    assert(matcher.findMatch('kkC;lgtm ', wrapped), 'expected a match after a vim command')
+    assert(matcher.findMatch('kkC;lgtm ', wrapped, true), 'expected a match after C')
+    assert(matcher.findMatch('jjciw;lgtm ', wrapped, true), 'expected a match after ciw')
+    assert(matcher.findMatch('kkC;lgtm ', wrapped) == nil, 'expected no match outside vim apps')
+  end,
+
+  ['findMatch needs a vim insert command before a glued trigger in vim apps'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = 'lgtm', text = 'Looks good' } }, ';', ' ')
+    assert(matcher.findMatch('kkx;lgtm ', wrapped, true) == nil, 'expected no match after x')
   end,
 
   ['findMatch still needs a word start without a prefix or suffix'] = function()

@@ -96,6 +96,14 @@ local function expand(snippet, trigger)
   end)
 end
 
+--- Returns whether the frontmost app uses vim bindings, see `config.vimApps`.
+---@return boolean
+local function usesVim()
+  local app = hs.application.frontmostApplication()
+  local bundleID = app and app:bundleID()
+  return bundleID ~= nil and hs.fnutils.contains(config.vimApps, bundleID)
+end
+
 -- Returning false lets every event through; expansion happens after the key is typed.
 -- Clicks reset the buffer since they usually move the cursor.
 ---@param event hs.eventtap.event
@@ -120,7 +128,7 @@ local function onEvent(event)
     return false
   end
   buffer = matcher.push(buffer, char, maxLength)
-  local snippet, trigger = matcher.findMatch(buffer, mod.snippets)
+  local snippet, trigger = matcher.findMatch(buffer, mod.snippets, usesVim())
   if snippet and trigger then
     logger.df('Expanding %s', trigger)
     buffer = ''

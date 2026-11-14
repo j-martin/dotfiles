@@ -6,6 +6,7 @@
 ---@field appLaunchTimeout number Seconds a launched application has to become frontmost.
 ---@field snippetPrefix string Typed before a snippet trigger.
 ---@field snippetSuffix string Typed after a snippet trigger to expand it.
+---@field vimApps string[] Bundle IDs of apps with vim bindings, where snippets also expand right after an insert command.
 ---@field snippetSound string|nil System sound played after expanding a snippet, e.g. 'Tink', nil for none.
 ---@field macParakeetVocabularyPath string Vocabulary generated from `snippets/library/emojis.lua`, see `snippets/vocabulary.lua`.
 local mod = {}
@@ -23,6 +24,13 @@ mod.snippetPrefix = ';'
 mod.snippetSuffix = ' '
 -- Names are the files in /System/Library/Sounds, without the extension.
 mod.snippetSound = 'Tink'
+-- Their normal-mode keys, e.g. `ciw`, stay in the typed buffer, so a trigger right after them still expands.
+mod.vimApps = {
+  'org.gnu.Emacs',
+  'org.gnu.EmacsClient',
+  'com.jetbrains.goland',
+  'com.microsoft.VSCode',
+}
 
 -- Emoji words for MacParakeet dictation, regenerated on load from `snippets/library/emojis.lua`.
 mod.macParakeetVocabularyPath = os.getenv('HOME') .. '/.config/macparakeet/vocabulary.json'

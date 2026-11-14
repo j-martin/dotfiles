@@ -10,7 +10,6 @@
 ---@field aliases string[]|nil Other triggers for the same text, e.g. ':ss:' for ':sweat_smile:'.
 ---@field suffixes string[]|nil Suffixes added back after the text when they end the typed trigger, see `mod.appendFor`.
 ---@field shown string[]|nil Triggers shown in the picker, without the ones for other sentence suffixes.
----@field anywhere boolean|nil Expands even when glued to the previous word, e.g. after vim's `C` or `i`.
 ---@field group string|nil Name of its group, set by `mod.flatten`.
 ---@field keywords string[]|nil Aliases of its group, only searched in the picker, set by `mod.flatten`.
 
@@ -118,8 +117,6 @@ function mod.withSeparators(snippets, prefix, suffix)
       text = snippet.text,
       desc = snippet.desc,
       suffixes = addedBack,
-      -- A prefix or a single suffix already sets the trigger apart from normal words, sentence suffixes do not.
-      anywhere = snippetPrefix ~= '' or (type(snippetSuffix) == 'string' and snippetSuffix ~= '') or nil,
     })
   end
   return wrapped
@@ -242,36 +239,58 @@ function mod.pop(buffer)
   return buffer:sub(1, lastStart - 1)
 end
 
+-- Vim normal-mode commands entering insert mode, matched at the end of the keys typed before a trigger.
+-- The buffer only resets on escape, so it also holds the normal-mode keys typed before them, e.g. 'kkjciw'.
+---@type string[]
+local vimInsertCommands = {
+  '[iaIAoOsSC]$', -- i, a, o, gi, ...
+  'c[ia]?%a$', -- cc, cw, ciw, caw, cb, ...
+  'c[tTfF].$', -- ct., cf), ...
+}
+
+--- Returns whether `keys` end with a vim command entering insert mode, e.g. 'kkciw'.
+---@param keys string
+---@return boolean
+function mod.endsWithVimInsert(keys)
+  for _, pattern in ipairs(vimInsertCommands) do
+    if keys:match(pattern) then
+      return true
+    end
+  end
+  return false
+end
+
 --- Returns whether `trigger` ends `buffer` as its own word, at the start of the buffer or after a non-word character.
 --- This keeps emoticons like ':/' from expanding inside words, e.g. 'https://', but allows '(suod '.
 ---@param buffer string
 ---@param trigger string
+---@param vim boolean|nil Also matches after the normal-mode keys of a vim command entering insert mode, e.g. 'ciw;lgtm '.
 ---@return boolean
----@param anywhere boolean|nil Also matches when `trigger` is glued to the previous word.
-local function endsWithWord(buffer, trigger, anywhere)
+local function endsWithWord(buffer, trigger, vim)
   if trigger == '' or buffer:sub(-#trigger) ~= trigger then
     return false
   end
-  if anywhere then
-    return true
-  end
-  local before = buffer:sub(-#trigger - 1, -#trigger - 1)
+  ---@type string
+  local before = buffer:sub(1, -#trigger - 1)
   -- Bytes above 127 are part of multibyte letters, e.g. 'é'.
-  return #buffer == #trigger or before:match('[%w_\128-\255]') == nil
+  ---@type string
+  local word = before:match('[%w_\128-\255]*$')
+  return word == '' or (vim == true and mod.endsWithVimInsert(word))
 end
 
---- Returns the snippet with the longest trigger or alias that ends `buffer`, as its own word unless `anywhere`, and that trigger, or nil.
+--- Returns the snippet with the longest trigger or alias that ends `buffer` as its own word, and that trigger, or nil.
 ---@param buffer string
 ---@param snippets Snippet[]
+---@param vim boolean|nil Whether the app uses vim bindings, see `endsWithWord`.
 ---@return Snippet|nil, string|nil
-function mod.findMatch(buffer, snippets)
+function mod.findMatch(buffer, snippets, vim)
   ---@type Snippet|nil
   local best = nil
   ---@type string|nil
   local bestTrigger = nil
   for _, snippet in ipairs(snippets) do
     for _, trigger in ipairs(mod.triggersOf(snippet)) do
-      if endsWithWord(buffer, trigger, snippet.anywhere) and (bestTrigger == nil or #trigger > #bestTrigger) then
+      if endsWithWord(buffer, trigger, vim) and (bestTrigger == nil or #trigger > #bestTrigger) then
         best = snippet
         bestTrigger = trigger
       end
