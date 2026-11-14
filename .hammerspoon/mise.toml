@@ -5,6 +5,7 @@ lua-language-server = "3.19.2"
 
 [tasks.fmt]
 description = "Format Lua files"
+alias = "f"
 run = "stylua ."
 
 [tasks."fmt:check"]
