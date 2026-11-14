@@ -1,4 +1,8 @@
 *
-!.hammerspoon/
-!.functions/
-!.config/mise/
+!/.hammerspoon/
+!/.hammerspoon/*
+!/.functions/
+!/.functions/*
+!/.config/
+!/.config/mise/
+!/.config/mise/*
