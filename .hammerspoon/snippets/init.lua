@@ -2,7 +2,7 @@
 local logger = hs.logger.new('snippets', 'info')
 
 local config = require 'config'
-local emojis = require 'snippets/emojis'
+local emojis = require 'snippets/library/emojis'
 local matcher = require 'snippets/matcher'
 local privateConfig = require 'utils/private_config'
 local vocabulary = require 'snippets/vocabulary'
@@ -43,17 +43,38 @@ local resetKeys = {
   [keyCodes['pagedown']] = true,
 }
 
---- Pastes `text` into the focused app, then restores the previous clipboard.
+--- Pastes `text` into the focused app with its placeholders replaced, then restores the previous clipboard.
 ---@param text string
 function mod.insert(text)
   local previous = hs.pasteboard.readAllData()
-  hs.pasteboard.setContents(text)
+  local rendered, cursorBack = matcher.render(text, {
+    date = os.date('%Y-%m-%d') --[[@as string]],
+    time = os.date('%H:%M') --[[@as string]],
+    clipboard = hs.pasteboard.getContents() or '',
+  })
+  hs.pasteboard.setContents(rendered)
   hs.eventtap.keyStroke({ 'cmd' }, 'v', 0)
+  for _ = 1, cursorBack do
+    hs.eventtap.keyStroke({}, 'left', 0)
+  end
   hs.timer.doAfter(0.3, function()
     if previous and next(previous) then
       hs.pasteboard.writeAllData(previous)
     end
   end)
+end
+
+--- Plays `config.snippetSound`, if set, to confirm an expansion.
+local function playSound()
+  if not config.snippetSound then
+    return
+  end
+  local sound = hs.sound.getByName(config.snippetSound)
+  if sound then
+    sound:play()
+  else
+    logger.w('Unknown snippet sound: ' .. config.snippetSound)
+  end
 end
 
 --- Deletes the typed trigger and inserts the snippet text, without the tap seeing its own keystrokes.
@@ -67,10 +88,11 @@ local function expand(snippet, trigger)
     for _ = 1, utf8.len(trigger) or #trigger do
       hs.eventtap.keyStroke({}, 'delete', 0)
     end
-    mod.insert(snippet.text .. (snippet.append or ''))
+    mod.insert(snippet.text .. matcher.appendFor(snippet, trigger))
     if tap then
       tap:start()
     end
+    playSound()
   end)
 end
 
@@ -123,16 +145,33 @@ function mod.pick()
       end)
     end
   end)
+  ---@param query string
+  ---@return table[]
+  local function choices(query)
+    ---@type table[]
+    local result = {}
+    for _, snippet in ipairs(mod.snippets) do
+      if matcher.matchesQuery(snippet, query) then
+        table.insert(result, {
+          text = matcher.label(snippet),
+          subText = table.concat(snippet.shown or matcher.triggersOf(snippet), ' ')
+            .. '  '
+            .. snippet.text:gsub('%s+', ' '),
+          snippetText = snippet.text,
+        })
+      end
+    end
+    return result
+  end
   chooser:bgDark(true)
   chooser:placeholderText('Snippets')
-  chooser:searchSubText(true)
-  chooser:choices(hs.fnutils.map(mod.snippets, function(snippet)
-    return {
-      text = snippet.desc or snippet.trigger,
-      subText = table.concat(matcher.triggersOf(snippet), ' ') .. '  ' .. snippet.text:gsub('%s+', ' '),
-      snippetText = snippet.text,
-    }
-  end))
+  -- Every word of the query must match, so 'gh review' finds 'GitHub - Re-review' through its group alias.
+  chooser:queryChangedCallback(function(query)
+    if chooser then
+      chooser:choices(choices(query))
+    end
+  end)
+  chooser:choices(choices(''))
   chooser:show()
 end
 
@@ -143,23 +182,107 @@ function mod.writeVocabulary()
   local existing = hs.fs.attributes(path) and hs.json.read(path) or nil
   ---@type string
   local now = os.date('!%Y-%m-%dT%H:%M:%SZ') --[[@as string]]
-  local updated = vocabulary.build(existing, emojis, now)
+  local updated = vocabulary.build(existing, emojis.snippets, now)
   if not vocabulary.hasChanged(existing, updated) then
     return
   end
-  updated.exportedAt = now
-  if not hs.json.write(updated, path, true, true) then
+  local file = io.open(path, 'w')
+  if not file then
     logger.ef('Failed to write the vocabulary to %s', path)
     return
   end
+  file:write(vocabulary.encode(updated))
+  file:close()
   logger.f('Wrote %d words to %s', #updated.customWords, path)
 end
 
---- Loads the public and private snippets, wrapped by the prefix and suffix, and the emojis.
+-- A file of snippets per category, e.g. `snippets/library/shell.lua`.
+---@type string
+local libraryPath = hs.configdir .. '/snippets/library'
+
+--- Returns the keys of `tbl`, sorted.
+---@param tbl table<string, any>
+---@return string[]
+local function sortedKeys(tbl)
+  ---@type string[]
+  local keys = {}
+  for key in pairs(tbl) do
+    table.insert(keys, key)
+  end
+  table.sort(keys)
+  return keys
+end
+
+--- Returns the snippet groups of `libraryPath` by category, including file snippets in matching subdirectories.
+---@return table<string, SnippetGroup>
+local function loadLibrary()
+  ---@type table<string, SnippetGroup>
+  local library = {}
+  if not hs.fs.attributes(libraryPath) then
+    return library
+  end
+  for file in hs.fs.dir(libraryPath) do
+    local category = file:match('^([^.].*)%.lua$')
+    if category then
+      local path = libraryPath .. '/' .. file
+      local ok, group = pcall(dofile, path)
+      if ok and type(group) == 'table' and type(group.snippets) == 'table' then
+        local snippetsPath = libraryPath .. '/' .. category
+        local attributes = hs.fs.attributes(snippetsPath)
+        if attributes and attributes.mode == 'directory' then
+          ---@type string[]
+          local snippetFiles = {}
+          for snippetFile in hs.fs.dir(snippetsPath) do
+            local snippetAttributes = hs.fs.attributes(snippetsPath .. '/' .. snippetFile)
+            if snippetAttributes and snippetAttributes.mode == 'file' and not snippetFile:match('^%.') then
+              table.insert(snippetFiles, snippetFile)
+            end
+          end
+          table.sort(snippetFiles)
+          for _, snippetFile in ipairs(snippetFiles) do
+            local snippetPath = snippetsPath .. '/' .. snippetFile
+            local handle, openError = io.open(snippetPath, 'r')
+            if not handle then
+              logger.ef('Failed to read snippet %s: %s', snippetPath, openError)
+            else
+              local metadata, text = matcher.splitHeader(handle:read('a'))
+              handle:close()
+              if not metadata then
+                logger.ef('Invalid snippet %s: expected a # {...} JSON header in the top comment block', snippetPath)
+              else
+                local decoded, snippet = pcall(hs.json.decode, metadata)
+                if decoded and type(snippet) == 'table' then
+                  snippet.text = text
+                  table.insert(group.snippets, snippet)
+                else
+                  local errorMessage = decoded and 'expected a JSON object' or tostring(snippet)
+                  logger.ef('Invalid snippet %s: %s', snippetPath, errorMessage)
+                end
+              end
+            end
+          end
+        end
+        library[category] = group
+      else
+        logger.ef('Invalid snippets %s: %s', path, group)
+      end
+    end
+  end
+  return library
+end
+
+--- Loads the library snippets then the private ones, each wrapped by its group prefix and suffix.
+--- The private `snippets` are either a list using the default prefix and suffix, or a `SnippetGroup`.
 function mod.load()
-  local snippets = matcher.merge(config.snippets or {}, privateConfig.get('snippets') or {})
-  local separated = matcher.withSeparators(snippets, config.snippetPrefix, config.snippetSuffix)
-  mod.snippets = matcher.merge(separated, emojis)
+  local library = loadLibrary()
+  ---@type SnippetGroup[]
+  local groups = {}
+  for _, category in ipairs(sortedKeys(library)) do
+    table.insert(groups, library[category])
+  end
+  local private = privateConfig.get('snippets') or {}
+  table.insert(groups, private.snippets and private or { snippets = private })
+  mod.snippets = matcher.flatten(groups, config.snippetPrefix, config.snippetSuffix)
   maxLength = matcher.bufferLength(mod.snippets)
   logger.f('Loaded %d snippets', #mod.snippets)
 end

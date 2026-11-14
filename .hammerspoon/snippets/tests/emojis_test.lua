@@ -1,4 +1,4 @@
-local emojis = require 'snippets/emojis'
+local emojis = require('snippets/library/emojis').snippets
 local matcher = require 'snippets/matcher'
 
 return {

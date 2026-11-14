@@ -1,141 +1,143 @@
 {
-  "appVersion" : "0.8.10",
+  "exportedAt" : "2026-11-14T16:07:14Z",
   "customWords" : [
     {
-      "createdAt" : "2026-11-01T15:45:58Z",
-      "isEnabled" : true,
+      "word" : "smiling emoji",
       "replacement" : "🙂",
-      "word" : "smiling emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T15:46:36Z",
-      "isEnabled" : true,
+      "word" : "wink emoji",
       "replacement" : "😉",
-      "word" : "wink emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "sweat smile emoji",
       "replacement" : "😅",
-      "word" : "sweat smile emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "robot emoji",
       "replacement" : "🤖",
-      "word" : "robot emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "shrug emoji",
       "replacement" : "🤷",
-      "word" : "shrug emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "laughing emoji",
       "replacement" : "😂",
-      "word" : "laughing emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "upside down emoji",
       "replacement" : "🙃",
-      "word" : "upside down emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "hundred emoji",
       "replacement" : "💯",
-      "word" : "hundred emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "eye roll emoji",
       "replacement" : "🙄",
-      "word" : "eye roll emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "crying emoji",
       "replacement" : "😭",
-      "word" : "crying emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "anxious emoji",
       "replacement" : "😰",
-      "word" : "anxious emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "speak no evil emoji",
       "replacement" : "🙊",
-      "word" : "speak no evil emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "heart emoji",
       "replacement" : "❤️",
-      "word" : "heart emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "wave emoji",
       "replacement" : "👋",
-      "word" : "wave emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "facepalm emoji",
       "replacement" : "🤦",
-      "word" : "facepalm emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "see no evil emoji",
       "replacement" : "🙈",
-      "word" : "see no evil emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "hear no evil emoji",
       "replacement" : "🙉",
-      "word" : "hear no evil emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "drum emoji",
       "replacement" : "🥁",
-      "word" : "drum emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "rofl emoji",
       "replacement" : "🤣",
-      "word" : "rofl emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "smiling tear emoji",
       "replacement" : "🥲",
-      "word" : "smiling tear emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "tongue out emoji",
       "replacement" : "😛",
-      "word" : "tongue out emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     },
     {
-      "createdAt" : "2026-11-01T16:30:29Z",
-      "isEnabled" : true,
+      "word" : "confused emoji",
       "replacement" : "😕",
-      "word" : "confused emoji"
+      "isEnabled" : true,
+      "createdAt" : "2026-11-14T16:07:14Z"
     }
   ],
-  "exportedAt" : "2026-11-01T15:46:41Z",
+  "textSnippets" : [
+
+  ],
+  "appVersion" : "0.8.10",
   "schema" : "macparakeet.vocabulary",
-  "textSnippets" : [],
   "version" : 1
 }

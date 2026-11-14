@@ -41,6 +41,7 @@ local bindings = {
     name = keybinder.globalBindings,
     bindings = {
       { key = '1', name = apps.activityMonitor.name, shift = true },
+      { key = '5', fn = snippets.pick, desc = 'Snippets - Pick and paste' },
       { key = '8', name = 'Slack' },
       { key = '8', shift = true, fn = slackTodos.focusAndSync, desc = 'Slack - To-dos and sync with Reminders' },
       { key = '9', name = 'Music' },

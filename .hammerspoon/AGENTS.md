@@ -6,12 +6,13 @@ Living in this dir since that is `dot-agent` working dir.
 # ALWAYS
 
 - Add 🤖 at the end of your responses as the last word. Do not create new lines.
-- Never write any secrets or sensitive informations in files that may be commited.
-- Avoid refererence to machine speficic local dir/file paths as much as possible.
+- Never write any secrets or sensitive information in files that may be commited.
+- Avoid reference to machine specific local dir/file paths as much as possible.
+- Iterate on the AGENTS.md file to add new rules and instructions, and update the snippets library accordingly based on the instructions you are given during regular prompting.
 
 # Never
 
-Try to read `~/.private`, if you need information or to write soemthing. Tell me
+Try to read `~/.private`, if you need information or to write something. Tell me
 to do it.
 
 # Platform
@@ -35,9 +36,9 @@ to do it.
 
 - `hs` == hammerspoon
 - In `~/.hammerspoon`
-- There is `~/.private/hammerspoon.json` for config I do not want to be public.
+- There is `~/.private/hammerspoon.lua` (a file returning a table), or `~/.private/hammerspoon.json` when it is absent, for config I do not want to be public. When modifying public code, check those files to see if they need to be updated.
 - Always use or add luadoc types, this includes local variables, function parameters, and return values. Use `---@class` for tables that are used as objects. Use `---@field` for fields in a table. Use `---@param` for function parameters. Use `---@return` for function return values.
-- Global hammerspoon config or settings chould go in `config.lua`
+- Global hammerspoon config or settings should go in `config.lua`
 - Never call `hs.execute`, `hs.task.new`, `io.popen` or `os.execute` directly. Use `utils/process.lua` (`process.start`, `process.execute`, `process.which`), which provides a PATH with the mise shims first, then `~/bin` and Homebrew. Hammerspoon only has the bare launchd PATH, so tools installed with mise (e.g. `gh`, `go`) are not found otherwise.
 - Never hard-code a PATH or executable directories outside `utils/process.lua`.
 - `mise run test` must pass.

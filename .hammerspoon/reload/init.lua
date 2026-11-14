@@ -13,7 +13,9 @@ local function reloadConfig(files)
 
   local doReload = false
   for _, file in pairs(files) do
-    if file:sub(-4) == '.lua' and not file:find('/tests/', 1, true) then
+    local isLuaFile = file:sub(-4) == '.lua' and not file:find('/tests/', 1, true)
+    local isSnippetAsset = file:find('/snippets/library/', 1, true) ~= nil
+    if isLuaFile or isSnippetAsset then
       doReload = true
     end
   end

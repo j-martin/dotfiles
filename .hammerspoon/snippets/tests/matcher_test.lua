@@ -66,12 +66,13 @@ return {
 
   ['withSeparators keeps a whitespace suffix to add back after the text'] = function()
     local wrapped = matcher.withSeparators({ { trigger = 'lgtm', text = 'Looks good' } }, ';', ' ')
-    assert(wrapped[1].append == ' ', string.format('expected " ", got %q', wrapped[1].append))
+    local append = matcher.appendFor(wrapped[1], wrapped[1].trigger)
+    assert(append == ' ', string.format('expected " ", got %q', append))
   end,
 
   ['withSeparators does not add back a suffix that is not whitespace'] = function()
     local wrapped = matcher.withSeparators({ { trigger = 'lgtm', text = 'Looks good' } }, ';', ';')
-    assert(wrapped[1].append == nil, 'expected nothing to add back')
+    assert(matcher.appendFor(wrapped[1], wrapped[1].trigger) == '', 'expected nothing to add back')
   end,
 
   ['findMatch expands a separated trigger once the space is typed'] = function()
@@ -127,5 +128,139 @@ return {
   ['merge appends new private snippets'] = function()
     local merged = matcher.merge(snippets, { { trigger = ';new', text = 'New' } })
     assert(#merged == 4, string.format('expected 4 snippets, got %d', #merged))
+  end,
+
+  ['render replaces the placeholders'] = function()
+    local values = { date = '2026-11-14', time = '08:52', clipboard = 'x' }
+    local text, cursorBack = matcher.render('{date:short} {time:short} `{clipboard}` ${HOME}', values)
+    assert(text == '2026-11-14 08:52 `x` ${HOME}', string.format('unexpected %q', text))
+    assert(cursorBack == 0, 'expected no cursor move')
+  end,
+
+  ['render removes the cursor and counts the characters after it'] = function()
+    local text, cursorBack = matcher.render('use {cursor}?é\n', { date = '', time = '', clipboard = '' })
+    assert(text == 'use ?é\n', string.format('unexpected %q', text))
+    assert(cursorBack == 3, string.format('expected 3, got %d', cursorBack))
+  end,
+
+  ['snippets without a trigger are kept but never match'] = function()
+    local pickerOnly = { { text = 'a' }, { text = 'b' } }
+    local wrapped = matcher.withSeparators(pickerOnly, ';', ' ')
+    local merged = matcher.merge(wrapped, {})
+    assert(#merged == 2, string.format('expected 2 snippets, got %d', #merged))
+    assert(matcher.findMatch('a ', merged) == nil, 'expected no match')
+    assert(matcher.maxTriggerLength(merged) == 0, 'expected no trigger length')
+  end,
+
+  ['flatten wraps each group with its own prefix and suffix'] = function()
+    local groups = {
+      { prefix = 'm', suffix = '  ', snippets = { { trigger = '1', text = 'one' } } },
+      { snippets = { { trigger = 'lgtm', text = 'Looks good' } } },
+    }
+    local snippets = matcher.flatten(groups, ';', ' ')
+    assert(snippets[1].trigger == 'm1  ', string.format('expected "m1  ", got %q', snippets[1].trigger))
+    assert(snippets[2].trigger == ';lgtm ', string.format('expected ";lgtm ", got %q', snippets[2].trigger))
+  end,
+
+  ['flatten lets a snippet override its group separators with empty strings'] = function()
+    local groups = {
+      {
+        prefix = 'gh',
+        suffix = ' ',
+        snippets = {
+          { trigger = 'lgtm', text = 'Looks good', prefix = '', suffix = '' },
+        },
+      },
+    }
+    local snippet = matcher.flatten(groups, ';', ' ')[1]
+    assert(snippet.trigger == 'lgtm', string.format('expected "lgtm", got %q', snippet.trigger))
+    assert(matcher.appendFor(snippet, snippet.trigger) == '' and not snippet.anywhere, 'expected raw trigger behavior')
+  end,
+
+  ['flatten lets a later group replace a snippet with the same wrapped trigger'] = function()
+    local groups = {
+      { snippets = { { trigger = 'sig', text = 'Public' } } },
+      { snippets = { { trigger = 'sig', text = 'Private' } } },
+    }
+    local snippets = matcher.flatten(groups, ';', ' ')
+    assert(#snippets == 1 and snippets[1].text == 'Private', 'expected the private snippet')
+  end,
+
+  ['findMatch expands a separated trigger glued to the previous word'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = 'lgtm', text = 'Looks good' } }, ';', ' ')
+    assert(matcher.findMatch('kkC;lgtm ', wrapped), 'expected a match after a vim command')
+  end,
+
+  ['findMatch still needs a word start without a prefix or suffix'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = ':/', text = '😕' } }, '', '')
+    assert(matcher.findMatch('https:/', wrapped) == nil, 'expected no match in a URL')
+  end,
+
+  ['withSeparators adds back a single space for a longer whitespace suffix'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = 'np', text = 'You are welcome.' } }, '', '  ')
+    local append = matcher.appendFor(wrapped[1], wrapped[1].trigger)
+    assert(append == ' ', string.format('expected " ", got %q', append))
+  end,
+
+  ['flatten labels snippets with their group name'] = function()
+    local groups = { { name = 'GitHub', snippets = { { desc = 'Re-review', text = 'Can you review?' } } } }
+    local label = matcher.label(matcher.flatten(groups, ';', ' ')[1])
+    assert(label == 'GitHub - Re-review', string.format('expected "GitHub - Re-review", got %q', label))
+  end,
+
+  ['matchesQuery needs every word, including group aliases'] = function()
+    local groups = { { name = 'GitHub', aliases = { 'gh' }, snippets = { { desc = 'Re-review', text = 'Can you?' } } } }
+    local snippet = matcher.flatten(groups, ';', ' ')[1]
+    assert(matcher.matchesQuery(snippet, 'GH review'), 'expected the alias and name to match')
+    assert(not matcher.matchesQuery(snippet, 'gh merge'), 'expected no match for a missing word')
+  end,
+
+  ['label uses the text on a single line without a description'] = function()
+    local label = matcher.label({ trigger = 'ph', text = '#!/usr/bin/env python3\n# coding\n' })
+    assert(label == '#!/usr/bin/env python3 # coding', string.format('unexpected %q', label))
+  end,
+
+  ['withSeparators accepts any sentence suffix and adds back the one typed'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = 'suod', text = 'sudo' } }, '', { ' ', '.', ',' })
+    local snippet, trigger = matcher.findMatch('use suod.', wrapped)
+    assert(snippet and trigger, 'expected a match ending with a period')
+    assert(matcher.appendFor(snippet, trigger) == '.', 'expected the period to be added back')
+    assert(#snippet.shown == 1 and snippet.shown[1] == 'suod ', 'expected only the first suffix to be shown')
+  end,
+
+  ['withSeparators replaces a suffix name with its list'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = 'suod', text = 'sudo' } }, '', 'sentence')
+    local snippet, trigger = matcher.findMatch('use suod!', wrapped)
+    assert(snippet and trigger == 'suod!', 'expected a match ending with an exclamation mark')
+    assert(matcher.appendFor(snippet, trigger) == '!', 'expected the exclamation mark to be added back')
+  end,
+
+  ['splitHeader finds the header on the first line'] = function()
+    local header, text = matcher.splitHeader('# {"trigger":"x"}\nbody\n')
+    assert(header == '{"trigger":"x"}', string.format('unexpected header %q', header))
+    assert(text == 'body\n', string.format('unexpected text %q', text))
+  end,
+
+  ['splitHeader finds the header anywhere in the top comment block'] = function()
+    local content = '#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n# {"trigger":"hpython"}\nprint()\n'
+    local header, text = matcher.splitHeader(content)
+    assert(header == '{"trigger":"hpython"}', string.format('unexpected header %q', header))
+    assert(text == '#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\nprint()\n', string.format('unexpected %q', text))
+  end,
+
+  ['splitHeader handles a header on the last line without a newline'] = function()
+    local header, text = matcher.splitHeader('#!/bin/sh\n# {"trigger":"x"}')
+    assert(header == '{"trigger":"x"}' and text == '#!/bin/sh\n', string.format('unexpected %q', text))
+  end,
+
+  ['splitHeader ignores a header after the top comment block'] = function()
+    assert(matcher.splitHeader('#!/bin/sh\necho\n# {"trigger":"x"}\n') == nil, 'expected no header')
+  end,
+
+  ['findMatch needs a word start with sentence suffixes, punctuation counts as one'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = 'suod', text = 'sudo' } }, '', { ' ', '.' })
+    assert(matcher.findMatch('xsuod ', wrapped) == nil, 'expected no match inside a word')
+    assert(matcher.findMatch('(suod ', wrapped), 'expected a match after a parenthesis')
+    assert(matcher.findMatch('ésuod ', wrapped) == nil, 'expected no match after a multibyte letter')
   end,
 }

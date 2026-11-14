@@ -191,6 +191,7 @@
 ---@field placeholderText fun(self, text: string): hs.chooser
 ---@field searchSubText fun(self, enabled: boolean): hs.chooser
 ---@field choices fun(self, choices: table[]): hs.chooser
+---@field queryChangedCallback fun(self, fn: fun(query: string)): hs.chooser
 ---@field show fun(self): hs.chooser
 ---@field delete fun(self): nil
 

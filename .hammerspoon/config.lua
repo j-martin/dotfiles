@@ -4,10 +4,10 @@
 ---@field appResponseTimeout number Seconds a running application has to answer before being considered not responding.
 ---@field appSwitchTimeout number Seconds a running application has to become frontmost once focused.
 ---@field appLaunchTimeout number Seconds a launched application has to become frontmost.
----@field snippets Snippet[] Public snippets, merged with `snippets` from the private config, see `snippets/init.lua`.
 ---@field snippetPrefix string Typed before a snippet trigger.
 ---@field snippetSuffix string Typed after a snippet trigger to expand it.
----@field macParakeetVocabularyPath string Vocabulary generated from `snippets/emojis.lua`, see `snippets/vocabulary.lua`.
+---@field snippetSound string|nil System sound played after expanding a snippet, e.g. 'Tink', nil for none.
+---@field macParakeetVocabularyPath string Vocabulary generated from `snippets/library/emojis.lua`, see `snippets/vocabulary.lua`.
 local mod = {}
 
 -- Limits how long Hammerspoon waits on stuck applications when switching to them, see `utils/app_guard.lua`.
@@ -15,18 +15,16 @@ mod.appResponseTimeout = 0.5
 mod.appSwitchTimeout = 2
 mod.appLaunchTimeout = 5
 
--- Typing `;<trigger> ` (with the space) replaces it with its text, hyper + s lists them all.
+-- Typing `;<trigger> ` (with the space) replaces it with its text, hyper + 5 (or hyper + space, s) lists them all.
 -- The prefix avoids expanding normal words, the space allows triggers that start like others.
--- Emojis are in `snippets/emojis.lua` and do not use the prefix and suffix.
+-- Snippets are in `snippets/library/<category>.lua` and files under the matching category directory, private ones in config.
+-- These are the defaults, a file can set its own `prefix` and `suffix`, e.g. the emojis use neither.
 mod.snippetPrefix = ';'
 mod.snippetSuffix = ' '
-mod.snippets = {
-  { trigger = 'shrug', text = '¯\\_(ツ)_/¯', desc = 'Shrug' },
-  { trigger = 'tflip', text = '(╯°□°)╯︵ ┻━┻', desc = 'Table flip' },
-  { trigger = 'lgtm', text = 'Looks good to me 👍', desc = 'LGTM' },
-}
+-- Names are the files in /System/Library/Sounds, without the extension.
+mod.snippetSound = 'Tink'
 
--- Emoji words for MacParakeet dictation, regenerated on load from `snippets/emojis.lua`.
+-- Emoji words for MacParakeet dictation, regenerated on load from `snippets/library/emojis.lua`.
 mod.macParakeetVocabularyPath = os.getenv('HOME') .. '/.config/macparakeet/vocabulary.json'
 
 -- Alerts, e.g. mode and kinesis alerts.
