@@ -27,3 +27,7 @@ Example, `code/hpython.py`:
 # -*- coding: utf-8 -*-
 # {"trigger":"hpython","desc":"Python Header"}
 ```
+
+## JSON snippets
+
+Generated snippets live outside the repository, in `config.snippetJsonPath`: every `*.json` file there is a `SnippetGroup`, e.g. `{"name":"GitHub - Coworkers","snippets":[{"desc":"Jane Doe","text":"jdoe"}]}`, or a plain array of `Snippet`, validated by `snippets/json_snippets.lua`. They load after the library and before the private snippets. Hammerspoon reloads when one changes. `snippets/generator.lua` runs `~/.bin/hammerspoon-snippets-generator` every 12 hours, and on load when a file is missing, for the GitHub coworker logins and work emails (`githubOrg` in `snippetsGenerator` of the private config) and, when gcloud is installed, the GCP organizations and a file of projects per organization.

@@ -3,6 +3,7 @@ local logger = hs.logger.new('snippets', 'info')
 
 local config = require 'config'
 local emojis = require 'snippets/library/emojis'
+local jsonSnippets = require 'snippets/json_snippets'
 local matcher = require 'snippets/matcher'
 local privateConfig = require 'utils/private_config'
 local vocabulary = require 'snippets/vocabulary'
@@ -313,7 +314,40 @@ local function loadLibrary()
   return library
 end
 
---- Loads the library snippets then the private ones, each wrapped by its group prefix and suffix.
+--- Returns a group per `*.json` file in `config.snippetJsonPath`, see `snippets/json_snippets.lua`.
+---@return SnippetGroup[]
+local function loadJsonFiles()
+  ---@type SnippetGroup[]
+  local groups = {}
+  local directory = config.snippetJsonPath
+  if not hs.fs.attributes(directory) then
+    return groups
+  end
+  ---@type string[]
+  local files = {}
+  for file in hs.fs.dir(directory) do
+    if file:match('^[^.].*%.json$') then
+      table.insert(files, file)
+    end
+  end
+  table.sort(files)
+  for _, file in ipairs(files) do
+    local path = directory .. '/' .. file
+    local ok, decoded = pcall(hs.json.read, path)
+    if not ok or decoded == nil then
+      logger.ef('Failed to read snippets %s: %s', path, decoded)
+    else
+      local group, errors = jsonSnippets.parse(decoded, path)
+      for _, message in ipairs(errors) do
+        logger.e('Invalid snippet ' .. message)
+      end
+      table.insert(groups, group)
+    end
+  end
+  return groups
+end
+
+--- Loads the library snippets, then the JSON ones, then the private ones, each wrapped by its group prefix and suffix.
 --- The private `snippets` are either a list using the default prefix and suffix, or a `SnippetGroup`.
 function mod.load()
   local library = loadLibrary()
@@ -321,6 +355,9 @@ function mod.load()
   local groups = {}
   for _, category in ipairs(sortedKeys(library)) do
     table.insert(groups, library[category])
+  end
+  for _, group in ipairs(loadJsonFiles()) do
+    table.insert(groups, group)
   end
   local private = privateConfig.get('snippets') or {}
   table.insert(groups, private.snippets and private or { snippets = private })

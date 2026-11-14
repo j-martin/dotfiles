@@ -8,6 +8,7 @@
 ---@field snippetSuffix string Typed after a snippet trigger to expand it.
 ---@field vimApps string[] Bundle IDs of apps with vim bindings, where snippets also expand right after an insert command.
 ---@field snippetSound string|nil System sound played after expanding a snippet, e.g. 'Tink', nil for none.
+---@field snippetJsonPath string Directory of generated `*.json` snippet files, each a snippet group.
 ---@field macParakeetVocabularyPath string Vocabulary generated from `snippets/library/emojis.lua`, see `snippets/vocabulary.lua`.
 local mod = {}
 
@@ -31,6 +32,9 @@ mod.vimApps = {
   'com.jetbrains.goland',
   'com.microsoft.VSCode',
 }
+
+-- Generated snippets kept out of the repository, e.g. by `~/.bin/hammerspoon-snippets-generator`.
+mod.snippetJsonPath = os.getenv('HOME') .. '/.local/share/hammerspoon/snippets'
 
 -- Emoji words for MacParakeet dictation, regenerated on load from `snippets/library/emojis.lua`.
 mod.macParakeetVocabularyPath = os.getenv('HOME') .. '/.config/macparakeet/vocabulary.json'

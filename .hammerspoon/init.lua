@@ -13,6 +13,7 @@ local githubReviews = require 'github_reviews'
 local keybindings = require 'keybindings'
 local slackTodos = require 'slack_todos'
 local snippets = require 'snippets'
+local snippetsGenerator = require 'snippets/generator'
 local usb = require 'usb'
 local wifi = require 'wifi'
 
@@ -25,4 +26,5 @@ apps.init()
 githubReviews.init()
 slackTodos.init()
 snippets.init()
+snippetsGenerator.init()
 hs.alert.show('Config loaded')

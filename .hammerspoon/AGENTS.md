@@ -36,7 +36,7 @@ to do it.
 
 - `hs` == hammerspoon
 - In `~/.hammerspoon`
-- There is `~/.private/hammerspoon.lua` (a file returning a table), or `~/.private/hammerspoon.json` when it is absent, for config I do not want to be public. When modifying public code, check those files to see if they need to be updated.
+- There is `~/.private/hammerspoon.lua` (a file returning a table, created with the defaults in `utils/private_config.lua` when missing) for config I do not want to be public. When modifying public code, check those files to see if they need to be updated.
 - Always use or add luadoc types, this includes local variables, function parameters, and return values. Use `---@class` for tables that are used as objects. Use `---@field` for fields in a table. Use `---@param` for function parameters. Use `---@return` for function return values.
 - Global hammerspoon config or settings should go in `config.lua`
 - Never call `hs.execute`, `hs.task.new`, `io.popen` or `os.execute` directly. Use `utils/process.lua` (`process.start`, `process.execute`, `process.which`), which provides a PATH with the mise shims first, then `~/bin` and Homebrew. Hammerspoon only has the bare launchd PATH, so tools installed with mise (e.g. `gh`, `go`) are not found otherwise.
