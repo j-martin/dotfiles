@@ -246,9 +246,10 @@ local vimInsertCommands = {
   '[iaIAoOsSC]$', -- i, a, o, gi, ...
   'c[ia]?%a$', -- cc, cw, ciw, caw, cb, ...
   'c[tTfF].$', -- ct., cf), ...
+  '[vV]%S*[cs]$', -- Vjc, v$s, vi(c, ... in visual mode, S and C are above.
 }
 
---- Returns whether `keys` end with a vim command entering insert mode, e.g. 'kkciw'.
+--- Returns whether `keys` end with a vim command entering insert mode, e.g. 'kkciw' or 'Vj}c'.
 ---@param keys string
 ---@return boolean
 function mod.endsWithVimInsert(keys)
@@ -275,7 +276,8 @@ local function endsWithWord(buffer, trigger, vim)
   -- Bytes above 127 are part of multibyte letters, e.g. 'é'.
   ---@type string
   local word = before:match('[%w_\128-\255]*$')
-  return word == '' or (vim == true and mod.endsWithVimInsert(word))
+  -- Visual motions are not all word characters, e.g. 'V}c', so the keys since the last whitespace are checked.
+  return word == '' or (vim == true and mod.endsWithVimInsert(before:match('%S*$')))
 end
 
 --- Returns the snippet with the longest trigger or alias that ends `buffer` as its own word, and that trigger, or nil.

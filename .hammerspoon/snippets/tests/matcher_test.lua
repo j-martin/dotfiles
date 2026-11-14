@@ -198,6 +198,14 @@ return {
     assert(matcher.findMatch('kkx;lgtm ', wrapped, true) == nil, 'expected no match after x')
   end,
 
+  ['findMatch expands after a visual mode change in vim apps'] = function()
+    local wrapped = matcher.withSeparators({ { trigger = 'lgtm', text = 'Looks good' } }, ';', ' ')
+    assert(matcher.findMatch('Vjjc;lgtm ', wrapped, true), 'expected a match after Vjjc')
+    assert(matcher.findMatch('V}S;lgtm ', wrapped, true), 'expected a match after V}S')
+    assert(matcher.findMatch('v$c;lgtm ', wrapped, true), 'expected a match after v$c')
+    assert(matcher.findMatch('Vjjd;lgtm ', wrapped, true) == nil, 'expected no match after Vjjd')
+  end,
+
   ['findMatch still needs a word start without a prefix or suffix'] = function()
     local wrapped = matcher.withSeparators({ { trigger = ':/', text = '😕' } }, '', '')
     assert(matcher.findMatch('https:/', wrapped) == nil, 'expected no match in a URL')
