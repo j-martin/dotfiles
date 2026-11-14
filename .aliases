@@ -496,8 +496,8 @@ alias certv='openssl x509 -serial  -subject -issuer -dates -alias -noout -in'
 
 # agent
 
-alias da=dot-agent
-alias ha=dot-agent
+alias da=_agent
+alias ha=_agent
 alias claude='\claude --model opus --permission-mode acceptEdits'
 
 # hammerspoon

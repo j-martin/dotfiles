@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+_AGENT_MODEL="claude-opus-5.5"
+
+_agent_home_entries() {
+  (cd "$HOME" && _home_git ls-files --stage)
+}
+
+# Submodules are gitlinks (mode 160000): expose them as whole dirs, not as files
+_agent_home_submodules() {
+  _agent_home_entries | awk -F'\t' '$1 ~ /^160000 / { print $2 }'
+}
+
+_agent_home_tracked_files() {
+  _agent_home_entries | awk -F'\t' '$1 !~ /^160000 / { print $2 }'
+}
+
+# Parent dir of each nested tracked file (not the top-level dir, so e.g. ~/.ssh isn't fully exposed)
+_agent_home_dirs() {
+  # macOS sed has no long options, so use grep; the match keeps a trailing slash
+  _agent_home_tracked_files | grep --only-matching --extended-regexp '^.*/' | sort --unique
+}
+
+_agent_home_files() {
+  _agent_home_tracked_files | grep --invert-match '/'
+}
+
+# A regular repo is any work tree that is not a submodule of the dotfiles repo
+_agent_in_regular_repo() {
+  local top
+  top=$(command git rev-parse --show-toplevel 2>/dev/null) || return 1
+  ! _agent_home_submodules | grep --quiet --line-regexp --fixed-strings "${top#"$HOME"/}"
+}
+
+_agent_run() {
+  local tool="$1"
+  shift
+  if [[ "$tool" == 'claude' ]]; then
+    _info 'Starting Claude Code'
+    command claude "$@" --model "${_AGENT_MODEL//./-}" --permission-mode acceptEdits
+  else
+    _info 'Starting Copilot'
+    command copilot "$@" --model "$_AGENT_MODEL"
+  fi
+}
+
+# Same logic as _git_or_home: start in the current repo, or fall back to the
+# dotfiles with every tracked home dir exposed, working from ~/.hammerspoon.
+# Set AGENT=claude to use Claude Code instead of Copilot.
+_agent() {
+  local tool="${AGENT:-copilot}"
+
+  if _agent_in_regular_repo; then
+    _agent_run "$tool" "$@"
+    return
+  fi
+
+  (
+    local args=()
+    local dir file
+
+    while IFS= read -r dir; do
+      args+=(--add-dir "${HOME}/${dir%/}")
+    done < <(_agent_home_dirs; _agent_home_submodules)
+
+    while IFS= read -r file; do
+      if [[ "$tool" == 'claude' ]]; then
+        args+=(--allowedTools "Read(~/${file})" --allowedTools "Edit(~/${file})")
+      else
+        # Copilot has no read(path) rule; write(path) needs an absolute path to match a single file
+        args+=(--allow-tool "write(${HOME}/${file})")
+      fi
+    done < <(_agent_home_files)
+
+    cd "${HOME}/.hammerspoon" || return 1
+    _agent_run "$tool" "$@" "${args[@]}"
+  )
+}
