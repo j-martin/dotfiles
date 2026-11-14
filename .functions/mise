@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Installed `brew-cask:` packages declared in `[bootstrap.packages]`
+_mise_brew_casks() {
+  mise bootstrap packages status --json 2>/dev/null |
+    jq --raw-output '.["brew-cask"].packages[]? | select(.state == "installed") | .package'
+}
+
+# Upgrade everything mise manages: tools, then bootstrap packages.
+# `mise bootstrap packages upgrade` leaves casks that self-update (e.g. goland)
+# unchanged, so those are upgraded with `brew upgrade --greedy`.
+# Extra args (e.g. --dry-run) are passed to every upgrade command.
+_mise_upgrade() {
+  local casks=()
+  local outdated=()
+  local cask
+
+  _info 'Upgrading mise tools'
+  mise upgrade "$@" || return
+
+  _info 'Upgrading mise bootstrap packages'
+  mise bootstrap packages upgrade "$@" || return
+
+  while IFS= read -r cask; do
+    casks+=("$cask")
+  done < <(_mise_brew_casks)
+  [[ ${#casks[@]} -eq 0 ]] && return
+
+  while IFS= read -r cask; do
+    outdated+=("$cask")
+  done < <(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --cask --greedy --quiet "${casks[@]}" 2>/dev/null)
+
+  if [[ ${#outdated[@]} -eq 0 ]]; then
+    _info 'Self-updating brew casks are up to date'
+    return
+  fi
+
+  _info "Upgrading self-updating brew casks: ${outdated[*]}"
+  HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade --cask --greedy "$@" "${outdated[@]}"
+}
