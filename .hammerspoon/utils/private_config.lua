@@ -1,13 +1,16 @@
--- Settings kept out of this public repository, in ~/.private/hammerspoon.json.
+-- Settings kept out of this public repository, in ~/.private/hammerspoon.lua when present, a file returning a table,
+-- otherwise in ~/.private/hammerspoon.json.
 local logger = require('utils/file_logger').new('privateConfig', 'info')
 
 ---@class PrivateConfigModule
----@field path string
+---@field luaPath string
+---@field jsonPath string
 local mod = {
-  path = os.getenv('HOME') .. '/.private/hammerspoon.json',
+  luaPath = os.getenv('HOME') .. '/.private/hammerspoon.lua',
+  jsonPath = os.getenv('HOME') .. '/.private/hammerspoon.json',
 }
 
--- Written to `mod.path` when it does not exist yet.
+-- Written to `mod.jsonPath` when neither file exists yet.
 local defaults = {
   -- Phone number or email
   iMessageRecipient = '',
@@ -20,26 +23,43 @@ local defaults = {
 
 ---@return nil
 local function create()
-  local directory = mod.path:match('^(.*)/[^/]+$')
+  local directory = mod.jsonPath:match('^(.*)/[^/]+$')
   if not hs.fs.attributes(directory) then
     hs.fs.mkdir(directory)
   end
-  if not hs.json.write(defaults, mod.path, true, false) then
-    logger.ef('Failed to create %s', mod.path)
+  if not hs.json.write(defaults, mod.jsonPath, true, false) then
+    logger.ef('Failed to create %s', mod.jsonPath)
     return
   end
-  logger.f('Created %s with the default settings', mod.path)
+  logger.f('Created %s with the default settings', mod.jsonPath)
 end
 
---- Returns the whole private config, creating the file with the defaults when missing.
+--- Returns the path of the private config in use, the Lua file when present.
+---@return string
+function mod.path()
+  if hs.fs.attributes(mod.luaPath) then
+    return mod.luaPath
+  end
+  return mod.jsonPath
+end
+
+--- Returns the whole private config, creating the JSON file with the defaults when neither file exists.
 ---@return table<string, any>
 function mod.read()
-  if not hs.fs.attributes(mod.path) then
+  if hs.fs.attributes(mod.luaPath) then
+    local ok, config = pcall(dofile, mod.luaPath)
+    if not ok or type(config) ~= 'table' then
+      logger.ef('Failed to read %s: %s', mod.luaPath, config)
+      return {}
+    end
+    return config
+  end
+  if not hs.fs.attributes(mod.jsonPath) then
     create()
   end
-  local config = hs.json.read(mod.path)
+  local config = hs.json.read(mod.jsonPath)
   if not config then
-    logger.ef('Failed to read %s', mod.path)
+    logger.ef('Failed to read %s', mod.jsonPath)
     return {}
   end
   return config
@@ -47,7 +67,7 @@ end
 
 --- Returns the value of `key`, or nil when it is unset or empty.
 ---@param key string
----@return string|nil
+---@return any
 function mod.get(key)
   local value = mod.read()[key]
   if value == '' then

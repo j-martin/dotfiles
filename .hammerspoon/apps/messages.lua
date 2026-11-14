@@ -42,7 +42,7 @@ end
 function mod.sendSelection()
   local recipient = privateConfig.get('iMessageRecipient')
   if not recipient then
-    hs.alert.show("No 'iMessageRecipient' in " .. privateConfig.path)
+    hs.alert.show("No 'iMessageRecipient' in " .. privateConfig.path())
     return
   end
 
