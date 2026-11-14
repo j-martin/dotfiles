@@ -29,6 +29,8 @@ local emojis = {
     { trigger = ":')", text = '🥲', desc = 'smiling tear emoji' },
     { trigger = ':p', aliases = { ':P' }, text = '😛', desc = 'tongue out emoji' },
     { trigger = ':/', text = '😕', desc = 'confused emoji' },
+    { trigger = 'shrug', desc = 'Shrug', text = '¯\\_(ツ)_/¯', skipVocabulary = true },
+    { trigger = 'tflip', desc = 'Table flip', text = '(╯°□°)╯︵ ┻━┻', skipVocabulary = true },
   },
 }
 

@@ -56,6 +56,15 @@ return {
     assert(#document.customWords == 0, 'expected no words')
   end,
 
+  ['build skips snippets marked to skip the vocabulary'] = function()
+    local snippets = {
+      { trigger = 'shrug', desc = 'Shrug', text = '¯\\_(ツ)_/¯', skipVocabulary = true },
+      { trigger = 'hello', desc = 'hello', text = 'Hello' },
+    }
+    local document = vocabulary.build(nil, snippets, now)
+    assert(#document.customWords == 1 and document.customWords[1].word == 'hello', 'expected only eligible words')
+  end,
+
   ['hasChanged is false when the words are the same'] = function()
     local document = vocabulary.build(nil, emojis, now)
     local rebuilt = vocabulary.build(document, emojis, '2027-01-01T00:00:00Z')
@@ -69,5 +78,39 @@ return {
 
   ['hasChanged is true when there is no existing document'] = function()
     assert(vocabulary.hasChanged(nil, vocabulary.build(nil, emojis, now)), 'expected a change')
+  end,
+
+  ['build keeps the existing export date'] = function()
+    local document = vocabulary.build(existingDocument(), emojis, now)
+    assert(document.exportedAt == '2026-11-01T15:46:41Z', string.format('unexpected %q', document.exportedAt))
+  end,
+
+  ['encode writes the keys in a stable order'] = function()
+    local json = vocabulary.encode(vocabulary.build(existingDocument(), { emojis[1] }, now))
+    local expected = table.concat({
+      '{',
+      '  "schema": "macparakeet.vocabulary",',
+      '  "version": 1,',
+      '  "appVersion": "0.8.10",',
+      '  "exportedAt": "2026-11-01T15:46:41Z",',
+      '  "customWords": [',
+      '    {',
+      '      "word": "smiling emoji",',
+      '      "replacement": "🙂",',
+      '      "isEnabled": false,',
+      '      "createdAt": "2026-11-01T15:45:58Z"',
+      '    }',
+      '  ],',
+      '  "textSnippets": []',
+      '}',
+      '',
+    }, '\n')
+    assert(json == expected, 'unexpected JSON:\n' .. json)
+  end,
+
+  ['encode escapes quotes, backslashes and control characters'] = function()
+    local document = vocabulary.build(nil, { { trigger = 'x', text = 'x', desc = 'a "b"\\c\n\1' } }, now)
+    local json = vocabulary.encode(document)
+    assert(json:find('"a \\"b\\"\\\\c\\n\\u0001"', 1, true), 'unexpected escaping:\n' .. json)
   end,
 }

@@ -39,7 +39,7 @@ function mod.build(existing, snippets, now)
   ---@type MacParakeetWord[]
   local words = {}
   for _, snippet in ipairs(snippets) do
-    if snippet.desc then
+    if snippet.desc and not snippet.skipVocabulary then
       local previous = previousByWord[snippet.desc]
       table.insert(words, {
         word = snippet.desc,
@@ -51,6 +51,93 @@ function mod.build(existing, snippets, now)
   end
   document.customWords = words
   return document
+end
+
+-- Keys written first, in this order, the others follow sorted, so rewriting the file only shows real changes.
+---@type string[]
+local keyOrder = {
+  'schema',
+  'version',
+  'appVersion',
+  'exportedAt',
+  'customWords',
+  'textSnippets',
+  'word',
+  'replacement',
+  'isEnabled',
+  'createdAt',
+}
+---@type table<string, integer>
+local keyRank = {}
+for index, key in ipairs(keyOrder) do
+  keyRank[key] = index
+end
+
+---@param a string
+---@param b string
+---@return boolean
+local function compareKeys(a, b)
+  local rankA, rankB = keyRank[a] or math.huge, keyRank[b] or math.huge
+  if rankA ~= rankB then
+    return rankA < rankB
+  end
+  return a < b
+end
+
+---@param value string
+---@return string
+local function encodeString(value)
+  local escaped = value:gsub('[%c"\\]', function(char)
+    local named = { ['"'] = '\\"', ['\\'] = '\\\\', ['\n'] = '\\n', ['\r'] = '\\r', ['\t'] = '\\t' }
+    return named[char] or string.format('\\u%04x', char:byte())
+  end)
+  return '"' .. escaped .. '"'
+end
+
+---@param value any
+---@param indent string
+---@return string
+local function encodeValue(value, indent)
+  local kind = type(value)
+  if kind == 'string' then
+    return encodeString(value)
+  elseif kind == 'number' then
+    return math.type(value) == 'integer' and tostring(value) or string.format('%.17g', value)
+  elseif kind == 'boolean' then
+    return tostring(value)
+  elseif kind ~= 'table' then
+    return 'null'
+  end
+  local inner = indent .. '  '
+  ---@type string[]
+  local parts = {}
+  -- Empty tables are written as arrays, e.g. 'textSnippets'.
+  if next(value) == nil or #value > 0 then
+    if next(value) == nil then
+      return '[]'
+    end
+    for _, item in ipairs(value) do
+      table.insert(parts, inner .. encodeValue(item, inner))
+    end
+    return '[\n' .. table.concat(parts, ',\n') .. '\n' .. indent .. ']'
+  end
+  ---@type string[]
+  local keys = {}
+  for key in pairs(value) do
+    table.insert(keys, tostring(key))
+  end
+  table.sort(keys, compareKeys)
+  for _, key in ipairs(keys) do
+    table.insert(parts, inner .. encodeString(key) .. ': ' .. encodeValue(value[key], inner))
+  end
+  return '{\n' .. table.concat(parts, ',\n') .. '\n' .. indent .. '}'
+end
+
+--- Returns `document` as pretty JSON with its keys in a stable order, ending with a newline.
+---@param document MacParakeetVocabulary
+---@return string
+function mod.encode(document)
+  return encodeValue(document, '') .. '\n'
 end
 
 --- Returns whether the custom words of `updated` differ from the ones of `existing`.
