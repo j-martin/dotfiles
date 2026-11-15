@@ -199,11 +199,20 @@ function mod.pick()
       if not row or not row.snippetText then
         return
       end
-      hs.pasteboard.setContents((render(row.snippetText)))
+      ---@type string
+      local copied = render(row.snippetText)
+      hs.pasteboard.setContents(copied)
       if chooser then
         chooser:hide()
       end
-      hs.alert.show('Copied ' .. row.text)
+      ---@type string
+      local preview = copied
+      ---@type integer|nil
+      local cut = utf8.offset(copied, 101)
+      if cut and cut <= #copied then
+        preview = copied:sub(1, cut - 1) .. '…'
+      end
+      hs.alert.show('Copied: ' .. preview)
     end)
   chooser:showCallback(function()
     if copyHotkey then
