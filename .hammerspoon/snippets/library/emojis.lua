@@ -12,7 +12,7 @@ local emojis = {
     { trigger = ':sweat_smile:', aliases = { ':ss:' }, text = '😅', desc = 'sweat smile emoji' },
     { trigger = ':robot:', text = '🤖', desc = 'robot emoji' },
     { trigger = ':shrug:', text = '🤷', desc = 'shrug emoji' },
-    { trigger = ':joy:', text = '😂', desc = 'laughing emoji' },
+    { trigger = ':joy:', aliases = { 'X)' }, text = '😂', desc = 'laughing emoji' },
     { trigger = '(:', text = '🙃', desc = 'upside down emoji' },
     { trigger = ':100:', text = '💯', desc = 'hundred emoji' },
     { trigger = ':roll_eyes:', text = '🙄', desc = 'eye roll emoji' },

@@ -125,6 +125,25 @@ return {
     assert(match and match.text == 'Private', 'expected the private snippet')
   end,
 
+  ['privateGroups wraps a list of snippets in a group'] = function()
+    local groups = matcher.privateGroups({ { trigger = 'a', text = 'A' } })
+    assert(#groups == 1 and #groups[1].snippets == 1, 'expected a single group of one snippet')
+  end,
+
+  ['privateGroups keeps a single group'] = function()
+    local groups = matcher.privateGroups({ name = 'Personal', snippets = {} })
+    assert(#groups == 1 and groups[1].name == 'Personal', 'expected the Personal group')
+  end,
+
+  ['privateGroups keeps a list of groups'] = function()
+    local groups = matcher.privateGroups({ { name = 'Personal', snippets = {} }, { name = 'Work', snippets = {} } })
+    assert(#groups == 2 and groups[2].name == 'Work', 'expected the Personal and Work groups')
+  end,
+
+  ['privateGroups returns no group for nil'] = function()
+    assert(#matcher.privateGroups(nil) == 0, 'expected no group')
+  end,
+
   ['merge appends new private snippets'] = function()
     local merged = matcher.merge(snippets, { { trigger = ';new', text = 'New' } })
     assert(#merged == 4, string.format('expected 4 snippets, got %d', #merged))

@@ -6,6 +6,10 @@ return {
   suffix = '',
   snippets = {
     {
+      desc = 'K8s FQDN DNS',
+      text = '<namespace>.svc.cluster.local',
+    },
+    {
       desc = 'Get instance metadata',
       text = 'curl "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google"',
     },

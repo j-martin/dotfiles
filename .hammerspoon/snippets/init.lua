@@ -357,7 +357,7 @@ local function loadJsonFiles()
 end
 
 --- Loads the library snippets, then the JSON ones, then the private ones, each wrapped by its group prefix and suffix.
---- The private `snippets` are either a list using the default prefix and suffix, or a `SnippetGroup`.
+--- The private `snippets` are either a list using the default prefix and suffix, a `SnippetGroup` or a list of them.
 function mod.load()
   local library = loadLibrary()
   ---@type SnippetGroup[]
@@ -368,8 +368,9 @@ function mod.load()
   for _, group in ipairs(loadJsonFiles()) do
     table.insert(groups, group)
   end
-  local private = privateConfig.get('snippets') or {}
-  table.insert(groups, private.snippets and private or { snippets = private })
+  for _, group in ipairs(matcher.privateGroups(privateConfig.get('snippets'))) do
+    table.insert(groups, group)
+  end
   mod.snippets = matcher.flatten(groups, config.snippetPrefix, config.snippetSuffix)
   maxLength = matcher.bufferLength(mod.snippets)
   logger.f('Loaded %d snippets', #mod.snippets)

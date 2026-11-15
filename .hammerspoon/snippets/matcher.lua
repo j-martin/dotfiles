@@ -56,6 +56,22 @@ function mod.merge(public, private)
   return merged
 end
 
+--- Returns the private snippets as groups, `private` being a list of snippets, a `SnippetGroup` or a list of them.
+---@param private Snippet[]|SnippetGroup|SnippetGroup[]|nil
+---@return SnippetGroup[]
+function mod.privateGroups(private)
+  if private == nil then
+    return {}
+  end
+  if private.snippets then
+    return { private }
+  end
+  if private[1] and private[1].snippets then
+    return private
+  end
+  return { { snippets = private } }
+end
+
 --- Returns the trigger of `snippet` followed by its aliases, empty for snippets only in the picker.
 ---@param snippet Snippet
 ---@return string[]

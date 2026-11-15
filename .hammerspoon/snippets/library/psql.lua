@@ -52,5 +52,13 @@ where t.table_schema='public';]=],
       desc = 'SQL Count',
       text = 'SELECT count(*) FROM ',
     },
+    {
+      desc = 'MySQL - Disable Foreign Key Check',
+      text = 'SET FOREIGN_KEY_CHECKS=0;',
+    },
+    {
+      desc = 'MySQL - Process List',
+      text = 'SHOW FULL PROCESSLIST;',
+    },
   },
 }

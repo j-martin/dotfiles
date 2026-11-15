@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# {"trigger":"hbashm","desc":"Common bash (minimal)"}
+# {"trigger":"hbashm","aliases":["hbash"],"desc":"Common bash (minimal)"}
 
 set -o errexit
 set -o pipefail

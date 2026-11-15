@@ -1,0 +1,33 @@
+-- Imported from the Alfred 'Mac symbols' snippets folder, with its keyword prefix and suffix.
+---@type SnippetGroup
+return {
+  name = 'Mac symbols',
+  aliases = { 'keys', 'keyboard' },
+  prefix = '!!',
+  suffix = '',
+  snippets = {
+    { trigger = 'ctrl', desc = 'Control', text = '⌃' },
+    { trigger = 'pgdn', desc = 'Page Down', text = '⇟' },
+    { trigger = 'pgup', desc = 'Page Up', text = '⇞' },
+    { trigger = 'alt', desc = 'alt / option', text = '⌥' },
+    { trigger = 'caps lock', desc = 'caps lock', text = '⇪' },
+    { trigger = 'cmd', desc = 'command', text = '⌘' },
+    { trigger = 'del', desc = 'delete / backspace', text = '⌫' },
+    { trigger = 'delf', desc = 'delete forward', text = '⌦' },
+    { trigger = 'down', desc = 'down', text = '↓' },
+    { trigger = 'eject', desc = 'eject', text = '⏏' },
+    { trigger = 'end', desc = 'end', text = ' ↘' },
+    { trigger = 'enter', desc = 'enter', text = '⌅' },
+    { trigger = 'esc', desc = 'escape / power', text = '⎋' },
+    { trigger = 'home', desc = 'home', text = '↖' },
+    { trigger = 'left', desc = 'left', text = '←' },
+    { trigger = 'return', desc = 'return', text = '↩' },
+    { trigger = 'right', desc = 'right', text = '→' },
+    { trigger = 'shift', desc = 'shift', text = '⇧' },
+    { trigger = 'space', desc = 'space', text = '␣' },
+    { trigger = 'tab', desc = 'tab', text = '↹' },
+    { trigger = 'tableft', desc = 'tab left / shift tab', text = '⇤' },
+    { trigger = 'tabright', desc = 'tab right', text = '⇥' },
+    { trigger = 'up', desc = 'up', text = '↑' },
+  },
+}

@@ -18,7 +18,8 @@ return {
   -- Slack domain (with or without '.slack.com') -> team ID
   slackTeamMapping = { afakecompany = 'T00000000' },
   -- Added to the snippets in snippets/library, either a list, e.g. { { trigger = 'addr', text = '...', desc = 'Address' } },
-  -- or a group with its own prefix and suffix, e.g. { prefix = '', suffix = '  ', snippets = { ... } }
+  -- a group with its own name, prefix and suffix, e.g. { name = 'Personal', prefix = '', suffix = '  ', snippets = { ... } },
+  -- or a list of groups
   snippets = {},
   -- Sources of the generated snippets, see snippets/generator.lua
   snippetsGenerator = {

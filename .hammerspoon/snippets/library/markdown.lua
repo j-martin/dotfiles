@@ -7,6 +7,40 @@ return {
   suffix = '  ',
   snippets = {
     {
+      trigger = 'diff',
+      desc = 'Code - Diff',
+      text = [=[
+```diff
+{clipboard}
+```]=],
+    },
+    {
+      trigger = 'l',
+      desc = 'Link',
+      text = '[{cursor}]({clipboard})',
+    },
+    {
+      trigger = 'm-note',
+      desc = 'Markdown Notes',
+      text = '> [!NOTE]  \n> ',
+    },
+    {
+      desc = 'Markdown Blocks',
+      text = '> [!NOTE]  \n> \n\n> [!TIP]\n> \n\n> [!IMPORTANT]  \n> \n\n> [!WARNING]  \n> \n\n> [!CAUTION]\n> ',
+    },
+    {
+      desc = 'Markdown Expand',
+      text = [=[
+<details>
+  <summary>Expand</summary>
+
+```
+{clipboard}
+```
+
+</details>]=],
+    },
+    {
       trigger = '1',
       desc = 'Code - Single',
       text = '`{clipboard}`',
