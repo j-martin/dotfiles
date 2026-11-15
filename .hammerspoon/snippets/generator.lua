@@ -1,10 +1,8 @@
--- Generates snippet groups with ~/.bin/hammerspoon-snippets-generator: the members of the work GitHub organization,
--- `githubOrg` in `snippetsGenerator` of the private config, and when gcloud is installed, the GCP organizations and
--- billing accounts it can see, with a file of projects per organization.
+-- Generates snippet groups with ~/.bin/hammerspoon-snippets-generator, which discovers the GitHub organizations with
+-- `gh org list` and, when gcloud is installed, the GCP organizations and billing accounts it can see.
 -- Hammerspoon reloads when the files change, see `reload/init.lua`.
 local config = require 'config'
 local logger = require('utils/file_logger').new('snippetsGenerator', 'info')
-local privateConfig = require 'utils/private_config'
 local process = require 'utils/process'
 
 ---@class SnippetsGeneratorModule
@@ -26,42 +24,6 @@ mod.interval = 12 * 60 * 60
 -- Seconds before a sync is terminated, walking the GCP folders can be slow.
 mod.ttl = 10 * 60
 
----@class SnippetsGeneratorConfig
----@field githubOrg string|nil
-
----@class SnippetsGeneratorPlan
----@field args string[] Arguments of the command.
----@field files string[] Files written in `config.snippetJsonPath`.
-
---- Returns the command arguments and output files for the sources set in the private config, nil when none is.
----@return SnippetsGeneratorPlan|nil
-local function plan()
-  ---@type string[]
-  local args = { '-output-dir', config.snippetJsonPath }
-  ---@type string[]
-  local files = {}
-  ---@type SnippetsGeneratorConfig
-  local sources = privateConfig.get('snippetsGenerator') or {}
-  local githubOrg = sources.githubOrg
-  if githubOrg and githubOrg ~= '' then
-    table.insert(args, '-github-org')
-    table.insert(args, githubOrg)
-    table.insert(files, 'coworkers-github.json')
-    table.insert(files, 'coworkers-email.json')
-  end
-  -- `process.which` returns the bare name when gcloud is not installed.
-  if process.which('gcloud'):find('/', 1, true) then
-    table.insert(args, '-gcp')
-    -- The project files are named after the organizations, unknown before the first run.
-    table.insert(files, 'gcp-organizations.json')
-    table.insert(files, 'gcp-billing-accounts.json')
-  end
-  if #files == 0 then
-    return nil
-  end
-  return { args = args, files = files }
-end
-
 ---@param exitCode number
 ---@param stdOut string
 ---@param stdErr string
@@ -76,31 +38,28 @@ end
 
 --- Regenerates the snippets in the background, unless the previous run is still going.
 function mod.sync()
-  local current = plan()
-  if not current then
-    logger.w('Neither githubOrg in snippetsGenerator of the private config nor gcloud is set up, skipping')
-    return
-  end
   if mod.task and mod.task:isRunning() then
     logger.w('Previous sync still running, skipping')
     return
   end
-  mod.task = process.start(mod.command, current.args, nil, mod.ttl, { callback = onExit })
+  mod.task = process.start(mod.command, { '-output-dir', config.snippetJsonPath }, nil, mod.ttl, { callback = onExit })
 end
 
---- Returns whether a file of the configured sources does not exist.
+--- Returns whether the output directory has no JSON files yet.
 ---@return boolean
 local function isMissingOutput()
-  local current = plan()
-  for _, file in ipairs(current and current.files or {}) do
-    if not hs.fs.attributes(config.snippetJsonPath .. '/' .. file) then
-      return true
+  if not hs.fs.attributes(config.snippetJsonPath) then
+    return true
+  end
+  for file in hs.fs.dir(config.snippetJsonPath) do
+    if file:match('^[^.].*%.json$') then
+      return false
     end
   end
-  return false
+  return true
 end
 
---- Syncs every `mod.interval` seconds, and now when a snippet file was never generated.
+--- Syncs every `mod.interval` seconds, and now when no snippet files are present.
 function mod.init()
   mod.timer = hs.timer.doEvery(mod.interval, mod.sync)
   if isMissingOutput() then

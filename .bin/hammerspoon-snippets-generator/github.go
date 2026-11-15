@@ -1,4 +1,4 @@
-// GitHub organization members, named from their SAML/SSO identity, whose NameID is the work email,
+// Members of the organizations returned by gh org list, named from their SAML/SSO identity, whose NameID is the work email,
 // e.g. jane.doe@example.com -> Jane Doe, since the SAML attributes hold no name. The GitHub profile name,
 // then the login, are the fallbacks. The members and the SAML identities are fetched concurrently.
 package main
@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -27,6 +28,20 @@ type member struct {
 type samlIdentity struct {
 	Login string `json:"login"`
 	Email string `json:"email"`
+}
+
+// listGitHubOrgs increases gh's limit until the complete organization list fits.
+func listGitHubOrgs() ([]string, error) {
+	for limit := 100; ; limit *= 2 {
+		out, err := run("gh", "org", "list", "--limit", strconv.Itoa(limit))
+		if err != nil {
+			return nil, fmt.Errorf("listing GitHub organizations: %w", err)
+		}
+		orgs := strings.Fields(string(out))
+		if len(orgs) < limit {
+			return orgs, nil
+		}
+	}
 }
 
 const membersQuery = `
@@ -142,27 +157,40 @@ func coworkers(members []member, identities []samlIdentity) []coworker {
 	return result
 }
 
-// coworkerGroup returns a group named name with a snippet per coworker whose text is not empty.
+// coworkerGroup returns a group named name with unique, non-empty snippet texts across organizations.
 func coworkerGroup(name string, all []coworker, text func(coworker) string) snippetGroup {
 	snippets := make([]snippet, 0, len(all))
+	seen := make(map[string]bool, len(all))
 	for _, c := range all {
-		if t := text(c); t != "" {
+		if t := text(c); t != "" && !seen[t] {
+			seen[t] = true
 			snippets = append(snippets, snippet{Desc: c.Name, Text: t})
 		}
 	}
 	return newGroup(name, snippets)
 }
 
-// generateGitHub writes the coworker groups of org to dir.
-func generateGitHub(dir, org string) error {
-	members, identities, err := fetchGitHub(org)
+// generateGitHub writes the combined coworker groups of the authenticated user's organizations to dir.
+func generateGitHub(dir string) error {
+	orgs, err := listGitHubOrgs()
 	if err != nil {
 		return err
 	}
-	if len(members) == 0 {
-		return fmt.Errorf("no members found in %s", org)
+	if len(orgs) == 0 {
+		fmt.Println("No GitHub organizations found; skipping")
+		return nil
 	}
-	all := coworkers(members, identities)
+	var all []coworker
+	for _, org := range orgs {
+		members, identities, err := fetchGitHub(org)
+		if err != nil {
+			return fmt.Errorf("fetching %s: %w", org, err)
+		}
+		if len(members) == 0 {
+			return fmt.Errorf("no members found in %s", org)
+		}
+		all = append(all, coworkers(members, identities)...)
+	}
 	if err := write(dir, loginsFile, coworkerGroup(loginsGroupName, all, func(c coworker) string { return c.Login })); err != nil {
 		return err
 	}

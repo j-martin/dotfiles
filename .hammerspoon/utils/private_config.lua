@@ -21,11 +21,6 @@ return {
   -- a group with its own name, prefix and suffix, e.g. { name = 'Personal', prefix = '', suffix = '  ', snippets = { ... } },
   -- or a list of groups
   snippets = {},
-  -- Sources of the generated snippets, see snippets/generator.lua
-  snippetsGenerator = {
-    -- GitHub organization whose members become snippets
-    githubOrg = '',
-  },
   -- Wi-Fi networks matched by SSID and address, see wifi.lua, `tailscale` being whether Tailscale is up on them,
   -- e.g. { { ssid = 'Office', cidrs = { '192.168.1.0/24' }, tailscale = false } }
   networks = {},
