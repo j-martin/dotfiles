@@ -4,6 +4,9 @@
 local reload = require 'reload'
 reload.init()
 
+local timer = require 'utils/timer'
+timer.start()
+
 require 'config'
 
 local activity = require 'activity'
@@ -27,4 +30,4 @@ githubReviews.init()
 slackTodos.init()
 snippets.init()
 snippetsGenerator.init()
-hs.alert.show('Config loaded')
+timer.alert('Config loaded')
