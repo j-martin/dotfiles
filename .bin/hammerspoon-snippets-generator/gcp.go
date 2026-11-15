@@ -220,12 +220,18 @@ func projectGroups(projects []gcpProject, foldersOrg map[string]string, orgs map
 
 // projectsFile returns the file of the projects of an organization, e.g. example.com -> gcp-projects-example.com.json.
 func projectsFile(orgName string) string {
-	return gcpProjectsFilePrefix + strings.Trim(unsafeFileChars.ReplaceAllString(strings.ToLower(orgName), "-"), "-.") + ".json"
+	return safeFileName(gcpProjectsFilePrefix, orgName)
 }
 
-// removeStaleProjectFiles removes the project files of dir that are not in keep, e.g. of a removed organization.
-func removeStaleProjectFiles(dir string, keep map[string]bool) error {
-	paths, err := filepath.Glob(filepath.Join(dir, gcpProjectsFilePrefix+"*.json"))
+// safeFileName returns the JSON file of prefix followed by name, lowercased with unsafe characters replaced,
+// e.g. gcp-projects- and My Org -> gcp-projects-my-org.json.
+func safeFileName(prefix, name string) string {
+	return prefix + strings.Trim(unsafeFileChars.ReplaceAllString(strings.ToLower(name), "-"), "-.") + ".json"
+}
+
+// removeStaleFiles removes the files of dir starting with prefix that are not in keep, e.g. of a removed organization.
+func removeStaleFiles(dir, prefix string, keep map[string]bool) error {
+	paths, err := filepath.Glob(filepath.Join(dir, prefix+"*.json"))
 	if err != nil {
 		return err
 	}
@@ -286,5 +292,5 @@ func generateGCP(dir string) error {
 		}
 		written[file] = true
 	}
-	return removeStaleProjectFiles(dir, written)
+	return removeStaleFiles(dir, gcpProjectsFilePrefix, written)
 }

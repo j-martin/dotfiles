@@ -85,14 +85,14 @@ func TestProjectsFileSanitizesTheOrgName(t *testing.T) {
 	}
 }
 
-func TestRemoveStaleProjectFilesKeepsWrittenFiles(t *testing.T) {
+func TestRemoveStaleFilesKeepsWrittenFiles(t *testing.T) {
 	dir := t.TempDir()
 	for _, file := range []string{"gcp-projects-a.json", "gcp-projects-b.json", "coworkers-github.json"} {
 		if err := os.WriteFile(filepath.Join(dir, file), []byte("{}"), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if err := removeStaleProjectFiles(dir, map[string]bool{"gcp-projects-a.json": true}); err != nil {
+	if err := removeStaleFiles(dir, gcpProjectsFilePrefix, map[string]bool{"gcp-projects-a.json": true}); err != nil {
 		t.Fatal(err)
 	}
 	entries, _ := os.ReadDir(dir)
