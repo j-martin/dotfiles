@@ -55,7 +55,6 @@ This function should only modify configuration layer settings."
      emacs-lisp
      evil-commentary
      git
-     gtags
      go
      graphviz
      helm

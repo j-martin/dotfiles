@@ -7,6 +7,7 @@
 "brew:findutils" = "latest"
 "brew:fswatch" = "latest"
 "brew:git" = "latest"
+"brew:global" = "latest"
 "brew:graphviz" = "latest"
 "brew:iperf3" = "latest"
 "brew:ispell" = "latest"
