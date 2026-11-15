@@ -118,3 +118,18 @@ func TestOrgGroupMapsNamesToIDs(t *testing.T) {
 		t.Errorf("orgGroup() = %v, want %v", got, want)
 	}
 }
+
+func TestBillingGroupKeepsOpenAccounts(t *testing.T) {
+	got := billingGroup([]gcpBillingAccount{
+		{Name: "billingAccounts/AAA-BBB", DisplayName: "Main", Open: true},
+		{Name: "billingAccounts/CCC-DDD", DisplayName: "Closed", Open: false},
+		{Name: "billingAccounts/EEE-FFF", DisplayName: "", Open: true},
+	})
+	want := snippetGroup{
+		Name:     "GCP - Billing Account",
+		Snippets: []snippet{{Desc: "EEE-FFF", Text: "EEE-FFF"}, {Desc: "Main", Text: "AAA-BBB"}},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("billingGroup() = %v, want %v", got, want)
+	}
+}

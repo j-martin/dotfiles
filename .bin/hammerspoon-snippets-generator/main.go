@@ -1,6 +1,7 @@
 // Writes Hammerspoon snippet groups, one JSON file each, loaded from the output directory by ~/.hammerspoon/snippets:
 //   - coworkers-github.json and coworkers-email.json, the members of a GitHub organization, see github.go.
-//   - gcp-organizations.json and gcp-projects.json, the GCP organizations visible to gcloud and their projects, see gcp.go.
+//   - gcp-organizations.json, gcp-billing-accounts.json and gcp-projects-<organization>.json, the GCP organizations
+//     and billing accounts visible to gcloud, and the projects of each organization, see gcp.go.
 //
 // Each source is optional and generated concurrently, a failing one does not prevent writing the others.
 package main
@@ -17,7 +18,7 @@ import (
 func main() {
 	outputDir := flag.String("output-dir", "", "Directory of the JSON files to write (required)")
 	githubOrg := flag.String("github-org", "", "GitHub organization whose members become snippets")
-	gcp := flag.Bool("gcp", false, "Generate the GCP organizations and projects visible to gcloud")
+	gcp := flag.Bool("gcp", false, "Generate the GCP organizations, billing accounts and projects visible to gcloud")
 	flag.Parse()
 	if *outputDir == "" || (*githubOrg == "" && !*gcp) {
 		flag.Usage()

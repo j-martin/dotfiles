@@ -1,6 +1,6 @@
 -- Generates snippet groups with ~/.bin/hammerspoon-snippets-generator: the members of the work GitHub organization,
--- `githubOrg` in `snippetsGenerator` of the private config, and when gcloud is installed, the GCP organizations it
--- can see with a file of projects per organization.
+-- `githubOrg` in `snippetsGenerator` of the private config, and when gcloud is installed, the GCP organizations and
+-- billing accounts it can see, with a file of projects per organization.
 -- Hammerspoon reloads when the files change, see `reload/init.lua`.
 local config = require 'config'
 local logger = require('utils/file_logger').new('snippetsGenerator', 'info')
@@ -54,6 +54,7 @@ local function plan()
     table.insert(args, '-gcp')
     -- The project files are named after the organizations, unknown before the first run.
     table.insert(files, 'gcp-organizations.json')
+    table.insert(files, 'gcp-billing-accounts.json')
   end
   if #files == 0 then
     return nil

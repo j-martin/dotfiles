@@ -1,4 +1,5 @@
-// GCP organizations visible to the gcloud account, and their projects, including the ones in nested folders.
+// GCP organizations and open billing accounts visible to the gcloud account, and the projects of the organizations,
+// including the ones in nested folders.
 //
 // A single `gcloud projects list` fetches every visible project, concurrently with the organizations. The organization of a folder comes from the
 // ancestors of one of its projects, fetched concurrently, since listing or describing folders is often denied.
@@ -23,6 +24,8 @@ const (
 	gcpProjectsFilePrefix  = "gcp-projects-"
 	gcpOrgsGroupName       = "GCP - Organization"
 	gcpOrgsFile            = "gcp-organizations.json"
+	gcpBillingGroupName    = "GCP - Billing Account"
+	gcpBillingFile         = "gcp-billing-accounts.json"
 	// gcpWorkers limits the concurrent gcloud processes, each one being slow to start.
 	gcpWorkers = 8
 	// gcpIgnoredPrefix marks the projects Google creates, e.g. for Apps Script.
@@ -76,6 +79,42 @@ func (o gcpOrg) displayName() string {
 		return o.DisplayName
 	}
 	return o.id()
+}
+
+type gcpBillingAccount struct {
+	// Name is the resource name, e.g. billingAccounts/012345-6789AB-CDEF01.
+	Name        string `json:"name"`
+	DisplayName string `json:"displayName"`
+	Open        bool   `json:"open"`
+}
+
+func listBillingAccounts() ([]gcpBillingAccount, error) {
+	out, err := run("gcloud", "billing", "accounts", "list", "--format=json")
+	if err != nil {
+		return nil, err
+	}
+	var accounts []gcpBillingAccount
+	if err := json.Unmarshal(out, &accounts); err != nil {
+		return nil, fmt.Errorf("decoding the billing accounts: %w", err)
+	}
+	return accounts, nil
+}
+
+// billingGroup returns a snippet per open billing account, its display name as description and its ID as text.
+func billingGroup(accounts []gcpBillingAccount) snippetGroup {
+	var snippets []snippet
+	for _, account := range accounts {
+		if !account.Open {
+			continue
+		}
+		id := strings.TrimPrefix(account.Name, "billingAccounts/")
+		desc := account.DisplayName
+		if desc == "" {
+			desc = id
+		}
+		snippets = append(snippets, snippet{Desc: desc, Text: id})
+	}
+	return newGroup(gcpBillingGroupName, snippets)
 }
 
 func listProjects() ([]gcpProject, error) {
@@ -201,20 +240,29 @@ func removeStaleProjectFiles(dir string, keep map[string]bool) error {
 	return nil
 }
 
-// generateGCP writes the organizations visible to the gcloud account, and their projects, to dir.
+// generateGCP writes the organizations and billing accounts visible to the gcloud account, and the projects of
+// the organizations, to dir.
 func generateGCP(dir string) error {
 	var orgs []gcpOrg
 	var projects []gcpProject
-	var orgsErr, projectsErr error
+	var accounts []gcpBillingAccount
+	var orgsErr, projectsErr, accountsErr error
 	var wg sync.WaitGroup
 	wg.Go(func() { orgs, orgsErr = listOrgs() })
 	wg.Go(func() { projects, projectsErr = listProjects() })
+	wg.Go(func() { accounts, accountsErr = listBillingAccounts() })
 	wg.Wait()
 	if orgsErr != nil {
 		return orgsErr
 	}
 	if projectsErr != nil {
 		return projectsErr
+	}
+	if accountsErr != nil {
+		return accountsErr
+	}
+	if err := write(dir, gcpBillingFile, billingGroup(accounts)); err != nil {
+		return err
 	}
 	if len(orgs) == 0 {
 		return fmt.Errorf("no organizations visible to the gcloud account")
