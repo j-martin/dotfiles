@@ -6,7 +6,7 @@ local logger = require('utils/file_logger').new('snippetsGenerator', 'info')
 local process = require 'utils/process'
 
 ---@class SnippetsGeneratorModule
----@field command string
+---@field dir string
 ---@field interval number
 ---@field ttl number
 ---@field timer hs.timer|nil
@@ -15,8 +15,8 @@ local process = require 'utils/process'
 ---@field init fun()
 local mod = {}
 
--- Installed in ~/bin with `task install`.
-mod.command = process.which('hammerspoon-snippets-generator')
+-- The generator is run with its `generate` mise task, which rebuilds it first when its sources changed.
+mod.dir = '~/.bin/hammerspoon-snippets-generator'
 
 -- Seconds between syncs.
 mod.interval = 12 * 60 * 60
@@ -42,7 +42,13 @@ function mod.sync()
     logger.w('Previous sync still running, skipping')
     return
   end
-  mod.task = process.start(mod.command, { '-output-dir', config.snippetJsonPath }, nil, mod.ttl, { callback = onExit })
+  mod.task = process.miseRun({
+    task = 'generate',
+    dir = mod.dir,
+    args = { config.snippetJsonPath },
+    ttl = mod.ttl,
+    options = { callback = onExit },
+  })
 end
 
 --- Returns whether the output directory has no JSON files yet.

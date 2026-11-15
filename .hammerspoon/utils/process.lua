@@ -5,6 +5,13 @@ local logger = hs.logger.new('execute', 'debug')
 ---@field callback fun(exitCode: number, stdOut: string, stdErr: string)|nil Replaces the default completion callback, and receives the whole output instead of it being streamed to the logs.
 ---@field quiet boolean|nil Does not log the arguments, e.g. when they hold a whole script.
 
+---@class MiseRunArgs
+---@field task string Name of the mise task, e.g. 'generate'.
+---@field dir string Directory of the `mise.toml` defining the task, `~` is expanded.
+---@field args string[]|nil Arguments of the task.
+---@field ttl number|nil Seconds before the process is terminated.
+---@field options ProcessOptions|nil
+
 ---@class ProcessModule
 ---@field paths string[] Directories searched for executables, mise shims first.
 ---@field PATH string `paths` joined, used by every process started by this module.
@@ -12,6 +19,7 @@ local logger = hs.logger.new('execute', 'debug')
 ---@field which fun(exec: string): string
 ---@field execute fun(command: string): string, boolean|nil, string|nil, number|nil
 ---@field start fun(cmd: string, args: string[]|nil, pwd: string|nil, ttl: number|nil, options: ProcessOptions|nil): hs.task
+---@field miseRun fun(args: MiseRunArgs): hs.task
 local mod = {}
 
 local running_processes = {}
@@ -20,6 +28,7 @@ local HOME = os.getenv('HOME')
 -- Hammerspoon inherits the bare launchd PATH, so tools installed with mise or Homebrew must be added.
 mod.paths = {
   HOME .. '/.local/share/mise/shims',
+  HOME .. '/.local/bin',
   HOME .. '/bin',
   '/opt/homebrew/bin',
   '/usr/local/bin',
@@ -182,6 +191,18 @@ function mod.start(cmd, args, pwd, ttl, options)
   end
 
   return task
+end
+
+--- Starts `mise run <task> <args...>` in `args.dir`, e.g. to rebuild a tool with its task dependencies before running it.
+---@param args MiseRunArgs
+---@return hs.task
+function mod.miseRun(args)
+  ---@type string[]
+  local miseArgs = { 'run', args.task }
+  for _, arg in ipairs(args.args or {}) do
+    table.insert(miseArgs, arg)
+  end
+  return mod.start('mise', miseArgs, args.dir, args.ttl, args.options)
 end
 
 return mod

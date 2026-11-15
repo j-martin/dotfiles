@@ -1,0 +1,22 @@
+[tools]
+gcloud = "591.0.0"
+gh = "2.102.1"
+go = "1.27.3"
+
+[tasks.build]
+description = "Build the binary in ~/bin, skipped when it is newer than the sources"
+alias = "install"
+sources = ["*.go", "go.mod", "go.sum"]
+outputs = ["{{env.HOME}}/bin/hammerspoon-snippets-generator"]
+run = 'GOBIN="$HOME/bin" go install .'
+
+[tasks.generate]
+description = "Build when stale, then write the snippet files to <output_dir>"
+depends = ["build"]
+quiet = true
+usage = 'arg "<output_dir>" help="Directory of the JSON files to write"'
+run = '"$HOME/bin/hammerspoon-snippets-generator" -output-dir "$usage_output_dir"'
+
+[tasks.test]
+description = "Run the tests"
+run = "go test ./..."
