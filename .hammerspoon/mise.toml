@@ -4,9 +4,12 @@ lua = "5.4.9"
 lua-language-server = "3.19.2"
 
 [tasks.fmt]
-description = "Format Lua files"
+description = "Format Lua files, including the private config when it exists"
 alias = "f"
-run = "stylua ."
+run = [
+  "stylua .",
+  "if [ -f ~/.private/hammerspoon.lua ]; then stylua --config-path stylua.toml ~/.private/hammerspoon.lua; fi",
+]
 
 [tasks."fmt:check"]
 description = "Fail if Lua files are not formatted"
