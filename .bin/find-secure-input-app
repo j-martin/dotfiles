@@ -3,7 +3,7 @@ import subprocess
 import re
 
 # Query macOS I/O Registry for SecureInput
-cmd = "ioreg -r -w 0 | grep SecureInput"
+cmd = "ioreg -l -w 0 | grep SecureInput"
 result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 output = result.stdout
 
