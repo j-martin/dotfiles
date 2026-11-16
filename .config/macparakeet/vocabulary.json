@@ -135,6 +135,12 @@
       "replacement": "😕",
       "isEnabled": true,
       "createdAt": "2026-11-14T16:07:14Z"
+    },
+    {
+      "word": "Shrug",
+      "replacement": "🤷",
+      "isEnabled": true,
+      "createdAt": "2026-11-16T20:38:49Z"
     }
   ],
   "textSnippets": []

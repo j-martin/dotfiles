@@ -1,6 +1,8 @@
 // Writes Hammerspoon snippet groups, one JSON file each, loaded from the output directory by ~/.hammerspoon/snippets:
-//   - coworkers-github.json and coworkers-email.json, the members of the organizations listed by gh, see github.go.
+//   - coworkers-github-<organization>.json and coworkers-email-<organization>.json, the members of each organization
+//     listed by gh, see github.go.
 //   - github-repos-<organization>.json, the repositories of each organization listed by gh, see github_repos.go.
+//   - github-teams-<organization>.json, the teams of each organization listed by gh, see github_teams.go.
 //   - gcp-organizations.json, gcp-billing-accounts.json and gcp-projects-<organization>.json, the GCP organizations
 //     and billing accounts visible to gcloud, and the projects of each organization, see gcp.go.
 //   - gcp-regions.json and gcp-zones.json, the GCP regions and zones of Canada and the US, see gcp_zones.go.
@@ -48,6 +50,7 @@ func main() {
 	if github {
 		generate("github", func() error { return generateGitHub(*outputDir) })
 		generate("github-repos", func() error { return generateGitHubRepos(*outputDir) })
+		generate("github-teams", func() error { return generateGitHubTeams(*outputDir) })
 	}
 	if gcp {
 		generate("gcp", func() error { return generateGCP(*outputDir) })

@@ -116,17 +116,17 @@ func TestCoworkerGroupSkipsEmptyText(t *testing.T) {
 	}
 }
 
-func TestCoworkerGroupDeduplicatesTextsAcrossOrganizations(t *testing.T) {
+func TestCoworkerGroupDeduplicatesTexts(t *testing.T) {
 	all := []coworker{
 		{Login: "jane", Email: "jane.doe@first.test", Name: "Jane Doe"},
 		{Login: "jane", Email: "jane.doe@first.test", Name: "Jane Doe"},
 		{Login: "jane", Email: "jane.doe@second.test", Name: "Jane Doe"},
 	}
-	logins := coworkerGroup(loginsGroupName, all, func(c coworker) string { return c.Login })
+	logins := coworkerGroup("GitHub - Coworkers", all, func(c coworker) string { return c.Login })
 	if want := []snippet{{Desc: "Jane Doe", Text: "jane"}}; !reflect.DeepEqual(logins.Snippets, want) {
 		t.Errorf("logins = %v, want %v", logins.Snippets, want)
 	}
-	emails := coworkerGroup(emailsGroupName, all, func(c coworker) string { return c.Email })
+	emails := coworkerGroup("Email", all, func(c coworker) string { return c.Email })
 	want := []snippet{{Desc: "Jane Doe", Text: "jane.doe@first.test"}, {Desc: "Jane Doe", Text: "jane.doe@second.test"}}
 	if !reflect.DeepEqual(emails.Snippets, want) {
 		t.Errorf("emails = %v, want %v", emails.Snippets, want)
@@ -165,27 +165,37 @@ case "$org:$kind" in
 esac
 `
 
-func TestGenerateGitHubCombinesDiscoveredOrganizations(t *testing.T) {
+func TestGenerateGitHubWritesFilesPerOrganization(t *testing.T) {
 	fakeGH(t, githubFixture)
 	dir := t.TempDir()
+	for _, stale := range []string{"coworkers-github.json", "coworkers-email.json", "coworkers-github-left.json"} {
+		if err := os.WriteFile(filepath.Join(dir, stale), []byte("{}"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
 	if err := generateGitHub(dir); err != nil {
 		t.Fatal(err)
 	}
 	want := map[string]snippetGroup{
-		loginsFile: {
-			Name: loginsGroupName,
-			Snippets: []snippet{
-				{Desc: "Alice Smith", Text: "alice"},
-				{Desc: "Bob Jones", Text: "bob"},
-				{Desc: "Sam Shared", Text: "shared"},
-			},
+		"coworkers-github-first.json": {
+			Name:     "GitHub - Coworkers - first",
+			Snippets: []snippet{{Desc: "Alice Smith", Text: "alice"}, {Desc: "Sam Shared", Text: "shared"}},
 		},
-		emailsFile: {
-			Name: emailsGroupName,
+		"coworkers-github-second.json": {
+			Name:     "GitHub - Coworkers - second",
+			Snippets: []snippet{{Desc: "Bob Jones", Text: "bob"}, {Desc: "Sam Shared", Text: "shared"}},
+		},
+		"coworkers-email-first.json": {
+			Name: "Email - first",
 			Snippets: []snippet{
 				{Desc: "Alice Smith", Text: "alice.smith@first.test"},
-				{Desc: "Bob Jones", Text: "bob.jones@second.test"},
 				{Desc: "Sam Shared", Text: "sam.shared@first.test"},
+			},
+		},
+		"coworkers-email-second.json": {
+			Name: "Email - second",
+			Snippets: []snippet{
+				{Desc: "Bob Jones", Text: "bob.jones@second.test"},
 				{Desc: "Sam Shared", Text: "sam.shared@second.test"},
 			},
 		},
@@ -202,6 +212,10 @@ func TestGenerateGitHubCombinesDiscoveredOrganizations(t *testing.T) {
 		if !reflect.DeepEqual(got, expected) {
 			t.Errorf("%s = %v, want %v", file, got, expected)
 		}
+	}
+	entries, _ := os.ReadDir(dir)
+	if len(entries) != len(want) {
+		t.Errorf("files = %v, want only %d per-organization files", entries, len(want))
 	}
 }
 
@@ -242,7 +256,7 @@ func TestGenerateGitHubKeepsExistingFilesOnFailure(t *testing.T) {
 			t.Setenv("GH_TEST_FAIL_ORG", tt.org)
 			dir := t.TempDir()
 			previous := `{"name":"Previous","snippets":[]}`
-			for _, file := range []string{loginsFile, emailsFile} {
+			for _, file := range []string{"coworkers-github-first.json", "coworkers-email-first.json"} {
 				if err := os.WriteFile(filepath.Join(dir, file), []byte(previous), 0o644); err != nil {
 					t.Fatal(err)
 				}
@@ -250,7 +264,7 @@ func TestGenerateGitHubKeepsExistingFilesOnFailure(t *testing.T) {
 			if err := generateGitHub(dir); err == nil || !strings.Contains(err.Error(), tt.want) {
 				t.Fatalf("generateGitHub() error = %v, want %q", err, tt.want)
 			}
-			for _, file := range []string{loginsFile, emailsFile} {
+			for _, file := range []string{"coworkers-github-first.json", "coworkers-email-first.json"} {
 				data, err := os.ReadFile(filepath.Join(dir, file))
 				if err != nil {
 					t.Fatal(err)

@@ -1,6 +1,7 @@
-// Members of the organizations returned by gh org list, named from their SAML/SSO identity, whose NameID is the work email,
+// Members of the organizations returned by gh org list, a login file and an email file per organization, named from their SAML/SSO identity, whose NameID is the work email,
 // e.g. jane.doe@example.com -> Jane Doe, since the SAML attributes hold no name. The GitHub profile name,
-// then the login, are the fallbacks. The members and the SAML identities are fetched concurrently.
+// then the login, are the fallbacks. The organizations, and the members and the SAML identities of each, are fetched
+// concurrently.
 package main
 
 import (
@@ -14,10 +15,12 @@ import (
 )
 
 const (
-	loginsGroupName = "GitHub - Coworkers"
-	loginsFile      = "coworkers-github.json"
-	emailsGroupName = "Email"
-	emailsFile      = "coworkers-email.json"
+	// The group and file prefixes are followed by the organization, a file per organization. The file prefixes also
+	// match the combined files written before, removed as stale.
+	loginsGroupPrefix = "GitHub - Coworkers - "
+	loginsFilePrefix  = "coworkers-github"
+	emailsGroupPrefix = "Email - "
+	emailsFilePrefix  = "coworkers-email"
 )
 
 type member struct {
@@ -157,7 +160,7 @@ func coworkers(members []member, identities []samlIdentity) []coworker {
 	return result
 }
 
-// coworkerGroup returns a group named name with unique, non-empty snippet texts across organizations.
+// coworkerGroup returns a group named name with unique, non-empty snippet texts.
 func coworkerGroup(name string, all []coworker, text func(coworker) string) snippetGroup {
 	snippets := make([]snippet, 0, len(all))
 	seen := make(map[string]bool, len(all))
@@ -170,7 +173,8 @@ func coworkerGroup(name string, all []coworker, text func(coworker) string) snip
 	return newGroup(name, snippets)
 }
 
-// generateGitHub writes the combined coworker groups of the authenticated user's organizations to dir.
+// generateGitHub writes the coworker groups of each organization of the authenticated user to dir, removing the files
+// of the organizations the user left. No file is written when an organization fails.
 func generateGitHub(dir string) error {
 	orgs, err := listGitHubOrgs()
 	if err != nil {
@@ -180,19 +184,47 @@ func generateGitHub(dir string) error {
 		fmt.Println("No GitHub organizations found; skipping")
 		return nil
 	}
-	var all []coworker
-	for _, org := range orgs {
-		members, identities, err := fetchGitHub(org)
-		if err != nil {
-			return fmt.Errorf("fetching %s: %w", org, err)
-		}
-		if len(members) == 0 {
-			return fmt.Errorf("no members found in %s", org)
-		}
-		all = append(all, coworkers(members, identities)...)
+	all := make([][]coworker, len(orgs))
+	errs := make([]error, len(orgs))
+	var wg sync.WaitGroup
+	for i, org := range orgs {
+		wg.Go(func() { all[i], errs[i] = fetchCoworkers(org) })
 	}
-	if err := write(dir, loginsFile, coworkerGroup(loginsGroupName, all, func(c coworker) string { return c.Login })); err != nil {
+	wg.Wait()
+	for i, err := range errs {
+		if err != nil {
+			return fmt.Errorf("fetching %s: %w", orgs[i], err)
+		}
+	}
+	written := map[string]bool{}
+	for i, org := range orgs {
+		logins := coworkerGroup(loginsGroupPrefix+org, all[i], func(c coworker) string { return c.Login })
+		emails := coworkerGroup(emailsGroupPrefix+org, all[i], func(c coworker) string { return c.Email })
+		for prefix, group := range map[string]snippetGroup{loginsFilePrefix: logins, emailsFilePrefix: emails} {
+			if len(group.Snippets) == 0 {
+				continue
+			}
+			file := safeFileName(prefix+"-", org)
+			if err := write(dir, file, group); err != nil {
+				return err
+			}
+			written[file] = true
+		}
+	}
+	if err := removeStaleFiles(dir, loginsFilePrefix, written); err != nil {
 		return err
 	}
-	return write(dir, emailsFile, coworkerGroup(emailsGroupName, all, func(c coworker) string { return c.Email }))
+	return removeStaleFiles(dir, emailsFilePrefix, written)
+}
+
+// fetchCoworkers returns the coworkers of org, failing when it has no members.
+func fetchCoworkers(org string) ([]coworker, error) {
+	members, identities, err := fetchGitHub(org)
+	if err != nil {
+		return nil, err
+	}
+	if len(members) == 0 {
+		return nil, fmt.Errorf("no members found in %s", org)
+	}
+	return coworkers(members, identities), nil
 }
