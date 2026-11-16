@@ -328,4 +328,43 @@ return {
     assert(matcher.findMatch('(suod ', wrapped), 'expected a match after a parenthesis')
     assert(matcher.findMatch('ésuod ', wrapped) == nil, 'expected no match after a multibyte letter')
   end,
+
+  ['groups lists the group names in order of first appearance with their snippet counts'] = function()
+    local groups = matcher.groups({
+      { text = 'a', group = 'GitHub', keywords = { 'gh' } },
+      { text = 'b', group = 'Email' },
+      { text = 'c', group = 'GitHub', keywords = { 'gh' } },
+    })
+    assert(#groups == 2, string.format('expected 2 groups, got %d', #groups))
+    assert(groups[1].name == 'GitHub' and groups[1].count == 2, 'expected GitHub with 2 snippets first')
+    assert(groups[1].keywords[1] == 'gh', 'expected the GitHub aliases')
+    assert(groups[2].name == 'Email' and groups[2].count == 1, 'expected Email with 1 snippet second')
+  end,
+
+  ['groups puts the snippets without a group in the ungrouped group'] = function()
+    local groups = matcher.groups({ { text = 'a' } })
+    assert(groups[1].name == matcher.ungrouped, string.format('expected %q, got %q', matcher.ungrouped, groups[1].name))
+  end,
+
+  ['inGroup returns the snippets of the group'] = function()
+    local list =
+      matcher.inGroup({ { text = 'a', group = 'GitHub' }, { text = 'b' }, { text = 'c', group = 'GitHub' } }, 'GitHub')
+    assert(#list == 2 and list[1].text == 'a' and list[2].text == 'c', 'expected the two GitHub snippets')
+  end,
+
+  ['inGroup returns the snippets without a group for the ungrouped group'] = function()
+    local list = matcher.inGroup({ { text = 'a', group = 'GitHub' }, { text = 'b' } }, matcher.ungrouped)
+    assert(#list == 1 and list[1].text == 'b', 'expected the snippet without a group')
+  end,
+
+  ['groupMatchesQuery matches every word in the name or aliases, ignoring case'] = function()
+    local group = { name = 'GitHub - Team - nestoca', count = 1, keywords = { 'gh' } }
+    assert(matcher.groupMatchesQuery(group, 'gh team'), 'expected a match on the alias and name')
+    assert(not matcher.groupMatchesQuery(group, 'email'), 'expected no match')
+  end,
+
+  ['label leaves out the group when asked'] = function()
+    local label = matcher.label({ text = 'x', desc = 'Re-review', group = 'GitHub' }, true)
+    assert(label == 'Re-review', string.format('expected "Re-review", got %q', label))
+  end,
 }

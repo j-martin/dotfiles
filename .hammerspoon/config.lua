@@ -19,7 +19,6 @@ mod.appResponseTimeout = 0.5
 mod.appSwitchTimeout = 2
 mod.appLaunchTimeout = 5
 
--- Typing `;<trigger> ` (with the space) replaces it with its text, hyper + 5 (or hyper + space, s) lists them all.
 -- The prefix avoids expanding normal words, the space allows triggers that start like others.
 -- Snippets are in `snippets/library/<category>.lua` and files under the matching category directory, private ones in config.
 -- These are the defaults, a file can set its own `prefix` and `suffix`, e.g. the emojis use neither.

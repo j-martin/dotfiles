@@ -23,6 +23,8 @@ local tap = nil
 local watchdog = nil
 ---@type hs.chooser|nil
 local chooser = nil
+---@type hs.chooser|nil
+local groupChooser = nil
 -- Enabled only while the picker is shown.
 ---@type hs.hotkey|nil
 local copyHotkey = nil
@@ -162,9 +164,12 @@ local function onEvent(event)
   return false
 end
 
---- Shows every snippet in a searchable list and pastes the one picked.
-function mod.pick()
-  local window = hs.window.focusedWindow()
+--- Shows `snippets` in a searchable list and pastes the one picked into `window`.
+---@param snippets Snippet[]
+---@param placeholder string
+---@param window hs.window|nil Focused again before pasting.
+---@param withoutGroup boolean|nil Leaves the group out of the labels, e.g. when every snippet is in the same group.
+local function showSnippets(snippets, placeholder, window, withoutGroup)
   if chooser then
     chooser:delete()
   end
@@ -183,10 +188,10 @@ function mod.pick()
   local function choices(query)
     ---@type table[]
     local result = {}
-    for _, snippet in ipairs(mod.snippets) do
+    for _, snippet in ipairs(snippets) do
       if matcher.matchesQuery(snippet, query) then
         table.insert(result, {
-          text = matcher.label(snippet),
+          text = matcher.label(snippet, withoutGroup),
           subText = table.concat(snippet.shown or matcher.triggersOf(snippet), ' ')
             .. '  '
             .. snippet.text:gsub('%s+', ' '),
@@ -197,7 +202,7 @@ function mod.pick()
     return result
   end
   chooser:bgDark(true)
-  chooser:placeholderText('Snippets')
+  chooser:placeholderText(placeholder)
   -- Every word of the query must match, so 'gh review' finds 'GitHub - Re-review' through its group alias.
   chooser:queryChangedCallback(function(query)
     if chooser then
@@ -238,6 +243,57 @@ function mod.pick()
     end
   end)
   chooser:show()
+end
+
+--- Shows every snippet in a searchable list and pastes the one picked.
+function mod.pick()
+  showSnippets(mod.snippets, 'Snippets', hs.window.focusedWindow())
+end
+
+--- Shows the snippet groups in a searchable list, then the snippets of the one picked, and pastes the snippet picked.
+function mod.pickByGroup()
+  local window = hs.window.focusedWindow()
+  if groupChooser then
+    groupChooser:delete()
+  end
+  groupChooser = hs.chooser.new(function(choice)
+    if not choice then
+      if window then
+        window:focus()
+      end
+      return
+    end
+    -- Shown once the group picker is closed.
+    hs.timer.doAfter(0, function()
+      showSnippets(matcher.inGroup(mod.snippets, choice.groupName), choice.groupName, window, true)
+    end)
+  end)
+  local groups = matcher.groups(mod.snippets)
+  ---@param query string
+  ---@return table[]
+  local function choices(query)
+    ---@type table[]
+    local result = {}
+    for _, group in ipairs(groups) do
+      if matcher.groupMatchesQuery(group, query) then
+        table.insert(result, {
+          text = group.name,
+          subText = string.format('%d snippets', group.count),
+          groupName = group.name,
+        })
+      end
+    end
+    return result
+  end
+  groupChooser:bgDark(true)
+  groupChooser:placeholderText('Snippet groups')
+  groupChooser:queryChangedCallback(function(query)
+    if groupChooser then
+      groupChooser:choices(choices(query))
+    end
+  end)
+  groupChooser:choices(choices(''))
+  groupChooser:show()
 end
 
 --- Writes the emojis to the MacParakeet vocabulary, only when its words changed.

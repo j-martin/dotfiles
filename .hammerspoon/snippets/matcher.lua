@@ -177,15 +177,74 @@ function mod.flatten(groups, prefix, suffix)
   return snippets
 end
 
---- Returns the label of `snippet` in the picker, e.g. 'GitHub - Re-review'.
+--- Returns the label of `snippet` in the picker, e.g. 'GitHub - Re-review', or 'Re-review' when `withoutGroup`.
 ---@param snippet Snippet
+---@param withoutGroup boolean|nil
 ---@return string
-function mod.label(snippet)
+function mod.label(snippet, withoutGroup)
   local name = snippet.desc or snippet.text:gsub('%s+', ' '):match('^%s*(.-)%s*$')
-  if snippet.group then
+  if snippet.group and not withoutGroup then
     return snippet.group .. ' - ' .. name
   end
   return name
+end
+
+-- Name of the group of the snippets without one, in the group picker.
+mod.ungrouped = 'Ungrouped'
+
+---@class SnippetGroupSummary
+---@field name string Group name, `mod.ungrouped` for the snippets without one.
+---@field count integer Number of snippets in the group.
+---@field keywords string[] Aliases of the group.
+
+--- Returns the groups of `snippets`, in order of first appearance.
+---@param snippets Snippet[]
+---@return SnippetGroupSummary[]
+function mod.groups(snippets)
+  ---@type SnippetGroupSummary[]
+  local result = {}
+  ---@type table<string, SnippetGroupSummary>
+  local byName = {}
+  for _, snippet in ipairs(snippets) do
+    local name = snippet.group or mod.ungrouped
+    local group = byName[name]
+    if not group then
+      group = { name = name, count = 0, keywords = snippet.keywords or {} }
+      byName[name] = group
+      table.insert(result, group)
+    end
+    group.count = group.count + 1
+  end
+  return result
+end
+
+--- Returns the snippets of the group named `name`, the ones without a group for `mod.ungrouped`.
+---@param snippets Snippet[]
+---@param name string
+---@return Snippet[]
+function mod.inGroup(snippets, name)
+  ---@type Snippet[]
+  local result = {}
+  for _, snippet in ipairs(snippets) do
+    if (snippet.group or mod.ungrouped) == name then
+      table.insert(result, snippet)
+    end
+  end
+  return result
+end
+
+--- Returns whether every word of `query` is in the name or aliases of `group`, ignoring case.
+---@param group SnippetGroupSummary
+---@param query string
+---@return boolean
+function mod.groupMatchesQuery(group, query)
+  local haystack = (group.name .. ' ' .. table.concat(group.keywords, ' ')):lower()
+  for word in query:lower():gmatch('%S+') do
+    if not haystack:find(word, 1, true) then
+      return false
+    end
+  end
+  return true
 end
 
 --- Returns whether every word of `query` is in the label, triggers, group aliases or text of `snippet`, ignoring case.
