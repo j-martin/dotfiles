@@ -2,10 +2,12 @@
 local logger = hs.logger.new('snippets', 'info')
 
 local config = require 'config'
+local confirm = require 'utils/confirm'
 local emojis = require 'snippets/library/emojis'
 local jsonSnippets = require 'snippets/json_snippets'
 local matcher = require 'snippets/matcher'
 local privateConfig = require 'utils/private_config'
+local tsvSnippets = require 'snippets/tsv_snippets'
 local vocabulary = require 'snippets/vocabulary'
 
 ---@class SnippetsModule
@@ -276,7 +278,46 @@ local function sortedKeys(tbl)
   return keys
 end
 
---- Returns the snippet groups of `libraryPath` by category, including file snippets in matching subdirectories.
+---@class TsvSnippetFile
+---@field file string File name, e.g. 'new.tsv'.
+---@field snippets Snippet[]
+
+--- Returns the valid snippets of every `*.tsv` file in `directory`, sorted by file name, logging the invalid ones.
+---@param directory string
+---@return TsvSnippetFile[]
+local function readTsvFiles(directory)
+  ---@type TsvSnippetFile[]
+  local result = {}
+  if not hs.fs.attributes(directory) then
+    return result
+  end
+  ---@type string[]
+  local files = {}
+  for file in hs.fs.dir(directory) do
+    if file:match('^[^.].*%.tsv$') then
+      table.insert(files, file)
+    end
+  end
+  table.sort(files)
+  for _, file in ipairs(files) do
+    local path = directory .. '/' .. file
+    local handle, openError = io.open(path, 'r')
+    if not handle then
+      logger.ef('Failed to read snippets %s: %s', path, openError)
+    else
+      local list, errors = tsvSnippets.parse(handle:read('a'), path)
+      handle:close()
+      for _, message in ipairs(errors) do
+        logger.e('Invalid snippet ' .. message)
+      end
+      table.insert(result, { file = file, snippets = list })
+    end
+  end
+  return result
+end
+
+--- Returns the snippet groups of `libraryPath` by category, including file snippets in matching subdirectories and
+--- `<category>.tsv` snippets, a TSV file without a matching `<category>.lua` being its own group.
 ---@return table<string, SnippetGroup>
 local function loadLibrary()
   ---@type table<string, SnippetGroup>
@@ -331,6 +372,17 @@ local function loadLibrary()
       end
     end
   end
+  for _, tsv in ipairs(readTsvFiles(libraryPath)) do
+    local category = tsv.file:gsub('%.tsv$', '')
+    local group = library[category]
+    if group then
+      for _, snippet in ipairs(tsv.snippets) do
+        table.insert(group.snippets, snippet)
+      end
+    else
+      library[category] = { name = tsvSnippets.groupName(tsv.file), snippets = tsv.snippets }
+    end
+  end
   return library
 end
 
@@ -367,7 +419,60 @@ local function loadJsonFiles()
   return groups
 end
 
---- Loads the library snippets, then the JSON ones, then the private ones, each wrapped by its group prefix and suffix.
+--- Returns a group per `*.tsv` file in `config.snippetTsvPath`, named after the file, see `tsvSnippets.groupName`.
+---@return SnippetGroup[]
+local function loadTsvFiles()
+  ---@type SnippetGroup[]
+  local groups = {}
+  for _, tsv in ipairs(readTsvFiles(config.snippetTsvPath)) do
+    table.insert(groups, { name = tsvSnippets.groupName(tsv.file), snippets = tsv.snippets })
+  end
+  return groups
+end
+
+--- Asks to confirm, then appends the clipboard text to `config.snippetTsvNewFile` without trigger nor description,
+--- and reloads the snippets.
+function mod.addFromClipboard()
+  local text = hs.pasteboard.getContents()
+  if text == nil or not text:match('%S') then
+    hs.alert.show('Snippets - Clipboard has no text')
+    return
+  end
+  local directory = config.snippetTsvPath
+  local path = directory .. '/' .. config.snippetTsvNewFile
+  confirm.show('Add the clipboard as a snippet', text, function()
+    if not hs.fs.attributes(directory) then
+      local created, mkdirError = hs.fs.mkdir(directory)
+      if not created then
+        logger.ef('Failed to create %s: %s', directory, mkdirError)
+        hs.alert.show('Snippets - Failed to create ' .. directory)
+        return
+      end
+    end
+    ---@type string
+    local separator = ''
+    local existing = io.open(path, 'r')
+    if existing then
+      local content = existing:read('a')
+      existing:close()
+      if content ~= '' and content:sub(-1) ~= '\n' then
+        separator = '\n'
+      end
+    end
+    local handle, openError = io.open(path, 'a')
+    if not handle then
+      logger.ef('Failed to write %s: %s', path, openError)
+      hs.alert.show('Snippets - Failed to write ' .. path)
+      return
+    end
+    handle:write(separator .. tsvSnippets.encode(text))
+    handle:close()
+    mod.load()
+    hs.alert.show('Snippets - Added to ' .. config.snippetTsvNewFile)
+  end)
+end
+
+--- Loads the library snippets, then the JSON ones, then the TSV ones, then the private config ones, each wrapped by its group prefix and suffix.
 --- The private `snippets` are either a list using the default prefix and suffix, a `SnippetGroup` or a list of them.
 function mod.load()
   local library = loadLibrary()
@@ -377,6 +482,9 @@ function mod.load()
     table.insert(groups, library[category])
   end
   for _, group in ipairs(loadJsonFiles()) do
+    table.insert(groups, group)
+  end
+  for _, group in ipairs(loadTsvFiles()) do
     table.insert(groups, group)
   end
   for _, group in ipairs(matcher.privateGroups(privateConfig.get('snippets'))) do

@@ -206,6 +206,7 @@ local hyperModeBindings = {
   { key = 'p', fn = audio.setVolume(100), desc = 'High volume level' },
   { key = 'r', fn = reload.reload, desc = 'Reloading configuration ...' },
   { key = 's', fn = snippets.pick, exitMode = true, desc = 'Snippets - Pick and paste' },
+  { key = 's', shift = true, fn = snippets.addFromClipboard, exitMode = true, desc = 'Snippets - Add from clipboard' },
   { key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Music' },
   { key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%' },
   { key = 'x', fn = apps.messages.sendSelection, exitMode = true, desc = 'iMessage - Send selection' },

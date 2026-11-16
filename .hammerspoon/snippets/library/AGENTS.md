@@ -28,6 +28,12 @@ Example, `code/hpython.py`:
 # {"trigger":"hpython","desc":"Python Header"}
 ```
 
+## TSV snippets
+
+`<category>.tsv`, next to `<category>.lua`, holds one `text<TAB>trigger<TAB>description` per line, parsed by `snippets/tsv_snippets.lua`. Trigger and description can be empty. Backslashes, tabs and newlines in a field are written `\\`, `\t` and `\n`. Its snippets join the `<category>.lua` group, using its name, prefix and suffix. Without a matching `<category>.lua`, the file is its own group, named after the file in title case, e.g. `git-aliases.tsv` is `Git Aliases`.
+
+Private TSV files live in `config.snippetTsvPath`, each its own group named the same way. Hyper + space, shift + s appends the clipboard to `config.snippetTsvNewFile` there.
+
 ## JSON snippets
 
 Generated snippets live outside the repository, in `config.snippetJsonPath`: every `*.json` file there is a `SnippetGroup`, e.g. `{"name":"GitHub - Coworkers","snippets":[{"desc":"Jane Doe","text":"jdoe"}]}`, or a plain array of `Snippet`, validated by `snippets/json_snippets.lua`. They load after the library and before the private snippets. Hammerspoon reloads when one changes. `snippets/generator.lua` runs `~/.bin/hammerspoon-snippets-generator` every 12 hours, and on load when the directory has no JSON files. Keep source discovery in Go; Lua only passes the output directory. When `gh` is installed, the generator discovers all organizations with `gh org list` and combines their coworker logins and work emails, deduplicating snippet texts. No GitHub organization setting is needed. When gcloud is installed, it also generates the GCP organizations, billing accounts, a file of projects per organization, and the regions and zones of Canada and the US.
