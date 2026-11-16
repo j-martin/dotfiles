@@ -30,6 +30,10 @@ local buffer = ''
 ---@type integer
 local maxLength = 0
 
+-- Seconds between pasting a snippet and typing its trailing spaces, then moving the cursor back to its '{cursor}'.
+---@type number
+local pasteDelay = 0.1
+
 local keyCodes = hs.keycodes.map
 ---@type table<integer, boolean>
 local resetKeys = {
@@ -47,10 +51,11 @@ local resetKeys = {
   [keyCodes['pagedown']] = true,
 }
 
---- Returns `text` with its placeholders replaced, and how many characters the cursor moves back.
+--- Returns `text` with its placeholders replaced, how many characters the cursor moves back and its trailing spaces.
 ---@param text string
 ---@return string rendered
 ---@return integer cursorBack
+---@return string trailing
 local function render(text)
   return matcher.render(text, {
     date = os.date('%Y-%m-%d') --[[@as string]],
@@ -63,11 +68,17 @@ end
 ---@param text string
 function mod.insert(text)
   local previous = hs.pasteboard.readAllData()
-  local rendered, cursorBack = render(text)
+  local rendered, cursorBack, trailing = render(text)
   hs.pasteboard.setContents(rendered)
   hs.eventtap.keyStroke({ 'cmd' }, 'v', 0)
-  for _ = 1, cursorBack do
-    hs.eventtap.keyStroke({}, 'left', 0)
+  -- Apps paste asynchronously, keys sent right away can land before the text.
+  if cursorBack > 0 or trailing ~= '' then
+    hs.timer.doAfter(pasteDelay, function()
+      hs.eventtap.keyStrokes(trailing)
+      for _ = 1, cursorBack do
+        hs.eventtap.keyStroke({}, 'left', 0)
+      end
+    end)
   end
   hs.timer.doAfter(0.3, function()
     if previous and next(previous) then
@@ -199,8 +210,8 @@ function mod.pick()
       if not row or not row.snippetText then
         return
       end
-      ---@type string
-      local copied = render(row.snippetText)
+      local text, _, trailing = render(row.snippetText)
+      local copied = text .. trailing
       hs.pasteboard.setContents(copied)
       if chooser then
         chooser:hide()

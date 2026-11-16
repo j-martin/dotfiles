@@ -322,26 +322,49 @@ end
 ---@field time string Replaces '{time:short}'.
 ---@field clipboard string Replaces '{clipboard}'.
 
---- Returns `text` with its placeholders replaced, without '{cursor}', and how many characters follow '{cursor}'.
+--- Returns `text` without its trailing blank lines, e.g. the final newline of a file snippet: 'a \n\n' -> 'a '.
+---@param text string
+---@return string
+local function withoutTrailingLines(text)
+  local newline = text:find('\n', text:find('%s*$'), true)
+  if not newline then
+    return text
+  end
+  return text:sub(1, newline - 1)
+end
+
+--- Returns `text` with its placeholders replaced, without '{cursor}', trailing blank lines and trailing spaces,
+--- how many characters follow '{cursor}', trailing spaces included, and the trailing spaces.
+--- Apps trim trailing spaces when pasting, so they are typed after the text instead.
 --- Moving the cursor left by that count puts it where '{cursor}' was, 0 without it.
 ---@param text string
 ---@param values SnippetValues
----@return string, integer
+---@return string text
+---@return integer cursorBack
+---@return string trailing
 function mod.render(text, values)
   local replacements = {
     ['{date:short}'] = values.date,
     ['{time:short}'] = values.time,
     ['{clipboard}'] = values.clipboard,
   }
+  ---@type string
   local rendered = text:gsub('{[%w:]+}', function(placeholder)
     return replacements[placeholder]
   end)
+  ---@type integer
+  local cursorBack = 0
   local cursorStart, cursorEnd = rendered:find('{cursor}', 1, true)
-  if not cursorStart then
-    return rendered, 0
+  if cursorStart then
+    local before = rendered:sub(1, cursorStart - 1)
+    rendered = withoutTrailingLines(before .. rendered:sub(cursorEnd + 1))
+    local after = rendered:sub(#before + 1)
+    cursorBack = utf8.len(after) or #after
+  else
+    rendered = withoutTrailingLines(rendered)
   end
-  local after = rendered:sub(cursorEnd + 1)
-  return rendered:sub(1, cursorStart - 1) .. after, utf8.len(after) or #after
+  local trailingStart = rendered:find('%s*$')
+  return rendered:sub(1, trailingStart - 1), cursorBack, rendered:sub(trailingStart)
 end
 
 --- Returns the JSON header of a file snippet and its content without the header line, or nil without a header.

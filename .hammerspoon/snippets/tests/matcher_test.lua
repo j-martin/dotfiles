@@ -157,9 +157,40 @@ return {
   end,
 
   ['render removes the cursor and counts the characters after it'] = function()
-    local text, cursorBack = matcher.render('use {cursor}?é\n', { date = '', time = '', clipboard = '' })
-    assert(text == 'use ?é\n', string.format('unexpected %q', text))
-    assert(cursorBack == 3, string.format('expected 3, got %d', cursorBack))
+    local _, cursorBack = matcher.render('use {cursor}?é', { date = '', time = '', clipboard = '' })
+    assert(cursorBack == 2, string.format('expected 2, got %d', cursorBack))
+  end,
+
+  ['render removes the trailing lines'] = function()
+    local text = matcher.render('a  \nb\n\n  \n', { date = '', time = '', clipboard = '' })
+    assert(text == 'a  \nb', string.format('unexpected %q', text))
+  end,
+
+  ['render returns the trailing spaces apart, since apps trim them when pasting'] = function()
+    local text, _, trailing = matcher.render('a \t\n', { date = '', time = '', clipboard = '' })
+    assert(text == 'a' and trailing == ' \t', string.format('unexpected %q and %q', text, trailing))
+  end,
+
+  ['render counts the trailing spaces after the cursor'] = function()
+    local _, cursorBack = matcher.render('[{cursor}](x) ', { date = '', time = '', clipboard = '' })
+    assert(cursorBack == 5, string.format('expected 5, got %d', cursorBack))
+  end,
+
+  ['render keeps the cursor in the trailing spaces'] = function()
+    local text, cursorBack, trailing = matcher.render('a {cursor} ', { date = '', time = '', clipboard = '' })
+    assert(text == 'a' and trailing == '  ', string.format('unexpected %q and %q', text, trailing))
+    assert(cursorBack == 1, string.format('expected 1, got %d', cursorBack))
+  end,
+
+  ['render counts the characters after the cursor without the trailing lines'] = function()
+    local _, cursorBack = matcher.render('cat <<EOF > {cursor}\n\nEOF\n\n', { date = '', time = '', clipboard = '' })
+    assert(cursorBack == 5, string.format('expected 5, got %d', cursorBack))
+  end,
+
+  ['render keeps the cursor at the end when it is in the trailing lines'] = function()
+    local text, cursorBack = matcher.render('a\n{cursor}\n', { date = '', time = '', clipboard = '' })
+    assert(text == 'a', string.format('unexpected %q', text))
+    assert(cursorBack == 0, string.format('expected 0, got %d', cursorBack))
   end,
 
   ['snippets without a trigger are kept but never match'] = function()
