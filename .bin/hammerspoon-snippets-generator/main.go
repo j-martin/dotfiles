@@ -6,6 +6,7 @@
 //   - gcp-organizations.json, gcp-billing-accounts.json and gcp-projects-<organization>.json, the GCP organizations
 //     and billing accounts visible to gcloud, and the projects of each organization, see gcp.go.
 //   - gcp-regions.json and gcp-zones.json, the GCP regions and zones of Canada and the US, see gcp_zones.go.
+//   - gcp-dns-records.json, the Cloud DNS records of the projects with dns in their ID or name, see gcp_dns.go.
 //
 // Each source is optional and generated concurrently, a failing one does not prevent writing the others.
 package main
@@ -55,6 +56,7 @@ func main() {
 	if gcp {
 		generate("gcp", func() error { return generateGCP(*outputDir) })
 		generate("gcp-zones", func() error { return generateGCPZones(*outputDir) })
+		generate("gcp-dns", func() error { return generateGCPDNS(*outputDir) })
 	}
 	wg.Wait()
 	if len(failed) > 0 {

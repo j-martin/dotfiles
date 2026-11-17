@@ -6,3 +6,5 @@
 !/.config/
 !/.config/mise/
 !/.config/mise/*
+!/.bin/hammerspoon-snippets-generator
+!/.bin/hammerspoon-snippets-generator/*
