@@ -12,6 +12,8 @@
 ---@field snippetTsvPath string Directory of private `*.tsv` snippet files, one `text<TAB>trigger<TAB>description` per line.
 ---@field snippetTsvNewFile string File in `snippetTsvPath` the snippets added from the clipboard are appended to.
 ---@field macParakeetVocabularyPath string Vocabulary generated from `snippets/library/emojis.lua`, see `snippets/vocabulary.lua`.
+---@field obsidianDraftsVault string Obsidian vault of the message drafts, see `apps/obsidian.lua`.
+---@field obsidianDraftsFolder string Folder of the message drafts, relative to the vault.
 local mod = {}
 
 -- Limits how long Hammerspoon waits on stuck applications when switching to them, see `utils/app_guard.lua`.
@@ -43,6 +45,10 @@ mod.snippetTsvNewFile = 'new.tsv'
 
 -- Emoji words for MacParakeet dictation, regenerated on load from `snippets/library/emojis.lua`.
 mod.macParakeetVocabularyPath = os.getenv('HOME') .. '/.config/macparakeet/vocabulary.json'
+
+-- Message drafts created in hyper mode, named after the focused window, see `apps/obsidian.lua`.
+mod.obsidianDraftsVault = 'Work'
+mod.obsidianDraftsFolder = 'Message Drafts'
 
 -- Alerts, e.g. mode and kinesis alerts.
 -- https://www.hammerspoon.org/docs/hs.alert.html#defaultStyle

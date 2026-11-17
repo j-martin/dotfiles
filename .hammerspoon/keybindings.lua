@@ -209,6 +209,7 @@ local hyperModeBindings = {
   { key = 's', fn = snippets.pick, exitMode = true, desc = 'Snippets - Pick and paste' },
   { key = 's', shift = true, fn = snippets.addFromClipboard, exitMode = true, desc = 'Snippets - Add from clipboard' },
   { key = 'space', fn = audio.playpause, exitMode = true, desc = 'Pause or resume Music' },
+  { key = 't', fn = apps.obsidian.newDraft, exitMode = true, desc = 'Obsidian - New message draft' },
   { key = 'u', fn = audio.changeVolume(5), desc = 'Increase the volume by 5%' },
   { key = 'x', fn = apps.messages.sendSelection, exitMode = true, desc = 'iMessage - Send selection' },
   { key = 'y', fn = audio.changeVolume(-100), desc = 'Mute' },

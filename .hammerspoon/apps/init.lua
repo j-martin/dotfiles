@@ -21,6 +21,7 @@ local utils = require 'apps/utils'
 ---@field meetingbar table
 ---@field messages table
 ---@field notificationCenter table
+---@field obsidian table
 ---@field reminders table
 ---@field safari table
 ---@field slack table
@@ -28,6 +29,7 @@ local utils = require 'apps/utils'
 ---@field lastUrl string|nil
 ---@field subscribe fun(fn: function)
 ---@field context fun(window: hs.window): AppContext|nil
+---@field windowContext fun(window: hs.window|nil): AppContext|nil
 ---@field httpCallback fun(scheme: string, host: string|nil, params: table, fullUrl: string, senderPID: number)
 ---@field init fun()
 local mod = {
@@ -43,6 +45,7 @@ local mod = {
   meetingbar = require 'apps/meetingbar',
   messages = require 'apps/messages',
   notificationCenter = require 'apps/notification_center',
+  obsidian = require 'apps/obsidian',
   reminders = require 'apps/reminders',
   safari = require 'apps/safari',
   slack = require 'apps/slack',
@@ -91,6 +94,17 @@ function mod.context(window)
       logger.ef('Failed to get the %s context: %s', appName, context)
     end
     return nil
+  end
+  return context
+end
+
+--- Like `mod.context`, falling back to `<app> — <window title>` for apps without context.
+---@param window hs.window|nil
+---@return AppContext|nil
+function mod.windowContext(window)
+  local context = mod.context(window)
+  if not context and window then
+    context = { title = window:application():name() .. ' — ' .. window:title() }
   end
   return context
 end
