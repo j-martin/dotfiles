@@ -4,7 +4,10 @@
 - When in doubt DO NOT add comments.
 - Always add comment on public method or function
 - When refactoring do not add comment in the code to describe the previous behavior of the code. This is what commit messages are there for.
-
+- Always read as much relevant text or code as possible before doing anything in order to avoid duplicate code. Always try to use shared code when possible.
+- Use backticks (``) any time referencing files, code, etc. Make sure to do that in commit messages.
+- Always prompt to confirm before posting a comment as me.
+- If posting comment for me. The first line should state that you are a bot and who you are.
 
 # Development Guidelines
 
