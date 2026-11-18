@@ -1,4 +1,5 @@
 local logger = hs.logger.new('safari', 'info')
+local jxa = require 'utils/jxa'
 
 ---@class SafariApp
 ---@field name string
@@ -11,8 +12,7 @@ mod.name = 'Safari'
 --- Returns the title and URL of the active tab.
 ---@return table<string, string>|nil
 function mod.context()
-  local ok, tab =
-    hs.osascript.javascript("const t = Application('" .. mod.name .. "').windows[0].currentTab(); [t.name(), t.url()]")
+  local ok, tab = jxa.run("const t = Application('" .. mod.name .. "').windows[0].currentTab(); [t.name(), t.url()]")
   if not ok or type(tab) ~= 'table' then
     return nil
   end

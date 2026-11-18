@@ -1,4 +1,5 @@
 local utils = require 'apps/utils'
+local jxa = require 'utils/jxa'
 
 ---@class ItermApp
 ---@field name string
@@ -18,7 +19,7 @@ end
 --- Returns the current session title, directory, host and running command.
 ---@return table<string, any>|nil
 function mod.context()
-  local ok, session = hs.osascript.javascript([[
+  local ok, session = jxa.run([[
     const s = Application(']] .. mod.name .. [[').currentWindow().currentSession();
     const v = (name) => s.variable({named: name}) || '';
     [v('autoName') || s.name(), v('path'), v('hostname'), v('username'), v('jobName'), v('commandLine')]

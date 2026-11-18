@@ -42,6 +42,7 @@ to do it.
 - Global hammerspoon config or settings should go in `config.lua`
 - Never call `hs.execute`, `hs.task.new`, `io.popen` or `os.execute` directly. Use `utils/process.lua` (`process.start`, `process.execute`, `process.which`), which provides a PATH with the mise shims first, then `~/bin` and Homebrew. Hammerspoon only has the bare launchd PATH, so tools installed with mise (e.g. `gh`, `go`) are not found otherwise.
 - Never hard-code a PATH or executable directories outside `utils/process.lua`.
+- Never call `hs.osascript.javascript`, it leaks ~1 MB of JavaScriptCore memory per call inside Hammerspoon. Use `utils/jxa.lua` (`jxa.run`, or `jxa.start` in the background, e.g. in watchers), which runs the script with `/usr/bin/osascript`. Debounce watchers that run scripts.
 - `mise run test` must pass.
 - `mise run fmt` must be ran.
 

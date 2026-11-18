@@ -8,6 +8,7 @@
 local logger = hs.logger.new('reminders', 'info')
 local selection = require 'selection'
 local nlpDate = require 'utils/nlp_date'
+local jxa = require 'utils/jxa'
 
 ---@class ReminderContext
 ---@field title string
@@ -48,10 +49,10 @@ function mod.create(title, due, notes)
     list.reminders.push(app.Reminder(props));
     true;
   ]]
-  local ok, _, raw = hs.osascript.javascript(script)
+  local ok, _, err = jxa.run(script)
   if not ok then
-    logger.ef('Failed to create reminder: %s', hs.inspect(raw))
-    if type(raw) == 'table' and raw.OSAScriptErrorNumberKey == -1743 then
+    logger.ef('Failed to create reminder: %s', err)
+    if err and err:find('(-1743)', 1, true) then
       return false, 'Allow Hammerspoon → Reminders in Privacy & Security → Automation'
     end
   end

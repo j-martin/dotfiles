@@ -1,4 +1,5 @@
 local logger = hs.logger.new('chromium', 'info')
+local jxa = require 'utils/jxa'
 
 --- Shared helpers for Chromium based browsers, e.g. Brave and Google Chrome.
 ---@class ChromiumModule
@@ -10,8 +11,7 @@ local mod = {}
 ---@param appName string
 ---@return table<string, string>|nil
 function mod.context(appName)
-  local ok, tab =
-    hs.osascript.javascript("const t = Application('" .. appName .. "').windows[0].activeTab(); [t.title(), t.url()]")
+  local ok, tab = jxa.run("const t = Application('" .. appName .. "').windows[0].activeTab(); [t.title(), t.url()]")
   if not ok or type(tab) ~= 'table' then
     return nil
   end

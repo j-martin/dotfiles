@@ -4,6 +4,7 @@ local chromium = require 'apps/chromium'
 local googleChrome = require 'apps/google_chrome'
 local googleMeet = require 'apps/google_meet'
 local appGuard = require 'utils/app_guard'
+local jxa = require 'utils/jxa'
 local config = require 'config'
 
 ---@class BraveApp
@@ -20,9 +21,11 @@ local config = require 'config'
 ---@field openActiveTabInChrome fun()
 ---@field chromeOnlyTitles string[]
 ---@field chromeOnlyUrlPrefixes string[]
----@field moveChromeOnlyTabsToChrome fun()
 ---@field meetUrlPrefixes string[]
----@field moveMeetTabsToGoogleMeet fun()
+---@field moveDelay number
+---@field moveTabs fun()
+---@field moveTask hs.task|nil
+---@field moveTimer hs.timer.delayed|nil
 ---@field windowFilter hs.window.filter|nil
 ---@field init fun()
 local mod = {}
@@ -37,6 +40,9 @@ mod.chromeOnlyUrlPrefixes = { 'https://access.workspace.google.com/remediate' }
 
 --- URL prefixes of tabs moved to the Google Meet app.
 mod.meetUrlPrefixes = { 'https://meet.google.com/' }
+
+--- Seconds without Brave window changes before the tabs are moved, titles change several times while a page loads.
+mod.moveDelay = 0.5
 
 mod.tab = { slack = ' Alloy Slack', mail = { work = 'Alloy, Inc. Mail', personal = 'jmartin.ca Mail' } }
 
@@ -132,7 +138,7 @@ function mod.activateTab(name)
     if not appGuard.ensureResponsive(mod.name) then
       return false
     end
-    hs.osascript.javascript([[
+    jxa.run([[
       var browser = Application(']] .. mod.name .. [[');
       browser.activate();
       var wins = browser.windows;
@@ -185,69 +191,89 @@ function mod.openActiveTabInChrome()
   chromium.openActiveTab(mod.name, googleChrome.openUrl)
 end
 
---- Closes every Brave tab whose title contains one of `titles` or whose URL starts with one of `urlPrefixes`.
----@param titles string[]
----@param urlPrefixes string[]
----@return string[]|nil urls of the closed tabs, nil when they could not be read
-local function closeTabs(titles, urlPrefixes)
-  local ok, urls = hs.osascript.javascript([[
-    var titles = ]] .. hs.json.encode(titles) .. [[;
-    var urlPrefixes = ]] .. hs.json.encode(urlPrefixes) .. [[;
-    var brave = Application(']] .. mod.name .. [[');
-    var urls = [];
+---@class BraveTabMatcher
+---@field titles string[] Title substrings.
+---@field urlPrefixes string[]
 
-    function matches(title, url) {
-      return titles.some(function(t) { return title.indexOf(t) > -1; })
-        || urlPrefixes.some(function(prefix) { return url.indexOf(prefix) === 0; });
+--- Closes every Brave tab matched by one of `matchers`, then calls `callback` with the URLs of the closed tabs by
+--- matcher name, or nil when they could not be read.
+---@param matchers table<string, BraveTabMatcher>
+---@param callback fun(closed: table<string, string[]>|nil)
+---@return hs.task
+local function closeTabs(matchers, callback)
+  return jxa.start([[
+    var matchers = ]] .. hs.json.encode(matchers) .. [[;
+    var names = Object.keys(matchers);
+    var brave = Application(']] .. mod.name .. [[');
+    var closed = {};
+    names.forEach(function(name) { closed[name] = []; });
+
+    function matching(title, url) {
+      return names.find(function(name) {
+        var matcher = matchers[name];
+        return matcher.titles.some(function(t) { return title.indexOf(t) > -1; })
+          || matcher.urlPrefixes.some(function(prefix) { return url.indexOf(prefix) === 0; });
+      });
     }
 
     brave.windows().forEach(function(win) {
       var tabTitles = win.tabs.title();
       var tabUrls = win.tabs.url();
       for (var i = tabUrls.length - 1; i >= 0; i--) {
-        if (matches(tabTitles[i], tabUrls[i])) {
-          urls.unshift(tabUrls[i]);
+        var name = matching(tabTitles[i], tabUrls[i]);
+        if (name) {
+          closed[name].unshift(tabUrls[i]);
           win.tabs[i].close();
         }
       }
     });
 
-    urls;
-  ]])
-  if not ok or type(urls) ~= 'table' then
-    logger.e('Could not get the URLs of the Brave tabs.')
-    return nil
+    closed;
+  ]], function(ok, closed)
+    if not ok or type(closed) ~= 'table' then
+      logger.e('Could not get the URLs of the Brave tabs.')
+      callback(nil)
+      return
+    end
+    callback(closed)
+  end)
+end
+
+--- Closes the Brave tabs matching `mod.chromeOnlyTitles` or `mod.chromeOnlyUrlPrefixes`, and opens them in Google
+--- Chrome, and those matching `mod.meetUrlPrefixes`, and opens them in the Google Meet app. Runs in the background, and
+--- is retried after `mod.moveDelay` seconds when the previous run is still going, so tabs are never closed twice.
+function mod.moveTabs()
+  if mod.moveTask and mod.moveTask:isRunning() then
+    mod.moveTimer:start()
+    return
   end
-  ---@cast urls string[]
-  return urls
+  mod.moveTask = closeTabs({
+    chrome = { titles = mod.chromeOnlyTitles, urlPrefixes = mod.chromeOnlyUrlPrefixes },
+    meet = { titles = {}, urlPrefixes = mod.meetUrlPrefixes },
+  }, function(closed)
+    if not closed then
+      return
+    end
+    for _, url in ipairs(closed.chrome or {}) do
+      logger.i('Moving to Google Chrome: ' .. url)
+      googleChrome.openUrl(url)
+    end
+    for _, url in ipairs(closed.meet or {}) do
+      logger.i('Moving to Google Meet: ' .. url)
+      googleMeet.openUrl(url)
+    end
+  end)
 end
 
---- Closes every Brave tab matching `mod.chromeOnlyTitles` or `mod.chromeOnlyUrlPrefixes`, and opens them in Google Chrome.
-function mod.moveChromeOnlyTabsToChrome()
-  for _, url in ipairs(closeTabs(mod.chromeOnlyTitles, mod.chromeOnlyUrlPrefixes) or {}) do
-    logger.i('Moving to Google Chrome: ' .. url)
-    googleChrome.openUrl(url)
-  end
-end
-
---- Closes every Brave tab matching `mod.meetUrlPrefixes`, and opens them in the Google Meet app.
-function mod.moveMeetTabsToGoogleMeet()
-  for _, url in ipairs(closeTabs({}, mod.meetUrlPrefixes) or {}) do
-    logger.i('Moving to Google Meet: ' .. url)
-    googleMeet.openUrl(url)
-  end
-end
-
-local function moveTabs()
-  mod.moveChromeOnlyTabsToChrome()
-  mod.moveMeetTabsToGoogleMeet()
-end
-
---- Moves Chrome only Brave tabs to Google Chrome, and Meet tabs to Google Meet, whenever a Brave window title changes.
+--- Moves the tabs with `mod.moveTabs`, `mod.moveDelay` seconds after the last Brave window is created or title changes.
 function mod.init()
+  mod.moveTimer = hs.timer.delayed.new(mod.moveDelay, mod.moveTabs)
+  local function scheduleMoveTabs()
+    mod.moveTimer:start()
+  end
   mod.windowFilter = hs.window.filter.new(mod.name)
-  mod.windowFilter:subscribe(hs.window.filter.windowCreated, moveTabs)
-  mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, moveTabs)
+  mod.windowFilter:subscribe(hs.window.filter.windowCreated, scheduleMoveTabs)
+  mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, scheduleMoveTabs)
 end
 
 return mod

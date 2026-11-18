@@ -1,3 +1,5 @@
+local jxa = require 'utils/jxa'
+
 ---@class FinderApp
 ---@field name string
 ---@field context fun(): table<string, string>|nil
@@ -8,9 +10,7 @@ mod.name = 'Finder'
 --- Returns the name and URL of the first selected file.
 ---@return table<string, string>|nil
 function mod.context()
-  local ok, file = hs.osascript.javascript(
-    "const f = Application('" .. mod.name .. "').selection()[0]; f ? [f.name(), f.url()] : null"
-  )
+  local ok, file = jxa.run("const f = Application('" .. mod.name .. "').selection()[0]; f ? [f.name(), f.url()] : null")
   if not ok or type(file) ~= 'table' then
     return nil
   end

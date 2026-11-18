@@ -1,6 +1,7 @@
 local logger = hs.logger.new('google_chrome', 'info')
 local chromium = require 'apps/chromium'
 local appGuard = require 'utils/app_guard'
+local jxa = require 'utils/jxa'
 
 ---@class GoogleChromeApp
 ---@field name string
@@ -10,7 +11,10 @@ local appGuard = require 'utils/app_guard'
 ---@field context fun(): table<string, string>|nil
 ---@field openUrl fun(url: string)
 ---@field openActiveTabInDefaultBrowser fun()
+---@field moveDelay number
 ---@field moveTabsToDefaultBrowser fun()
+---@field moveTask hs.task|nil
+---@field moveTimer hs.timer.delayed|nil
 ---@field onApplicationEvent fun(event: number)
 ---@field init fun()
 local mod = {}
@@ -25,6 +29,10 @@ mod.chromeOnlyHosts = {
 
 --- Hosts explicitly opened in Google Chrome with `mod.openUrl`, kept in Google Chrome until Hammerspoon reloads.
 mod.keptHosts = {}
+
+--- Seconds without Google Chrome window title changes before the tabs are moved, titles change several times while a page
+--- loads.
+mod.moveDelay = 0.5
 
 --- Returns the title and URL of the active tab.
 ---@return table<string, string>|nil
@@ -71,7 +79,12 @@ function mod.moveTabsToDefaultBrowser()
     table.insert(stayingHosts, host)
   end
 
-  local ok, urls = hs.osascript.javascript([[
+  if mod.moveTask and mod.moveTask:isRunning() then
+    mod.moveTimer:start()
+    return
+  end
+
+  mod.moveTask = jxa.start([[
     var chromeOnlyHosts = ]] .. hs.json.encode(stayingHosts) .. [[;
     var chrome = Application('Google Chrome');
     var urls = [];
@@ -100,23 +113,24 @@ function mod.moveTabsToDefaultBrowser()
     });
 
     urls;
-  ]])
-  if not ok or type(urls) ~= 'table' then
-    logger.e('Could not get the URLs of the Google Chrome tabs.')
-    return
-  end
-  if #urls == 0 then
-    logger.i('No Google Chrome tabs to move to the default browser.')
-    return
-  end
+  ]], function(ok, urls)
+    if not ok or type(urls) ~= 'table' then
+      logger.e('Could not get the URLs of the Google Chrome tabs.')
+      return
+    end
+    if #urls == 0 then
+      logger.i('No Google Chrome tabs to move to the default browser.')
+      return
+    end
 
-  hs.pasteboard.setContents(table.concat(urls, '\n'))
-  if not appGuard.launchOrFocusByBundleID(browserBundleId) then
-    return
-  end
-  for _, url in ipairs(urls) do
-    hs.urlevent.openURLWithBundle(url, browserBundleId)
-  end
+    hs.pasteboard.setContents(table.concat(urls, '\n'))
+    if not appGuard.launchOrFocusByBundleID(browserBundleId) then
+      return
+    end
+    for _, url in ipairs(urls) do
+      hs.urlevent.openURLWithBundle(url, browserBundleId)
+    end
+  end)
 end
 
 --- Moves the tabs to the default browser when Google Chrome is activated.
@@ -127,11 +141,12 @@ function mod.onApplicationEvent(event)
   end
 end
 
---- Moves Google Chrome tabs to the default browser whenever their title changes.
+--- Moves Google Chrome tabs to the default browser `mod.moveDelay` seconds after the last window title change.
 function mod.init()
+  mod.moveTimer = hs.timer.delayed.new(mod.moveDelay, mod.moveTabsToDefaultBrowser)
   mod.windowFilter = hs.window.filter.new(mod.name)
   mod.windowFilter:subscribe(hs.window.filter.windowTitleChanged, function()
-    mod.moveTabsToDefaultBrowser()
+    mod.moveTimer:start()
   end)
 end
 
