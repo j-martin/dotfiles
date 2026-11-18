@@ -46,11 +46,8 @@ function mod.sendSelection()
     return
   end
 
-  local text = selection.getSelectedText()
+  local text = selection.getSelectedTextOrClipboard()
   if text == '' then
-    text = hs.pasteboard.readString()
-  end
-  if not text or text == '' then
     hs.alert.show('Nothing selected and clipboard is empty')
     return
   end

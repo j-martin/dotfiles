@@ -10,7 +10,7 @@
 ---@field snippetSound string|nil System sound played after expanding a snippet, e.g. 'Tink', nil for none.
 ---@field snippetJsonPath string Directory of generated `*.json` snippet files, each a snippet group.
 ---@field snippetTsvPath string Directory of private `*.tsv` snippet files, one `text<TAB>trigger<TAB>description` per line.
----@field snippetTsvNewFile string File in `snippetTsvPath` the snippets added from the clipboard are appended to.
+---@field snippetTsvNewFile string File in `snippetTsvPath` the snippets added from the selection or clipboard are appended to.
 ---@field macParakeetVocabularyPath string Vocabulary generated from `snippets/library/emojis.lua`, see `snippets/vocabulary.lua`.
 ---@field obsidianDraftsVault string Obsidian vault of the message drafts, see `apps/obsidian.lua`.
 ---@field obsidianDraftsFolder string Folder of the message drafts, relative to the vault.

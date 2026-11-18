@@ -7,6 +7,7 @@ local emojis = require 'snippets/library/emojis'
 local jsonSnippets = require 'snippets/json_snippets'
 local matcher = require 'snippets/matcher'
 local privateConfig = require 'utils/private_config'
+local selection = require 'selection'
 local tsvSnippets = require 'snippets/tsv_snippets'
 local vocabulary = require 'snippets/vocabulary'
 
@@ -68,6 +69,15 @@ local function render(text)
   })
 end
 
+--- Types `trailing`, spaces and tabs, as key presses like the cursor moves after it.
+--- Typed as a string, some apps handle it after the cursor moves: '[](x#L3) ' -> '[](x#L 3)'.
+---@param trailing string
+local function typeTrailing(trailing)
+  for character in trailing:gmatch('.') do
+    hs.eventtap.keyStroke({}, character == '\t' and 'tab' or 'space', 0)
+  end
+end
+
 --- Pastes `text` into the focused app with its placeholders replaced, then restores the previous clipboard.
 ---@param text string
 function mod.insert(text)
@@ -78,7 +88,7 @@ function mod.insert(text)
   -- Apps paste asynchronously, keys sent right away can land before the text.
   if cursorBack > 0 or trailing ~= '' then
     hs.timer.doAfter(pasteDelay, function()
-      hs.eventtap.keyStrokes(trailing)
+      typeTrailing(trailing)
       for _ = 1, cursorBack do
         hs.eventtap.keyStroke({}, 'left', 0)
       end
@@ -248,6 +258,12 @@ end
 --- Shows every snippet in a searchable list and pastes the one picked.
 function mod.pick()
   showSnippets(mod.snippets, 'Snippets', hs.window.focusedWindow())
+end
+
+--- Shows the emoji snippets in a searchable list and pastes the one picked.
+function mod.pickEmoji()
+  local name = emojis.name or matcher.ungrouped
+  showSnippets(matcher.inGroup(mod.snippets, name), name, hs.window.focusedWindow(), true)
 end
 
 --- Shows the snippet groups in a searchable list, then the snippets of the one picked, and pastes the snippet picked.
@@ -486,17 +502,17 @@ local function loadTsvFiles()
   return groups
 end
 
---- Asks to confirm, then appends the clipboard text to `config.snippetTsvNewFile` without trigger nor description,
---- and reloads the snippets.
-function mod.addFromClipboard()
-  local text = hs.pasteboard.getContents()
-  if text == nil or not text:match('%S') then
-    hs.alert.show('Snippets - Clipboard has no text')
+--- Asks to confirm, then appends the selected text, or the clipboard text when nothing is selected,
+--- to `config.snippetTsvNewFile` without trigger nor description, and reloads the snippets.
+function mod.addFromSelection()
+  local text, source = selection.getSelectedTextOrClipboard()
+  if not text:match('%S') then
+    hs.alert.show('Snippets - Nothing selected and clipboard has no text')
     return
   end
   local directory = config.snippetTsvPath
   local path = directory .. '/' .. config.snippetTsvNewFile
-  confirm.show('Add the clipboard as a snippet', text, function()
+  confirm.show('Add the ' .. source .. ' as a snippet', text, function()
     if not hs.fs.attributes(directory) then
       local created, mkdirError = hs.fs.mkdir(directory)
       if not created then

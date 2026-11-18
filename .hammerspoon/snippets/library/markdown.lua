@@ -41,6 +41,11 @@ return {
 </details>]=],
     },
     {
+      trigger = 'q',
+      desc = 'Quote',
+      text = '{clipboard:quote}',
+    },
+    {
       trigger = '1',
       desc = 'Code - Single',
       text = '`{clipboard}`',

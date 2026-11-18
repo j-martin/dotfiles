@@ -3,6 +3,7 @@ local process = require 'utils/process'
 
 ---@class SelectionModule
 ---@field getSelectedText fun(): string
+---@field getSelectedTextOrClipboard fun(): string, string
 ---@field actOn fun(engine: string): fun()
 ---@field paste fun()
 ---@field epochSinceNow fun(text: string|nil)
@@ -49,6 +50,18 @@ end
 ---@return string
 function mod.getSelectedText()
   return selectedTextFromAccessibility() or selectedTextFromClipboard()
+end
+
+--- Returns the selected text, or the clipboard text when nothing is selected, empty when neither has text,
+--- and where it comes from: 'selection' or 'clipboard'.
+---@return string text
+---@return string source
+function mod.getSelectedTextOrClipboard()
+  local text = mod.getSelectedText()
+  if text ~= '' then
+    return text, 'selection'
+  end
+  return hs.pasteboard.readString() or '', 'clipboard'
 end
 
 ---@param url string

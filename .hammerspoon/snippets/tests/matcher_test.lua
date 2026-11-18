@@ -156,6 +156,11 @@ return {
     assert(cursorBack == 0, 'expected no cursor move')
   end,
 
+  ['render quotes every line of the clipboard'] = function()
+    local text = matcher.render('{clipboard:quote}', { date = '', time = '', clipboard = 'a\r\n\nb\n\n' })
+    assert(text == '> a\n>\n> b', string.format('unexpected %q', text))
+  end,
+
   ['render removes the cursor and counts the characters after it'] = function()
     local _, cursorBack = matcher.render('use {cursor}?é', { date = '', time = '', clipboard = '' })
     assert(cursorBack == 2, string.format('expected 2, got %d', cursorBack))
