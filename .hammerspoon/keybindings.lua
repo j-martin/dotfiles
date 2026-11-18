@@ -56,6 +56,7 @@ local bindings = {
       { key = 'f', name = 'Finder' },
       { key = 'f', name = 'Preview', shift = true },
       { key = 'g', name = 'Claude' },
+      { key = 'h', name = 'Herdr' },
       { key = 'i', name = 'iTerm2' },
       { key = 'i', fn = apps.iterm.omni, shift = true },
       {
