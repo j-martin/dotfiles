@@ -371,7 +371,7 @@ gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" versi
 alias ge="emacsclient --no-wait --eval '(jm/magit-status-or-dotfiles)' && osascript -e 'tell application \"Emacs\" to activate'"
 # Github
 alias hpo='open "$GITHUB_URL/$(_git_repo)/pulls"'
-alias hc='_github_open_commit'
+alias hco='_github_open_commit'
 alias hca='open "$GITHUB_URL/$(_git_repo)/actions"'
 alias hcc='_github_copy_commit_url'
 alias hck='_github_open_check'
