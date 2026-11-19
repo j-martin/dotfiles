@@ -172,6 +172,7 @@ function mod.init()
   mod.brave.init()
   mod.googleChrome.init()
   mod.meetingbar.init()
+  mod.herdr.init()
 end
 
 return mod

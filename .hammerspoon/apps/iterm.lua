@@ -5,6 +5,7 @@ local jxa = require 'utils/jxa'
 ---@field name string
 ---@field omni fun()
 ---@field context fun(): table<string, any>|nil
+---@field workdir fun(): string|nil
 local mod = {}
 
 mod.name = 'iTerm2'
@@ -37,6 +38,17 @@ function mod.context()
     table.insert(details, '$ ' .. job)
   end
   return { title = title, url = path, details = details }
+end
+
+--- Returns the working directory of the current session.
+---@return string|nil
+function mod.workdir()
+  local ok, path =
+    jxa.run("Application('" .. mod.name .. "').currentWindow().currentSession().variable({named: 'path'})")
+  if not ok or type(path) ~= 'string' or path == '' then
+    return nil
+  end
+  return path
 end
 
 return mod

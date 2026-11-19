@@ -6,6 +6,7 @@ local logger = hs.logger.new('obsidian', 'info')
 ---@field fileName fun(time: number, title: string): string
 ---@field content fun(context: AppContext|nil): string
 ---@field newDraft fun()
+---@field activeFile fun(): AppContext|nil
 local mod = {}
 
 mod.name = 'Obsidian'
@@ -77,6 +78,31 @@ function mod.newDraft()
       end,
     }
   )
+end
+
+--- Returns the absolute path of the active note, with the selected lines, or the cursor line.
+---@return AppContext|nil
+function mod.activeFile()
+  local jxa = require 'utils/jxa'
+  local process = require 'utils/process'
+  local code = [[(() => {
+    const f = app.workspace.getActiveFile();
+    const e = app.workspace.activeEditor?.editor;
+    return JSON.stringify(f && {
+      title: f.basename,
+      path: app.vault.adapter.basePath + '/' + f.path,
+      line: e ? e.getCursor('from').line + 1 : null,
+      endLine: e ? e.getCursor('to').line + 1 : null,
+    });
+  })()]]
+  local output, ok = process.execute('obsidian eval ' .. jxa.shellQuote('code=' .. code) .. ' 2>&1')
+  local json = ok and output:match('^=>%s*(.-)%s*$')
+  local file = json and json ~= 'null' and hs.json.decode(json)
+  if not file then
+    logger.ef('Failed to get the active file: %s', output)
+    return nil
+  end
+  return file
 end
 
 return mod
