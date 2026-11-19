@@ -388,7 +388,8 @@ From http://akrl.sdf.org/.
    #+begin_src emacs-lisp :results none
      (defun jm/sh-mode-config ()
        (interactive)
-       (spacemacs/toggle-ggtags-mode-off)
+       (when (bound-and-true-p ggtags-mode)
+         (ggtags-mode -1))
        (setq sh-indentation 2)
        (setq sh-basic-offset 2))
 
