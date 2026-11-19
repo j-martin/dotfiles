@@ -49,6 +49,8 @@ _agent_run() {
 # Set AGENT=claude to use Claude Code instead of Copilot.
 _agent() {
   local tool="${AGENT:-copilot}"
+  # force copilot until the claude folder trust regression is fixed.
+  tool=copilot
 
   if _agent_in_regular_repo; then
     _agent_run "$tool" "$@"
