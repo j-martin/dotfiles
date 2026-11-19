@@ -258,6 +258,13 @@ From http://akrl.sdf.org/.
        (setq markdown-asymmetric-header t))
 
      (add-hook 'markdown-mode-hook 'jm/markdown-mode-config)
+
+     ;; The completion popup (company dabbrev/capf) freezes large docs while typing.
+     ;; Appended so it runs after the Spacemacs layer enables company.
+     (defun jm/markdown-disable-company ()
+       (company-mode -1))
+
+     (add-hook 'markdown-mode-hook 'jm/markdown-disable-company t)
    #+end_src
 
 ** Aggresive Indent
