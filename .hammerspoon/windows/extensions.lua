@@ -198,7 +198,9 @@ function mod.launchOrCycleFocus(applicationName)
         mod.centerOnTitle(targetWindow:frame())
       end
     end
-    if applicationName == 'GoLand' then
+    -- Required here since `apps` requires `windows`
+    local jetbrains = require 'apps/jetbrains'
+    if jetbrains.matches(targetWindow:application():bundleID()) then
       local windowTitle = targetWindow:title()
       print('Forefront window title: ' .. windowTitle)
       if windowTitle == 'File Cache Conflict' then

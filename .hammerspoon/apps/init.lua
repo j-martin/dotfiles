@@ -5,6 +5,9 @@ local utils = require 'apps/utils'
 ---@class AppContext
 ---@field title string
 ---@field url string|nil
+---@field path string|nil Absolute path of the file shown.
+---@field line integer|nil First line of the selection, or the cursor line.
+---@field endLine integer|nil Last line of the selection, or the cursor line.
 ---@field details string[]|nil
 ---@field selection string|nil
 
@@ -13,11 +16,11 @@ local utils = require 'apps/utils'
 ---@field brave table
 ---@field emacs table
 ---@field finder table
----@field goland table
 ---@field googleChrome table
 ---@field googleMeet table
----@field idea table
+---@field herdr HerdrApp
 ---@field iterm table
+---@field jetbrains JetBrainsApp
 ---@field meetingbar table
 ---@field messages table
 ---@field notificationCenter table
@@ -37,11 +40,11 @@ local mod = {
   brave = require 'apps/brave',
   emacs = require 'apps/emacs',
   finder = require 'apps/finder',
-  goland = require 'apps/goland',
   googleChrome = require 'apps/google_chrome',
   googleMeet = require 'apps/google_meet',
-  idea = require 'apps/idea',
+  herdr = require 'apps/herdr',
   iterm = require 'apps/iterm',
+  jetbrains = require 'apps/jetbrains',
   meetingbar = require 'apps/meetingbar',
   messages = require 'apps/messages',
   notificationCenter = require 'apps/notification_center',
@@ -84,6 +87,9 @@ end
 function mod.context(window)
   local app = window and window:application()
   local registeredApp = app and registered[app:name()]
+  if not registeredApp and app and mod.jetbrains.matches(app:bundleID()) then
+    registeredApp = mod.jetbrains
+  end
   if not registeredApp or not registeredApp.context then
     return nil
   end

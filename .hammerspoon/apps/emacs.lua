@@ -12,7 +12,7 @@ local appGuard = require 'utils/app_guard'
 ---@field workInbox fun()
 ---@field agenda fun()
 ---@field capture fun(captureTemplate: string|nil): fun()
----@field context fun(): table<string, any>|nil
+---@field context fun(): AppContext|nil
 local mod = {}
 
 mod.name = 'Emacs'
@@ -120,13 +120,15 @@ local contextSexp = [[
            (cons (quote directory) default-directory)
            (cons (quote mode) (symbol-name major-mode))
            (cons (quote line) (line-number-at-pos))
+           (cons (quote start) (line-number-at-pos (if (use-region-p) (region-beginning) (point))))
+           (cons (quote end) (line-number-at-pos (if (use-region-p) (max (region-beginning) (1- (region-end))) (point))))
            (cons (quote heading) (and (derived-mode-p (quote org-mode)) (ignore-errors (org-get-heading t t t t))))
            (cons (quote region) (and (use-region-p) (buffer-substring-no-properties (region-beginning) (region-end))))))
      (quote utf-8))
     t))]]
 
---- Returns the current buffer, its file and line, org heading, and active region.
----@return table<string, any>|nil
+--- Returns the current buffer, its file and selected lines, org heading, and active region.
+---@return AppContext|nil
 function mod.context()
   local output, ok = process.execute(emacsclientPath .. " --eval '" .. contextSexp:gsub('\n', ' ') .. "' 2>/dev/null")
   local encoded = ok and output:match('"([%w+/=]+)"')
@@ -143,6 +145,9 @@ function mod.context()
   return {
     title = buffer.buffer,
     url = buffer.file and (buffer.file .. ':' .. math.floor(buffer.line)) or buffer.directory,
+    path = buffer.file,
+    line = buffer.start and math.floor(buffer.start),
+    endLine = buffer['end'] and math.floor(buffer['end']),
     details = details,
     selection = buffer.region or '',
   }

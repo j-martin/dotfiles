@@ -139,6 +139,7 @@
 ---@field asHSApplication fun(self): hs.application|nil
 ---@field pid fun(self): number
 ---@field attributeValue fun(self, name: string): any
+---@field parameterizedAttributeValue fun(self, name: string, parameter: any): any
 ---@field setAttributeValue fun(self, name: string, value: any): nil
 ---@field title fun(self): string
 ---@field application fun(self): hs.application
