@@ -778,7 +778,7 @@ dotfiles repo (see =jm/dotfiles-file-p=), so point git at it.
     (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
 
     (spacemacs/set-leader-keys "by" 'spacemacs/copy-whole-buffer-to-clipboard)
-    (spacemacs/set-leader-keys "fi" 'jm/open-iterm)
+    (spacemacs/set-leader-keys "fi" 'jm/open-herdr)
     (spacemacs/set-leader-keys "gc" 'magit-commit)
     (spacemacs/set-leader-keys "gd" 'jm/magit-dotfiles)
     (spacemacs/set-leader-keys "gp" 'jm/github-open-pr)
@@ -797,7 +797,7 @@ dotfiles repo (see =jm/dotfiles-file-p=), so point git at it.
     (spacemacs/set-leader-keys "od" 'jm/helm-org-dir)
     (spacemacs/set-leader-keys "of" 'jm/helm-forks-dir)
     (spacemacs/set-leader-keys "oh" 'jm/helm-home-dir)
-    (spacemacs/set-leader-keys "oi" 'jm/open-project-iterm)
+    (spacemacs/set-leader-keys "oi" 'jm/open-project-herdr)
     (spacemacs/set-leader-keys "ol" 'org-content)
     (spacemacs/set-leader-keys "om" 'jm/open-main)
     (spacemacs/set-leader-keys "on" 'jm/open-with-nvim)
@@ -808,7 +808,7 @@ dotfiles repo (see =jm/dotfiles-file-p=), so point git at it.
     (spacemacs/set-leader-keys "ot" 'jm/open-inbox)
     (spacemacs/set-leader-keys "ow" 'jm/open-inbox)
     (spacemacs/set-leader-keys "ox" 'jm/org-md-export)
-    (spacemacs/set-leader-keys "pi" 'jm/open-project-iterm)
+    (spacemacs/set-leader-keys "pi" 'jm/open-project-herdr)
     (spacemacs/set-leader-keys "tP" 'parinfer-toggle-mode)
     (spacemacs/set-leader-keys "wa" 'jm/split-window-below-and-find-file)
     (spacemacs/set-leader-keys "ws" 'jm/split-window-below)
@@ -1063,13 +1063,19 @@ helm-core calls it with the optional =no-properties= argument.
     (interactive)
     (jm/open-with-line-column "subl"))
 
-  (defun jm/open-iterm ()
+  (defun jm/open-herdr (&optional directory)
+    "Open a Herdr tab in DIRECTORY, defaulting to the current directory."
     (interactive)
-    (shell-command (concat "~/.bin/open-in-iterm '" default-directory "'")))
+    (let ((herdr (or (executable-find "herdr-app") "/Applications/Herdr.app/Contents/MacOS/Herdr"))
+          (folder (directory-file-name (expand-file-name (or directory default-directory)))))
+      (call-process "open" nil nil nil "-a" "Herdr")
+      (call-process herdr nil 0 nil "do" "tab.new" "--folder" folder)))
 
-  (defun jm/open-project-iterm ()
+  (defun jm/open-project-herdr ()
+    "Open a Herdr tab in the git root of the current directory."
     (interactive)
-    (shell-command (concat "~/.bin/open-in-iterm \"$(git rev-parse --show-toplevel)\"")))
+    (require 'vc-git)
+    (jm/open-herdr (or (vc-git-root default-directory) default-directory)))
 
   (defun jm/open-with-idea ()
     (interactive)
