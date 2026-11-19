@@ -148,6 +148,11 @@ From http://akrl.sdf.org/.
            ;; all numbers are Unicode codepoint in decimal. ⁖ (insert-char 182 1)
            '((tab-mark 9 [183 9] [255 9]))) ; 9 TAB, 9655 WHITE RIGHT-POINTING TRIANGLE 「▷」
 
+     ;; Emacs 29+ paints the last char of files without a final newline with a
+     ;; black-on-yellow face, which is unreadable with this theme.
+     (require 'whitespace)
+     (setq whitespace-style (delq 'missing-newline-at-eof whitespace-style))
+
      (global-whitespace-mode 1)
      (setq fill-column 120)
      (setq whitespace-line-column 260)
