@@ -139,7 +139,8 @@ function mod.withSeparators(snippets, prefix, suffix)
 end
 
 --- Returns what to type after the text of `snippet` when `trigger` expanded it, '' for nothing.
---- The suffix that ended the trigger is added back, a whitespace one as a single character: 'np  ' -> ' ', 'suod.' -> '.'.
+--- The suffix that ended the trigger is added back, except a whitespace one longer than a character:
+--- 'lgtm ' -> ' ', 'np  ' -> '', 'suod.' -> '.'.
 ---@param snippet Snippet
 ---@param trigger string
 ---@return string
@@ -151,8 +152,8 @@ function mod.appendFor(snippet, trigger)
       best = suffix
     end
   end
-  if best:match('^%s+$') then
-    return best:sub(1, 1)
+  if #best > 1 and best:match('^%s+$') then
+    return ''
   end
   return best
 end

@@ -266,10 +266,10 @@ return {
     assert(matcher.findMatch('https:/', wrapped) == nil, 'expected no match in a URL')
   end,
 
-  ['withSeparators adds back a single space for a longer whitespace suffix'] = function()
+  ['withSeparators adds nothing back for a longer whitespace suffix'] = function()
     local wrapped = matcher.withSeparators({ { trigger = 'np', text = 'You are welcome.' } }, '', '  ')
     local append = matcher.appendFor(wrapped[1], wrapped[1].trigger)
-    assert(append == ' ', string.format('expected " ", got %q', append))
+    assert(append == '', string.format('expected "", got %q', append))
   end,
 
   ['flatten labels snippets with their group name'] = function()
