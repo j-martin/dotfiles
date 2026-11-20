@@ -15,6 +15,8 @@ Living in this dir since that is `dot-agent` working dir.
 
 - Prefix commit with the part of the system or config. prefix = `<component>, <change-description>`
   - Example of prefixes: `hs`, `emacs`, `sh`, `agent`, `bin`, `setup`.
+- If creating or modifying files not tracked and editing the `~/.gitignore`, consider adding a rule for the whole directory if there is no private data in that directory.
+- Always check if there is secrets, private, machine specific content before adding or commiting a file change.
 
 # Never
 
