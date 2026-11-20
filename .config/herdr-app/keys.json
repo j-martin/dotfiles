@@ -5,7 +5,7 @@
     "cmd-alt-h": "app.hide_others",
     "cmd-m": "window.minimize",
     "cmd-t": "tab.new",
-    "cmd-w": "pane.close",
+    "cmd-w": "mod.open:customization-pane",
     "ctrl-tab": "tab.next",
     "ctrl-shift-tab": "tab.prev",
     "cmd-shift-]": "tab.next",

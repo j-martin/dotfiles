@@ -10,5 +10,8 @@
 !/.bin/hammerspoon-snippets-generator/*
 !/.config/herdr-app/
 !/.config/herdr-app/keys.json
+!/.config/herdr-app/mods/
 !/.config/herdr-app/mods/customization/
 !/.config/herdr-app/mods/customization/*
+!/.config/herdr-app/mods/customization-pane/
+!/.config/herdr-app/mods/customization-pane/*

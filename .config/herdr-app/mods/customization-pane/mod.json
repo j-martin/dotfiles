@@ -1,0 +1,1 @@
+{ "place": "none", "title": "Close pane", "overlay": { "kind": "dialog", "width": 400, "height": 150 } }
