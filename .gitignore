@@ -8,3 +8,7 @@
 !/.config/mise/*
 !/.bin/hammerspoon-snippets-generator
 !/.bin/hammerspoon-snippets-generator/*
+!/.config/herdr-app/
+!/.config/herdr-app/keys.json
+!/.config/herdr-app/mods/customization/
+!/.config/herdr-app/mods/customization/*
