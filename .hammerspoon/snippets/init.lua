@@ -503,7 +503,8 @@ local function loadTsvFiles()
 end
 
 --- Asks to confirm, then appends the selected text, or the clipboard text when nothing is selected,
---- to `config.snippetTsvNewFile` without trigger nor description, and reloads the snippets.
+--- to `config.snippetTsvNewFile` without trigger, and reloads the snippets.
+--- The text typed in the confirmation is the description, none when blank.
 function mod.addFromSelection()
   local text, source = selection.getSelectedTextOrClipboard()
   if not text:match('%S') then
@@ -512,36 +513,46 @@ function mod.addFromSelection()
   end
   local directory = config.snippetTsvPath
   local path = directory .. '/' .. config.snippetTsvNewFile
-  confirm.show('Add the ' .. source .. ' as a snippet', text, function()
-    if not hs.fs.attributes(directory) then
-      local created, mkdirError = hs.fs.mkdir(directory)
-      if not created then
-        logger.ef('Failed to create %s: %s', directory, mkdirError)
-        hs.alert.show('Snippets - Failed to create ' .. directory)
+  confirm.prompt(
+    'Add the ' .. source .. ' as a snippet',
+    text,
+    'Description (optional), ⏎ to confirm, esc to cancel',
+    function(input)
+      ---@type string|nil
+      local desc = input:match('^%s*(.-)%s*$')
+      if desc == '' then
+        desc = nil
+      end
+      if not hs.fs.attributes(directory) then
+        local created, mkdirError = hs.fs.mkdir(directory)
+        if not created then
+          logger.ef('Failed to create %s: %s', directory, mkdirError)
+          hs.alert.show('Snippets - Failed to create ' .. directory)
+          return
+        end
+      end
+      ---@type string
+      local separator = ''
+      local existing = io.open(path, 'r')
+      if existing then
+        local content = existing:read('a')
+        existing:close()
+        if content ~= '' and content:sub(-1) ~= '\n' then
+          separator = '\n'
+        end
+      end
+      local handle, openError = io.open(path, 'a')
+      if not handle then
+        logger.ef('Failed to write %s: %s', path, openError)
+        hs.alert.show('Snippets - Failed to write ' .. path)
         return
       end
+      handle:write(separator .. tsvSnippets.encode(text, nil, desc))
+      handle:close()
+      mod.load()
+      hs.alert.show('Snippets - Added to ' .. config.snippetTsvNewFile)
     end
-    ---@type string
-    local separator = ''
-    local existing = io.open(path, 'r')
-    if existing then
-      local content = existing:read('a')
-      existing:close()
-      if content ~= '' and content:sub(-1) ~= '\n' then
-        separator = '\n'
-      end
-    end
-    local handle, openError = io.open(path, 'a')
-    if not handle then
-      logger.ef('Failed to write %s: %s', path, openError)
-      hs.alert.show('Snippets - Failed to write ' .. path)
-      return
-    end
-    handle:write(separator .. tsvSnippets.encode(text))
-    handle:close()
-    mod.load()
-    hs.alert.show('Snippets - Added to ' .. config.snippetTsvNewFile)
-  end)
+  )
 end
 
 --- Loads the library snippets, then the JSON ones, then the TSV ones, then the private config ones, each wrapped by its group prefix and suffix.
