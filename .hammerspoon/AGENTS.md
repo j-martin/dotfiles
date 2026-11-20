@@ -11,6 +11,11 @@ Living in this dir since that is `dot-agent` working dir.
 - Use `mise` tasks (`mise.toml`, `mise run <task>`) for project tasks, never `Taskfile.yml`/`task` or Makefiles. Convert existing `Taskfile.yml` files to `mise.toml` when touching them.
 - Iterate on the AGENTS.md file to add new rules and instructions, and update the snippets library accordingly based on the instructions you are given during regular prompting.
 
+# Git
+
+- Prefix commit with the part of the system or config. prefix = `<component>, <change-description>`
+  - Example of prefixes: `hs`, `emacs`, `sh`, `agent`, `bin`, `setup`.
+
 # Never
 
 Try to read `~/.private`, if you need information or to write something. Tell me
