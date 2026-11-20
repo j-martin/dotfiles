@@ -1,4 +1,4 @@
-// cmd-w (mod.open:customization-pane): closes the focused pane at once,
+// cmd-w (mod.open:jm-close-pane): closes the focused pane at once,
 // but asks first when an agent runs in it.
 
 import { run, panes, focused } from "herdr";

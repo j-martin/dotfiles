@@ -1,4 +1,4 @@
-// A confirmation dialog (kept in sync with ../customization/ask.js; mods cannot import across folders): subclasses set
+// A confirmation dialog (kept in sync with ../jm-close-tab/ask.js; mods cannot import across folders): subclasses set
 // this.title, this.detail and this.ok (null: nothing to do) in setup().
 // Enter confirms, Esc cancels.
 
