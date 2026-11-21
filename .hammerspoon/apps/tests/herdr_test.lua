@@ -84,6 +84,24 @@ return {
     assert(herdr.findWaiting(layout, nil) == nil)
     assert(herdr.findWaiting(nil, nil) == nil)
   end,
+  ['nextPane cycles through the panes of the shown tab only'] = function()
+    local layout = {
+      spaces = {
+        { active = false, tabs = { { active = true, terminals = { { terminal = 't1', pane = 'p1' } } } } },
+        {
+          active = true,
+          tabs = {
+            { active = false, terminals = { { terminal = 't2', pane = 'p2' } } },
+            { active = true, terminals = { { terminal = 't3', pane = 'p3' }, { terminal = 't4', pane = 'p4' } } },
+          },
+        },
+      },
+    }
+    assert(herdr.nextPane(layout, 'p3').terminal == 't4')
+    assert(herdr.nextPane(layout, 'p4').terminal == 't3')
+    assert(herdr.nextPane(layout, 'p1').terminal == 't3')
+    assert(herdr.nextPane(nil, 'p3') == nil)
+  end,
   ['reference stays absolute outside the agent folder'] = function()
     assert(herdr.reference('/src/application/a.go', nil, nil, '/src/app') == '@/src/application/a.go')
   end,

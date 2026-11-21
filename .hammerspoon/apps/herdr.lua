@@ -38,7 +38,8 @@ local markdown = require 'utils/markdown'
 ---@field findAgent fun(layout: HerdrLayout|nil, focusedAt: table<string, integer>|nil): HerdrTerminal|nil
 ---@field findPane fun(layout: HerdrLayout|nil, pane: string|nil): HerdrTerminal|nil
 ---@field findWaiting fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
----@field focusWaiting fun()
+---@field nextPane fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
+---@field focusNext fun()
 ---@field orderAgents fun(terminals: HcTerminal[], last: string|nil, preferred: string|nil): HcTerminal[]
 ---@field rebase fun(prompt: string, reference: string, replacement: string): string
 ---@field withContext fun(prompt: string, context: AppContext|nil, selected: string|nil): string
@@ -149,6 +150,32 @@ function mod.findWaiting(layout, focusedPane)
     return nil
   end
   return waiting[focusedIndex % #waiting + 1]
+end
+
+--- Returns the terminal of the pane after the focused one in the shown tab, wrapping around, from the
+--- `herdr-app ls` output.
+---@param layout HerdrLayout|nil
+---@param focusedPane string|nil
+---@return HerdrTerminal|nil
+function mod.nextPane(layout, focusedPane)
+  local space = active(layout and layout.spaces) --[[@as HerdrSpace|nil]]
+  local tab = space and active(space.tabs) --[[@as HerdrTab|nil]]
+  ---@type HerdrTerminal[]
+  local panes = {}
+  ---@type integer
+  local focusedIndex = 0
+  for _, terminal in ipairs(tab and tab.terminals or {}) do
+    if terminal.pane then
+      table.insert(panes, terminal)
+      if terminal.pane == focusedPane then
+        focusedIndex = #panes
+      end
+    end
+  end
+  if #panes == 0 then
+    return nil
+  end
+  return panes[focusedIndex % #panes + 1]
 end
 
 --- Returns the `@` file reference for agents, relative to their folder when inside it, with `#L<line>` or
@@ -377,19 +404,25 @@ function mod.init()
 end
 
 --- Switches to Herdr like other apps and, when an agent waits for input in any space, focuses its pane, the next
---- waiting one on each call.
-function mod.focusWaiting()
+--- waiting one on each call. Without one, a call while Herdr is frontmost focuses the next pane of the shown tab.
+function mod.focusNext()
   local app = hs.application.get(mod.name)
   local layout = app and run('herdr-app ls')
   local status = layout and run('herdr-app status')
   local decoded = status and hs.json.decode(status) --[[@as HerdrStatus|nil]]
-  local waiting = layout and mod.findWaiting(hs.json.decode(layout), decoded and decoded.focused_pane)
-  if not app or not waiting then
+  local focusedPane = decoded and decoded.focused_pane
+  local parsed = layout and hs.json.decode(layout) --[[@as HerdrLayout|nil]]
+  local target = mod.findWaiting(parsed, focusedPane)
+  local frontmost = app ~= nil and hs.application.frontmostApplication() == app
+  if frontmost and (not target or target.pane == focusedPane) then
+    target = mod.nextPane(parsed, focusedPane)
+  end
+  if not app or not target or not target.pane or target.pane == focusedPane then
     require('windows').launchOrCycleFocus(mod.name)()
     return
   end
   app:activate()
-  run('herdr-app do pane.focus --pane ' .. waiting.pane)
+  run('herdr-app do pane.focus --pane ' .. target.pane)
 end
 
 --- Returns what the focused window shows: the working directory of terminals and Finder, the active Obsidian note,

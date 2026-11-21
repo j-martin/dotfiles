@@ -58,7 +58,11 @@ local bindings = {
       { key = 'f', name = 'Finder' },
       { key = 'f', name = 'Preview', shift = true },
       { key = 'g', name = 'Claude' },
-      { key = 'i', fn = apps.herdr.focusWaiting, desc = 'Herdr - Focus, on the next agent waiting for input if any' },
+      {
+        key = 'i',
+        fn = apps.herdr.focusNext,
+        desc = 'Herdr - Focus, on the next agent waiting for input, else the next pane of the tab when frontmost',
+      },
       {
         key = 'i',
         shift = true,
