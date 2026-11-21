@@ -12,7 +12,7 @@ local emojis = {
     { trigger = ":')", text = '🥲', desc = 'smiling tear emoji' },
     { trigger = '(:', text = '🙃', desc = 'upside down emoji' },
     { trigger = ':)', text = '🙂', desc = 'smiling emoji' },
-    { trigger = ':/', text = '😕', desc = 'confused emoji' },
+    -- { trigger = ':/', text = '😕', desc = 'confused emoji' },
     { trigger = ':100:', text = '💯', desc = 'hundred emoji' },
     { trigger = ':anxious:', text = '😰', desc = 'anxious emoji' },
     { trigger = ':drum:', text = '🥁', desc = 'drum emoji' },
