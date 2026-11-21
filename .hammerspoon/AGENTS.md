@@ -12,6 +12,7 @@ Living in this dir since that is `dot-agent` working dir.
 - Iterate on the AGENTS.md file to add new rules and instructions, and update the snippets library accordingly based on the instructions you are given during regular prompting.
 - Only add a customization to `~/.setup/setup.sh` if it cannot be committed as a text file or symlink in the home dir, or if it lives outside the home dir.
 - When refactoring code, renaming, always use `home grep` to check for previous usages.
+- Always run `mise lint` (and fix) and `mise fmt` after you are done.
 
 # Git
 
@@ -22,10 +23,9 @@ Living in this dir since that is `dot-agent` working dir.
 
 # Never
 
-Try to read `~/.private`, if you need information or to write something. Tell me
-to do it.
+Try to read `~/.private`, if you need information or to write something. Tell me to do it.
 
-# Platform
+# Platform (OS)
 
 - Assume all machines are running macOS.
 
