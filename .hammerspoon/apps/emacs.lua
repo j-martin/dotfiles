@@ -21,7 +21,7 @@ local emacsclientPath = process.which('emacsclient')
 
 ---@param sexp string
 local function eval(sexp)
-  process.start('~/.bin/ec', { '--quiet', '--suppress-output', '--eval', sexp })
+  process.start('~/.bin/editor', { '--quiet', '--suppress-output', '--eval', sexp })
   appGuard.launchOrFocus(mod.name)
 end
 
@@ -32,7 +32,7 @@ end
 
 ---@param url string
 local function open(url)
-  process.start('~/.bin/ec', { '--quiet', '--suppress-output', url })
+  process.start('~/.bin/editor', { '--quiet', '--suppress-output', url })
   appGuard.launchOrFocus(mod.name)
 end
 
