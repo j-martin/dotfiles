@@ -40,6 +40,7 @@ local bindings = {
   {
     name = keybinder.globalBindings,
     bindings = {
+      { key = '1', fn = apps.siri.trigger, desc = 'Siri - Trigger' },
       { key = '1', name = apps.activityMonitor.name, shift = true },
       { key = '5', fn = snippets.pick, desc = 'Snippets - Pick and paste' },
       { key = '5', shift = true, fn = snippets.pickByGroup, desc = 'Snippets - Pick a group, then paste' },

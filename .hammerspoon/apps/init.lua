@@ -27,6 +27,7 @@ local utils = require 'apps/utils'
 ---@field obsidian table
 ---@field reminders table
 ---@field safari table
+---@field siri SiriApp
 ---@field slack table
 ---@field zoom table
 ---@field lastUrl string|nil
@@ -51,6 +52,7 @@ local mod = {
   obsidian = require 'apps/obsidian',
   reminders = require 'apps/reminders',
   safari = require 'apps/safari',
+  siri = require 'apps/siri',
   slack = require 'apps/slack',
   zoom = require 'apps/zoom',
 }
