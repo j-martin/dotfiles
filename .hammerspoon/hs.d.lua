@@ -115,6 +115,8 @@
 ---@field screen fun(self): hs.screen
 ---@field id fun(self): number
 ---@field isStandard fun(self): boolean
+---@field isVisible fun(self): boolean
+---@field close fun(self): boolean
 ---@field focus fun(self): nil
 ---@field becomeMain fun(self): nil
 ---@field path fun(self): string|nil
@@ -194,6 +196,12 @@
 ---@field getKeyCode fun(self): number
 ---@field getType fun(self): number
 ---@field getCharacters fun(self): string|nil
+---@field properties table<string, number>
+---@field location fun(self): { x: number, y: number }
+---@field newMouseEvent fun(type: number, point: { x: number, y: number }, modifiers: string[]|nil): hs.eventtap.event
+---@field setFlags fun(self, flags: table<string, boolean>): hs.eventtap.event
+---@field setProperty fun(self, property: number, value: number): hs.eventtap.event
+---@field post fun(self, app: hs.application|nil): hs.eventtap.event
 
 ---@class hs.chooser
 ---@field new fun(fn: fun(choice: table|nil)): hs.chooser

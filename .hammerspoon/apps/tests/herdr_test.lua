@@ -65,4 +65,38 @@ return {
   ['reference stays absolute outside the agent folder'] = function()
     assert(herdr.reference('/src/application/a.go', nil, nil, '/src/app') == '@/src/application/a.go')
   end,
+  ['isCmdClick is only cmd without other modifiers'] = function()
+    assert(herdr.isCmdClick({ cmd = true }))
+    assert(not herdr.isCmdClick({}))
+    assert(not herdr.isCmdClick({ cmd = true, shift = true }))
+    assert(not herdr.isCmdClick({ cmd = true, alt = true }))
+  end,
+  ['orderAgents puts the last picked first, then the preferred, without non agents'] = function()
+    ---@param address string
+    ---@param agent string
+    ---@param state string|nil
+    ---@return HcTerminal
+    local function hc(address, agent, state)
+      return { address = address, agent = agent, state = state or 'live' }
+    end
+    local terminals =
+      { hc('t1', 'copilot'), hc('t2', 'zsh'), hc('t3', 'claude'), hc('t4', 'copilot'), hc('t5', 'copilot', 'finished') }
+    ---@param agents HcTerminal[]
+    ---@return string
+    local function addresses(agents)
+      ---@type string[]
+      local list = {}
+      for _, agent in ipairs(agents) do
+        table.insert(list, agent.address)
+      end
+      return table.concat(list, ',')
+    end
+    assert(addresses(herdr.orderAgents(terminals, 't4', 't3')) == 't4,t3,t1')
+    assert(addresses(herdr.orderAgents(terminals, 't9', 't3')) == 't3,t1,t4')
+    assert(addresses(herdr.orderAgents(terminals, nil, nil)) == 't1,t3,t4')
+  end,
+  ['rebase swaps the leading reference and keeps the typed prompt'] = function()
+    assert(herdr.rebase('@a.go#L2 fix it', '@a.go#L2', '@/src/a.go#L2') == '@/src/a.go#L2 fix it')
+    assert(herdr.rebase('fix @a.go', '@a.go', '@/src/a.go') == 'fix @a.go')
+  end,
 }

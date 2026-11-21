@@ -63,7 +63,7 @@ local bindings = {
         key = 'i',
         shift = true,
         fn = apps.herdr.sendFileReference,
-        desc = 'Herdr - Send @file#line or @folder/ to the last focused agent of the shown tab',
+        desc = 'Herdr - Prompt an agent with @file#line or @folder/, picking the agent',
       },
       -- { key = 'i', name = 'iTerm2' },
       -- { key = 'i', fn = apps.iterm.omni, shift = true },
