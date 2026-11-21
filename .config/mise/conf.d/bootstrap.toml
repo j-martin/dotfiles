@@ -1,3 +1,7 @@
+# Install missing brew formulae/casks (incl. env-specific ones) on `mise install`.
+[hooks]
+postinstall = "mise bootstrap packages apply"
+
 [bootstrap.packages]
 "brew:autojump" = "latest"
 "brew:bash" = "latest"
