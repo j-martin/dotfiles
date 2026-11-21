@@ -106,9 +106,6 @@ _macos_customizations() {
 
   killall Dock || true
   killall Finder || true
-
-  # fix emacs ansi-term escape code, eterm-color.ti ships with emacs-plus
-  tic -o ~/.terminfo "$(find "$(/opt/homebrew/bin/brew --prefix)/Cellar" -type f -name 'eterm-color.ti' | head -n 1)"
 }
 
 _macos_apps() {
@@ -213,8 +210,7 @@ EOF
   if [[ -n "${lsd_pid}" ]]; then
     kill "${lsd_pid}"
     # Wait for launchd to respawn it, duti calls fail silently until then.
-    local attempt
-    for attempt in {1..20}; do
+    for _ in {1..20}; do
       duti -d public.plain-text > /dev/null 2>&1 && break
       sleep 0.5
     done
