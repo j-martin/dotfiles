@@ -13,7 +13,7 @@ ali() {
 }
 
 alias c=z
-yp() { rg --files $PWD | _fzf_query_all "$@" | _clipboard_copy }
+yp() { rg --files "$PWD" | _fzf_query_all "$@" | _clipboard_copy; }
 
 # ZSH Specific
 if [ -n "$ZSH_VERSION" ]; then

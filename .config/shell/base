@@ -26,8 +26,10 @@ if command -v fzf > /dev/null 2>&1 && ! declare -f __fzf_comprun > /dev/null; th
   eval "$(fzf --zsh)"
 fi
 
-test -e /usr/local/bin/brew \
-  && export BREW_PREFIX="$(brew --prefix)"
+if [[ -e /usr/local/bin/brew ]]; then
+  BREW_PREFIX="$(brew --prefix)"
+  export BREW_PREFIX
+fi
 
 GPG_TTY="$(tty)"
 export GPG_TTY
