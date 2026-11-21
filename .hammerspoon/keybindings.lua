@@ -125,8 +125,6 @@ local bindings = {
       { key = 'y', name = 'Gmail' },
       { key = 'z', name = 'Google Meet' },
       { key = 'z', fn = apps.googleMeet.toggleMute, shift = true, desc = 'Google Meet - Toggle Mute' },
-      { key = '-', fn = hs.grid.resizeWindowShorter, shift = true, desc = 'Windows - Shorter' },
-      { key = '=', fn = hs.grid.resizeWindowTaller, shift = true, desc = 'Windows - Taller' },
       { key = 'up', fn = hs.grid.pushWindowUp, shift = true, desc = 'Windows - Up' },
       { key = 'down', fn = hs.grid.pushWindowDown, shift = true, desc = 'Windows - Down' },
       { key = 'left', fn = hs.grid.pushWindowLeft, shift = true, desc = 'Windows - Left' },
