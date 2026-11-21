@@ -1,2 +1,5 @@
 [tools]
 "pypi:litecli" = "latest"
+
+[bootstrap.packages]
+"brew-cask:wifiman" = "latest"
