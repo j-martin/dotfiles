@@ -10,7 +10,7 @@ Living in this dir since that is `dot-agent` working dir.
 - Avoid reference to machine specific local dir/file paths as much as possible.
 - Use `mise` tasks (`mise.toml`, `mise run <task>`) for project tasks, never `Taskfile.yml`/`task` or Makefiles. Convert existing `Taskfile.yml` files to `mise.toml` when touching them.
 - Iterate on the AGENTS.md file to add new rules and instructions, and update the snippets library accordingly based on the instructions you are given during regular prompting.
-- Any customization, must be also added to `~/.setup/setup.sh`
+- Only add a customization to `~/.setup/setup.sh` if it cannot be committed as a text file or symlink in the home dir, or if it lives outside the home dir.
 - When refactoring code, renaming, always use `home grep` to check for previous usages.
 
 # Git
