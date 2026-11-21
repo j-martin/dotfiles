@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Home/.files
+alias home='git --work-tree=$HOME --git-dir=$HOME/.files.git'
+alias h=_home_git
+# Agents expect plain git; outside a repo the fallback silently targets the home repo.
+if [ -z "${AI_AGENT}${CLAUDECODE}${COPILOT_CLI}${OPENCODE}${CURSOR_AGENT}${GEMINI_CLI}${CODEX_SANDBOX}" ]; then
+  # A function, not an alias: aliases are expanded when ~/.config/shell/functions are defined, before this file loads.
+  unalias git 2>/dev/null
+  git() {
+    _git_or_home "$@"
+  }
+fi
+alias hd='home diff'
+alias hdf='home icdiff'
+hadd() {
+  echo "$*" | grep -vi '.org\|.config\|.private\|work\|Dropbox' && home add -f "$@"
+}
+alias hlsi='home list-ignored'
+alias hms='home commit -m'
+alias hll='home log -p'
+alias hdot='open https://github.com/j-martin/dotfiles'
+alias hsu=_home_submodule_update
+alias hsrm=_home_submodule_remove
+he() {
+  (cd "$HOME" && home ls-files | e "$@")
+}

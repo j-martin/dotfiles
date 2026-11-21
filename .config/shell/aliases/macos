@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+alias flushdns='sudo killall -HUP mDNSResponder'
+alias hosts='sudo vi /etc/hosts'
+alias lo='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
+alias noisy='pkill -f Noisy && open -a /Applications/NoisyTyper.app'
+alias updatedb='sudo /usr/libexec/locate.updatedb'
+alias fixsound='sudo killall coreaudiod'
+
+if [[ "$(uname)" == 'Darwin' ]]; then
+  alias which='where'
+  # Fixes keyring access to the keychain.
+  alias sign-venv='codesign -f -s - "$(pipenv --venv)/bin/python"'
+  alias remove-attrs="find . -exec xattr -c '{}' \;"
+  alias brwe=brew
+fi

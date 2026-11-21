@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+alias m='mise'
+alias mr='mise run'
+mub() { mise bootstrap packages use brew:$1 }
+mubc() { mise bootstrap packages use brew-cask:$1 }
+
+# Brew
+alias bdump="mise bootstrap packages import --global"
+alias bcleanup="mise bootstrap packages prune --dry-run"
+alias bi="mise bootstrap packages use --global" # bi brew:<formula> or bi brew-cask:<cask>

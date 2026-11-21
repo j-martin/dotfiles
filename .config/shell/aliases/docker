@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+alias dk='docker'
+alias de=_docker_exec
+alias dkp='docker ps'
+dki() { docker images | awk '{print $1 ":" $2}' | sort -u; }
+alias dksync='bash -c "podman machine ssh date -s \"$(date -I seconds)\""'
+alias dc='_load_dot_env && docker-compose'
+alias dm='docker-machine'
+dbuild() {
+  local name="$(basename "$(pwd)")"
+  local image="$(_docker_pick_images ${name:0:5} || _docker_pick_images)"
+  docker build -t "$image" . && docker run -it "$image"
+}
+dlog() { docker logs -f "$(_docker_pick_container $1)"; }
+drun() { docker run -it "$(_docker_pick_images $1)" bash; }
+drunb() { docker run --entrypoint='/bin/bash' -it "$(_docker_pick_images $1)"; }
+dbash() { docker exec -it "$(_docker_pick_container $1)" bash; }
+dsh() { docker exec -it "$(_docker_pick_container $1)" sh; }
+dkill() { docker kill "$(_docker_pick_container $1)"; }
+
+alias dkillall='docker ps -q | xargs -r docker kill'
+alias drmiall='docker images -q | xargs -r docker rmi -f'
+alias dkcleanup='gum confirm "Delete all containers and volumes?" && docker rm -f $(docker ps -a -q) && docker volume rm $(docker volume ls -q)'
+alias dtest='docker build -t $(basename $(pwd)) . && docker run -it $(basename $(pwd))'

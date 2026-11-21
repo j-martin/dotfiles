@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+# Editor
+alias vi='nvim'
+alias v='nvim'
+alias nv='nvim'
+alias vf='_with_fzf nvim'
+alias sf='_with_fzf subl'
+alias et='emacsclient --tty'
+alias ec=editor
+alias e='_with_fzf "editor"'
+alias etf='_with_fzf "emacsclient --tty"'
+
+ed() {
+  (
+    cd "$(git rev-parse --show-toplevel)"
+    git diff --name-only origin/master...HEAD | _with_fzf editor
+  )
+}
+
+ett() {
+  local file="$1"
+  _touch_mkdir "${file}"
+  editor "${file}"
+}
+
+ea() {
+  editor $(ag "$@" | fzf -0 -1 | awk -F: '{print "+" $2 " " $1}')
+}
+
+# Quick edit
+alias eco='_with_fzf "editor" ".conf$" '
+alias esc='_with_fzf "editor" ".scala$" '
+alias ej='_with_fzf "editor" ".java$" '
+alias esb='_with_fzf "editor" ".sbt$" '
+alias epy='_with_fzf "editor" ".py$" '
+alias esh='_with_fzf "editor" ".sh$" '
+alias ejs='_with_fzf "editor" ".js$" '
+alias ejo='_with_fzf "editor" ".json$" '
+alias exm='_with_fzf "editor" ".xml$" '
+alias eo='editor --eval "(jm/helm-org-dir)"'
+
+# Sublime
+alias st='subl'
+alias stt='subl ./' # Depends on the 'st' command in the ~/.bin dir.
+
+# Markdown
+alias vir='$EDITOR README.md'
+vme() {
+  $EDITOR "$1" &
+  vmd "$1"
+}
+alias vms='EDITOR=subl vme'
+alias vmr='EDITOR=subl vme README.md'
+alias emr='EDITOR=editor vme README.md'
+
+# Emacs
+alias emacs-clean="find ~/.emacs.d -name '*.elc' -delete"
+alias emacs-stop='kill -USR1 $(pgrep Emacs)'
+emacs-rebuild-eshell-alias() {
+  alias | sed "s/='/ /; s/'$//; s/^/alias /" > ~/.emacs.d/.cache/eshell/alias
+}

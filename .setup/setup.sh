@@ -4,6 +4,10 @@ set -o errexit
 set -o pipefail
 set -x
 
+readonly EDITOR_APP="$HOME/Applications/Editor.app"
+readonly EDITOR_APP_ID='com.github.j-martin.editor'
+readonly LSREGISTER='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister'
+
 _macos_customizations() {
   sudo pmset -a standbydelay 86400
   sudo pmset -a sms 0
@@ -125,12 +129,116 @@ _macos_apps() {
     | sudo tee -a /etc/shells
 }
 
+# Editor.app forwards double-clicked files to ~/.bin/editor, which opens them in
+# Emacs (emacsclient) or runs them when they are executable.
+_macos_editor_app() {
+  local app="${EDITOR_APP}"
+  rm -rf "${app}"
+  mkdir -p "$(dirname "${app}")"
+  osacompile -o "${app}" << 'EOF'
+on open theItems
+  set args to ""
+  repeat with anItem in theItems
+    set args to args & " " & quoted form of POSIX path of anItem
+  end repeat
+  do shell script "\"$HOME/.bin/editor\" --finder" & args & " > /dev/null 2>&1 &"
+end open
+EOF
+  local info="${app}/Contents/Info.plist"
+  plutil -replace CFBundleIdentifier -string "${EDITOR_APP_ID}" "${info}"
+  plutil -replace CFBundleName -string 'Editor' "${info}"
+  plutil -replace LSUIElement -bool true "${info}"
+  plutil -replace CFBundleDocumentTypes -json '[{
+    "CFBundleTypeName": "Document",
+    "CFBundleTypeRole": "Editor",
+    "LSHandlerRank": "Alternate",
+    "LSItemContentTypes": ["public.data", "public.text", "public.unix-executable"]
+  }]' "${info}"
+  # Editing Info.plist invalidates the applet signature.
+  codesign --force --deep --sign - "${app}"
+  "${LSREGISTER}" -f -R "${app}"
+}
+
+_macos_default_apps() {
+  # public.data covers files without a more specific type (e.g. no extension).
+  local targets=(
+    public.data public.unix-executable public.text public.plain-text public.utf8-plain-text
+    public.source-code public.script public.shell-script public.json public.xml
+    public.yaml public.comma-separated-values-text public.log net.daringfireball.markdown
+    .md .org .txt .log .conf .cfg .ini .toml .yaml .yml .json .env .lua .el .sh .zsh .bash
+  )
+
+  # `duti -s` fails (error -50) for public.data and extensions without a declared
+  # type on recent macOS, so first write the handlers like Finder's "Change All" does.
+  /usr/bin/python3 - "${EDITOR_APP_ID}" "${targets[@]}" << 'EOF'
+import os, plistlib, sys
+
+path = os.path.expanduser(
+    "~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist"
+)
+bundle_id, targets = sys.argv[1], sys.argv[2:]
+plist = {}
+if os.path.exists(path):
+    with open(path, "rb") as f:
+        plist = plistlib.load(f)
+
+handlers = []
+for target in targets:
+    if target.startswith("."):
+        handlers.append({
+            "LSHandlerContentTag": target[1:],
+            "LSHandlerContentTagClass": "public.filename-extension",
+        })
+    else:
+        handlers.append({"LSHandlerContentType": target})
+
+keys = {(h.get("LSHandlerContentType"), h.get("LSHandlerContentTag")) for h in handlers}
+existing = [
+    h for h in plist.get("LSHandlers", [])
+    if (h.get("LSHandlerContentType"), h.get("LSHandlerContentTag")) not in keys
+]
+for handler in handlers:
+    handler["LSHandlerRoleAll"] = bundle_id
+    handler["LSHandlerPreferredVersions"] = {"LSHandlerRoleAll": "-"}
+
+plist["LSHandlers"] = existing + handlers
+os.makedirs(os.path.dirname(path), exist_ok=True)
+with open(path, "wb") as f:
+    plistlib.dump(plist, f, fmt=plistlib.FMT_BINARY)
+EOF
+
+  # Restart the user's LaunchServices daemon so it reloads the handlers.
+  local lsd_pid
+  lsd_pid="$(pgrep -u "${USER}" -x lsd || true)"
+  if [[ -n "${lsd_pid}" ]]; then
+    kill "${lsd_pid}"
+    # Wait for launchd to respawn it, duti calls fail silently until then.
+    local attempt
+    for attempt in {1..20}; do
+      duti -d public.plain-text > /dev/null 2>&1 && break
+      sleep 0.5
+    done
+    sleep 1
+  fi
+  # The restart drops registrations that were not flushed yet.
+  "${LSREGISTER}" -f -R "${EDITOR_APP}"
+
+  # Extensions with a type declared by another app (e.g. .toml, .log) need the
+  # handler set on that type, which duti resolves.
+  local target
+  for target in "${targets[@]}"; do
+    duti -s "${EDITOR_APP_ID}" "${target}" all 2> /dev/null || true
+  done
+}
+
 _main() {
-  chmod 700 "$HOME/.gnupg"
-  chmod -R 600 "$HOME/.gnupg"
+  find "$HOME/.gnupg" -type d -exec chmod 700 {} +
+  find "$HOME/.gnupg" -type f -exec chmod 600 {} +
 
   _macos_apps
   _macos_customizations
+  _macos_editor_app
+  _macos_default_apps
 
   xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
 

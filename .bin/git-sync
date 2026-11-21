@@ -90,7 +90,7 @@ _leak_findings() {
   ' <<<"$result" 2>/dev/null
 }
 
-# Reviewer is `ollama` or an $AGENT value as in ~/.functions/agents (`claude`, else copilot).
+# Reviewer is `ollama` or an $AGENT value as in ~/.config/shell/functions/agents (`claude`, else copilot).
 _leak_run() {
   local reviewer="$1" input="$2"
   case "$reviewer" in

@@ -1,46 +1,117 @@
 #!/usr/bin/env bash
 
+# Opens files with the right tool, Emacs (emacsclient) by default.
+#   editor <emacsclient args>...    e.g. `editor file`, `editor +12 file`, `editor --eval '(sexp)'`.
+#   editor -                        Opens stdin in a temporary file.
+#   editor <path> <line> [column]   From iTerm's semantic history, may use IntelliJ.
+#   editor --finder <path>...       From Editor.app, the default macOS handler for
+#                                   text and extensionless files (see ~/.setup/setup.sh).
+#                                   Executables are run instead of opened.
+# Set LOG=1 to append the calls to ~/.editor.log.
+
 set -o errexit
 set -o pipefail
-set -u
+set -o nounset
 
-# Set LOG=anything to debug iTerm...
-readonly LOG
+# GUI apps only get the bare launchd PATH.
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 _main() {
+  _log 'Arguments:' "$@"
+  case "${1:-}" in
+    --finder)
+      shift
+      local filepath
+      for filepath in "$@"; do
+        _open_from_finder "${filepath}"
+      done
+      ;;
+    -)
+      _emacs_stdin
+      ;;
+    +)
+      # iTerm semantic history without a line number.
+      _emacs "${@:2}"
+      ;;
+    *)
+      if _is_line_reference "$@"; then
+        _open "$@"
+      else
+        _emacs "$@"
+      fi
+      ;;
+  esac
+}
+
+# iTerm passes `<path> <line> [column]`, where line and column may be empty.
+_is_line_reference() {
+  [[ $# -ge 2 ]] && [[ $# -le 3 ]] \
+    && [[ "$2" =~ ^[0-9]*$ ]] && [[ "${3:-}" =~ ^[0-9]*$ ]]
+}
+
+_open_from_finder() {
+  local filepath="$1"
+  if [[ -f "${filepath}" ]] && [[ -x "${filepath}" ]]; then
+    _run "${filepath}"
+  else
+    _open "${filepath}"
+  fi
+}
+
+_open() {
   local filepath="$1"
   local line_number="${2:-}"
   local column_number="${3:-}"
 
   case "${filepath}" in
     *.scala | *.java | *.sbt | *pom.xml | *.tsx | *.tf | *.py | *.go)
-      if [[ -n "${line_number}" ]]; then
-        _idea "${filepath}:${line_number}"
-      else
-        _idea "${filepath}"
-      fi
-      ;;
-    *)
-      if [[ -n "${line_number}" ]]; then
-        _emacs "+${line_number}:${column_number}" "${filepath}"
-      else
-        _emacs "${filepath}"
+      if command -v idea > /dev/null 2>&1; then
+        _exec idea "${filepath}${line_number:+:${line_number}}"
+        return
       fi
       ;;
   esac
+
+  if [[ -n "${line_number}" ]]; then
+    _emacs "+${line_number}${column_number:+:${column_number}}" "${filepath}"
+  else
+    _emacs "${filepath}"
+  fi
+}
+
+_run() {
+  local filepath="$1"
+  (
+    cd "$(dirname "${filepath}")"
+    _exec "${filepath}"
+  )
+}
+
+_emacs_stdin() {
+  local tempfile
+  tempfile="$(mktemp -t "emacs-stdin-${USER}")"
+  cat - > "${tempfile}"
+  _emacs "${tempfile}"
 }
 
 _emacs() {
-  _exec "${HOME}/.bin/ec" "$@"
+  osascript -e 'tell application "Emacs" to activate' > /dev/null 2>&1 &
+  _exec "$(_brew_prefix)/bin/emacsclient" --no-wait "$@"
 }
 
-_idea() {
-  _exec /usr/local/bin/idea "$@"
+_brew_prefix() {
+  if [[ -n "${BREW_PREFIX:-}" ]]; then
+    echo "${BREW_PREFIX}"
+  elif [[ -d /opt/homebrew ]]; then
+    echo /opt/homebrew
+  else
+    echo /usr/local
+  fi
 }
 
 _exec() {
   _log "$@"
-  exec "$@" 2>&1 &
+  exec "$@" > /dev/null 2>&1 &
 }
 
 _log() {
@@ -49,5 +120,4 @@ _log() {
   fi
 }
 
-_log 'Arguments:' "$@"
 _main "$@"

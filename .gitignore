@@ -1,9 +1,9 @@
 *
 !/.hammerspoon/
 !/.hammerspoon/*
-!/.functions/
-!/.functions/*
 !/.config/
+!/.config/shell/
+!/.config/shell/**
 !/.config/mise/
 !/.config/mise/*
 !/.bin/hammerspoon-snippets-generator
@@ -16,3 +16,4 @@
 !/.config/herdr-app/mods/jm-*/mod.json
 !/.config/herdr-app/layouts/
 !/.config/herdr-app/layouts/jm-*.json
+.DS_Store

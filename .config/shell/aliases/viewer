@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# bat / less / cat
+alias b=bat
+alias ba='_with_fzf bat'
+alias ca='_with_fzf cat'
+alias lc=bat
+alias lcf='_with_fzf "lc"'
+alias le='less -SRi'
+alias lf='_with_fzf cat | less -SRi'
+alias ler='less README.md'
+alias ic=imgcat
+
+for lang in go typescript markdown python yaml json bash; do
+  alias b${lang:0:1}="bat --language '${lang}'"
+done
+
+if [ -n "$ZSH_VERSION" ]; then
+  alias -g Y='| bat --language yaml'
+  for lang in go TYPESCRIPT MARKDOWN PYTHON YAML JSON BASH; do
+    alias -g B${lang:0:1}="| bat --language '${lang}'"
+  done
+fi
+
+# diff
+idiff() { icdiff "$1" "$2" | less -SRi; }
+idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
+
+# json / yaml
+# json-pretty() { jq . "$1" | sponge "$1" }
+jqx() { jq . -C "$@" | less -SRi; }
+alias jq-serialized='jq -R -s .'
+alias jqc='pbpaste | jq .'
+alias jqcl='pbpaste | jq -C . | less -SRi'
+alias jq-paths=_jq_paths
+alias yml2json="python3 -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' <"

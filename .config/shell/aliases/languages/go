@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+alias gomd='go mod download'
+alias gomt='go mod tidy'

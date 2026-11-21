@@ -108,7 +108,7 @@ export KEYTIMEOUT=1
 bindkey '^[[1;9C' forward-word
 bindkey '^[[1;9D' backward-word
 
-source "$HOME/.base"
+source "$HOME/.config/shell/base"
 source <(fzf --zsh)
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"

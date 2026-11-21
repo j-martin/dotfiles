@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+alias bq='PATH="~/.pyenv/versions/3.7.8/bin/:$PATH" \bq'
+alias gg='gcloud'
+alias ggl='gcloud auth login'
+alias s3='gcloud storage'
+alias gmachine='gcloud compute machine-types list'

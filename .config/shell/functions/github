@@ -1,133 +1,7 @@
 #!/usr/bin/env bash
 
-_git_repo() {
-  git config --get remote.origin.url \
-    | sed 's#https://github.com/##; s#.git$##; s#git@github.com:##'
-}
-
-_git_org_name() {
-  git config --get remote.origin.url \
-    | cut -d/ -f2 \
-    | cut -d. -f1
-}
-
-_git_repo_name() {
-  git config --get remote.origin.url \
-    | cut -d/ -f2 \
-    | cut -d. -f1
-}
-
-_git_current_branch() {
-  git symbolic-ref --short -q HEAD
-}
-
-_git_current_branch_url() {
-  _git_current_branch \
-    | sed "s/#/%23/g"
-}
-
-_git_filter_issue_key() {
-  sed 's/patch-//' \
-    | grep -oE '^[A-Z]+-[0-9]+'
-}
-
-_git_current_issue_number() {
-  _git_current_branch \
-    | (_git_filter_issue_key || echo '')
-}
-
-_git_pick_branch_no_origin() {
-  local filter="$1"
-  _git_pick_branch "$filter" \
-    | sed 's/origin\///g'
-}
-
-_git_pick_unstaged_files() {
-  {
-    echo '.'
-    git diff --name-only
-    git ls-files --others --exclude-standard
-  } \
-    | fzf -1 --multi --literal --query "${1:-}" "${@:2}"
-}
-
-# Force adds ignored files picked with fzf (multi-select), optionally pre-filtered by a query.
-_git_add_ignored() {
-  (
-    IFS=$'\n\t'
-    local noise='(^|/)(node_modules|\.idea|\.vscode|\.venv|venv|__pycache__|\.gradle|\.next|dist|build|target)/|(^|/)\.DS_Store$'
-    # shellcheck disable=SC2046
-    git add --force -- $(git ls-files --others --ignored --exclude-standard | grep -vE "${noise}" | _fzf "${1:-}" --multi)
-  )
-}
-
-_git_command_with_fzf() {
-  local command="$1"
-  local query="$2"
-  if [[ -e "${query}" ]] || [[ -z "${query}" ]] || [[ "${query}" == -* ]]; then
-    git "${command}" "${@:2}"
-  else
-    (
-      IFS=$'\n\t'
-      git "${command}" $(_git_pick_unstaged_files "${query}") "${@:3}"
-    )
-  fi
-}
-
-_git_extract_commit() {
-  local path="$1"
-  local ref="${2:-HEAD}"
-  git checkout "${ref}" -- "${path}"
-  git commit -m 'merge with previous commit' .
-  git revert HEAD
-}
-
-_git_pick_any_branches() {
-  git target_branch --all \
-    | sed 's#remotes/origin/##; s#^. ##' \
-    | fzf "$@"
-}
-
-_git_pick_branch() {
-  local filter="$1"
-  git for-each-ref \
-    --sort=-committerdate refs/heads/ \
-    --format='%(HEAD) %(refname:short) - %(objectname:short) - %(contents:subject) - %(authorname) (%(committerdate:relative))' \
-    | grep -v '^\*' \
-    | fzf --no-sort -q "${filter}" \
-    | awk '{print $1}'
-}
-
-_git_pick_commit() {
-  git log --oneline --all \
-    | head -n 100 \
-    | _fzf "$1" \
-    | _pick_first_col
-}
-
-_git_commit_with_issue_key() {
-  local message="$1"
-  git commit -n -m "$(_git_format_commit_message ${message})" "${@:2}"
-}
-
-_git_format_commit_message() {
-  fold -w 64 -s <<< "${@}" \
-    | sed 's,^ *,,; s, *$,,'
-}
-
-_slugify() {
-  tr ':' '/' \
-    | tr \'' "#,.+^&*()`[]@$%' '-' \
-    | sed -E 's/-+/-/g; s/^-//; s/-$//; s#/-#/#g; s#/+#/#g; s#(^[a-z]+)-#\1/#; s#-*/-*#/#g'
-}
-
-_git_new_branch_from_commit() {
-  # Removing the ] that appears next to the commit hash depending on the operation.
-  local object="${1//]/}"
-  local title
-  title="$(git log --format=%s -n 1 "${object}")"
-  _git_new_branch "${title}"
-  git cherry-pick "${object}"
+_github() {
+  gh api --method GET "$@"
 }
 
 # Moves the last commit of the current branch onto a new branch added on top of the active gh stack.
@@ -158,50 +32,6 @@ _git_stack_add_pick_branch() {
     return 1
   fi
   gh stack add "${branch}"
-}
-
-__git_get_default_branch_name() {
-  git symbolic-ref --short refs/remotes/origin/HEAD \
-    | sed 's#.*/##'
-}
-
-_git_shorten_issue_url() {
-  sed -E '1 s#http.*/(browse|issues)/([A-Z]+-[0-9]+).*)#\2)#'
-}
-
-_git_new_branch() {
-  local name
-  name="$(_git_shorten_issue_url <<< "$1")"
-  local target_branch="$2"
-  if [[ -z "${target_branch}" ]]; then
-    target_branch="HEAD"
-  fi
-
-  git fetch 'origin'
-  __git_new_branch "$name" "origin/${target_branch}"
-}
-__git_new_branch() {
-  local name="$1"
-  local base_ref="${2:-}"
-  git checkout -b "$(_slugify <<< "$name")" "${base_ref}"
-}
-
-_git_new_branch_and_commit_from_new_issue() {
-  local title="$1"
-  local desc="$2"
-  _git_new_branch_from_new_issue "${title}" "${desc}"
-  git commit -n -m "$(_git_format_commit_message "$(_jira_current_issue_key_or_assigned) ${title}\n\n${desc}")" "${@:3}"
-}
-
-_git_new_branch_and_commit() {
-  local message="$1"
-  message="$(_git_shorten_issue_url <<< "${message}")"
-  _git_new_branch "$(head -n1 <<< "${message}")"
-  git commit -n -m "$(_git_format_commit_message "${message}")" "${@:2}"
-}
-
-_github() {
-  gh api --method GET "$@"
 }
 
 _github_post() {
@@ -434,66 +264,6 @@ _github_pull_request_for_commit() {
     | jq -r ".[].html_url"
 }
 
-_git_root_dir() {
-  git rev-parse --show-toplevel
-}
-
-_git_new_worktree() {
-  local name="$1"
-  local main_repo
-  main_repo="$(git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')"
-  local repo_name
-  repo_name="$(basename "${main_repo}")"
-  local worktrees_dir="${HOME}/src/worktrees"
-  if [[ -z "${name}" ]]; then
-    local i=1
-    while [[ -e "${worktrees_dir}/${repo_name}-${i}" ]]; do
-      i=$((i + 1))
-    done
-    name="${i}"
-  fi
-  local new_dir="${worktrees_dir}/${repo_name}-${name}"
-  if [[ ! -d "${new_dir}" ]]; then
-    mkdir -p "${worktrees_dir}"
-    git worktree prune
-    git worktree add --detach "${new_dir}" "origin/HEAD" || return 1
-  fi
-  cd "${new_dir}" || _error "Failed to switch to '${new_dir}'"
-}
-
-_git_switch_worktree() {
-  if [[ -n "$1" ]]; then
-    _git_new_worktree "$1"
-    return
-  fi
-  local cur_repo
-  cur_repo="$(_git_root_dir)" || return 1
-  git worktree prune
-  local new_entry="[new worktree]"
-  local others
-  others="$(git worktree list --porcelain \
-    | awk '/^worktree /{sub(/^worktree /, ""); print}' \
-    | grep --invert-match --line-regexp --fixed-strings "${cur_repo}")"
-  if [[ -z "${others}" ]]; then
-    _git_new_worktree
-    return
-  fi
-  local selected
-  selected="$(printf '%s\n%s\n' "${others}" "${new_entry}" | fzf --prompt 'worktree> ')"
-  if [[ -z "${selected}" ]]; then
-    return
-  elif [[ "${selected}" == "${new_entry}" ]]; then
-    _git_new_worktree
-  else
-    cd "${selected}" || _error "Failed to switch to '${selected}'"
-  fi
-}
-
-_git_commit_individual_files() {
-  git diff --name-only \
-    | xargs -I{} git commit -m '{}' '{}'
-}
-
 _github_subscribe_to_team_repos() {
   local org="$1"
   local team="$2"
@@ -525,11 +295,6 @@ _github_open_check() {
     sleep 1
   done
   _safe_open "${url}"
-}
-
-_git_get_pr_message() {
-  git log --pretty=%B "origin/HEAD...HEAD" \
-    | _unfill
 }
 
 _github_pr() {
@@ -566,37 +331,6 @@ _github_pr_with_reviewer() {
     "$@"
 }
 
-_git_clone() {
-  local repository="$1"
-  local src_dir="${HOME}/src"
-
-  if [[ "${repository}" != */* ]]; then
-    repository="github.com/${GITHUB_WORK_ORG}/${repository}"
-  elif [[ "${repository}" != 'https://'* ]] && [[ "${repository}" != 'github.com'* ]]; then
-    repository="github.com/${repository}"
-  fi
-
-  local repo_dir
-  repo_dir="${src_dir}/$(sed -E "s#https://##; s/\.git$//" <<< "${repository}" \
-    | awk 'BEGIN{FS="/"; OFS="/"} {print $1, $2, $3}')"
-
-  local repo
-  repo="$(sed -E "s#https://##; s/\.git$//" <<< "${repository}" \
-    | awk -F/ '{print "git@" $1 ":" $2 "/" $3}')"
-
-  if [[ ! -d "${repo_dir}" ]]; then
-    mkdir -p "$(dirname "${repo_dir}")"
-    (
-    unset -f git
-    \git clone "$repo" "${repo_dir}"
-    ) || return
-  fi
-
-  cd "${repo_dir}" \
-    && _info "Moved to '$PWD'..." \
-    || _info 'Failed to change repo_dir...'
-}
-
 _git_clone_all_org_repos() {
   local org="${1:-nestoca}"
   for repo in $(gh repo list "${org}" --json name,isArchived --limit 200 \
@@ -615,89 +349,8 @@ _github_actions_delete_all_runs() {
     | xargs -I{} echo gh run delete {}
 }
 
-_git_delete_commit() {
-  local commit="$1"
-  git rebase --onto "${commit}^" "${commit}"
-}
-
-_git_list_files_not_under_source_control() {
-  local repo_dir="$1"
-  find "${repo_dir}" \( -type d -exec test -d '{}'/.git \; -prune \) -o -print
-}
-
 _gh_generate_approve_commands_from_url() {
   pbpaste | sed 's/^/gh pr review --approve /' | _clipboard_copy
-}
-
-_git_compare_releases() {
-  git log -p "$(
-    git tag \
-      | sort -r \
-      | tail -n +2 \
-      | fzf --no-sort --prompt 'Pick the older release'
-  )..$(
-    git tag \
-      | sort -r \
-      | fzf --no-sort --prompt 'Pick the last release'
-  )"
-}
-
-_git_copy_last_commit() {
-  git log --pretty='%B' HEAD^.. \
-    | pbcopy
-  _info 'The last commit message is now in your clipboard.'
-}
-
-_git_set_upstream() {
-  local target_branch
-  target_branch="$(_git_current_branch)"
-  git target_branch "--set-upstream-to=origin/${target_branch}" "${target_branch}"
-}
-
-mass-main() {
-  mass 'git status && git checkout main && git pull && git pull --tags'
-}
-
-mass-prep() {
-  local target_branch="$1"
-  if [[ -z "${target_branch}" ]]; then
-    echo 'No target_branch defined, stopping.'
-    return 1
-  fi
-  mass-main
-  mass "git checkout -b '${target_branch}'"
-}
-
-mass-done() {
-  local message="$1"
-  if [[ -z "${message}" ]]; then
-    echo 'No commit message defined, stopping.'
-    return 1
-  fi
-  mass "git commit -n -m '${message}' ."
-  mass _git_push_pr_if_commits
-}
-
-mass() {
-  find . -maxdepth 2 -type d -name '.git' \
-    | _mass "$@"
-}
-
-_mass() {
-  parallel --max-proc 10 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'"  $* )"
-}
-
-_git_jira_issue_from_branch() {
-  _git_current_branch \
-    | sed -E 's#^[a-z]+/([a-zA-Z]+-[0-9]+)/.*#\1#'
-}
-
-_git_patch_similar_files() {
-  local reference_file="$1"
-  local file_pattern="$2"
-  for file_path in $(git ls-files "${file_pattern}"); do
-    git diff "${reference_file}" | patch --forward --no-backup-if-mismatch "${file_path}"
-  done
 }
 
 _github_pr_url() {
@@ -725,15 +378,6 @@ _github_list_repo_secrets() {
      -H "Accept: application/vnd.github+json" \
      -H "X-GitHub-Api-Version: 2022-11-28" \
      https://api.github.com/repos/${owner}/${repo}/actions/secrets
-}
-
-_git_checkout() {
-  local branch="$1"
-  if [[ "${branch}" == 'https://github.com'* ]]; then
-    _git_checkout_pr_from_url "${branch}" "${@:2}"
-    return
-  fi
-  git checkout "$@"
 }
 
 _git_checkout_pr_from_url() {
@@ -772,9 +416,4 @@ _gh_action_sha() {
   cat << EOF
   {"ref": "${action}", "sha": "${repo}@${sha}", "allowTag": true}
 EOF
-}
-
-_git_log_author() {
-  local author="${1:-$(git config user.name | awk '{print $NF}')}"
-  git log -p --regexp-ignore-case --author="${author}" "${@:2}"
 }

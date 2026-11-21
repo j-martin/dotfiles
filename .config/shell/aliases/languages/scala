@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+alias scal='scala -Dscala.color'
+agsbt() { agq "$@" -a --depth 2 ./*.{sbt,scala}; }

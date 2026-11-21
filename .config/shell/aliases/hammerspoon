@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+alias hsl='tail -f "$HOME/Library/Logs/hammerspoon/logs.jsonl" | jq'

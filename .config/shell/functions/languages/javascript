@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+nvm() {
+  if grep --quiet --fixed-strings "$(node --version)" .nvmrc; then
+    _info "Node version $(node --version) matches .nvmrc. Skipping nvm use..."
+    return
+  fi
+  unset -f nvm
+  export NVM_DIR=~/.nvm
+  setopt no_aliases
+  if [[ -s "${BREW_PREFIX}/opt/nvm/nvm.sh" ]]; then
+    # Loading NVM.
+    source "${BREW_PREFIX}/opt/nvm/nvm.sh"
+  fi
+  nvm "$@"
+  npm config delete prefix || true
+  node --version
+  setopt aliases
+}
+
+_with_nvm() {
+  unset -f "$1"
+  nvm use
+  "$@"
+}
+
+yarn() {
+  _with_nvm yarn "$@"
+}
+
+npm() {
+  _with_nvm npm "$@"
+}

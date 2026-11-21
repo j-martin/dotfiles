@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+alias k=kctl
+alias mk=minikube
+alias kg='kctl get'
+alias ksn='kctl switch-namespace'
+alias ke='kctl exec'
+alias kct=kubectx
+alias kns=kubens
+alias kd='kctl describe'
+alias kl='kctl logs'
+alias k8s-infer-deployment-name-from-pod-name="sed -E 's/-[a-z0-9]+-[a-z0-9]+$//' | sort -u"

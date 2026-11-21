@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+CIRCLE_URL="https://circleci.com/gh"
+GITHUB_URL='https://github.com'
+
+alias ghd='gh dash'
+alias gclon='git clone "$(_github_pick_repo)"'
+alias gci='_github_create_issue'
+alias gnh='_github_new_branch'
+alias gu='_github_open_url'
+
+# Pull requests
+alias ghbp='gpp && hbp'
+alias ghpr='gpom && gpp && _github_pr'
+alias ghprr='gpom && gpp && _github_pr_with_reviewer'
+alias ghpro='ghprr && _safe_open $(pbpaste)'
+alias ghprmsg='_git_get_pr_message | _clipboard_copy'
+alias ghprm='git pull && git push && gh pr merge "$(_git_current_branch)" --rebase'
+alias ghprc='_clipboard_copy <<< "$(_github_pr_url)"'
+ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r ;}
+alias ghw='watch -n10 github-events'
+
+# Stacks
+alias ghs='gh stack'
+alias ghsi='gh stack init'
+alias ghsm='gh stack modify'
+alias ghsr='gh stack rebase'
+alias ghsp='gh stack push'
+alias ghss='gh stack submit'
+alias ghsa='_git_stack_add_from_last_commit'
+alias ghsab='_git_stack_add_pick_branch'
+
+# Open in browser
+alias hpo='open "$GITHUB_URL/$(_git_repo)/pulls"'
+alias hco='_github_open_commit'
+alias hca='open "$GITHUB_URL/$(_git_repo)/actions"'
+alias hcc='_github_copy_commit_url'
+alias hck='_github_open_check'
+alias hp='_github_open_pr_for_commit'
+alias hpc='_github_copy_pr_url_for_commit'
+alias hb='open "$GITHUB_URL/$(_git_repo)/tree/$(_git_current_branch_url)"'
+alias hbp='gh pr view --web || open "$GITHUB_URL/$(_git_repo)/pull/new/$(_git_current_branch_url)"'
+alias hpr='_github_pr'
+alias hprr='_github_pr_with_reviewer'
+alias hbs='open "$GITHUB_URL/$(_git_repo)/branches"'
+alias his='open "$GITHUB_URL/$(_git_repo)/issues"'
+alias hw='open "$GITHUB_URL/$(_git_repo)/wiki"'
+alias hr='open "$GITHUB_URL/$(_git_repo)"'

@@ -10,6 +10,8 @@ Living in this dir since that is `dot-agent` working dir.
 - Avoid reference to machine specific local dir/file paths as much as possible.
 - Use `mise` tasks (`mise.toml`, `mise run <task>`) for project tasks, never `Taskfile.yml`/`task` or Makefiles. Convert existing `Taskfile.yml` files to `mise.toml` when touching them.
 - Iterate on the AGENTS.md file to add new rules and instructions, and update the snippets library accordingly based on the instructions you are given during regular prompting.
+- Any customization, must be also added to `~/.setup/setup.sh`
+- When refactoring code, renaming, always use `home grep` to check for previous usages.
 
 # Git
 
@@ -29,8 +31,8 @@ to do it.
 
 # Shell
 
-- Starts in `~/.zshrc`, then `~/.base` which is the entrypoint into my own custom config, which loads `~/.aliases` and then all the functions in `~/.functions`.
-- Never add functions in `~/.aliases` unless they are very simple, non-cryptic, one-liners. Otherwise put them in `~/.functions`.
+- Starts in `~/.zshrc`, then `~/.config/shell/base` which is the entrypoint into my own custom config, which loads all the functions in `~/.config/shell/functions/` and then the aliases in `~/.config/shell/aliases/` (one file per tool/theme, e.g. `git`, `mise`).
+- Never add functions in `~/.config/shell/aliases/` unless they are very simple, non-cryptic, one-liners. Otherwise put them in `~/.config/shell/functions/`.
 - I do not want my custom config in `~/.zshrc`.
 - There is `~/.private/profile` for config I do not want to be public.
 - Before implenting a new function check if we have matching ones. e.g. `_fzf_` etc.

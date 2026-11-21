@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+alias pc='pbcopy'
+alias pp='pbpaste'
+alias ptt='_paste_to_tempfile'
+alias pwdc='pwd | tr -d "\n" | pbcopy'
+alias pbclean='echo | pbcopy'
+alias opb='open "$(pbpaste)"'
+alias opd='open "$(basename "$(pbpaste)")"'
+alias oo='open $(pbpaste)'
+alias qrc='pbpaste | qr'
+cdp() {
+  local file_path
+  file_path="$(pbpaste)"
+  cd "${file_path}"  2> /dev/null || cd "$(dirname "${file_path}")"
+}
+alias cpb='cd $(dirname "$(pbpaste)")'

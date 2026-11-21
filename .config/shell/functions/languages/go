@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+_go_mod_download() {
+  for mod_file in $(find . -name 'go.mod' | grep -vE 'node_modules|templates' | sort); do
+    local directory
+    directory="$(dirname "${mod_file}")"
+    (
+      pushd "${directory}" > /dev/null
+      _info "Download go dependencies for ${PWD}..."
+      go mod tidy
+      go mod download
+      _info 'Done'
+    )
+  done
+}

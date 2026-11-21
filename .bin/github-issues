@@ -3,8 +3,9 @@
 set -o errexit
 set -o pipefail
 
-source "$HOME/.functions/base"
-source "$HOME/.functions/git"
+source "$HOME/.config/shell/functions/base"
+source "$HOME/.config/shell/functions/git"
+source "$HOME/.config/shell/functions/github"
 
 _format () {
     jq -r '"\(.created_at) - \(if has("pull_request") then "PR | " else "" end)\(.title) \(.html_url)"'

@@ -5,7 +5,7 @@
 
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { panes, props, run, theme, home, layout, nextCommand } from "herdr";
+import { agents, panes, props, run, theme, home, layout, nextCommand, shared, setShared } from "herdr";
 
 // Match the first visible tab frame, including the active child of a stack.
 function paneFrame(node) {
@@ -26,6 +26,30 @@ function paneFrame(node) {
 function icon(p, size, color) {
   if (!p?.icon) return null;
   return p.tint ? svg(p.icon).size(size).flex_none().text_color(color) : image(p.icon).w(size).h(size).flex_none();
+}
+
+// The session summary agents put in the terminal title, without the agent name or status symbol.
+function clean(title) {
+  return (title || "").replace(/\s+-\s+GitHub Copilot$/, "").replace(/^[^\p{L}\p{N}\p{P}\s]+\s*/u, "").trim();
+}
+
+function summary(p, name) {
+  if (!p.program?.agent) return "";
+  const text = clean(p.title);
+  return text === name ? "" : text;
+}
+
+// Every agent's summary by terminal address, persisted in shared.json for other tools (Hammerspoon's agent picker).
+const SUMMARIES = "jm-pane.summaries";
+
+function publishSummaries() {
+  const summaries = {};
+  for (const a of agents()) {
+    const text = clean(a.title);
+    if (text) summaries[a.address] = text;
+  }
+  const sorted = (o) => JSON.stringify(Object.entries(o ?? {}).sort());
+  if (sorted(shared(SUMMARIES)) !== sorted(summaries)) setShared(SUMMARIES, summaries);
 }
 
 function folder(cwd) {
@@ -77,6 +101,8 @@ export default class Pane extends View {
     const p = this.me();
     if (!p) return div();
     const name = ((p.program?.agent || p.program?.shell) && p.program.name) || p.title || p.program?.name || "shell";
+    const about = summary(p, name);
+    publishSummaries();
     const pic = icon(p.program, 14, t.dim);
     const st = p.status;
     const pane = p.pane;
@@ -97,6 +123,7 @@ export default class Pane extends View {
       .child(div().flex_none().text_color(p.focused ? t.accent : t.dim).font_semibold().child(`⌥${this.number(pane)}`))
       .when(Boolean(pic), (el) => el.child(pic))
       .child(div().flex_none().truncate().max_w(260).font_medium().text_color(t.foreground).child(name))
+      .when(Boolean(about), el => el.child(div().flex_shrink(1).min_w(0).truncate().text_color(t.foreground).child(about)))
       .child(div().flex_1().truncate().text_color(t.dim).child(folder(p.cwd)))
       .when(st === "working", el => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).flex_none().text_color(t.working).spin(900)))
       .when(st === "blocked", el => el.child(div().flex_none().px(6).h(18).flex().items_center().rounded(5).bg(t.blocked + "26").text_size(10.5).font_semibold().text_color(t.blocked).child("Needs you")))

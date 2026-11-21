@@ -23,6 +23,7 @@
     "cmd-shift-d": "pane.split:down",
     "cmd-shift-w": "mod.open:jm-close-tab",
     "cmd-shift-enter": "pane.zoom",
+    "cmd-alt-=": "mod.open:jm-pane-balance",
     "cmd-alt-left": "pane.go:left",
     "cmd-alt-right": "pane.go:right",
     "cmd-alt-up": "pane.go:up",
@@ -80,6 +81,7 @@
     "cmd-left": "send:\u0001",
     "cmd-right": "send:\u0005",
     "cmd-backspace": "send:\u0015",
-    "cmd-k": "send:\f"
+    "cmd-k": "send:\f",
+    "cmd-o": "mod.open:jm-open-file"
   }
 }

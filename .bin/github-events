@@ -3,8 +3,9 @@
 set -o errexit
 set -o pipefail
 
-source "$HOME/.functions/base"
-source "$HOME/.functions/git"
+source "$HOME/.config/shell/functions/base"
+source "$HOME/.config/shell/functions/git"
+source "$HOME/.config/shell/functions/github"
 
 _unpack () {
   jq -rc '.[]'

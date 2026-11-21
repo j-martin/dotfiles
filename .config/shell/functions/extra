@@ -40,20 +40,6 @@ _load_dot_env() {
   set +o allexport
 }
 
-_go_mod_download() {
-  for mod_file in $(find . -name 'go.mod' | grep -vE 'node_modules|templates' | sort); do
-    local directory
-    directory="$(dirname "${mod_file}")"
-    (
-      pushd "${directory}" > /dev/null
-      _info "Download go dependencies for ${PWD}..."
-      go mod tidy
-      go mod download
-      _info 'Done'
-    )
-  done
-}
-
 _consul_list_services_dns() {
   local domain="$1"
   local node="${2:-consul}"
@@ -104,6 +90,7 @@ _circle_branch() {
   _circle "project/github/$(_git_repo)/tree/$(urlencode "$(_git_current_branch)")" \
     | _circle_format_status
 }
+
 _circle_follow() {
   _circle "project/github/$(_git_repo)/follow" 'POST'
 }
@@ -121,38 +108,6 @@ _circle_detail_build() {
 urlencode() {
   python -c 'import urllib, sys; print urllib.quote(sys.argv[1], sys.argv[2])' \
     "$1" "$urlencode_safe"
-}
-
-nvm() {
-  if grep --quiet --fixed-strings "$(node --version)" .nvmrc; then
-    _info "Node version $(node --version) matches .nvmrc. Skipping nvm use..."
-    return
-  fi
-  unset -f nvm
-  export NVM_DIR=~/.nvm
-  setopt no_aliases
-  if [[ -s "${BREW_PREFIX}/opt/nvm/nvm.sh" ]]; then
-    # Loading NVM.
-    source "${BREW_PREFIX}/opt/nvm/nvm.sh"
-  fi
-  nvm "$@"
-  npm config delete prefix || true
-  node --version
-  setopt aliases
-}
-
-_with_nvm() {
-  unset -f "$1"
-  nvm use
-  "$@"
-}
-
-yarn() {
-  _with_nvm yarn "$@"
-}
-
-npm() {
-  _with_nvm npm "$@"
 }
 
 _todoist() {

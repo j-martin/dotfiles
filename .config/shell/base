@@ -39,11 +39,18 @@ test -e "$TMPDIR/ssh-loaded" \
 
 __source "$HOME/.private/profile"
 
-# shellcheck source=.functions/all
-source "$HOME/.functions/all"
+for shell_file in "$HOME"/.config/shell/functions/* "$HOME"/.config/shell/functions/*/*; do
+  [[ -f "${shell_file}" ]] || continue
+  # shellcheck disable=1090
+  source "${shell_file}"
+done
 _safe
-# shellcheck source=.aliases
-source "$HOME/.aliases"
+for shell_file in "$HOME"/.config/shell/aliases/* "$HOME"/.config/shell/aliases/*/*; do
+  [[ -f "${shell_file}" ]] || continue
+  # shellcheck disable=1090
+  source "${shell_file}"
+done
+unset shell_file
 
 # zsh's _compadd claims every command starting with '_' so our functions would
 # otherwise complete compadd flags instead of falling back to file paths.
@@ -63,9 +70,4 @@ if [[ -z "$DISPLAY" ]] && [[ -n "$XDG_VTNR" ]] && [[ "$XDG_VTNR" -eq 1 ]]; then
   exec startx
 fi
 
-if [[ -n "$(pgrep gpg-agent)" ]]; then
-  export GPG_AGENT_INFO
-else
-  # shellcheck disable=SC2046
-  eval $(gpg-agent --daemon)
-fi
+gpgconf --launch gpg-agent 2> /dev/null

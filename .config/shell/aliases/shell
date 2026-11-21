@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+# Aliases Helpers
+alias sp='source $HOME/.config/shell/base'
+alias alia='editor "$HOME/.config/shell/aliases/$(ls "$HOME/.config/shell/aliases" | fzf)" && sp'
+alias aliap='editor $HOME/.private/profile && sp'
+ali() {
+  sp
+  (
+    alias
+    typeset -f | grep '^\w.*() {' | sed 's/ () {//'
+  ) | grep "$@" | sort
+}
+
+alias c=z
+yp() { rg --files $PWD | _fzf_query_all "$@" | _clipboard_copy }
+
+# ZSH Specific
+if [ -n "$ZSH_VERSION" ]; then
+  alias -g G='| grep -i -E'
+  alias -g V='| grep -v -i -E'
+  alias -g F='"$(fzf)"'
+  alias -g L='| less -SRi'
+  alias -g LL='2>&1 | less -SRi'
+  alias -g T='"${TMPDIR}temp"'
+  alias -g P='pbpaste |'
+  alias -g C='| _clipboard_copy'
+  alias -g BR='"$(_git_current_branch)"'
+  alias -g H='"$(git rev-parse HEAD)"'
+  alias -g JL='| jless --yaml'
+
+fi
+
+alias S=_safe
+alias safe=_safe
+
+# Navigation
+alias cw='cd $WORK'
+alias cj='$HOME/code/j-martin'
+alias co='$HOME/code/others'
+alias cf='cd "$(dirname "$(fzf)")"'
+alias tmp='cd "$(mktemp -d -t "jm-$(gdate -u +"%Y-%m-%dT%H-%M-%SZ")")"'
+
+# Search
+agl() { ag --color --after=4 --path-to-ignore ~/.agignore "$@" | less -SRi; }
+ags() { ag --color --after=4 --smart-case --path-to-ignore ~/.agignore "$@" | less -SRi; }
+alias uu=_rg_less
+alias uc=_rg_cased
+agm() { ag --color --after=20 --literal "<<<<<<<" | less -SRi; } #Forgotten merge conflicts
+alias hi='history | grep '
+alias tff='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules"'
+alias tfs='tree -afC -I "\.git|.idea|venv|vendor|pkg|target|targets|node_modules" "src"'
+alias treef='tree -fa | grep -i'
+fn() { find . -iname "*$@*"; }
+fne() { find . -iname "*.$@"; }
+alias psa='ps aux | grep -i'
+whichl() { ls -lha "$(where $1)"; }
+wh=which
+
+# Convenience
+alias cay='cal -y'
+alias clf='clf -c'
+alias comp='_notify "Done!"'
+alias epoch='date +%s000'
+alias ep='pbpaste | $HOME/.bin/ep.py'
+alias gist='gist -p'
+alias goo='google ' # Depends on ZSH google plugin.
+alias hey="growlnotify 'Command Done!' -m 'Yes!'"
+alias o=orb
+alias lde='_load_dot_env'
+alias no='e ~/.org/MAIN.org'
+alias rand='openssl rand -base64 128 | tr -d "\n/+="'
+alias fix-term='clear; tty sane; tput cnorm'
+alias redis="(mkdir -p /tmp/redis && cd /tmp/redis && redis-server &)"
+alias redis-flush='redis-cli flushall'
+s() {
+  ssh -t "$@" /usr/local/bin/tmux -u -CC new -A -s "${USER}"
+}
+alias t=task
+alias touch='_touch_mkdir'
+alias ur='_utc_range'
+alias vimrc='vi $HOME/.vimrc'
+alias zshrc='vi $HOME/.zshrc'
+alias xargsn='perl -p -e "s/\n/\0/;" | xargs -0'
+cb() { open "$(_chrome_parse_bookmarks | _fzf \"$1\" | cut -d '|' -f1)"; }
+alias kb='keybase'
+alias pgcli='echo $PGHOST && pgcli'
+alias clc='_copy_last_command'
+alias clcf='_copy_command_from_history'
+
+# Formatting
+alias shfmt='shfmt --indent 2 --binary-next-line --list --diff --case-indent --space-redirects --write'
+
+# Network
+alias digg='dig +noall +answer'
+alias ip='ifconfig | grep "inet 1"'
+alias myip='tail -n10 ~/.ip_history; { gdate "+%Y-%m-%dT%H:%M:%S" | tr "\n" ",";  for ip in 6 4; do; curl --silent "-${ip}" https://ifconfig.co | tr "\n" ","; done; echo } | tee -a ~/.ip_history'
+alias listen='osqueryi "select l.address, l.port, p.pid, p.path from listening_ports l, processes p where l.pid = p.pid order by p.name"'
+alias ports='lsof -nP +c 15 | grep LISTEN'
+
+# cert
+alias certv='openssl x509 -serial  -subject -issuer -dates -alias -noout -in'
+
+# bub
+alias n="build-cacher --source-dir $HOME/src/github.com/j-martin/nub -- go run main.go"
+alias w="build-cacher --source-dir $HOME/src/github.com/j-martin/nub -- go run main.go workflow"
