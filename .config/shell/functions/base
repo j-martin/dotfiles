@@ -70,6 +70,7 @@ _cached() {
 }
 
 _case_sentence() {
+  # shellcheck disable=SC2001 # Parameter expansion cannot uppercase in both bash and zsh.
   sed -e 's/^\b\(.\)/\u\1/g' <<< "$*"
 }
 
@@ -98,14 +99,13 @@ _fzf() {
   __fzf --query "$@"
 }
 
-
 # Passes all arguments to fzf as part of the query.
 _fzf_query_all() {
   _fzf "$*"
 }
 
 _fzf_pick() {
-  _fzf "$@" --header-lines=1  \
+  _fzf "$@" --header-lines=1 \
     | awk '{print $1}'
 }
 

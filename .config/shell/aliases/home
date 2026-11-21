@@ -6,7 +6,7 @@ alias h=_home_git
 # Agents expect plain git; outside a repo the fallback silently targets the home repo.
 if [ -z "${AI_AGENT}${CLAUDECODE}${COPILOT_CLI}${OPENCODE}${CURSOR_AGENT}${GEMINI_CLI}${CODEX_SANDBOX}" ]; then
   # A function, not an alias: aliases are expanded when ~/.config/shell/functions are defined, before this file loads.
-  unalias git 2>/dev/null
+  unalias git 2> /dev/null
   git() {
     _git_or_home "$@"
   }

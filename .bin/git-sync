@@ -62,7 +62,7 @@ _show_unpushed() {
 }
 
 _leak_prompt() {
-  cat <<'EOF'
+  cat << 'EOF'
 You are a security reviewer. Below is a git diff about to be pushed to a public repository.
 Only consider added lines (starting with "+", excluding "+++" file headers).
 Report:
@@ -87,7 +87,7 @@ _leak_findings() {
     [.findings[]?
       | select(.type != "path" or ((.value // "") | test("/(Users|home)/[^/\\s]+")))]
     | .[] | "- [\(.type)] \(.file): \(.value)\n  \(.reason)"
-  ' <<<"$result" 2>/dev/null
+  ' <<< "$result" 2> /dev/null
 }
 
 # Reviewer is `ollama` or an $AGENT value as in ~/.config/shell/functions/agents (`claude`, else copilot).
@@ -128,8 +128,8 @@ _check_leaks() {
   local input
   input="$(_leak_prompt)"$'\n'"$(git --no-pager diff -U0 '@{upstream}')"
 
-  if ! _leak_check_with ollama "$_LEAK_OLLAMA_MODEL" "$input" ||
-    ! _leak_check_with "$agent" "$agent ($_LEAK_AGENT_MODEL)" "$input"; then
+  if ! _leak_check_with ollama "$_LEAK_OLLAMA_MODEL" "$input" \
+    || ! _leak_check_with "$agent" "$agent ($_LEAK_AGENT_MODEL)" "$input"; then
     echo 'Aborting.' >&2
     exit 1
   fi

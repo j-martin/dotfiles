@@ -7,10 +7,10 @@ source "$HOME/.config/shell/functions/base"
 source "$HOME/.config/shell/functions/git"
 source "$HOME/.config/shell/functions/github"
 
-_format () {
-    jq -r '"\(.created_at) - \(if has("pull_request") then "PR | " else "" end)\(.title) \(.html_url)"'
+_format() {
+  jq -r '"\(.created_at) - \(if has("pull_request") then "PR | " else "" end)\(.title) \(.html_url)"'
 }
 
 _github_involved_issues \
-    | _format \
-    | sort -ur
+  | _format \
+  | sort -ur

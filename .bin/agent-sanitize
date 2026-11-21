@@ -94,7 +94,7 @@ _usage() {
 }
 
 _default_dir() {
-  git rev-parse --show-toplevel 2>/dev/null || pwd
+  git rev-parse --show-toplevel 2> /dev/null || pwd
 }
 
 # Print every agent config file/dir under the given directory, one per line, outermost first
@@ -110,7 +110,7 @@ _find_targets() {
   for item in "${PATHS[@]}"; do
     expr+=(-path "$item" -o)
   done
-  expr[${#expr[@]}-1]=')'
+  expr[${#expr[@]} - 1]=')'
 
   # -prune on matches so nested hits inside a deleted dir are not listed twice
   find "$dir" -mindepth 1 "${expr[@]}" -print -prune
@@ -132,8 +132,15 @@ _main() {
     case "$1" in
       --dry-run) dry_run='true' ;;
       --yes) yes='true' ;;
-      --help) _usage; return 0 ;;
-      -*) _error "Unknown option: $1"; _usage; return 1 ;;
+      --help)
+        _usage
+        return 0
+        ;;
+      -*)
+        _error "Unknown option: $1"
+        _usage
+        return 1
+        ;;
       *) dir="$1" ;;
     esac
     shift

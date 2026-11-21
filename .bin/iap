@@ -61,6 +61,7 @@ _main() {
       ;;
     *)
       instance_name="${key}"
+      ;;
   esac
   shift || true
 
@@ -68,7 +69,6 @@ _main() {
     instance_name="$1"
     shift
   fi
-
 
   if [[ -z "${instance_name}" ]]; then
     _usage
@@ -78,10 +78,10 @@ _main() {
   # shellcheck disable=SC2046
   # We want to expand unquoted arguments from _get_instance here.
   _show_command exec gcloud compute ssh \
-                --tunnel-through-iap \
-                $(_get_instance "${instance_name}") \
-                -- "${ssh_args[@]}" \
-                "$@"
+    --tunnel-through-iap \
+    $(_get_instance "${instance_name}") \
+    -- "${ssh_args[@]}" \
+    "$@"
 }
 
 _main "$@"

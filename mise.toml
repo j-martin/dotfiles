@@ -1,0 +1,30 @@
+[vars]
+# Tracked shell scripts (by extension or shebang), submodules excluded. Zsh files are treated as bash.
+shell_files = "git --git-dir=\"$HOME/.files.git\" --work-tree=\"$HOME\" ls-files -z --format='%(objectmode) %(path)' | tr '\\0' '\\n' | awk '$1 != \"160000\" { sub(/^[0-9]+ /, \"\"); print }' | tr '\\n' '\\0' | xargs -0 -r shfmt --find | tr '\\n' '\\0'"
+shfmt_flags = "--language-dialect bash --indent 2 --binary-next-line --case-indent --space-redirects"
+
+[tasks.fmt]
+description = "Format shell files and Hammerspoon"
+alias = "f"
+run = [
+  "{{vars.shell_files}} | xargs -0 -r shfmt {{vars.shfmt_flags}} --write",
+  "mise --cd .hammerspoon run fmt",
+]
+
+[tasks."fmt:check"]
+description = "Fail if shell files or Hammerspoon are not formatted"
+run = [
+  "{{vars.shell_files}} | xargs -0 -r shfmt {{vars.shfmt_flags}} --diff",
+  "mise --cd .hammerspoon run fmt:check",
+]
+
+[tasks.lint]
+description = "Lint shell files and Hammerspoon"
+run = [
+  "{{vars.shell_files}} | xargs -0 -r shellcheck --shell=bash",
+  "mise --cd .hammerspoon run lint",
+]
+
+[tasks.check]
+description = "Check formatting, lint and Hammerspoon tests"
+run = ["mise run fmt:check", "mise run lint", "mise --cd .hammerspoon run test"]

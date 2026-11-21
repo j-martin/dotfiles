@@ -1,0 +1,2 @@
+# Snippets are templates: helpers like `BINPATH` are meant to be used by the expanded script.
+disable=SC2034

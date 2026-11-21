@@ -2,8 +2,8 @@
 
 # Installed `brew-cask:` packages declared in `[bootstrap.packages]`
 _mise_brew_casks() {
-  mise bootstrap packages status --json 2>/dev/null |
-    jq --raw-output '.["brew-cask"].packages[]? | select(.state == "installed") | .package'
+  mise bootstrap packages status --json 2> /dev/null \
+    | jq --raw-output '.["brew-cask"].packages[]? | select(.state == "installed") | .package'
 }
 
 # Upgrade everything mise manages: tools, then bootstrap packages.
@@ -28,7 +28,7 @@ _mise_upgrade() {
 
   while IFS= read -r cask; do
     outdated+=("$cask")
-  done < <(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --cask --greedy --quiet "${casks[@]}" 2>/dev/null)
+  done < <(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --cask --greedy --quiet "${casks[@]}" 2> /dev/null)
 
   if [[ ${#outdated[@]} -eq 0 ]]; then
     _info 'Self-updating brew casks are up to date'

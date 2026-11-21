@@ -113,7 +113,7 @@ urlencode() {
 _todoist() {
   local resource_types="$1"
   curl --fail --silent https://todoist.com/API/v7/sync \
-    -d token=$(keyring get system todoist) \
+    -d token="$(keyring get system todoist)" \
     -d sync_token='*' \
     -d resource_types="[\"${resource_types}\"]" \
     | jq ".${resource_types}[]"
@@ -135,7 +135,8 @@ pidof() {
 _notify() {
   local message="$*"
   _info "${message}"
-  printf '\033]9;%s\033\' "${message}"
+  # shellcheck disable=SC1003 # The OSC sequence ends with a literal backslash.
+  printf '\033]9;%s\033\\' "${message}"
 }
 
 _rsync_watch() {
@@ -153,7 +154,7 @@ _rsync_watch() {
     --exclude 'out' \
     --exclude '.git' \
     --exclude 'node_modules' \
-    | while read count; do
+    | while read -r count; do
       _rsync_mirror "${local_path}" "${remote_path}"
       _notify "Synced ${count} file(s)"
     done
@@ -219,7 +220,7 @@ __maybe_link() {
 _brew_link_current() {
   __maybe_link /opt/homebrew/bin/poetry /usr/local/bin/poetry
 
-  for i in $(find "${BREW_PREFIX}/Cellar" -mindepth 2 -maxdepth 2 -type d); do
+  find "${BREW_PREFIX}/Cellar" -mindepth 2 -maxdepth 2 -type d | while read -r i; do
     ln -sf "${i}" "$(dirname "${i}")/current"
   done
 }
@@ -248,11 +249,11 @@ _format_rtf() {
 _idea_link_external_tools() {
   local external_tool_file="$HOME/Library/Preferences/IntelliJIdeaCurrent/tools/External Tools.xml"
   local base_dir="$HOME/Library/Application Support/JetBrains"
-  find "${base_dir}" -maxdepth 1 -type d \
-    | xargs -I'{}' mkdir -p '{}/tools'
+  find "${base_dir}" -maxdepth 1 -type d -print0 \
+    | xargs -0 -I'{}' mkdir -p '{}/tools'
 
-  find "${base_dir}" -maxdepth 1 -type d \
-    | xargs -I'{}' ln -sf "${external_tool_file}" '{}/tools/'
+  find "${base_dir}" -maxdepth 1 -type d -print0 \
+    | xargs -0 -I'{}' ln -sf "${external_tool_file}" '{}/tools/'
 }
 
 _date_iso_8601() {
@@ -282,13 +283,13 @@ _run_every() {
   local max_age="$1"
 
   local sentinel_path
-  sentinel_path="${tmpdir}/$(md5sum <<< '${@}' | awk '{print $1}')"
+  sentinel_path="${tmpdir}/$(md5sum <<< "$*" | awk '{print $1}')"
 
   if [[ ! -f "${sentinel_path}" ]] || [[ -n "$(find "${sentinel_path}" -mtime "+${max_age}" -print)" ]]; then
-    _info "running: '${@:2}'..."
+    _info "running: '${*:2}'..."
     "${@:2}" && \touch -m "${sentinel_path}"
   else
-    _info "sentinel file '${sentinel_path}' not older than ${max_age}. skipping '${@:2}'..."
+    _info "sentinel file '${sentinel_path}' not older than ${max_age}. skipping '${*:2}'..."
   fi
 }
 

@@ -28,7 +28,7 @@ _agent_home_files() {
 # A regular repo is any work tree that is not a submodule of the dotfiles repo
 _agent_in_regular_repo() {
   local top
-  top=$(command git rev-parse --show-toplevel 2>/dev/null) || return 1
+  top=$(command git rev-parse --show-toplevel 2> /dev/null) || return 1
   ! _agent_home_submodules | grep --quiet --line-regexp --fixed-strings "${top#"$HOME"/}"
 }
 
@@ -63,7 +63,10 @@ _agent() {
 
     while IFS= read -r dir; do
       args+=(--add-dir "${HOME}/${dir%/}")
-    done < <(_agent_home_dirs; _agent_home_submodules)
+    done < <(
+      _agent_home_dirs
+      _agent_home_submodules
+    )
 
     while IFS= read -r file; do
       if [[ "$tool" == 'claude' ]]; then

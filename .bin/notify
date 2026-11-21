@@ -3,7 +3,7 @@
 set -o errexit
 set -o pipefail
 
-_main () {
+_main() {
   local message="$1"
   local title="${2:-System}"
   osascript -e "display notification \"${message}\" with title \"${title}\""

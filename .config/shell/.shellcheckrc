@@ -1,0 +1,7 @@
+# Files here are sourced fragments sharing variables and functions across files.
+# SC1091: Sourced files are not passed as input.
+# SC2034: Variable used in another file.
+# SC2154: Variable assigned in another file.
+# SC2119,SC2120,SC2329: Function invoked from another file or interactively.
+# SC2139: Aliases intentionally expand when defined.
+disable=SC1091,SC2034,SC2154,SC2119,SC2120,SC2329,SC2139

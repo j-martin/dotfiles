@@ -13,7 +13,7 @@ alias etf='_with_fzf "emacsclient --tty"'
 
 ed() {
   (
-    cd "$(git rev-parse --show-toplevel)"
+    cd "$(git rev-parse --show-toplevel)" || exit
     git diff --name-only origin/master...HEAD | _with_fzf editor
   )
 }
@@ -25,6 +25,7 @@ ett() {
 }
 
 ea() {
+  # shellcheck disable=SC2046 # Split into `+line file`.
   editor $(ag "$@" | fzf -0 -1 | awk -F: '{print "+" $2 " " $1}')
 }
 

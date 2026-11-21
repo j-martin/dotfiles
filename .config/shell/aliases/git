@@ -2,7 +2,7 @@
 
 cg() {
   local repo_name="$1"
-  cd $(find ~/src -maxdepth 4 -type d -name '.git' | sed 's#.git$##' | fzf --select-1 --query "'${repo_name}")
+  cd "$(find ~/src -maxdepth 4 -type d -name '.git' | sed 's#.git$##' | fzf --select-1 --query "'${repo_name}")" || return
 }
 
 alias gl='git pull --tags --force'
@@ -21,7 +21,7 @@ alias gcaa='git commit . --amend'
 alias gccc="git rev-parse HEAD | _clipboard_copy"
 alias gcl='_git_clone'
 git-reflog-grep() {
-  git reflog | awk '{print $1}' | while read in; do
+  git reflog | awk '{print $1}' | while read -r in; do
     echo "$in"
     git show "$in" | grep "$@"
   done
@@ -41,7 +41,7 @@ alias gpom='git fetch origin && git pull --rebase origin HEAD'
 alias gpomtheirs='git pull --rebase --strategy recursive --strategy-option theirs origin HEAD'
 alias gw='_git_switch_worktree'
 alias gwf='$(git worktree list | fzf | _pick_first_col)'
-gwrm() { git worktree list | fzf "${@}" | xargs git worktree remove }
+gwrm() { git worktree list | fzf "${@}" | xargs git worktree remove; }
 gcof() { git checkout "$(_git_pick_branch_no_origin "'$1")"; }
 alias gocf=gcof
 alias gcoh='git checkout HEAD^'
@@ -58,14 +58,14 @@ alias ggh='git rev-parse HEAD | tr -d "\n" | _clipboard_copy'
 alias gwip='(git log --oneline $(__git_get_default_branch_name)..HEAD | grep -ei wip) || echo "ok"'
 alias groot='cd "$(git rev-parse --show-toplevel)"'
 alias groo='groot'
-alias gcf='git commit --fixup "$(git log --oneline | fzf --no-sort | awk "{print \$1}")"'
+alias gcf='git commit --fixup "$(git log --oneline | fzf --no-sort | _pick_first_col)"'
 alias gai='_git_add_ignored'
-unalias gcp 2>/dev/null
+unalias gcp 2> /dev/null
 alias gcp='git add -p && git commit' # Commiting part of a file.
 __git_push() {
   local current_branch
   current_branch="$(_git_current_branch)"
-  if [[ "${current_branch}" == 'master' ]] ||  [[ "${current_branch}" == 'main' ]]; then
+  if [[ "${current_branch}" == 'master' ]] || [[ "${current_branch}" == 'main' ]]; then
     _info "Do not push to ${current_branch}"
     return 1
   fi

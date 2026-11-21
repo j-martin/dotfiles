@@ -41,6 +41,7 @@ to do it.
 - Use `kebab-case` in filenames.
 - Avoid `.sh`
 - Always use the `#!/usr/bin/env bash`
+- Shell files (zsh included) must be valid bash: in `~`, `mise run fmt` (`shfmt`) must be ran and `mise run lint` (`shellcheck`) must pass. Vendor code as git submodules: they are excluded from `fmt` and `lint`.
 
 # Hammerspoon
 

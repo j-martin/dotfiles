@@ -2,8 +2,8 @@
 
 alias m='mise'
 alias mr='mise run'
-mub() { mise bootstrap packages use brew:$1 }
-mubc() { mise bootstrap packages use brew-cask:$1 }
+mub() { mise bootstrap packages use brew:"$1"; }
+mubc() { mise bootstrap packages use brew-cask:"$1"; }
 
 # Brew
 alias bdump="mise bootstrap packages import --global"

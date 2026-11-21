@@ -24,7 +24,7 @@ fi
 
 # diff
 idiff() { icdiff "$1" "$2" | less -SRi; }
-idif() { icdiff "$(fzf -q $1)" "$(fzf -q $2)" | less -SRi; }
+idif() { icdiff "$(fzf -q "$1")" "$(fzf -q "$2")" | less -SRi; }
 
 # json / yaml
 # json-pretty() { jq . "$1" | sponge "$1" }

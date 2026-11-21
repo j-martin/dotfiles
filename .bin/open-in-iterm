@@ -6,7 +6,7 @@ set -o pipefail
 _open() {
   local directory="$1"
 
-  osascript &>/dev/null <<EOF
+  osascript &> /dev/null << EOF
 tell application "iTerm"
   activate
   tell current window

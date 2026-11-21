@@ -7,7 +7,8 @@ set -u
 
 IFS=$'\n\t'
 
-readonly BINPATH="$(realpath "$(dirname "$0")")"
+BINPATH="$(realpath "$(dirname "$0")")"
+readonly BINPATH
 
 _gnu() {
   if [[ "$(uname)" == "Darwin" ]]; then
@@ -29,7 +30,7 @@ _fatal() {
 }
 
 _main() {
- echo Write your script here. Use _info and _fatal for logging.
+  echo Write your script here. Use _info and _fatal for logging.
 }
 
 _main "$@"

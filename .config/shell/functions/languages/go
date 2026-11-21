@@ -5,7 +5,7 @@ _go_mod_download() {
     local directory
     directory="$(dirname "${mod_file}")"
     (
-      pushd "${directory}" > /dev/null
+      pushd "${directory}" > /dev/null || exit
       _info "Download go dependencies for ${PWD}..."
       go mod tidy
       go mod download

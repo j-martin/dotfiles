@@ -69,6 +69,7 @@ _git_command_with_fzf() {
   else
     (
       IFS=$'\n\t'
+      # shellcheck disable=SC2046 # Split the picked files on newlines.
       git "${command}" $(_git_pick_unstaged_files "${query}") "${@:3}"
     )
   fi
@@ -107,7 +108,7 @@ _git_pick_commit() {
 
 _git_commit_with_issue_key() {
   local message="$1"
-  git commit -n -m "$(_git_format_commit_message ${message})" "${@:2}"
+  git commit -n -m "$(_git_format_commit_message "${message}")" "${@:2}"
 }
 
 _git_format_commit_message() {
@@ -170,7 +171,6 @@ _git_new_branch_and_commit() {
   _git_new_branch "$(head -n1 <<< "${message}")"
   git commit -n -m "$(_git_format_commit_message "${message}")" "${@:2}"
 }
-
 
 _git_root_dir() {
   git rev-parse --show-toplevel
@@ -258,14 +258,16 @@ _git_clone() {
   if [[ ! -d "${repo_dir}" ]]; then
     mkdir -p "$(dirname "${repo_dir}")"
     (
-    unset -f git
-    \git clone "$repo" "${repo_dir}"
+      unset -f git
+      \git clone "$repo" "${repo_dir}"
     ) || return
   fi
 
-  cd "${repo_dir}" \
-    && _info "Moved to '$PWD'..." \
-    || _info 'Failed to change repo_dir...'
+  if cd "${repo_dir}"; then
+    _info "Moved to '$PWD'..."
+  else
+    _info 'Failed to change repo_dir...'
+  fi
 }
 
 _git_delete_commit() {
@@ -333,6 +335,7 @@ mass() {
 }
 
 _mass() {
+  # shellcheck disable=SC2016 # Expanded by the parallel subshell.
   parallel --max-proc 10 '(cd $(dirname {}) && echo "\n=> $PWD <=" &&'"  $* )"
 }
 

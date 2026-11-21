@@ -12,6 +12,6 @@ alias qrc='pbpaste | qr'
 cdp() {
   local file_path
   file_path="$(pbpaste)"
-  cd "${file_path}"  2> /dev/null || cd "$(dirname "${file_path}")"
+  cd "${file_path}" 2> /dev/null || cd "$(dirname "${file_path}")" || return
 }
 alias cpb='cd $(dirname "$(pbpaste)")'

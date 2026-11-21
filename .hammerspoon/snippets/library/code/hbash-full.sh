@@ -5,11 +5,12 @@ set -o errexit
 set -o pipefail
 set -o errtrace
 set -u
-shopt -s inherit_errexit 2>/dev/null || true
+shopt -s inherit_errexit 2> /dev/null || true
 
 IFS=$'\n\t'
 
-readonly BINPATH="$(realpath "$(dirname "$0")")"
+BINPATH="$(realpath "$(dirname "$0")")"
+readonly BINPATH
 
 _debug() {
   _silent echo "[debug] $*"

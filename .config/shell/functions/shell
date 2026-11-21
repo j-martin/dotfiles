@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 FMT_END="\e[0m"
 
 FMT_GREEN="\e[32m"
@@ -9,7 +8,7 @@ FMT_RED="\e[31m"
 FMT_BOLD="\e[1m"
 
 _echo_green_bold() {
-  echo -e "${FMT_GREEN}${FMT_BOLD}${@}${FMT_END}"
+  echo -e "${FMT_GREEN}${FMT_BOLD}${*}${FMT_END}"
 }
 
 # Copies the given command followed by the current working directory to the clipboard.

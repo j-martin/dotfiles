@@ -7,15 +7,15 @@ source "$HOME/.config/shell/functions/base"
 source "$HOME/.config/shell/functions/git"
 source "$HOME/.config/shell/functions/github"
 
-_unpack () {
+_unpack() {
   jq -rc '.[]'
 }
 
-_filter () {
-    grep "PullRequestEvent\|$(_github_user)"
+_filter() {
+  grep "PullRequestEvent\|$(_github_user)"
 }
 
-_format () {
+_format() {
   jq -rc '. | [
     .created_at,
     .payload.pull_request.html_url // .payload.issue.html_url // "https://github.com/\(.repo.name)",
