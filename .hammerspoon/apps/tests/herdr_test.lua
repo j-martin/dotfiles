@@ -62,6 +62,28 @@ return {
     assert(herdr.findPane(layout, 'p3') == nil)
     assert(herdr.findPane(layout, nil) == nil)
   end,
+  ['findWaiting cycles through the blocked agents of every space after the focused pane'] = function()
+    local layout = {
+      spaces = {
+        { tabs = { { terminals = { { terminal = 't1', pane = 'p1', status = 'blocked' } } } } },
+        {
+          tabs = {
+            { terminals = { { terminal = 't2', pane = 'p2', status = 'working' } } },
+            { terminals = { { terminal = 't3', pane = 'p3', status = 'blocked' } } },
+          },
+        },
+      },
+    }
+    assert(herdr.findWaiting(layout, nil).terminal == 't1')
+    assert(herdr.findWaiting(layout, 'p2').terminal == 't1')
+    assert(herdr.findWaiting(layout, 'p1').terminal == 't3')
+    assert(herdr.findWaiting(layout, 'p3').terminal == 't1')
+  end,
+  ['findWaiting is nil without blocked agents'] = function()
+    local layout = { spaces = { { tabs = { { terminals = { { terminal = 't1', pane = 'p1', status = 'idle' } } } } } } }
+    assert(herdr.findWaiting(layout, nil) == nil)
+    assert(herdr.findWaiting(nil, nil) == nil)
+  end,
   ['reference stays absolute outside the agent folder'] = function()
     assert(herdr.reference('/src/application/a.go', nil, nil, '/src/app') == '@/src/application/a.go')
   end,
@@ -98,5 +120,14 @@ return {
   ['rebase swaps the leading reference and keeps the typed prompt'] = function()
     assert(herdr.rebase('@a.go#L2 fix it', '@a.go#L2', '@/src/a.go#L2') == '@/src/a.go#L2 fix it')
     assert(herdr.rebase('fix @a.go', '@a.go', '@/src/a.go') == 'fix @a.go')
+  end,
+  ['withContext adds the title, URL, details and the quoted selection after the prompt'] = function()
+    local context = { title = 'Brave — Docs', url = 'https://a.b', details = { 'Tab 2' } }
+    local prompt = herdr.withContext('explain this  ', context, '\nline 1\n\nline 2\n')
+    assert(prompt == 'explain this\n\nBrave — Docs\nhttps://a.b\nTab 2\n\n> line 1\n>\n> line 2', prompt)
+  end,
+  ['withContext skips what is empty'] = function()
+    assert(herdr.withContext('', { title = 'Preview — a.pdf' }, '  ') == 'Preview — a.pdf')
+    assert(herdr.withContext('why', nil, 'x') == 'why\n\n> x')
   end,
 }

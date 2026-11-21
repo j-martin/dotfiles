@@ -1,10 +1,12 @@
 local logger = hs.logger.new('herdr', 'info')
 local process = require 'utils/process'
+local markdown = require 'utils/markdown'
 
 ---@class HerdrTerminal
 ---@field terminal string Address, e.g. `t4`.
 ---@field pane string|nil
 ---@field app string|nil Detected agent, e.g. `claude-code`.
+---@field status string|nil e.g. `working`, `idle` or `blocked` when the agent waits for input.
 
 ---@class HerdrTab
 ---@field active boolean
@@ -13,6 +15,9 @@ local process = require 'utils/process'
 ---@class HerdrSpace
 ---@field active boolean
 ---@field tabs HerdrTab[]
+
+---@class HerdrStatus
+---@field focused_pane string|nil
 
 ---@class HerdrLayout
 ---@field spaces HerdrSpace[]
@@ -32,8 +37,11 @@ local process = require 'utils/process'
 ---@field pollSeconds number Interval of the focus polling while Herdr is frontmost.
 ---@field findAgent fun(layout: HerdrLayout|nil, focusedAt: table<string, integer>|nil): HerdrTerminal|nil
 ---@field findPane fun(layout: HerdrLayout|nil, pane: string|nil): HerdrTerminal|nil
+---@field findWaiting fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
+---@field focusWaiting fun()
 ---@field orderAgents fun(terminals: HcTerminal[], last: string|nil, preferred: string|nil): HcTerminal[]
 ---@field rebase fun(prompt: string, reference: string, replacement: string): string
+---@field withContext fun(prompt: string, context: AppContext|nil, selected: string|nil): string
 ---@field reference fun(path: string, line: integer|nil, endLine: integer|nil, cwd: string|nil): string
 ---@field sendFileReference fun()
 ---@field openKey { mods: string[], key: string } Herdr key running `mod.open:jm-open-file` (`~/.config/herdr-app/keys.json`).
@@ -113,6 +121,34 @@ function mod.findPane(layout, pane)
     end
   end
   return nil
+end
+
+--- Returns the agent waiting for input (`blocked`) in any space that comes after the focused pane, wrapping around,
+--- so repeated calls cycle through them, from the `herdr-app ls` output.
+---@param layout HerdrLayout|nil
+---@param focusedPane string|nil
+---@return HerdrTerminal|nil
+function mod.findWaiting(layout, focusedPane)
+  ---@type HerdrTerminal[]
+  local waiting = {}
+  ---@type integer
+  local focusedIndex = 0
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        if terminal.status == 'blocked' and terminal.pane then
+          table.insert(waiting, terminal)
+          if terminal.pane == focusedPane then
+            focusedIndex = #waiting
+          end
+        end
+      end
+    end
+  end
+  if #waiting == 0 then
+    return nil
+  end
+  return waiting[focusedIndex % #waiting + 1]
 end
 
 --- Returns the `@` file reference for agents, relative to their folder when inside it, with `#L<line>` or
@@ -208,9 +244,9 @@ end
 ---@return string|nil
 local function focusedCwd()
   local status = run('herdr-app status')
-  local decoded = status and hs.json.decode(status)
+  local decoded = status and hs.json.decode(status) --[[@as HerdrStatus|nil]]
   local output = decoded and run('herdr-app ls')
-  local terminal = output and mod.findPane(hs.json.decode(output), decoded.focused_pane)
+  local terminal = output and mod.findPane(hs.json.decode(output), decoded and decoded.focused_pane)
   return terminal and terminalCwd(terminal.terminal)
 end
 
@@ -340,6 +376,22 @@ function mod.init()
   tapClicks(frontmost)
 end
 
+--- Switches to Herdr like other apps and, when an agent waits for input in any space, focuses its pane, the next
+--- waiting one on each call.
+function mod.focusWaiting()
+  local app = hs.application.get(mod.name)
+  local layout = app and run('herdr-app ls')
+  local status = layout and run('herdr-app status')
+  local decoded = status and hs.json.decode(status) --[[@as HerdrStatus|nil]]
+  local waiting = layout and mod.findWaiting(hs.json.decode(layout), decoded and decoded.focused_pane)
+  if not app or not waiting then
+    require('windows').launchOrCycleFocus(mod.name)()
+    return
+  end
+  app:activate()
+  run('herdr-app do pane.focus --pane ' .. waiting.pane)
+end
+
 --- Returns what the focused window shows: the working directory of terminals and Finder, the active Obsidian note,
 --- or the file and selected lines of editors.
 ---@param window hs.window|nil
@@ -405,6 +457,34 @@ function mod.rebase(prompt, reference, replacement)
   return prompt
 end
 
+--- Returns the prompt followed by what the window shows, its title, URL and details, and the selection as a quote.
+---@param prompt string
+---@param context AppContext|nil
+---@param selected string|nil
+---@return string
+function mod.withContext(prompt, context, selected)
+  ---@type string[]
+  local parts = {}
+  local typed = prompt:gsub('%s+$', '')
+  if typed ~= '' then
+    table.insert(parts, typed)
+  end
+  if context then
+    local lines = { context.title }
+    if context.url then
+      table.insert(lines, context.url)
+    end
+    for _, detail in ipairs(context.details or {}) do
+      table.insert(lines, detail)
+    end
+    table.insert(parts, table.concat(lines, '\n'))
+  end
+  if selected and selected:match('%S') then
+    table.insert(parts, markdown.quote((selected:gsub('^%s*\n', ''))))
+  end
+  return table.concat(parts, '\n\n')
+end
+
 ---@type hs.chooser|nil
 local chooser = nil
 
@@ -454,14 +534,24 @@ end
 
 --- Shows a picker prefilled with an `@` reference to what the focused window shows, the editor or Obsidian file and
 --- selected lines, or the working directory of Herdr, iTerm2 and Finder, to type the rest of the prompt after it.
+--- Other apps, e.g. Brave, add what their window shows, like its URL, and the selection as a quote after the prompt.
 --- Each agent, the one picked last first, has a row pasting the prompt without Enter (the default) and one submitting it.
 function mod.sendFileReference()
   local window = hs.window.focusedWindow()
   local file = source(window)
   local path = file and file.path
-  if not file or not path or not path:match('^/') then
-    hs.alert.show('Herdr: no file or folder in the focused window')
-    return
+  ---@type AppContext|nil
+  local context = nil
+  ---@type string|nil
+  local selected = nil
+  if not path or not path:match('^/') then
+    path = nil
+    context = require('apps').windowContext(window)
+    selected = context and context.selection or require('selection').getSelectedText()
+    if not context and selected == '' then
+      hs.alert.show('Herdr: nothing to prompt about in the focused window')
+      return
+    end
   end
 
   if hs.application.frontmostApplication():name() == mod.name then
@@ -483,10 +573,11 @@ function mod.sendFileReference()
   ---@type table[]
   local choices = {}
   local described = summaries()
+  local attached = context and ('  ·  📎 ' .. context.title) or ''
   for _, agent in ipairs(agents) do
     local cwd = detailsCwd(terminalDetails(agent.address))
     local description = described[agent.address] or ''
-    references[agent.address] = mod.reference(path, file.line, file.endLine, cwd)
+    references[agent.address] = (file and path) and mod.reference(path, file.line, file.endLine, cwd) or ''
     local text = description ~= '' and description or string.format('%s %s', agent.agent, agent.address)
     local details = string.format(
       '%s %s  %s  %s  %s',
@@ -496,10 +587,10 @@ function mod.sendFileReference()
       agent.where or '',
       cwd or agent.cwd or ''
     )
-    table.insert(choices, { text = text, subText = 'Paste  ·  ' .. details, address = agent.address })
+    table.insert(choices, { text = text, subText = 'Paste  ·  ' .. details .. attached, address = agent.address })
     table.insert(
       choices,
-      { text = text, subText = 'Submit ⏎  ·  ' .. details, address = agent.address, submit = true }
+      { text = text, subText = 'Submit ⏎  ·  ' .. details .. attached, address = agent.address, submit = true }
     )
   end
   local reference = references[agents[1].address]
@@ -518,7 +609,8 @@ function mod.sendFileReference()
     for _, agent in ipairs(agents) do
       if agent.address == choice.address then
         hs.settings.set(lastAgentKey, agent.address)
-        local rebased = mod.rebase(prompt, reference, references[agent.address])
+        local rebased = path and mod.rebase(prompt, reference, references[agent.address])
+          or mod.withContext(prompt, context, selected)
         if choice.submit then
           submit(agent, rebased)
         else
@@ -533,7 +625,7 @@ function mod.sendFileReference()
   -- Typing writes the prompt, it does not filter the agents.
   chooser:queryChangedCallback(function() end)
   chooser:choices(choices)
-  chooser:query(reference .. ' ')
+  chooser:query(path and (reference .. ' ') or '')
   chooser:show()
 end
 

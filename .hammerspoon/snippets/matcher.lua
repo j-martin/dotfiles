@@ -1,4 +1,5 @@
 -- Plain Lua helpers for the snippet expander, kept free of `hs` so they can be tested.
+local markdown = require 'utils/markdown'
 
 ---@class Snippet
 ---@field trigger string|nil Typed text that expands, e.g. ';shrug', nil for snippets only in the picker.
@@ -382,18 +383,6 @@ end
 ---@field time string Replaces '{time:short}'.
 ---@field clipboard string Replaces '{clipboard}'.
 
---- Returns `text` as a Markdown quote, without its trailing newlines: 'a\n\nb\n' -> '> a\n>\n> b'.
----@param text string
----@return string
-local function quoted(text)
-  ---@type string[]
-  local lines = {}
-  for line in (text:gsub('\r\n', '\n'):gsub('\n+$', '') .. '\n'):gmatch('(.-)\n') do
-    table.insert(lines, line == '' and '>' or '> ' .. line)
-  end
-  return table.concat(lines, '\n')
-end
-
 --- Returns `text` without its trailing blank lines, e.g. the final newline of a file snippet: 'a \n\n' -> 'a '.
 ---@param text string
 ---@return string
@@ -419,7 +408,7 @@ function mod.render(text, values)
     ['{date:short}'] = values.date,
     ['{time:short}'] = values.time,
     ['{clipboard}'] = values.clipboard,
-    ['{clipboard:quote}'] = quoted(values.clipboard),
+    ['{clipboard:quote}'] = markdown.quote(values.clipboard),
   }
   ---@type string
   local rendered = text:gsub('{[%w:]+}', function(placeholder)
