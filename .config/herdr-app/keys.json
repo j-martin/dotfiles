@@ -57,7 +57,16 @@
     "ctrl-6": "space.select:6",
     "ctrl-7": "space.select:7",
     "ctrl-8": "space.select:8",
-    "ctrl-9": "space.select:9"
+    "ctrl-9": "space.select:9",
+    "alt-1": "jm-pane.1",
+    "alt-2": "jm-pane.2",
+    "alt-3": "jm-pane.3",
+    "alt-4": "jm-pane.4",
+    "alt-5": "jm-pane.5",
+    "alt-6": "jm-pane.6",
+    "alt-7": "jm-pane.7",
+    "alt-8": "jm-pane.8",
+    "alt-9": "jm-pane.9"
   },
   "terminal": {
     "cmd-f": "terminal.search",
