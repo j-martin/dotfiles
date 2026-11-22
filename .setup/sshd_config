@@ -1,7 +1,10 @@
-PermitRootLogin no
-AuthorizedKeysFile	.ssh/authorized_keys
+# Installed as /etc/ssh/sshd_config.d/000-keys-only.conf by `setup.sh _ssh_keys_only`.
+# sshd keeps the first value it reads: the temporary override from `setup.sh _ssh_allow_password`
+# must come first. It lives in /var/run, which macOS wipes at boot.
+Include /var/run/sshd-allow-password-temporarily.conf
+PubkeyAuthentication yes
 PasswordAuthentication no
+KbdInteractiveAuthentication no
 PermitEmptyPasswords no
-ChallengeResponseAuthentication no
-UsePAM no
-AcceptEnv LANG LC_*
+AuthenticationMethods publickey
+PermitRootLogin no

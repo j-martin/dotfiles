@@ -2,13 +2,26 @@
 
 set -o errexit
 set -o pipefail
-set -x
+set -o errtrace
+
+# shellcheck source=/dev/null
+source "$HOME/.config/shell/functions/logging"
+
+# errtrace also fires the trap in subshells, only report once from the main shell.
+# A failing `return` comes from a function that already logged its own error.
+trap '(( BASH_SUBSHELL == 0 )) && [[ "${BASH_COMMAND}" != return* ]] && _error "Failed at line ${LINENO}: ${BASH_COMMAND}"' ERR
 
 readonly EDITOR_APP="$HOME/Applications/Editor.app"
 readonly EDITOR_APP_ID='com.github.j-martin.editor'
 readonly LSREGISTER='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister'
 
+# Lives in /var/run, which macOS wipes at boot, so password auth never survives a reboot.
+# Must match the `Include` in ~/.setup/sshd_config.
+readonly SSH_PASSWORD_CONF='/var/run/sshd-allow-password-temporarily.conf'
+readonly SSH_KEYS_ONLY_CONF='/etc/ssh/sshd_config.d/000-keys-only.conf'
+
 _macos_customizations() {
+  _info 'Applying macOS customizations.'
   sudo pmset -a standbydelay 86400
   sudo pmset -a sms 0
 
@@ -104,23 +117,29 @@ _macos_customizations() {
   defaults write -g InitialKeyRepeat -int 15
   defaults write -g KeyRepeat -int 2
 
+  _info 'Restarting Dock and Finder.'
   killall Dock || true
   killall Finder || true
 }
 
 _macos_apps() {
+  _info 'Installing Xcode command line tools.'
   xcode-select --install || true
+  _info 'Installing Homebrew.'
   NONINTERACTIVE=1 /bin/bash -c "$(curl --fail --silent --show-error --location https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  _info 'Installing mise and its packages.'
   curl --fail --silent --show-error --location https://mise.run | sh
   "$HOME/.local/bin/mise" bootstrap packages apply
   "$HOME/.local/bin/mise" install
   # mise cannot evaluate emacs-plus: the formula requires sibling files from its tap.
+  _info 'Installing emacs-plus.'
   /opt/homebrew/bin/brew install d12frosted/emacs-plus/emacs-plus@31
 
   # The rest of the setup needs the freshly installed tools (npm, code, ...)
   eval "$(/opt/homebrew/bin/brew shellenv)"
   export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
 
+  _info 'Registering zsh as a login shell.'
   which zsh \
     | head -n1 \
     | sudo tee -a /etc/shells
@@ -130,6 +149,7 @@ _macos_apps() {
 # Emacs (emacsclient) or runs them when they are executable.
 _macos_editor_app() {
   local app="${EDITOR_APP}"
+  _info "Building '${app}'."
   rm -rf "${app}"
   mkdir -p "$(dirname "${app}")"
   osacompile -o "${app}" << 'EOF'
@@ -165,6 +185,7 @@ _macos_default_apps() {
     .md .org .txt .log .conf .cfg .ini .toml .yaml .yml .json .env .lua .el .sh .zsh .bash
   )
 
+  _info 'Setting Editor.app as the default app for text files.'
   # `duti -s` fails (error -50) for public.data and extensions without a declared
   # type on recent macOS, so first write the handlers like Finder's "Change All" does.
   /usr/bin/python3 - "${EDITOR_APP_ID}" "${targets[@]}" << 'EOF'
@@ -227,7 +248,54 @@ EOF
   done
 }
 
+# Restricts sshd to ssh-key auth and removes any temporary password override.
+_ssh_keys_only() {
+  _info "Installing '${SSH_KEYS_ONLY_CONF}'."
+  sudo rm -f "${SSH_PASSWORD_CONF}"
+  sudo install -m 0644 "$HOME/.setup/sshd_config" "${SSH_KEYS_ONLY_CONF}"
+  sudo sshd -t || return 1
+  _info "Password auth disabled, ssh-key only. Run '~/.setup/setup.sh _ssh_allow_password [minutes]' to allow it temporarily."
+}
+
+# Temporarily allows ssh password auth for the given minutes (default 10) or until Enter/Ctrl-C.
+_ssh_allow_password() {
+  local minutes="${1:-10}"
+  (
+    sudo --validate || exit 1
+    _ssh_keys_only || exit 1
+    trap _ssh_keys_only EXIT
+    trap 'exit 130' INT TERM HUP
+    printf '%s\n' \
+      'PasswordAuthentication yes' \
+      'KbdInteractiveAuthentication yes' \
+      'AuthenticationMethods any' \
+      | sudo tee "${SSH_PASSWORD_CONF}" > /dev/null
+    sudo sshd -t || exit 1
+    _warn "Password auth enabled for ${minutes} min. Press Enter or Ctrl-C to revert."
+    read -r -t "$((minutes * 60))" || true
+  )
+}
+
+# Asks the running sshd which auth methods it offers and reports whether passwords are accepted.
+_ssh_status() {
+  local output methods
+  output=$(ssh -F /dev/null -o BatchMode=yes -o PubkeyAuthentication=no \
+    -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o LogLevel=ERROR -o ConnectTimeout=5 localhost true 2>&1) || true
+  methods=$(sed -n 's/.*Permission denied (\(.*\))\./\1/p' <<< "${output}")
+  if [[ -z "${methods}" ]]; then
+    _error "Could not read the sshd auth methods, is Remote Login on? ${output}"
+    return 1
+  fi
+  if [[ ",${methods}," == *,password,* || ",${methods}," == *,keyboard-interactive,* ]]; then
+    _warn "Password auth is ALLOWED, sshd offers: ${methods}."
+  else
+    _info "Password auth is rejected, sshd offers: ${methods}."
+  fi
+}
+
 _main() {
+  _info 'Fixing ~/.gnupg permissions.'
   find "$HOME/.gnupg" -type d -exec chmod 700 {} +
   find "$HOME/.gnupg" -type f -exec chmod 600 {} +
 
@@ -235,9 +303,23 @@ _main() {
   _macos_customizations
   _macos_editor_app
   _macos_default_apps
+  _ssh_keys_only
 
+  _info 'Installing VS Code extensions.'
   xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
-
 }
 
-_main
+# Runs `_main`, or the given function (e.g. `setup.sh _ssh_keys_only`) with the remaining arguments.
+_run() {
+  local function_name="${1:-_main}"
+  if ! declare -F "${function_name}" > /dev/null; then
+    _error "Unknown function '${function_name}'."
+    exit 1
+  fi
+  shift || true
+  _info "Running '${function_name}'."
+  "${function_name}" "$@"
+  _info "Done '${function_name}'."
+}
+
+_run "$@"
