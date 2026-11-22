@@ -82,6 +82,7 @@
     "cmd-right": "send:\u0005",
     "cmd-backspace": "send:\u0015",
     "cmd-k": "send:\f",
-    "cmd-o": "mod.open:jm-open-file"
+    "cmd-o": "mod.open:jm-open-file",
+    "cmd-;": "mod.open:jm-complete"
   }
 }
