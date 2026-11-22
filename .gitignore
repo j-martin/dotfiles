@@ -14,3 +14,5 @@
 !/.config/herdr-app/mods/jm-*/
 !/.config/herdr-app/mods/jm-*/*.js
 !/.config/herdr-app/mods/jm-*/mod.json
+!/.config/herdr-app/layouts/
+!/.config/herdr-app/layouts/jm-*.json
