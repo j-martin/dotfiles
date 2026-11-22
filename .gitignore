@@ -11,10 +11,8 @@
 !/.bin/hammerspoon-snippets-generator/*
 !/.config/herdr-app/
 !/.config/herdr-app/keys.json
-!/.config/herdr-app/mods/
-!/.config/herdr-app/mods/jm-*/
-!/.config/herdr-app/mods/jm-*/*.js
-!/.config/herdr-app/mods/jm-*/mod.json
-!/.config/herdr-app/layouts/
-!/.config/herdr-app/layouts/jm-*.json
+!/.config/herdr-app/**/
+!/.config/herdr-app/**/jm-*
+!/.config/herdr-app/**/jm-*/**
 .DS_Store
+gpui-kit.d.ts
