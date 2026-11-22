@@ -1,16 +1,7 @@
 #!/usr/bin/env bash
 
-_info() {
-  echo >&2 "[info] $*"
-}
-
-_warn() {
-  echo >&2 "[warn] $*"
-}
-
-_error() {
-  echo >&2 "[error] $*"
-}
+# shellcheck source=logging
+source "$HOME/.config/shell/functions/logging"
 
 _production() {
   # iTerm escape code to turn the terminal red.
