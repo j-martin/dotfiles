@@ -31,12 +31,7 @@ local function showAlert()
   if alertId then
     return
   end
-  alertId = hs.alert.show(
-    '⌨️ Kinesis is not connected',
-    hs.alert.defaultStyle,
-    hs.screen.mainScreen(),
-    true
-  )
+  alertId = hs.alert.show('⌨️ Kinesis is not connected', hs.alert.defaultStyle, hs.screen.mainScreen(), true)
 end
 
 ---@return nil
