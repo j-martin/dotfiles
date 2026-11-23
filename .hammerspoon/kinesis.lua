@@ -32,7 +32,7 @@ local function showAlert()
     return
   end
   alertId = hs.alert.show(
-    '⌨️ Kinesis is not connected (USB switch on iPad?)',
+    '⌨️ Kinesis is not connected',
     hs.alert.defaultStyle,
     hs.screen.mainScreen(),
     true
