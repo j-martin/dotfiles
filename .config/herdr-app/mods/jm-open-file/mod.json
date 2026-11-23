@@ -1,1 +1,9 @@
-{ "place": "none", "title": "Open file", "overlay": { "kind": "popup", "frame": "none", "width": 1, "height": 1 } }
+{
+  "place": "none",
+  "title": "Open file",
+  "overlay": { "kind": "popup", "frame": "none", "width": 1, "height": 1 },
+  "link_handlers": [
+    { "kind": "file", "pattern": "." },
+    { "kind": "url", "pattern": "." }
+  ]
+}

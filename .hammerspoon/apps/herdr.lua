@@ -46,6 +46,9 @@ local markdown = require 'utils/markdown'
 ---@field reference fun(path: string, line: integer|nil, endLine: integer|nil, cwd: string|nil): string
 ---@field sendFileReference fun()
 ---@field openKey { mods: string[], key: string } Herdr key running `mod.open:jm-open-file` (`~/.config/herdr-app/keys.json`).
+---@field linkHandledFile string Touched by the `jm-open-file` mod's `link.js` on each link Herdr detects.
+---@field cmdClickFile string Tells the `jm-open-file` mod a cmd-click opened it, to stay quiet.
+---@field linkWaitSeconds number How long a cmd-click waits for `link.js` before falling back.
 ---@field isCmdClick fun(flags: table<string, boolean>): boolean
 ---@field onApplicationEvent fun(event: number)
 ---@field init fun()
@@ -54,6 +57,12 @@ local mod = {}
 mod.name = 'Herdr'
 
 mod.openKey = { mods = { 'cmd' }, key = 'o' }
+
+mod.linkHandledFile = os.getenv('HOME') .. '/.cache/herdr-link-handled'
+
+mod.cmdClickFile = os.getenv('HOME') .. '/.cache/herdr-cmd-click'
+
+mod.linkWaitSeconds = 0.5
 
 mod.focusedAt = {}
 
@@ -325,8 +334,10 @@ end
 
 ---@type hs.eventtap|nil
 local clickTap = nil
+---@type hs.timer|nil
+local fallbackTimer = nil
 ---@type boolean
-local swallowUp = false
+local cmdClicked = false
 
 --- Shift-double-clicks at the point, which selects the word and focuses its pane. Shift bypasses mouse reporting
 --- of programs like Copilot CLI or pagers; Herdr reads the live modifier state, so shift is pressed, not just flagged.
@@ -343,29 +354,49 @@ local function doubleClick(point)
   hs.eventtap.event.newKeyEvent('shift', false):post()
 end
 
---- Cmd-click in Herdr opens the file under the pointer: Herdr cannot tell a mod where a click was,
---- so select the word with a double-click and let the `jm-open-file` mod read it and its line.
+--- Opens the word at the point with the `jm-open-file` mod, which reads it and its line.
+---@param point { x: number, y: number }
+local function openAt(point)
+  local marker = io.open(mod.cmdClickFile, 'w')
+  if not marker then
+    logger.e('Cannot write ' .. mod.cmdClickFile)
+    return
+  end
+  marker:close()
+  doubleClick(point)
+  hs.timer.doAfter(0.1, function()
+    hs.eventtap.keyStroke(mod.openKey.mods, mod.openKey.key, 0)
+  end)
+end
+
+--- Cmd-click in Herdr goes to the `jm-open-file` mod's `link.js` for what Herdr detects as a link. Herdr skips
+--- bare filenames and cannot tell a mod where a click was, so when `link.js` did not run, open the word under the
+--- pointer. The click itself is left to Herdr.
 ---@param event hs.eventtap.event
 ---@return boolean
 local function onClick(event)
-  local types = hs.eventtap.event.types
-  if event:getType() == types.leftMouseUp then
-    local swallow = swallowUp
-    swallowUp = false
-    return swallow
-  end
-  if not mod.isCmdClick(event:getFlags()) then
+  if event:getType() == hs.eventtap.event.types.leftMouseDown then
+    cmdClicked = mod.isCmdClick(event:getFlags())
+    if cmdClicked then
+      os.remove(mod.linkHandledFile)
+    end
     return false
   end
-  swallowUp = true
+  if not cmdClicked then
+    return false
+  end
+  cmdClicked = false
   local point = event:location()
-  hs.timer.doAfter(0, function()
-    doubleClick(point)
-    hs.timer.doAfter(0.1, function()
-      hs.eventtap.keyStroke(mod.openKey.mods, mod.openKey.key, 0)
-    end)
+  if fallbackTimer then
+    fallbackTimer:stop()
+  end
+  fallbackTimer = hs.timer.doAfter(mod.linkWaitSeconds, function()
+    fallbackTimer = nil
+    if not hs.fs.attributes(mod.linkHandledFile) then
+      openAt(point)
+    end
   end)
-  return true
+  return false
 end
 
 ---@param frontmost boolean
@@ -377,13 +408,13 @@ local function tapClicks(frontmost)
   if frontmost then
     clickTap:start()
   else
-    swallowUp = false
+    cmdClicked = false
     clickTap:stop()
   end
 end
 
---- Tracks the agent focused last while Herdr is frontmost, Herdr does not remember it, and turns cmd-click into
---- opening the file under the pointer.
+--- Tracks the agent focused last while Herdr is frontmost, Herdr does not remember it, and opens the file under
+--- the pointer on cmd-clicks Herdr does not detect as links.
 ---@param event number
 function mod.onApplicationEvent(event)
   local watcher = hs.application.watcher
