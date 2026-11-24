@@ -44,19 +44,18 @@ _agent_run() {
   fi
 }
 
-# Same logic as _git_or_home: start in the current repo, or fall back to the
-# dotfiles with every tracked home dir exposed, working from ~/.hammerspoon.
-# Set AGENT=claude to use Claude Code instead of Copilot.
-_agent() {
-  local tool="${AGENT:-copilot}"
+_agent_tool() {
   # force copilot until the claude folder trust regression is fixed.
-  tool=copilot
+  # echo "${AGENT:-copilot}"
+  echo copilot
+}
 
-  if _agent_in_regular_repo; then
-    _agent_run "$tool" "$@"
-    return
-  fi
-
+# Start an agent on the dotfiles with every tracked home dir exposed, working
+# from ~/.hammerspoon, regardless of the current directory.
+# Set AGENT=claude to use Claude Code instead of Copilot.
+_agent_home() {
+  local tool
+  tool=$(_agent_tool)
   (
     local args=()
     local dir file
@@ -80,4 +79,14 @@ _agent() {
     cd "${HOME}/.hammerspoon" || return 1
     _agent_run "$tool" "$@" "${args[@]}"
   )
+}
+
+# Same logic as _git_or_home: start in the current repo, or fall back to
+# _agent_home. Set AGENT=claude to use Claude Code instead of Copilot.
+_agent() {
+  if _agent_in_regular_repo; then
+    _agent_run "$(_agent_tool)" "$@"
+    return
+  fi
+  _agent_home "$@"
 }
