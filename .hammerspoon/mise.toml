@@ -3,26 +3,39 @@ stylua = "2.6.0"
 lua = "5.4.9"
 lua-language-server = "3.19.2"
 
+# `fmt`, `fmt:check`, `lint` and `check` delegate to the home tasks, which also cover shell files and call the `lua:*` tasks.
 [tasks.fmt]
-description = "Format Lua files, including the private config when it exists"
+description = "Format shell and Lua files (home task)"
 alias = "f"
+run = "mise --cd ~ run fmt"
+
+[tasks."fmt:check"]
+description = "Fail if shell or Lua files are not formatted (home task)"
+run = "mise --cd ~ run fmt:check"
+
+[tasks.lint]
+description = "Lint shell and Lua files (home task)"
+run = "mise --cd ~ run lint"
+
+[tasks.check]
+description = "Check formatting, lint and tests (home task)"
+run = "mise --cd ~ run check"
+
+[tasks."lua:fmt"]
+description = "Format Lua files, including the private config when it exists"
 run = [
   "stylua .",
   "if [ -f ~/.private/hammerspoon.lua ]; then stylua --config-path stylua.toml ~/.private/hammerspoon.lua; fi",
 ]
 
-[tasks."fmt:check"]
+[tasks."lua:fmt:check"]
 description = "Fail if Lua files are not formatted"
 run = "stylua --check ."
 
-[tasks.lint]
+[tasks."lua:lint"]
 description = "Lint Lua files"
 run = "lua-language-server --check . --checklevel=Warning --check_format=pretty --type-check --config .luarc.json"
 
 [tasks.test]
 description = "Run unit tests outside Hammerspoon"
 run = "lua run_tests.lua"
-
-[tasks.check]
-description = "Check formatting, lint and tests"
-depends = ["fmt:check", "lint", "test"]
