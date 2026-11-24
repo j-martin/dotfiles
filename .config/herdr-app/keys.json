@@ -16,7 +16,7 @@
     "cmd-[": "agent.prev",
     "cmd-shift-l": "layout.switch",
     "cmd-n": "space.new",
-    "cmd-p": "mod.open:picker",
+    "cmd-p": "mod.open:jm-goto",
     "cmd-shift-p": "app.palette",
     "cmd-,": "app.settings",
     "cmd-d": "pane.split:right",
