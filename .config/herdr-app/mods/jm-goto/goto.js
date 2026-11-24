@@ -35,13 +35,18 @@ export const shortPath = (cwd, home) => {
   return cwd.startsWith(home + "/") ? "~" + cwd.slice(home.length) : cwd;
 };
 
+/** The label the zsh `preexec` hook (`~/.config/shell/functions/herdr`) sets on its terminal. */
+export const LAST_COMMAND = "jm.last-command";
+
 /**
- * What a pane shows: its agent (or executable, or mod), its session title, and where it runs.
+ * What a pane shows: its agent (or executable, or mod), its session title (or a shell's last
+ * command), and where it runs.
  * @param {any} p a `panes()` entry
  * @param {string} home
+ * @param {string} [lastCommand] the command its shell last ran
  * @returns {{ label: string, title: string, detail: string }}
  */
-export const describePane = (p, home) => {
+export const describePane = (p, home, lastCommand = "") => {
   if (!p.terminal) {
     return { label: p.name || p.mod || p.title || "mod", title: "", detail: "mod" };
   }
@@ -50,7 +55,7 @@ export const describePane = (p, home) => {
   const raw = p.program?.agent ? cleanTitle(p.title) : (p.title || "").trim();
   const where = shortPath(p.cwd, home);
   const repeats = raw === program || raw === p.name || (where && !p.program?.agent && (raw.endsWith(where) || raw.endsWith(p.cwd ?? "")));
-  const title = repeats ? "" : raw;
+  const title = p.program?.shell && lastCommand ? `$ ${lastCommand}` : repeats ? "" : raw;
   const detail = p.branch ? `${where} (${p.branch})` : where;
   return { label, title, detail };
 };
@@ -60,9 +65,11 @@ export const describePane = (p, home) => {
  * @param {any[]} spaces `spaces()`
  * @param {any[]} panes `panes()`
  * @param {string} home
+ * @param {any[]} [terminals] `terminals()`, for the shells' last commands
  * @returns {Row[]}
  */
-export const buildRows = (spaces, panes, home) => {
+export const buildRows = (spaces, panes, home, terminals = []) => {
+  const last = new Map(terminals.map((t) => [t.address, t.labels?.[LAST_COMMAND] ?? ""]));
   /** @type {Row[]} */
   const rows = [];
   for (const s of spaces) {
@@ -84,7 +91,7 @@ export const buildRows = (spaces, panes, home) => {
         text: [spaceText, t.name, ...agents].join(" "),
       });
       for (const p of own) {
-        const d = describePane(p, home);
+        const d = describePane(p, home, last.get(p.terminal));
         rows.push({
           kind: "pane",
           id: p.pane,

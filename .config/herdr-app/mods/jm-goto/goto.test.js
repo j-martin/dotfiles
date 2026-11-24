@@ -32,6 +32,17 @@ test("describePane: a renamed pane keeps its program; a mod pane shows its mod",
   assert.equal(describePane({ pane: "p9", tab: "t1", terminal: null, mod: "files", title: "files" }, HOME).label, "files");
 });
 
+test("describePane: a shell shows its last command instead of its title", () => {
+  assert.equal(describePane(panes[1], HOME, "git status").title, "$ git status");
+  assert.equal(describePane(panes[2], HOME, "ignored").title, "README.md");
+});
+
+test("buildRows: shells' last commands come from their terminal's label, and match the filter", () => {
+  const rows = buildRows(spaces, panes, HOME, [{ address: "t-p2", labels: { "jm.last-command": "make deploy" } }]);
+  assert.equal(rows.find((r) => r.id === "p2").title, "$ make deploy");
+  assert.deepEqual(filterRows(rows, "deploy").map((r) => r.id), ["s1", "t1", "p2"]);
+});
+
 test("buildRows: spaces, then their tabs, then the tabs' panes", () => {
   const rows = buildRows(spaces, panes, HOME);
   assert.deepEqual(rows.map((r) => r.id), ["s1", "t1", "p1", "p2", "s2", "t2", "p3"]);

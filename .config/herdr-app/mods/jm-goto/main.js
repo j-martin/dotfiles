@@ -1,11 +1,12 @@
 // @ts-check
 // cmd-p (mod.open:jm-goto): every space, tab and pane, to go to one. Panes show their agent and
-// session title, or their executable, title and folder. Type to filter (every word, in the row or
-// its space and tab), ↑/↓ (or ctrl-n/p) and Enter to go, Esc to leave.
+// session title, or their executable, title (a shell: its last command) and folder. Type to
+// filter (every word, in the row or its space and tab), ↑/↓ (or ctrl-n/p) and Enter to go, Esc
+// to leave.
 
 import { View, div, svg, image } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input, ScrollHandle } from "gpui-base";
-import { closeOverlay, home, panes, props, run, spaces, theme } from "herdr";
+import { closeOverlay, home, panes, props, run, spaces, terminals, theme } from "herdr";
 import { buildRows, filterRows } from "./goto.js";
 
 /** @typedef {import("./goto.js").Row} Row */
@@ -63,7 +64,7 @@ export default class Goto extends View {
    * @returns {Row[]}
    */
   rows() {
-    return filterRows(buildRows(spaces(), panes(), home()), this.filter);
+    return filterRows(buildRows(spaces(), panes(), home(), terminals()), this.filter);
   }
 
   /**

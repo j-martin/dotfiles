@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Labels the Herdr terminal with the command about to run, for Herdr mods (`jm-goto`) to show.
+__herdr_label_last_command() {
+  local command="${1%%$'\n'*}"
+  (hc label "${HC_TERMINAL_ID}" "jm.last-command=${command:0:200}" > /dev/null 2>&1 &)
+}
+
+if [[ -n "${ZSH_VERSION:-}" && -n "${HC_TERMINAL_ID:-}" ]] && command -v hc > /dev/null 2>&1; then
+  autoload -Uz add-zsh-hook
+  add-zsh-hook preexec __herdr_label_last_command
+fi
