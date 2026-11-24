@@ -28,16 +28,19 @@ local markdown = require 'utils/markdown'
 ---@field cwd string|nil Folder it was started in.
 ---@field state string e.g. `live`.
 ---@field status string|nil e.g. `working` or `done`.
+---@field turn integer|nil Turns the agent took, a new one once it is prompted again.
 ---@field where string|nil Herdr space and tab, e.g. `dotfiles / 1`.
 
 ---@class HerdrApp
 ---@field name string
 ---@field agentPatterns string[]
 ---@field focusedAt table<string, integer> When each agent terminal was last focused, higher is more recent.
+---@field checked table<string, integer> The turn of each idle agent terminal when it was last focused.
 ---@field pollSeconds number Interval of the focus polling while Herdr is frontmost.
 ---@field findAgent fun(layout: HerdrLayout|nil, focusedAt: table<string, integer>|nil): HerdrTerminal|nil
 ---@field findPane fun(layout: HerdrLayout|nil, pane: string|nil): HerdrTerminal|nil
 ---@field findWaiting fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
+---@field findUnchecked fun(layout: HerdrLayout|nil, focusedPane: string|nil, turns: table<string, integer>, checked: table<string, integer>): HerdrTerminal|nil
 ---@field nextPane fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
 ---@field focusNext fun()
 ---@field orderAgents fun(terminals: HcTerminal[], last: string|nil, preferred: string|nil): HcTerminal[]
@@ -65,6 +68,8 @@ mod.cmdClickFile = os.getenv('HOME') .. '/.cache/herdr-cmd-click'
 mod.linkWaitSeconds = 0.5
 
 mod.focusedAt = {}
+
+mod.checked = {}
 
 mod.pollSeconds = 1
 
@@ -133,12 +138,13 @@ function mod.findPane(layout, pane)
   return nil
 end
 
---- Returns the agent waiting for input (`blocked`) in any space that comes after the focused pane, wrapping around,
---- so repeated calls cycle through them, from the `herdr-app ls` output.
+--- Returns the terminal matching `include` in any space that comes after the focused pane, wrapping around, so
+--- repeated calls cycle through them, from the `herdr-app ls` output.
 ---@param layout HerdrLayout|nil
 ---@param focusedPane string|nil
+---@param include fun(terminal: HerdrTerminal): boolean
 ---@return HerdrTerminal|nil
-function mod.findWaiting(layout, focusedPane)
+local function cycle(layout, focusedPane, include)
   ---@type HerdrTerminal[]
   local waiting = {}
   ---@type integer
@@ -146,7 +152,7 @@ function mod.findWaiting(layout, focusedPane)
   for _, space in ipairs(layout and layout.spaces or {}) do
     for _, tab in ipairs(space.tabs or {}) do
       for _, terminal in ipairs(tab.terminals or {}) do
-        if terminal.status == 'blocked' and terminal.pane then
+        if terminal.pane and include(terminal) then
           table.insert(waiting, terminal)
           if terminal.pane == focusedPane then
             focusedIndex = #waiting
@@ -159,6 +165,32 @@ function mod.findWaiting(layout, focusedPane)
     return nil
   end
   return waiting[focusedIndex % #waiting + 1]
+end
+
+--- Returns the agent waiting for input (`blocked`) in any space that comes after the focused pane, wrapping around,
+--- so repeated calls cycle through them, from the `herdr-app ls` output.
+---@param layout HerdrLayout|nil
+---@param focusedPane string|nil
+---@return HerdrTerminal|nil
+function mod.findWaiting(layout, focusedPane)
+  return cycle(layout, focusedPane, function(terminal)
+    return terminal.status == 'blocked'
+  end)
+end
+
+--- Returns the idle agent in any space, done and waiting for its next prompt, not focused since its last turn
+--- according to `checked`, that comes after the focused pane, wrapping around, from the `herdr-app ls` output.
+---@param layout HerdrLayout|nil
+---@param focusedPane string|nil
+---@param turns table<string, integer> The current turn of each terminal.
+---@param checked table<string, integer>
+---@return HerdrTerminal|nil
+function mod.findUnchecked(layout, focusedPane, turns, checked)
+  return cycle(layout, focusedPane, function(terminal)
+    return terminal.status == 'idle'
+      and isAgent(terminal)
+      and checked[terminal.terminal] ~= (turns[terminal.terminal] or 0)
+  end)
 end
 
 --- Returns the terminal of the pane after the focused one in the shown tab, wrapping around, from the
@@ -286,6 +318,28 @@ local function focusedCwd()
   return terminal and terminalCwd(terminal.terminal)
 end
 
+--- Returns the current turn of each `hc` terminal by address.
+---@return table<string, integer>
+local function turns()
+  local output = run('hc ls --json')
+  local decoded = output and hs.json.decode(output)
+  ---@type table<string, integer>
+  local found = {}
+  for _, terminal in ipairs(decoded and decoded.terminals or {}) do
+    found[terminal.address] = terminal.turn or 0
+  end
+  return found
+end
+
+--- Records the idle agent as checked at its current turn, so `findUnchecked` skips it until it takes another one.
+---@param terminal HerdrTerminal|nil
+---@param current table<string, integer>|nil Turns from `turns`, fetched when missing.
+local function markChecked(terminal, current)
+  if terminal and terminal.status == 'idle' and isAgent(terminal) then
+    mod.checked[terminal.terminal] = (current or turns())[terminal.terminal] or 0
+  end
+end
+
 ---@type integer
 local focusCount = 0
 ---@type string|nil
@@ -293,7 +347,7 @@ local lastPane = nil
 ---@type hs.timer|nil
 local pollTimer = nil
 
---- Records the focused pane's terminal in `focusedAt` when it runs an agent.
+--- Records the focused pane's terminal in `focusedAt` when it runs an agent, and as checked when it is idle.
 local function recordFocus()
   local output = process.execute('herdr-app status 2>/dev/null')
   local status = output ~= '' and hs.json.decode(output)
@@ -307,6 +361,7 @@ local function recordFocus()
   if terminal and isAgent(terminal) then
     focusCount = focusCount + 1
     mod.focusedAt[terminal.terminal] = focusCount
+    markChecked(terminal)
   end
 end
 
@@ -435,7 +490,8 @@ function mod.init()
 end
 
 --- Switches to Herdr like other apps and, when an agent waits for input in any space, focuses its pane, the next
---- waiting one on each call. Without one, a call while Herdr is frontmost focuses the next pane of the shown tab.
+--- waiting one on each call. Without one, it focuses the idle agents of every space not checked since their last
+--- turn, then, while Herdr is frontmost, the next pane of the shown tab.
 function mod.focusNext()
   local app = hs.application.get(mod.name)
   local layout = app and run('herdr-app ls')
@@ -445,6 +501,17 @@ function mod.focusNext()
   local parsed = layout and hs.json.decode(layout) --[[@as HerdrLayout|nil]]
   local target = mod.findWaiting(parsed, focusedPane)
   local frontmost = app ~= nil and hs.application.frontmostApplication() == app
+  if parsed and (not target or target.pane == focusedPane) then
+    local current = turns()
+    if frontmost then
+      markChecked(mod.findPane(parsed, focusedPane), current)
+    end
+    local unchecked = mod.findUnchecked(parsed, focusedPane, current, mod.checked)
+    if unchecked then
+      markChecked(unchecked, current)
+      target = unchecked
+    end
+  end
   if frontmost and (not target or target.pane == focusedPane) then
     target = mod.nextPane(parsed, focusedPane)
   end

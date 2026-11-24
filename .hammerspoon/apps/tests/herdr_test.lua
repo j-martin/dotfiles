@@ -84,6 +84,22 @@ return {
     assert(herdr.findWaiting(layout, nil) == nil)
     assert(herdr.findWaiting(nil, nil) == nil)
   end,
+  ['findUnchecked cycles through the idle agents of every space not checked since their last turn'] = function()
+    local layout = {
+      spaces = {
+        { tabs = { { terminals = { { terminal = 't1', pane = 'p1', status = 'idle', app = 'claude-code' } } } } },
+        { tabs = { { terminals = { { terminal = 't2', pane = 'p2', status = 'idle', app = 'copilot' } } } } },
+        { tabs = { { terminals = { { terminal = 't3', pane = 'p3', status = 'idle', app = 'claude-code' } } } } },
+        { tabs = { { terminals = { { terminal = 't4', pane = 'p4', status = 'working', app = 'copilot' } } } } },
+        { tabs = { { terminals = { { terminal = 't5', pane = 'p5', status = 'idle' } } } } },
+      },
+    }
+    local turns = { t1 = 3, t2 = 5, t3 = 1, t4 = 2 }
+    local checked = { t2 = 5, t3 = 0 }
+    assert(herdr.findUnchecked(layout, 'p1', turns, checked).terminal == 't3')
+    assert(herdr.findUnchecked(layout, 'p3', turns, checked).terminal == 't1')
+    assert(herdr.findUnchecked(layout, 'p1', turns, { t1 = 3, t2 = 5, t3 = 1 }) == nil)
+  end,
   ['nextPane cycles through the panes of the shown tab only'] = function()
     local layout = {
       spaces = {

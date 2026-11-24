@@ -1,0 +1,1 @@
+{ "place": "none", "title": "Move tab", "overlay": { "kind": "popup", "at": "top", "offset": 40, "width": 460, "height": 0.6 } }
