@@ -13,6 +13,7 @@ local activity = require 'activity'
 local apps = require 'apps'
 local audio = require 'audio'
 local githubReviews = require 'github_reviews'
+local jiraTickets = require 'jira_tickets'
 local keybindings = require 'keybindings'
 local slackTodos = require 'slack_todos'
 local snippets = require 'snippets'
@@ -27,6 +28,7 @@ usb.init()
 wifi.init()
 apps.init()
 githubReviews.init()
+jiraTickets.init()
 slackTodos.init()
 snippets.init()
 snippetsGenerator.init()
