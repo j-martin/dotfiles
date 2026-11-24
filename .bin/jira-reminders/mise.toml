@@ -1,0 +1,7 @@
+[tasks.install]
+description = "Install jira-reminders in ~/bin"
+run = 'GOBIN="$HOME/bin" go install .'
+
+[tasks.test]
+description = "Run the tests"
+run = "go test ./..."
