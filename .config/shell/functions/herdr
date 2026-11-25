@@ -10,3 +10,14 @@ if [[ -n "${ZSH_VERSION:-}" && -n "${HC_TERMINAL_ID:-}" ]] && command -v hc > /d
   autoload -Uz add-zsh-hook
   add-zsh-hook preexec __herdr_label_last_command
 fi
+
+# Clears the screen and the scrollback; Herdr's `cmd-k` sends `^L`.
+__herdr_clear_screen_and_scrollback() {
+  zle clear-screen
+  printf '\e[3J' > /dev/tty
+}
+
+if [[ -n "${ZSH_VERSION:-}" && -n "${HC_TERMINAL_ID:-}" ]]; then
+  zle -N __herdr_clear_screen_and_scrollback
+  bindkey '^L' __herdr_clear_screen_and_scrollback
+fi
