@@ -93,7 +93,6 @@ alias gmcp='_git_copy_last_commit'
 alias gms="_git_commit_with_issue_key"
 gmss() { git commit --message "squashme $1" "${@:2}"; }
 gmsm() { git commit --message "merge with $1" "${@}"; }
-alias gm='git machete'
 alias gma='git merge --abort'
 alias gmom='git fetch origin && git merge origin/HEAD'
 alias gmt='git read-tree -u -m' # merge/squash changes without a commit
@@ -120,4 +119,8 @@ alias gsl='git stash list'
 alias gss='git stash save'
 alias gupd='git stash && git pull --rebase origin HEAD && git stash apply && git stash drop'
 gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" version.sbt; }
-alias ge="emacsclient --no-wait --eval '(jm/magit-status-or-dotfiles)' && osascript -e 'tell application \"Emacs\" to activate'"
+# Pick a tracked file of the current repository with fzf and open it in the editor.
+ge() {
+  (cd "$(git rev-parse --show-toplevel)" && git ls-files | e "$@")
+}
+alias gm="emacsclient --no-wait --eval '(jm/magit-status-or-dotfiles)' && osascript -e 'tell application \"Emacs\" to activate'"
