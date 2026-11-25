@@ -262,8 +262,14 @@ _ssh_allow_password() {
   local minutes="${1:-10}"
   (
     sudo --validate || exit 1
+    # Refreshes the sudo timestamp so the revert does not prompt after the timeout.
+    local parent="${BASHPID}"
+    while kill -0 "${parent}" 2> /dev/null && sudo --non-interactive --validate 2> /dev/null; do
+      sleep 60
+    done &
+    local keepalive=$!
     _ssh_keys_only || exit 1
-    trap _ssh_keys_only EXIT
+    trap '_ssh_keys_only; kill "${keepalive}" 2> /dev/null' EXIT
     trap 'exit 130' INT TERM HUP
     printf '%s\n' \
       'PasswordAuthentication yes' \
