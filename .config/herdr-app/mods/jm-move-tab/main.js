@@ -1,7 +1,7 @@
 // @ts-check
-// cmd-shift-m (mod.open:jm-move-tab): moves the shown tab, or only its focused pane, still
-// running, to a tab of a space on its machine, a new tab there, or a new space. Tab (the key)
-// or a click switches between moving the tab and the pane. Pick a space, then a tab; type to
+// cmd-shift-m (mod.open:jm-move-tab): moves the focused pane, or the whole shown tab, still
+// running, to a tab of a space on its machine, a new tab there, or a new space. First pick what
+// to move (skipped when no terminal pane is focused), then a space, then a tab; type to
 // filter, ↑/↓ and Enter to choose, Esc to go back, then leave.
 // Herdr has no command for it, so each terminal is parked (no pane, its herdr.space/herdr.tab
 // labels dropped), then given a pane where it goes: `terminal.keep` below the focused pane
@@ -21,7 +21,7 @@ const WAIT_MS = 5000;
 
 /**
  * @typedef {{ kind: "tab", tab: any } | { kind: "new-tab", space: any } | { kind: "new-space" }} Target
- * @typedef {{ kind: "space", space: any } | Target} Row
+ * @typedef {{ kind: "what", what: "tab" | "pane" } | { kind: "space", space: any } | Target} Row
  */
 
 /**
@@ -120,8 +120,8 @@ export default class Move extends View {
     this.tabTerminals = own.filter((p) => p.terminal).map((p) => /** @type {string} */ (p.terminal));
     this.modPanes = own.length - this.tabTerminals.length;
     this.pane = own.find((p) => p.terminal && p.terminal === f?.terminal);
-    /** @type {"tab" | "pane"} */
-    this.what = "tab";
+    /** @type {"tab" | "pane" | null} */
+    this.what = this.pane ? null : "tab";
     this.space = null;
     this.moving = false;
     this.filter = "";
@@ -167,25 +167,18 @@ export default class Move extends View {
   }
 
   /**
-   * Switches between moving the tab and the focused pane; back to the space list.
-   * @param {any} cx
-   */
-  toggle(cx) {
-    if (!this.pane || this.moving) {
-      return;
-    }
-    this.what = this.what === "tab" ? "pane" : "tab";
-    this.step(null);
-    cx.notify();
-  }
-
-  /**
-   * The current step's choices, filtered: spaces then a new one, or tabs then a new one.
+   * The current step's choices, filtered: what to move, spaces then a new one, or tabs then a new one.
    * @returns {Row[]}
    */
   rows() {
     if (!this.source) {
       return [];
+    }
+    if (!this.what) {
+      return /** @type {Row[]} */ ([
+        { kind: "what", what: "pane" },
+        { kind: "what", what: "tab" },
+      ]).filter((r) => r.kind === "what" && r.what.includes(this.filter.trim().toLowerCase()));
     }
     if (!this.space) {
       return [...spaceChoices(spaces(), this.source, this.tab.id, this.what, this.filter).map((space) => /** @type {Row} */ ({ kind: "space", space })), { kind: "new-space" }];
@@ -198,13 +191,19 @@ export default class Move extends View {
   }
 
   /**
-   * Goes into a space, or moves to the chosen target, shows it, then closes. The overlay
+   * Picks what to move, goes into a space, or moves to the chosen target, shows it, then closes. The overlay
    * stays open meanwhile: closing a mod cancels its pending calls.
    * @param {Row | undefined} row
    * @param {any} cx
    */
   choose(row, cx) {
     if (!row || this.moving) {
+      return;
+    }
+    if (row.kind === "what") {
+      this.what = row.what;
+      this.step(null);
+      cx.notify();
       return;
     }
     if (row.kind === "space") {
@@ -239,10 +238,13 @@ export default class Move extends View {
     this.at = Math.max(0, Math.min(this.at, list.length - 1));
     const first = Math.max(0, Math.min(this.at - MAX_ROWS + 1, list.length - MAX_ROWS));
     const shown = list.slice(first, first + MAX_ROWS);
+    const paneName = this.pane ? this.pane.name || this.pane.title : "";
 
     /** @param {Row} r */
     const label = (r) => {
       switch (r.kind) {
+        case "what":
+          return r.what === "pane" ? ["Current pane", paneName] : ["Current tab", `${this.tab?.name ?? ""} · ${this.tabTerminals.length} pane(s)`];
         case "space":
           return [r.space.name, r.space.id === this.source.id ? "this space" : `${r.space.tabs.length} tab(s)`];
         case "tab":
@@ -281,21 +283,6 @@ export default class Move extends View {
         .child(div().text_size(11).text_color(t.dim).child(hint));
     };
 
-    const chip = (/** @type {"tab" | "pane"} */ what, /** @type {string} */ text) =>
-      h_flex()
-        .id(`jmt-${what}`)
-        .h(24)
-        .px(8)
-        .items_center()
-        .rounded(6)
-        .cursor_pointer()
-        .text_size(12)
-        .when(this.what === what, (el) => el.bg(t.solid).text_color(t.solid_foreground))
-        .when(this.what !== what, (el) => el.text_color(t.dim).hover((s) => s.bg(t.hover)))
-        .on_click((_e, cx) => this.what !== what && this.toggle(cx))
-        .child(text);
-
-    const paneName = this.pane ? this.pane.name || this.pane.title : "";
     return v_flex()
       .id("jm-move-tab")
       .w_full()
@@ -310,11 +297,12 @@ export default class Move extends View {
         if (k === "escape") {
           if (this.space) {
             this.step(null);
+          } else if (this.what && this.pane) {
+            this.what = null;
+            this.step(null);
           } else {
             return this.close();
           }
-        } else if (k === "tab") {
-          this.toggle(cx);
         } else if (k === "down" || (k === "n" && e.modifiers.control)) {
           this.at = (this.at + 1) % n;
         } else if (k === "up" || (k === "p" && e.modifiers.control)) {
@@ -325,16 +313,14 @@ export default class Move extends View {
         cx.stop_propagation();
         cx.notify();
       })
+      .child(div().px(4).truncate().font_semibold().child(this.what === "pane" ? `Pane "${paneName}"` : this.what === "tab" ? `Tab "${this.tab?.name ?? ""}"` : "Move…"))
       .child(
-        h_flex()
-          .gap(4)
-          .items_center()
-          .child(chip("tab", `Tab "${this.tab?.name ?? ""}"`))
-          .when(Boolean(this.pane), (el) => el.child(chip("pane", `Pane "${paneName}"`)))
-          .child(div().flex_1())
-          .child(div().text_size(11).text_color(t.dim).child(this.pane ? "⇥ switch" : "")),
+        div()
+          .px(4)
+          .truncate()
+          .text_color(t.dim)
+          .child(!this.what ? "What to move?" : this.space ? `To a tab in "${this.space.name}"…` : `From "${this.source?.name ?? ""}" to a space…`),
       )
-      .child(div().px(4).truncate().text_color(t.dim).child(this.space ? `To a tab in "${this.space.name}"…` : `From "${this.source?.name ?? ""}" to a space…`))
       .child(
         h_flex()
           .h(32)
