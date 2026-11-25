@@ -1,5 +1,8 @@
 local headphones_watcher = require 'audio/headphones_watcher'
 local appGuard = require 'utils/app_guard'
+local media = require 'audio/media'
+
+local logger = hs.logger.new('audio', 'info')
 
 ---@class AudioModule
 ---@field volumes table<string, number>
@@ -17,6 +20,9 @@ local appGuard = require 'utils/app_guard'
 ---@field current fun()
 ---@field pickOutputDevice fun()
 ---@field pickInputDevice fun()
+---@field outputChangedTimer hs.timer.delayed|nil
+---@field outputMutedTimer hs.timer|nil
+---@field caffeinateWatcher hs.caffeinate.watcher|nil
 ---@field init fun()
 local mod = {}
 
@@ -28,6 +34,12 @@ mod.volumes[dacName] = 100
 mod.volumes[appleUSBWithDT1990Pro] = 25
 
 local inputDeviceCheckSeconds = 30
+
+-- Seconds after the default output device changes before checking if it is muted.
+local outputChangedDelay = 0.5
+
+-- Seconds between checks pausing all the media when the output is muted.
+local outputMutedCheckSeconds = 60
 
 inputDevicePriority = {
   'RØDE VideoMic GO II',
@@ -203,15 +215,29 @@ mod.next = callAndDisplay(hs.itunes.next)
 mod.previous = callAndDisplay(hs.itunes.previous)
 mod.current = hs.itunes.displayCurrentTrack
 
+--- Pauses all the media playing, or resumes Brave or Music, see `media.toggle`.
 function mod.playpause()
-  hs.alert.show('Play/Pause')
-  hs.itunes.playpause()
+  media.toggle()
 end
 
+--- Pauses all the media playing when the default output device is muted or its volume is 0.
+local function pauseAllIfOutputMuted()
+  local device = hs.audiodevice.defaultOutputDevice()
+  if not device then
+    return
+  end
+  local volume = device:volume()
+  if device:muted() or (volume ~= nil and volume <= 0) then
+    logger.i('Output muted: ' .. device:name())
+    media.pauseAll()
+  end
+end
+
+--- Pauses all the media playing when the screen locks. Nothing is resumed on unlock.
 ---@param event number
 local function parseEvent(event)
   if event == hs.caffeinate.watcher.screensDidLock then
-    hs.itunes.pause()
+    media.pauseAll()
   end
 end
 
@@ -232,10 +258,17 @@ function mod.init()
     mod.setDefaultInputDevice()
   end
 
-  hs.caffeinate.watcher.new(parseEvent):start()
-  headphones_watcher.init(plugged, unplugged)
+  -- Delayed so `unplugged` mutes the speakers first, and the events of a single change are handled once.
+  mod.outputChangedTimer = hs.timer.delayed.new(outputChangedDelay, pauseAllIfOutputMuted)
+
+  mod.caffeinateWatcher = hs.caffeinate.watcher.new(parseEvent):start()
+  headphones_watcher.init(plugged, unplugged, function()
+    mod.outputChangedTimer:start()
+  end)
+  media.init()
   mod.setDefaultInputDevice()
   mod.inputDeviceTimer = hs.timer.doEvery(inputDeviceCheckSeconds, mod.setDefaultInputDevice)
+  mod.outputMutedTimer = hs.timer.doEvery(outputMutedCheckSeconds, pauseAllIfOutputMuted)
 end
 
 return mod

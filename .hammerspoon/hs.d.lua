@@ -23,6 +23,7 @@
 ---@field osascript hs.osascript
 ---@field usb hs.usb
 ---@field itunes hs.itunes
+---@field spotify hs.spotify
 ---@field caffeinate hs.caffeinate
 ---@field wifi hs.wifi
 ---@field network hs.network
@@ -178,7 +179,8 @@
 ---@field setWorkingDirectory fun(self, path: string): boolean
 
 ---@class hs.alert
----@field show fun(message: string): nil
+---@field show fun(message: string): string
+---@field closeSpecific fun(id: string, fadeOutDuration: number|nil): nil
 
 ---@class hs.eventtap
 ---@field keyStroke fun(modifiers: string[], key: string, delay: number|nil): nil
@@ -195,6 +197,7 @@
 ---@field getFlags fun(self): table<string, boolean>
 ---@field getKeyCode fun(self): number
 ---@field getType fun(self): number
+---@field systemKey fun(self): { key: string|nil, keyCode: number|nil, down: boolean|nil, ['repeat']: boolean|nil }
 ---@field getCharacters fun(self): string|nil
 ---@field properties table<string, number>
 ---@field location fun(self): { x: number, y: number }
@@ -228,9 +231,24 @@
 
 ---@class hs.itunes
 ---@field pause fun(): nil
+---@field play fun(): nil
+---@field isRunning fun(): boolean
+---@field isPlaying fun(): boolean
+
+---@class hs.spotify
+---@field pause fun(): nil
+---@field play fun(): nil
+---@field isRunning fun(): boolean
+---@field isPlaying fun(): boolean
 
 ---@class hs.caffeinate
 ---@field systemSleep fun(): nil
+---@field watcher hs.caffeinate.watcher
+
+---@class hs.caffeinate.watcher
+---@field screensDidLock number
+---@field new fun(fn: fun(event: number)): hs.caffeinate.watcher
+---@field start fun(self): hs.caffeinate.watcher
 
 ---@class hs.wifi
 ---@field interfaces fun(): string[]
