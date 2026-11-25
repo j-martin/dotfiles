@@ -75,12 +75,37 @@ const tag = "#jira"
 
 var noteID = regexp.MustCompile(`^` + marker + ` <(https://\S+/browse/[A-Z][A-Z0-9_]*-\d+)>$`)
 
+// Reminders list used when no list is given and there is no default list.
+const fallbackList = "Work"
+
+// Returns the list named name, or the default list when name is empty, or the fallback list when
+// there is no default list.
+const resolveListScript = `
+function resolveList(app, name) {
+  if (name) {
+    const list = app.lists.byName(name);
+    if (!list.exists()) {
+      throw new Error('Reminders list not found: ' + name);
+    }
+    return list;
+  }
+  if (app.defaultList.exists()) {
+    return app.defaultList;
+  }
+  const fallback = app.lists.byName('` + fallbackList + `');
+  if (!fallback.exists()) {
+    throw new Error('No default Reminders list and no list named ` + fallbackList + `');
+  }
+  return fallback;
+}
+`
+
 // Returns the reminders of the list whose note starts with the marker.
-const fetchScript = `
+const fetchScript = resolveListScript + `
 function run(argv) {
   const p = JSON.parse(argv[0]);
   const app = Application('Reminders');
-  const list = p.list ? app.lists.byName(p.list) : app.defaultList;
+  const list = resolveList(app, p.list);
   const matches = list.reminders.whose({body: {_beginsWith: p.prefix}});
   const ids = matches.id();
   const names = matches.name();
@@ -90,11 +115,11 @@ function run(argv) {
 }
 `
 
-const applyScript = `
+const applyScript = resolveListScript + `
 function run(argv) {
   const p = JSON.parse(argv[0]);
   const app = Application('Reminders');
-  const list = p.list ? app.lists.byName(p.list) : app.defaultList;
+  const list = resolveList(app, p.list);
   for (const r of p.create) {
     list.reminders.push(app.Reminder({name: r.title, body: r.notes}));
   }
@@ -118,7 +143,7 @@ func main() {
 }
 
 func run() error {
-	list := flag.String("list", "", "Reminders list, the default list when empty")
+	list := flag.String("list", "", "Reminders list, the default list (or "+fallbackList+" without one) when empty")
 	jql := flag.String("jql", "assignee = currentUser() AND statusCategory != Done", "JQL query for the issues to remind")
 	dryRun := flag.Bool("dry-run", false, "print the changes without applying them")
 	flag.Parse()
