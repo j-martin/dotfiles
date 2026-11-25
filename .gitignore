@@ -14,7 +14,8 @@
 !/.config/herdr-app/**/
 !/.config/herdr-app/**/jm-*
 !/.config/herdr-app/**/jm-*/**
-.DS_Store
 gpui-kit.d.ts
 /.config/herdr-app/layouts/.state/**
 /.config/herdr-app/data/**
+
+.DS_Store
