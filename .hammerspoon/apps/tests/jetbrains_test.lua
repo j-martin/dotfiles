@@ -42,4 +42,11 @@ return {
     assert(jetbrains.navigationPath('/src/code', { 'code', 'infra' }, 'a.go', mode) == nil)
     assert(jetbrains.navigationPath('/src/code', {}, 'Project.ts', mode) == nil)
   end,
+  ['titlePath is the full path of files outside the project, from the window title'] = function()
+    local path = jetbrains.titlePath('dotfiles – ~/code/infra/Project.ts', '/src', mode)
+    assert(path == '/src/code/infra/Project.ts', path)
+    assert(jetbrains.titlePath('infra – /src/code/infra/Project.ts', '/home', mode) == '/src/code/infra/Project.ts')
+    assert(jetbrains.titlePath('infra – Project.ts', '/src', mode) == nil)
+    assert(jetbrains.titlePath('dotfiles – ~/code/infra', '/src', mode) == nil)
+  end,
 }

@@ -7,14 +7,29 @@ local markdown = require 'utils/markdown'
 ---@field pane string|nil
 ---@field app string|nil Detected agent, e.g. `claude-code`.
 ---@field status string|nil e.g. `working`, `idle` or `blocked` when the agent waits for input.
+---@field name string|nil Name given to the pane.
 
 ---@class HerdrTab
+---@field name string|nil
 ---@field active boolean
 ---@field terminals HerdrTerminal[]
 
 ---@class HerdrSpace
+---@field id string|nil
+---@field name string|nil
+---@field folder string|nil
 ---@field active boolean
 ---@field tabs HerdrTab[]
+
+---@class HerdrMatch
+---@field terminal HerdrTerminal
+---@field space HerdrSpace
+---@field tab HerdrTab
+---@field folder string Folder of the terminal relating to the path.
+
+---@class HerdrNewAgent
+---@field name string e.g. `Copilot`.
+---@field argv string[] Command starting it.
 
 ---@class HerdrStatus
 ---@field focused_pane string|nil
@@ -48,6 +63,16 @@ local markdown = require 'utils/markdown'
 ---@field withContext fun(prompt: string, context: AppContext|nil, selected: string|nil): string
 ---@field reference fun(path: string, line: integer|nil, endLine: integer|nil, cwd: string|nil): string
 ---@field sendFileReference fun()
+---@field newAgent HerdrNewAgent Agent `sendFileReference` can start in the repo and space of what it prompts about.
+---@field isUnder fun(path: string|nil, folder: string|nil): boolean
+---@field repoRoot fun(path: string, exists: (fun(path: string): boolean)|nil): string|nil
+---@field relates fun(folder: string|nil, path: string|nil, root: string|nil): boolean
+---@field relatedFolder fun(folders: string[], path: string, root: string|nil): string|nil
+---@field findRelated fun(layout: HerdrLayout|nil, path: string, root: string|nil, cwds: table<string, string[]>): HerdrMatch[]
+---@field paneLabel fun(match: HerdrMatch, branch: string|nil, summary: string|nil): string
+---@field focusSource fun()
+---@field findSpace fun(layout: HerdrLayout|nil, path: string|nil, root: string|nil, cwds: table<string, string[]>|nil): HerdrSpace|nil, string|nil
+---@field agentArgv fun(agent: HerdrNewAgent, prompt: string): string[]
 ---@field openKey { mods: string[], key: string } Herdr key running `mod.open:jm-open-file` (`~/.config/herdr-app/keys.json`).
 ---@field linkHandledFile string Touched by the `jm-open-file` mod's `link.js` on each link Herdr detects.
 ---@field cmdClickFile string Tells the `jm-open-file` mod a cmd-click opened it, to stay quiet.
@@ -78,6 +103,8 @@ local lastAgentKey = 'herdr.lastAgent'
 
 -- Matched against the agent `herdr-app ls` detects in each terminal
 mod.agentPatterns = { 'claude', 'copilot' }
+
+mod.newAgent = { name = 'Claude Code', argv = { 'claude', '--model', 'opus' } }
 
 ---@param terminal HerdrTerminal
 ---@return boolean
@@ -619,6 +646,149 @@ end
 ---@type hs.chooser|nil
 local chooser = nil
 
+---@type hs.chooser|nil
+local picker = nil
+
+-- hs.settings key of how `sendFileReference` sent its last prompt, `paste` or `submit`
+local lastModeKey = 'herdr.lastMode'
+
+--- True when the path is the folder or inside it.
+---@param path string|nil
+---@param folder string|nil
+---@return boolean
+function mod.isUnder(path, folder)
+  if not path or not folder or folder == '' then
+    return false
+  end
+  local prefix = folder:gsub('/+$', '')
+  local trimmed = path:gsub('/+$', '')
+  return trimmed == prefix or trimmed:sub(1, #prefix + 1) == prefix .. '/'
+end
+
+--- Returns the closest folder holding the path with a `.git`, its repo or worktree root.
+---@param path string
+---@param exists (fun(path: string): boolean)|nil Defaults to checking the file system.
+---@return string|nil
+function mod.repoRoot(path, exists)
+  exists = exists or function(candidate)
+    return hs.fs.attributes(candidate) ~= nil
+  end
+  local dir = path:gsub('/+$', '')
+  while dir ~= '' do
+    if exists(dir .. '/.git') then
+      return dir
+    end
+    dir = dir:match('^(.*)/[^/]*$') or ''
+  end
+  return nil
+end
+
+--- True when an agent or space in the folder is about the path: inside its repo root, else holding the path.
+---@param folder string|nil
+---@param path string|nil
+---@param root string|nil Repo root of the path.
+---@return boolean
+function mod.relates(folder, path, root)
+  if root then
+    return mod.isUnder(folder, root)
+  end
+  return mod.isUnder(path, folder)
+end
+
+--- Returns the deepest of the folders relating to the path, see `relates`.
+---@param folders string[]
+---@param path string
+---@param root string|nil Repo root of the path.
+---@return string|nil
+function mod.relatedFolder(folders, path, root)
+  ---@type string|nil
+  local deepest = nil
+  for _, folder in ipairs(folders) do
+    if mod.relates(folder, path, root) and (not deepest or #folder > #deepest) then
+      deepest = folder
+    end
+  end
+  return deepest
+end
+
+--- Returns the space a new agent about the path goes in, from the `herdr-app ls` output, and its folder relating to
+--- the path. A space relates by its folder or the live folder of one of its terminals, Herdr names it after where its
+--- first terminal is. The shown space wins when it relates, else the one with the deepest related folder. Without a
+--- path, the shown space.
+---@param layout HerdrLayout|nil
+---@param path string|nil
+---@param root string|nil Repo root of the path.
+---@param cwds table<string, string[]>|nil Live and start folders of each terminal by address.
+---@return HerdrSpace|nil
+---@return string|nil
+function mod.findSpace(layout, path, root, cwds)
+  local spaces = layout and layout.spaces or {}
+  if not path then
+    local shown = active(spaces) --[[@as HerdrSpace|nil]]
+    return shown, shown and shown.folder
+  end
+  ---@type HerdrSpace|nil
+  local found = nil
+  ---@type string|nil
+  local foundFolder = nil
+  for _, space in ipairs(spaces) do
+    ---@type string[]
+    local folders = { space.folder }
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        for _, cwd in ipairs(cwds and cwds[terminal.terminal] or {}) do
+          table.insert(folders, cwd)
+        end
+      end
+    end
+    local deepest = mod.relatedFolder(folders, path, root)
+    if deepest then
+      if space.active then
+        return space, deepest
+      end
+      if not foundFolder or #deepest > #foundFolder then
+        found, foundFolder = space, deepest
+      end
+    end
+  end
+  return found, foundFolder
+end
+
+--- Shows a picker of the choices once the one calling it closed, its query an editable text that does not filter
+--- them, then calls back with the picked one, nil when dismissed, and the text.
+---@param choices table[]
+---@param placeholder string
+---@param query string
+---@param callback fun(choice: table|nil, query: string)
+local function pick(choices, placeholder, query, callback)
+  hs.timer.doAfter(0, function()
+    if picker then
+      picker:delete()
+    end
+    picker = hs.chooser.new(function(choice)
+      callback(choice, picker and picker:query() or '')
+    end)
+    picker:bgDark(true)
+    picker:placeholderText(placeholder)
+    picker:queryChangedCallback(function() end)
+    picker:choices(choices)
+    picker:query(query)
+    picker:show()
+  end)
+end
+
+--- Returns the command starting the agent with the prompt as its first message, without it when empty.
+---@param agent HerdrNewAgent
+---@param prompt string
+---@return string[]
+function mod.agentArgv(agent, prompt)
+  local argv = table.move(agent.argv, 1, #agent.argv, 1, {})
+  if prompt:match('%S') then
+    table.insert(argv, prompt)
+  end
+  return argv
+end
+
 --- Pastes the prompt into the agent's Herdr pane without pressing Enter, and brings Herdr forward to finish it.
 --- herdr-core can only paste and submit, so the paste goes through the Herdr window and the pasteboard.
 ---@param agent HcTerminal
@@ -663,10 +833,193 @@ local function submit(agent, prompt)
   })
 end
 
+--- Returns the panes of all spaces and tabs about the path, from the `herdr-app ls` output: the agents, then the
+--- other terminals, each in layout order. A terminal relates by its live folder or the one it started in.
+---@param layout HerdrLayout|nil
+---@param path string
+---@param root string|nil Repo root of the path.
+---@param cwds table<string, string[]> Live and start folders of each terminal by address.
+---@return HerdrMatch[]
+function mod.findRelated(layout, path, root, cwds)
+  ---@type HerdrMatch[]
+  local agents = {}
+  ---@type HerdrMatch[]
+  local others = {}
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        local folder = terminal.pane and mod.relatedFolder(cwds[terminal.terminal] or {}, path, root)
+        if folder then
+          table.insert(
+            isAgent(terminal) and agents or others,
+            { terminal = terminal, space = space, tab = tab, folder = folder }
+          )
+        end
+      end
+    end
+  end
+  return table.move(others, 1, #others, #agents + 1, agents)
+end
+
+--- Returns the live folder, then the start folder when another, of each terminal of the `herdr-app ls` output by
+--- address.
+---@param layout HerdrLayout|nil
+---@return table<string, string[]>
+local function terminalFolders(layout)
+  ---@type table<string, string[]>
+  local cwds = {}
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        local details = terminalDetails(terminal.terminal)
+        ---@type string[]
+        local folders = {}
+        for _, folder in ipairs({ detailsCwd(details) or false, details and details.cwd or false }) do
+          if folder and folder ~= '' and folder ~= folders[1] then
+            table.insert(folders, folder)
+          end
+        end
+        cwds[terminal.terminal] = folders
+      end
+    end
+  end
+  return cwds
+end
+
+--- Returns `<space> - <branch> - <tab> - <pane>` for a picker row, without the branch when empty. The pane is its
+--- name, else the agent and its session summary, else `shell`.
+---@param match HerdrMatch
+---@param branch string|nil
+---@param summary string|nil
+---@return string
+function mod.paneLabel(match, branch, summary)
+  local terminal = match.terminal
+  local pane = terminal.name
+  if not pane or pane == '' then
+    pane = terminal.app or 'shell'
+    if summary and summary ~= '' then
+      pane = pane .. ': ' .. summary
+    end
+  end
+  ---@type string[]
+  local parts = { match.space.name or match.space.folder or '?' }
+  if branch and branch ~= '' then
+    table.insert(parts, branch)
+  end
+  table.insert(parts, match.tab.name or '?')
+  table.insert(parts, pane)
+  return table.concat(parts, ' - ')
+end
+
+---@type hs.chooser|nil
+local paneChooser = nil
+
+---@param pane string
+local function focusPane(pane)
+  local app = hs.application.get(mod.name)
+  if app then
+    app:activate()
+  end
+  run('herdr-app do pane.focus --pane ' .. pane)
+end
+
+--- Shows the Herdr pane about what the focused window shows, e.g. the GoLand file: in its repo, else holding it, by
+--- the live or start folder of its terminal, in any space and tab. A picker lists them, agents first, when several
+--- match. Without one, the space about it, else just Herdr.
+function mod.focusSource()
+  local file = source(hs.window.focusedWindow())
+  local path = file and file.path
+  if not path or not path:match('^/') then
+    hs.alert.show('Herdr: no file or folder in the focused window')
+    return
+  end
+  local app = hs.application.get(mod.name)
+  local layout = app and run('herdr-app ls')
+  local parsed = layout and hs.json.decode(layout) --[[@as HerdrLayout|nil]]
+  if not app or not parsed then
+    require('windows').launchOrCycleFocus(mod.name)()
+    return
+  end
+  local root = mod.repoRoot(path)
+  local cwds = terminalFolders(parsed)
+  local matches = mod.findRelated(parsed, path, root, cwds)
+  if #matches == 1 then
+    focusPane(matches[1].terminal.pane)
+    return
+  end
+  if #matches == 0 then
+    app:activate()
+    local space = mod.findSpace(parsed, path, root, cwds)
+    if space and space.id then
+      run('herdr-app do space.select --id ' .. space.id)
+    else
+      hs.alert.show('Herdr: nothing about ' .. (root or path))
+    end
+    return
+  end
+
+  local described = summaries()
+  ---@type table<string, string>
+  local branches = {}
+  ---@type table[]
+  local choices = {}
+  for _, match in ipairs(matches) do
+    local terminal = match.terminal
+    if not branches[match.folder] then
+      branches[match.folder] = (process.execute(
+        'git -C ' .. string.format('%q', match.folder) .. ' branch --show-current 2>/dev/null'
+      )):gsub('%s+$', '')
+    end
+    table.insert(choices, {
+      text = mod.paneLabel(match, branches[match.folder], described[terminal.terminal]),
+      subText = string.format('%s %s  %s', terminal.terminal, terminal.status or '', match.folder),
+      pane = terminal.pane,
+    })
+  end
+  if paneChooser then
+    paneChooser:delete()
+  end
+  paneChooser = hs.chooser.new(function(choice)
+    if choice then
+      focusPane(choice.pane)
+    end
+  end)
+  paneChooser:bgDark(true)
+  paneChooser:placeholderText('Herdr pane about ' .. (root or path))
+  paneChooser:choices(choices)
+  paneChooser:show()
+end
+
+--- Starts the agent with the prompt as its first message in a new tab of the space, or in a new space without one.
+---@param agent HerdrNewAgent
+---@param space string|nil Space id.
+---@param folder string|nil
+---@param prompt string
+local function startAgent(agent, space, folder, prompt)
+  local command = space and 'tab.new' or 'space.new'
+  local args = { space = space, folder = folder, argv = mod.agentArgv(agent, prompt) }
+  process.start('herdr-app', { 'do', command, hs.json.encode(args) }, nil, 30, {
+    quiet = true,
+    callback = function(exitCode, stdOut, stdErr)
+      local decoded = exitCode == 0 and hs.json.decode(stdOut)
+      if not decoded or not decoded.terminal then
+        logger.ef('herdr-app do %s failed: %s %s', command, stdOut, stdErr)
+        hs.alert.show('Herdr: could not start ' .. agent.name .. ', see logs')
+        return
+      end
+      hs.settings.set(lastAgentKey, decoded.terminal)
+      hs.alert.show('Herdr ' .. decoded.terminal .. ': ' .. prompt)
+    end,
+  })
+end
+
 --- Shows a picker prefilled with an `@` reference to what the focused window shows, the editor or Obsidian file and
 --- selected lines, or the working directory of Herdr, iTerm2 and Finder, to type the rest of the prompt after it.
 --- Other apps, e.g. Brave, add what their window shows, like its URL, and the selection as a quote after the prompt.
---- Each agent, the one picked last first, has a row pasting the prompt without Enter (the default) and one submitting it.
+--- Lists the agents about the same repo, else holding the path, then a row starting a new agent with the prompt in
+--- that repo and its space, then the other agents, each in order of `orderAgents`. Without a path, every agent comes
+--- first and the new one goes in the shown space. A second picker, the prompt still editable, pastes it into the
+--- agent without Enter or submits it, the way picked last first; a new agent can only be submitted to.
 function mod.sendFileReference()
   local window = hs.window.focusedWindow()
   local file = source(window)
@@ -689,70 +1042,123 @@ function mod.sendFileReference()
     pcall(recordFocus)
   end
   local layout = run('herdr-app ls')
-  local shown = mod.findAgent(layout and hs.json.decode(layout), mod.focusedAt)
+  local parsed = layout and hs.json.decode(layout) --[[@as HerdrLayout|nil]]
+  local shown = mod.findAgent(parsed, mod.focusedAt)
   local listed = run('hc ls --json')
   local decoded = listed and hs.json.decode(listed)
   local agents =
     mod.orderAgents(decoded and decoded.terminals or {}, hs.settings.get(lastAgentKey), shown and shown.terminal)
-  if #agents == 0 then
-    hs.alert.show('Herdr: no claude or copilot running')
-    return
-  end
+
+  local root = path and mod.repoRoot(path)
+  local cwds = path and terminalFolders(parsed) or {}
+  local space, spaceFolder = mod.findSpace(parsed, path, root, cwds)
+  local newFolder = root or spaceFolder or (path and path:match('^(.*)/[^/]*$'))
+  local newReference = (file and path) and mod.reference(path, file.line, file.endLine, newFolder) or ''
 
   ---@type table<string, string>
   local references = {}
   ---@type table[]
-  local choices = {}
+  local related = {}
+  ---@type table[]
+  local others = {}
   local described = summaries()
   local attached = context and ('  ·  📎 ' .. context.title) or ''
   for _, agent in ipairs(agents) do
-    local cwd = detailsCwd(terminalDetails(agent.address))
+    local cwd = (cwds[agent.address] or {})[1] or detailsCwd(terminalDetails(agent.address)) or agent.cwd
     local description = described[agent.address] or ''
     references[agent.address] = (file and path) and mod.reference(path, file.line, file.endLine, cwd) or ''
-    local text = description ~= '' and description or string.format('%s %s', agent.agent, agent.address)
-    local details = string.format(
-      '%s %s  %s  %s  %s',
-      agent.agent,
-      agent.address,
-      agent.status or '',
-      agent.where or '',
-      cwd or agent.cwd or ''
-    )
-    table.insert(choices, { text = text, subText = 'Paste  ·  ' .. details .. attached, address = agent.address })
-    table.insert(
-      choices,
-      { text = text, subText = 'Submit ⏎  ·  ' .. details .. attached, address = agent.address, submit = true }
-    )
+    local details =
+      string.format('%s %s  %s  %s  %s', agent.agent, agent.address, agent.status or '', agent.where or '', cwd or '')
+    table.insert((not path or mod.relates(cwd, path, root)) and related or others, {
+      text = description ~= '' and description or string.format('%s %s', agent.agent, agent.address),
+      subText = details .. attached,
+      address = agent.address,
+    })
   end
-  local reference = references[agents[1].address]
+  local where = space and string.format('a new tab of %s', space.name or space.folder or '') or 'a new space'
+  ---@type table[]
+  local choices = related
+  table.insert(choices, {
+    text = 'New ' .. mod.newAgent.name .. ' agent',
+    subText = string.format('In %s  ·  %s', where, newFolder or '~') .. attached,
+    new = true,
+  })
+  for _, choice in ipairs(others) do
+    table.insert(choices, choice)
+  end
+  local reference = related[1] and related[1].address and references[related[1].address] or newReference
+
+  ---@param prompt string
+  ---@param replacement string
+  ---@return string
+  local function finish(prompt, replacement)
+    return path and mod.rebase(prompt, reference, replacement) or mod.withContext(prompt, context, selected)
+  end
+
+  --- Picks pasting the prompt without Enter or submitting it, the way picked last first, the prompt still editable.
+  --- Without `pasteable`, only submitting is offered.
+  ---@param name string Agent it goes to.
+  ---@param prompt string As typed in the first picker.
+  ---@param replacement string `@` reference relative to the agent folder.
+  ---@param pasteable boolean
+  ---@param deliver fun(prompt: string, submitted: boolean)
+  local function send(name, prompt, replacement, pasteable, deliver)
+    local modes = {
+      { text = 'Paste', subText = name .. ', without Enter to finish it in Herdr', mode = 'paste' },
+      { text = 'Submit ⏎', subText = name .. ', with Enter', mode = 'submit' },
+    }
+    if not pasteable then
+      table.remove(modes, 1)
+    elseif hs.settings.get(lastModeKey) == 'submit' then
+      modes[1], modes[2] = modes[2], modes[1]
+    end
+    pick(modes, 'Prompt, ⏎ sends it to ' .. name, prompt, function(choice, edited)
+      if window and (not choice or choice.mode == 'submit') then
+        window:focus()
+      end
+      if not choice then
+        return
+      end
+      if pasteable then
+        hs.settings.set(lastModeKey, choice.mode)
+      end
+      deliver(finish(edited, replacement), choice.mode == 'submit')
+    end)
+  end
 
   if chooser then
     chooser:delete()
   end
   chooser = hs.chooser.new(function(choice)
     local prompt = chooser and chooser:query() or ''
-    if window and (not choice or choice.submit) then
-      window:focus()
-    end
     if not choice then
+      if window then
+        window:focus()
+      end
+      return
+    end
+    if choice.new then
+      send('New ' .. mod.newAgent.name .. ' agent', prompt, newReference, false, function(text)
+        startAgent(mod.newAgent, space and space.id, newFolder, text)
+      end)
       return
     end
     for _, agent in ipairs(agents) do
       if agent.address == choice.address then
-        hs.settings.set(lastAgentKey, agent.address)
-        local rebased = path and mod.rebase(prompt, reference, references[agent.address])
-          or mod.withContext(prompt, context, selected)
-        if choice.submit then
-          submit(agent, rebased)
-        else
-          paste(agent, rebased)
-        end
+        send(choice.text, prompt, references[agent.address], true, function(text, submitted)
+          hs.settings.set(lastAgentKey, agent.address)
+          if submitted then
+            submit(agent, text)
+          else
+            paste(agent, text)
+          end
+        end)
         return
       end
     end
   end)
   chooser:bgDark(true)
-  chooser:placeholderText('Prompt, ⏎ pastes into or submits to the highlighted agent')
+  chooser:placeholderText('Prompt, ⏎ picks the highlighted agent, or starts a new one')
   -- Typing writes the prompt, it does not filter the agents.
   chooser:queryChangedCallback(function() end)
   chooser:choices(choices)

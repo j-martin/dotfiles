@@ -9,6 +9,7 @@ local process = require 'utils/process'
 ---@field matches fun(bundleId: string|nil): boolean
 ---@field omni fun()
 ---@field navigationPath fun(root: string, components: string[], file: string, mode: fun(path: string): string|nil): string|nil
+---@field titlePath fun(title: string, home: string, mode: fun(path: string): string|nil): string|nil
 ---@field context fun(window: hs.window): AppContext
 local mod = {}
 
@@ -123,6 +124,21 @@ function mod.navigationPath(root, components, file, mode)
   return mode(path .. '/' .. file) == 'file' and path .. '/' .. file or nil
 end
 
+--- Returns the file of the window title, `<project> – <file>`, when it is a path: the title shows the full path of
+--- files outside the project, e.g. `infra – ~/src/other/main.go`.
+---@param title string
+---@param home string
+---@param mode fun(path: string): string|nil Returns `directory` or `file`, nil when missing.
+---@return string|nil
+function mod.titlePath(title, home, mode)
+  local file = title:match('^.-%s+–%s+(.+)$')
+  if not file or not file:match('^[~/]') then
+    return nil
+  end
+  local path = file:gsub('^~', home)
+  return mode(path) == 'file' and path or nil
+end
+
 ---@param path string
 ---@return string|nil
 local function fileMode(path)
@@ -183,7 +199,8 @@ function mod.context(window)
     return { title = window:title() }
   end
   local root = projectRoot(windowElement)
-  local path = root and (mod.navigationPath(root, navigationBar(windowElement), file, fileMode) or gitPath(root, file))
+  local path = mod.titlePath(window:title(), os.getenv('HOME') or '', fileMode)
+    or root and (mod.navigationPath(root, navigationBar(windowElement), file, fileMode) or gitPath(root, file))
   local line, endLine
   if editor then
     line, endLine = selectedLines(editor)

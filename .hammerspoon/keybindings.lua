@@ -59,6 +59,11 @@ local bindings = {
       { key = 'f', name = 'Preview', shift = true },
       { key = 'g', name = 'Claude' },
       {
+        key = 'h',
+        fn = apps.herdr.focusSource,
+        desc = 'Herdr - Focus the pane, picking when several, else the space, of the repo or folder of the focused window',
+      },
+      {
         key = 'i',
         fn = apps.herdr.focusNext,
         desc = 'Herdr - Focus, on the next agent waiting for input, else the next pane of the tab when frontmost',
@@ -67,7 +72,7 @@ local bindings = {
         key = 'i',
         shift = true,
         fn = apps.herdr.sendFileReference,
-        desc = 'Herdr - Prompt an agent with @file#line, @folder/ or the quoted selection and context, picking the agent',
+        desc = 'Herdr - Prompt an agent with @file#line, @folder/ or the quoted selection and context, picking the agent, or a new one in its repo and space, then paste or submit',
       },
       -- { key = 'i', name = 'iTerm2' },
       -- { key = 'i', fn = apps.iterm.omni, shift = true },
