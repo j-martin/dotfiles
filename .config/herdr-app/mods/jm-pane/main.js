@@ -5,7 +5,7 @@
 
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { agents, panes, props, run, theme, home, layout, nextCommand, shared, setShared } from "herdr";
+import { agents, focused, panes, props, run, theme, home, layout, nextCommand, shared, setShared } from "herdr";
 
 // Match the first visible tab frame, including the active child of a stack.
 function paneFrame(node) {
@@ -52,6 +52,49 @@ function publishSummaries() {
   if (sorted(shared(SUMMARIES)) !== sorted(summaries)) setShared(SUMMARIES, summaries);
 }
 
+// While the shown tab is zoomed over hidden panes, the layout's pane frame turns red and thick.
+// The normal look is kept in shared.json so it survives a restart mid-zoom.
+const FRAME = "jm-pane.frame";
+const ZOOM_WIDTH = 2;
+const ZOOM_ALPHA = "80";
+
+function zoomColor(t) {
+  return (t.ansi3 ?? "#e5c07b").slice(0, 7);
+}
+const NORMAL_LOOK = { border: { width: 1, color: "border" }, focus: { width: 1, color: "accent" } };
+let frameWanted = null;
+
+function isZoomLook(look) {
+  return look?.width === ZOOM_WIDTH && /^#[0-9a-f]{6}/i.test(look?.color ?? "") && look.color.endsWith(ZOOM_ALPHA);
+}
+
+function syncFrame() {
+  const tab = focused()?.tab;
+  const inTab = panes().filter((p) => p.tab === tab);
+  const zoomed = inTab.length > 1 && inTab.some((p) => p.zoomed);
+  const tree = JSON.parse(JSON.stringify(layout()));
+  const frame = paneFrame(tree);
+  if (!frame) return;
+  const showing = isZoomLook(frame.focus);
+  if (showing === zoomed) {
+    frameWanted = null;
+    return;
+  }
+  if (frameWanted === zoomed) return;
+  frameWanted = zoomed;
+  if (zoomed) {
+    setShared(FRAME, { border: frame.border, focus: frame.focus });
+    const look = { width: ZOOM_WIDTH, color: zoomColor(theme()) + ZOOM_ALPHA };
+    frame.border = { ...look };
+    frame.focus = { ...look };
+  } else {
+    const normal = shared(FRAME) ?? NORMAL_LOOK;
+    frame.border = normal.border ?? NORMAL_LOOK.border;
+    frame.focus = normal.focus ?? NORMAL_LOOK.focus;
+  }
+  run("layout.set", { layout: tree });
+}
+
 function folder(cwd) {
   if (!cwd) return "";
   const h = home();
@@ -96,6 +139,34 @@ export default class Pane extends View {
       .child(svg(`mods/pane/${icon}.svg`).size(14));
   }
 
+  // Pill shown on a zoomed pane that hides others in its tab; clicking it unzooms.
+  zoomedBadge(t, pane, hidden) {
+    const urgent = zoomColor(t);
+    return h_flex()
+      .id(`ph-zoomed-${pane}`)
+      .flex_none()
+      .gap(4)
+      .px(6)
+      .h(18)
+      .items_center()
+      .rounded(5)
+      .bg(urgent + "26")
+      .border_1()
+      .border_color(urgent + "66")
+      .text_size(10.5)
+      .font_semibold()
+      .text_color(urgent)
+      .cursor_pointer()
+      .hover((s) => s.bg(urgent + "40"))
+      .tooltip("Zoomed: other panes in this tab are hidden. Click to unzoom.")
+      .on_click((_e, cx) => {
+        cx.stop_propagation();
+        run("pane.zoom", { pane });
+      })
+      .child(svg("mods/pane/zoom.svg").size(11).flex_none())
+      .child(`ZOOMED · ${hidden.length} hidden`);
+  }
+
   render(cx) {
     const t = theme();
     const p = this.me();
@@ -103,20 +174,23 @@ export default class Pane extends View {
     const name = ((p.program?.agent || p.program?.shell) && p.program.name) || p.title || p.program?.name || "shell";
     const about = summary(p, name);
     publishSummaries();
+    syncFrame();
     const pic = icon(p.program, 14, t.dim);
     const st = p.status;
     const pane = p.pane;
     const bottom = paneFrame(layout())?.header?.position === "bottom";
+    const hidden = p.zoomed ? panes().filter((o) => o.tab === p.tab && o.pane !== pane) : [];
+    const zoomed = hidden.length > 0;
     return h_flex()
       .id(`pane-head-${pane}`)
       .size_full()
       .px(10)
       .gap(8)
       .items_center()
-      .bg(t.background)
+      .bg(zoomed ? zoomColor(t) + "0d" : t.background)
       .when(bottom, el => el.border_t(1))
       .when(!bottom, el => el.border_b(1))
-      .border_color(t.border)
+      .border_color(zoomed ? zoomColor(t) + ZOOM_ALPHA : t.border)
       .text_size(12)
       .on_hover((hovered, cx) => { this.hovered = hovered; cx.notify(); })
       .on_click(() => run("pane.focus", { pane }))
@@ -125,6 +199,7 @@ export default class Pane extends View {
       .child(div().flex_none().truncate().max_w(260).font_medium().text_color(t.foreground).child(name))
       .when(Boolean(about), el => el.child(div().flex_shrink(1).min_w(0).truncate().text_color(t.foreground).child(about)))
       .child(div().flex_1().truncate().text_color(t.dim).child(folder(p.cwd)))
+      .when(zoomed, el => el.child(this.zoomedBadge(t, pane, hidden)))
       .when(st === "working", el => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).flex_none().text_color(t.working).spin(900)))
       .when(st === "blocked", el => el.child(div().flex_none().px(6).h(18).flex().items_center().rounded(5).bg(t.blocked + "26").text_size(10.5).font_semibold().text_color(t.blocked).child("Needs you")))
       .when(st === "done", el => el.child(div().size(7).flex_none().rounded(4).bg(t.done)))
