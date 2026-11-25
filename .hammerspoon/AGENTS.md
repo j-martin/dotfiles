@@ -11,6 +11,7 @@ Living in this dir since that is `dot-agent` working dir.
 - Use `mise` tasks (`mise.toml`, `mise run <task>`) for project tasks, never `Taskfile.yml`/`task` or Makefiles. Convert existing `Taskfile.yml` files to `mise.toml` when touching them.
 - Iterate on the AGENTS.md file to add new rules and instructions, and update the snippets library accordingly based on the instructions you are given during regular prompting.
 - Only add a customization to `~/.setup/setup.sh` if it cannot be committed as a text file or symlink in the home dir, or if it lives outside the home dir.
+- Never run `brew install`. Add Homebrew formulae (`"brew:<name>"`) and casks (`"brew-cask:<name>"`) to `[bootstrap.packages]` in `~/.config/mise/conf.d/bootstrap.toml` (or the `.personal`/`.work` variant), then install them with `mise bootstrap packages apply`.
 - When refactoring code, renaming, always use `home grep` to check for previous usages.
 - Always run `mise run lint` (and fix) and `mise run fmt` after you are done. Never `mise fmt`: it is a mise built-in that only formats `mise.toml` and shadows the `fmt` task.
 
