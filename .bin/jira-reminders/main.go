@@ -1,8 +1,8 @@
 // Syncs the Jira issues matching a JQL query to macOS Reminders.
 //
-// By default, the unresolved issues assigned to me. Jira is queried with the REST API using the
-// "url" (e.g. https://example.atlassian.net), "username" and "password" (API token) entries of
-// the "jira" keyring service, e.g. `keyring get jira password`.
+// By default, the unresolved issues assigned to me, except those in Inbox or Backlog. Jira is
+// queried with the REST API using the "url" (e.g. https://example.atlassian.net), "username" and
+// "password" (API token) entries of the "jira" keyring service, e.g. `keyring get jira password`.
 //
 // Each reminder note starts with the marker and the issue URL, which identifies it,
 // e.g. "jira-reminders <https://example.atlassian.net/browse/ABC-1>". Reminders without the
@@ -144,7 +144,7 @@ func main() {
 
 func run() error {
 	list := flag.String("list", "", "Reminders list, the default list (or "+fallbackList+" without one) when empty")
-	jql := flag.String("jql", "assignee = currentUser() AND statusCategory != Done", "JQL query for the issues to remind")
+	jql := flag.String("jql", "assignee = currentUser() AND statusCategory != Done AND status NOT IN (Inbox, Backlog)", "JQL query for the issues to remind")
 	dryRun := flag.Bool("dry-run", false, "print the changes without applying them")
 	flag.Parse()
 
