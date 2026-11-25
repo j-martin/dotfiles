@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+__HOME_SYNC_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles-sync"
+__HOME_SYNC_FETCH_TTL_MINUTES=60
+
 _home_git() {
   command git --work-tree="$HOME" --git-dir="$HOME/.files.git" "$@"
 }
@@ -73,4 +76,53 @@ _home_submodule_remove() {
         && rm -rf "$HOME/.files.git/modules/$p" || return 1
     done
   )
+}
+
+__home_sync_fetch() {
+  local fetch_head="$HOME/.files.git/FETCH_HEAD"
+  if [[ -f "$fetch_head" ]] && [[ -z "$(find "$fetch_head" -mmin "+${__HOME_SYNC_FETCH_TTL_MINUTES}")" ]]; then
+    return 0
+  fi
+  GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND='ssh -o BatchMode=yes' _home_git fetch --quiet origin
+}
+
+# Writes a one-line summary of how the dotfiles differ from their upstream to
+# the cache file, or empties it when they are in sync. Submodules are ignored.
+_home_sync_check() {
+  local fetch_failed='' behind ahead dirty
+  local problems=()
+
+  __home_sync_fetch || fetch_failed=1
+  read -r behind ahead < <(_home_git rev-list --left-right --count '@{upstream}...HEAD')
+  dirty="$(_home_git status --porcelain --untracked-files=no --ignore-submodules=all | grep --count '')"
+
+  if [[ "${behind:-0}" -gt 0 ]]; then
+    problems+=("${behind} behind")
+  fi
+  if [[ "${ahead:-0}" -gt 0 ]]; then
+    problems+=("${ahead} ahead")
+  fi
+  if [[ "${dirty}" -gt 0 ]]; then
+    problems+=("${dirty} uncommitted")
+  fi
+  if [[ -n "$fetch_failed" ]]; then
+    problems+=('fetch failed')
+  fi
+
+  local summary='' tmp="${__HOME_SYNC_CACHE}.$$"
+  if [[ ${#problems[@]} -gt 0 ]]; then
+    summary="$(printf '%s, ' "${problems[@]}")"
+    summary="Dotfiles out of sync: ${summary%, }"
+  fi
+  _gnu mkdir --parents "$(dirname "$__HOME_SYNC_CACHE")"
+  printf '%s' "$summary" > "$tmp"
+  mv "$tmp" "$__HOME_SYNC_CACHE"
+}
+
+# Prints the warning cached by the previous shell, then refreshes it in the background.
+_home_sync_status() {
+  if [[ -s "$__HOME_SYNC_CACHE" ]]; then
+    _warn "$(cat "$__HOME_SYNC_CACHE") (h status)"
+  fi
+  (_home_sync_check > /dev/null 2>&1 &)
 }

@@ -54,6 +54,10 @@ for shell_file in "$HOME"/.config/shell/aliases/* "$HOME"/.config/shell/aliases/
 done
 unset shell_file
 
+if [[ $- == *i* ]]; then
+  _home_sync_status
+fi
+
 # zsh's _compadd claims every command starting with '_' so our functions would
 # otherwise complete compadd flags instead of falling back to file paths.
 if [[ -n "${ZSH_VERSION:-}" ]]; then
