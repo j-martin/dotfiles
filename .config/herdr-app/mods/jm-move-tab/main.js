@@ -1,18 +1,21 @@
 // @ts-check
 // cmd-shift-m (mod.open:jm-move-tab): moves the focused pane, or the whole shown tab, still
 // running, to a tab of a space on its machine, a new tab there, or a new space. First pick what
-// to move (skipped when no terminal pane is focused), then a space, then a tab; type to
-// filter, ↑/↓ and Enter to choose, Esc to go back, then leave.
+// to move (skipped when there is nothing to pick between), then a space, then a tab; type to
+// filter, ↑/↓ and Enter to choose, Esc to go back, then leave. The first space offered is
+// the one for what moves' repo root (else its cwd), or a new one there.
 // Herdr has no command for it, so each terminal is parked (no pane, its herdr.space/herdr.tab
 // labels dropped), then given a pane where it goes: `terminal.keep` below the focused pane
 // (focus follows the new pane, so they stack at the bottom in their order), as a new tab of
 // the shown space, or, for a new space, labelled with ids Herdr adopts. A moved tab keeps its
 // name when it becomes a new tab; mod panes stay behind.
+// "Merge duplicate spaces" (also props { merge: true }, opened by jm-merge-spaces) moves every
+// tab of spaces sharing a name on one machine, as new tabs, into one of them, then closes the rest.
 
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
-import { closeOverlay, focused, hc, notify, panes, props, run, spaces, theme } from "herdr";
-import { freshId, offersNewTab, spaceChoices, tabChoices } from "./move.js";
+import { closeOverlay, exec, focused, hc, home, notify, panes, props, run, spaces, theme } from "herdr";
+import { baseName, duplicateGroups, folderSpace, freshId, matches, offersNewTab, spaceChoices, tabChoices } from "./move.js";
 
 const TITLE = "Move";
 const MAX_ROWS = 12;
@@ -20,8 +23,8 @@ const ROW_HEIGHT = 28;
 const WAIT_MS = 5000;
 
 /**
- * @typedef {{ kind: "tab", tab: any } | { kind: "new-tab", space: any } | { kind: "new-space" }} Target
- * @typedef {{ kind: "what", what: "tab" | "pane" } | { kind: "space", space: any } | Target} Row
+ * @typedef {{ kind: "tab", tab: any } | { kind: "new-tab", space: any } | { kind: "new-space", folder?: string }} Target
+ * @typedef {{ kind: "what", what: "tab" | "pane" } | { kind: "merge" } | { kind: "space", space: any, folder?: string } | Target} Row
  */
 
 /**
@@ -41,6 +44,17 @@ const until = async (cx, check, what) => {
     await cx.sleep(100);
   }
   throw new Error(`Timed out waiting for ${what}.`);
+};
+
+/**
+ * A folder's repo root, else the folder itself.
+ * @param {string} cwd
+ * @param {string | null} machine
+ * @returns {Promise<string>}
+ */
+const rootOf = async (cwd, machine) => {
+  const r = await exec("git", ["rev-parse", "--path-format=absolute", "--show-toplevel"], { cwd, on: machine });
+  return r.code === 0 ? r.stdout.replace(/\n$/, "") : cwd;
 };
 
 /**
@@ -111,6 +125,39 @@ const moveTerminals = async (cx, terminals, target) => {
   return shownTab(cx, terminals[0]);
 };
 
+/**
+ * Moves every tab of each duplicate space, as new tabs keeping their names, into its group's
+ * space, then closes the emptied spaces and shows the space that was shown (or its group's).
+ * Returns the merged spaces' names.
+ * @param {any} cx
+ * @returns {Promise<string[]>}
+ */
+const mergeDuplicates = async (cx) => {
+  const shown = spaces().find((s) => s.active);
+  const groups = duplicateGroups(spaces());
+  for (const { into, from } of groups) {
+    for (const space of from) {
+      for (const tab of space.tabs) {
+        const terminals = panes()
+          .filter((p) => p.tab === tab.id && p.terminal)
+          .map((p) => /** @type {string} */ (p.terminal));
+        if (terminals.length) {
+          const moved = await moveTerminals(cx, terminals, { kind: "new-tab", space: into });
+          run("tab.rename", { id: moved, name: tab.named ? tab.name : "" });
+        }
+      }
+      if (spaces().some((s) => s.id === space.id)) {
+        run("space.close", { id: space.id });
+      }
+    }
+  }
+  const back = groups.find((g) => g.from.some((s) => s.id === shown?.id))?.into ?? shown;
+  if (back) {
+    run("space.select", { id: back.id });
+  }
+  return groups.map((g) => g.into.name);
+};
+
 export default class Move extends View {
   init(_props, cx) {
     const f = focused();
@@ -120,8 +167,10 @@ export default class Move extends View {
     this.tabTerminals = own.filter((p) => p.terminal).map((p) => /** @type {string} */ (p.terminal));
     this.modPanes = own.length - this.tabTerminals.length;
     this.pane = own.find((p) => p.terminal && p.terminal === f?.terminal);
+    this.duplicates = duplicateGroups(spaces());
+    this.picksWhat = Boolean(this.pane || this.duplicates.length);
     /** @type {"tab" | "pane" | null} */
-    this.what = this.pane ? null : "tab";
+    this.what = this.picksWhat ? null : "tab";
     this.space = null;
     this.moving = false;
     this.filter = "";
@@ -134,8 +183,24 @@ export default class Move extends View {
     });
     this.input.on("submit", (_e, cx) => this.choose(this.rows()[this.at], cx));
     this.input.focus();
+    /** @type {{ tab?: string, pane?: string }} what moves' repo root, else cwd */
+    this.roots = {};
+    const cwdOf = (/** @type {string | undefined} */ t) => own.find((p) => p.terminal === t)?.cwd;
+    for (const [what, cwd] of /** @type {const} */ ([
+      ["tab", cwdOf(this.tabTerminals[0])],
+      ["pane", this.pane?.cwd],
+    ])) {
+      if (cwd) {
+        cx.spawn(async (cx) => {
+          this.roots[what] = await rootOf(cwd, this.source?.machine ?? null);
+          cx.notify();
+        });
+      }
+    }
     cx.timer.after(600, () => this.input.focus());
-    if (!this.tabTerminals.length) {
+    if (props()?.merge) {
+      cx.timer.after(0, () => this.choose({ kind: "merge" }, cx));
+    } else if (!this.tabTerminals.length && !this.duplicates.length) {
       cx.timer.after(0, () => {
         notify({ title: TITLE, body: "The shown tab has no terminal to move.", level: "warning" });
         this.close();
@@ -176,12 +241,30 @@ export default class Move extends View {
     }
     if (!this.what) {
       return /** @type {Row[]} */ ([
-        { kind: "what", what: "pane" },
-        { kind: "what", what: "tab" },
-      ]).filter((r) => r.kind === "what" && r.what.includes(this.filter.trim().toLowerCase()));
+        ...(this.pane ? [{ kind: "what", what: "pane" }] : []),
+        ...(this.tabTerminals.length ? [{ kind: "what", what: "tab" }] : []),
+        ...(this.duplicates.length ? [{ kind: "merge" }] : []),
+      ]).filter((r) => matches(r.kind === "what" ? r.what : "merge duplicate spaces", this.filter));
     }
     if (!this.space) {
-      return [...spaceChoices(spaces(), this.source, this.tab.id, this.what, this.filter).map((space) => /** @type {Row} */ ({ kind: "space", space })), { kind: "new-space" }];
+      const all = spaces();
+      const choices = spaceChoices(all, this.source, this.tab.id, this.what, this.filter);
+      const folder = this.roots[this.what];
+      if (!folder) {
+        return [...choices.map((space) => /** @type {Row} */ ({ kind: "space", space })), { kind: "new-space" }];
+      }
+      const moving = new Set(this.terminals());
+      const there = folderSpace(all, this.source, panes().filter((p) => !moving.has(p.terminal)), folder);
+      const shown = matches(baseName(folder), this.filter) || (there && matches(there.name, this.filter));
+      if (there) {
+        const allowed = spaceChoices(all, this.source, this.tab.id, this.what, "").some((s) => s.id === there.id);
+        return [
+          ...(allowed && shown ? [/** @type {Row} */ ({ kind: "space", space: there, folder })] : []),
+          ...choices.filter((s) => s.id !== there.id).map((space) => /** @type {Row} */ ({ kind: "space", space })),
+          { kind: "new-space" },
+        ];
+      }
+      return [...(shown ? [/** @type {Row} */ ({ kind: "new-space", folder })] : []), ...choices.map((space) => /** @type {Row} */ ({ kind: "space", space })), ...(shown ? [] : [/** @type {Row} */ ({ kind: "new-space" })])];
     }
     const space = spaces().find((s) => s.id === this.space.id) ?? this.space;
     return [
@@ -213,6 +296,23 @@ export default class Move extends View {
     }
     this.moving = true;
     cx.notify();
+    if (row.kind === "merge") {
+      cx.spawn(async (cx) => {
+        try {
+          const merged = await mergeDuplicates(cx);
+          notify({
+            title: TITLE,
+            body: merged.length ? `Merged duplicate spaces into ${merged.map((n) => `"${n}"`).join(", ")}.` : "No duplicate spaces to merge.",
+            level: merged.length ? "success" : "info",
+          });
+        } catch (e) {
+          notify({ title: TITLE, body: `${e instanceof Error ? e.message : String(e)} Parked terminals still run: peek and keep them.`, level: "error" });
+        } finally {
+          this.close();
+        }
+      });
+      return;
+    }
     // terminal.keep names a new tab after its terminal ("t67"); "" gives it its number back.
     const name = row.kind === "tab" ? null : this.what === "tab" && this.tab.named ? this.tab.name : "";
     cx.spawn(async (cx) => {
@@ -239,20 +339,26 @@ export default class Move extends View {
     const first = Math.max(0, Math.min(this.at - MAX_ROWS + 1, list.length - MAX_ROWS));
     const shown = list.slice(first, first + MAX_ROWS);
     const paneName = this.pane ? this.pane.name || this.pane.title : "";
+    const shortPath = (/** @type {string} */ f) => (!this.source?.machine && (f === home() || f.startsWith(`${home()}/`)) ? `~${f.slice(home().length)}` : f);
 
     /** @param {Row} r */
     const label = (r) => {
       switch (r.kind) {
         case "what":
           return r.what === "pane" ? ["Current pane", paneName] : ["Current tab", `${this.tab?.name ?? ""} · ${this.tabTerminals.length} pane(s)`];
+        case "merge":
+          return ["Merge duplicate spaces", this.duplicates.map((g) => `${g.into.name} ×${g.from.length + 1}`).join(", ")];
         case "space":
+          if (r.folder) {
+            return [r.space.name, shortPath(r.folder)];
+          }
           return [r.space.name, r.space.id === this.source.id ? "this space" : `${r.space.tabs.length} tab(s)`];
         case "tab":
           return [r.tab.name, `${r.tab.panes} pane(s)`];
         case "new-tab":
           return ["New tab", ""];
         default:
-          return ["New space", ""];
+          return r.folder ? [`New space "${baseName(r.folder)}"`, shortPath(r.folder)] : ["New space", ""];
       }
     };
 
@@ -297,7 +403,7 @@ export default class Move extends View {
         if (k === "escape") {
           if (this.space) {
             this.step(null);
-          } else if (this.what && this.pane) {
+          } else if (this.what && this.picksWhat) {
             this.what = null;
             this.step(null);
           } else {
@@ -333,6 +439,6 @@ export default class Move extends View {
           .bg(t.background)
           .child(Input.new(this.input).flex_1().h_full().text_size(12.8).text_color(t.foreground)),
       )
-      .child(this.moving ? div().px(10).text_color(t.dim).child("Moving…") : v_flex().flex_none().children(shown.map((r, i) => row(r, first + i))));
+      .child(this.moving ? div().px(10).text_color(t.dim).child(this.what ? "Moving…" : "Merging…") : v_flex().flex_none().children(shown.map((r, i) => row(r, first + i))));
   }
 }
