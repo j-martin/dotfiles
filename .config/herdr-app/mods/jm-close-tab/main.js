@@ -1,6 +1,6 @@
 // Opened as a dialog by cmd-shift-w
 // (mod.open:jm-close-tab): asks before closing the shown tab.
-// cmd-w's pane close lives in ../jm-close-pane.
+// cmd-w closes a pane (or its space) in ../jm-close-pane.
 
 import { run, spaces } from "herdr";
 import { Ask } from "./ask.js";
