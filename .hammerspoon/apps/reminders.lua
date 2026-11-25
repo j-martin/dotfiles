@@ -19,15 +19,42 @@ local jxa = require 'utils/jxa'
 ---@class RemindersApp
 ---@field name string
 ---@field list string
+---@field fallbackList string
+---@field resolveListScript string
 ---@field create fun(title: string, due: number|nil, notes: string|nil): boolean, string
 ---@field add fun()
 local mod = {}
 
 mod.name = 'Reminders'
 
--- Empty means the default Reminders list.
+-- Empty means the default Reminders list, or `mod.fallbackList` when there is no default list.
 -- Lists inside a list group are not scriptable, only top level lists can be named here.
 mod.list = ''
+
+-- Reminders list used when `mod.list` is empty and there is no default list.
+mod.fallbackList = 'Work'
+
+-- JXA `resolveList(app, name)`: the list named `name`, or the default list when `name` is empty, or
+-- `mod.fallbackList` when there is no default list. Prepend it to the scripts using it.
+mod.resolveListScript = [[
+function resolveList(app, name) {
+  if (name) {
+    const list = app.lists.byName(name);
+    if (!list.exists()) {
+      throw new Error('Reminders list not found: ' + name);
+    }
+    return list;
+  }
+  if (app.defaultList.exists()) {
+    return app.defaultList;
+  }
+  const fallback = app.lists.byName(]] .. jxa.jsString(mod.fallbackList) .. [[);
+  if (!fallback.exists()) {
+    throw new Error(]] .. jxa.jsString('No default Reminders list and no list named ' .. mod.fallbackList) .. [[);
+  }
+  return fallback;
+}
+]]
 
 --- Creates a reminder in `mod.list`. Returns ok, and an error message when not ok.
 ---@param title string
@@ -36,16 +63,21 @@ mod.list = ''
 ---@return boolean, string
 function mod.create(title, due, notes)
   local params = hs.json.encode({ name = title, due = due, list = mod.list, notes = notes })
-  local script = [[
-    const p = ]] .. params .. [[;
-    const app = Application(']] .. mod.name .. [[');
+  local script = mod.resolveListScript
+    .. [[
+    const p = ]]
+    .. params
+    .. [[;
+    const app = Application(']]
+    .. mod.name
+    .. [[');
     const props = {name: p.name};
     if (p.notes) props.body = p.notes;
     if (p.due) {
       props.dueDate = new Date(p.due * 1000);
       props.remindMeDate = new Date(p.due * 1000);
     }
-    const list = p.list ? app.lists.byName(p.list) : app.defaultList;
+    const list = resolveList(app, p.list);
     list.reminders.push(app.Reminder(props));
     true;
   ]]

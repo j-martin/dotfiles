@@ -61,11 +61,12 @@ mod.ttl = 60
 ---@field toSlack table<string, string[]> To-do key -> ids of its completed reminders, to complete in Slack.
 
 -- Creates and completes the reminders, then prints a SlackTodosPlan.
-local syncScript = [[
+local syncScript = reminders.resolveListScript
+  .. [[
 function run(argv) {
   const p = JSON.parse(argv[0]);
   const app = Application('Reminders');
-  const list = p.list ? app.lists.byName(p.list) : app.defaultList;
+  const list = resolveList(app, p.list);
   const prefix = p.marker + ' <';
   const matches = list.reminders.whose({body: {_beginsWith: prefix}});
   const ids = matches.id();
@@ -116,11 +117,12 @@ function run(argv) {
 ]]
 
 -- Renames the marker of the reminders, so they are no longer synced.
-local retireScript = [[
+local retireScript = reminders.resolveListScript
+  .. [[
 function run(argv) {
   const p = JSON.parse(argv[0]);
   const app = Application('Reminders');
-  const list = p.list ? app.lists.byName(p.list) : app.defaultList;
+  const list = resolveList(app, p.list);
   for (const id of p.ids) {
     const r = list.reminders.byId(id);
     r.body = r.body().replace(p.marker + ' <', p.marker + '-done <');
