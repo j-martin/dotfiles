@@ -1,7 +1,7 @@
 // node --test mods/jm-open-file/paths.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { candidates, resolve } from "./paths.js";
+import { candidates, open, resolve } from "./paths.js";
 
 test("candidates: a clicked path keeps its line and column", () => {
   assert.deepEqual(candidates("src/a.lua:12:3")[0], { path: "src/a.lua", line: "12", col: "3" });
@@ -23,4 +23,28 @@ test("resolve: tries the terminal folder before home", async () => {
   };
   assert.deepEqual(await resolve([{ path: "a.lua" }], "/work", "/home", exec), { path: "/home/a.lua" });
   assert.deepEqual(tested, ["/work/a.lua", "/home/a.lua"]);
+});
+
+test("open: a text file without a line opens in the editor, not the default app", async () => {
+  const calls = [];
+  const exec = async (cmd, args) => {
+    calls.push(cmd);
+    if (cmd === "test") return { code: args[0] === "-s" ? 0 : 1, stdout: "", stderr: "" };
+    if (cmd === "file") return { code: 0, stdout: "us-ascii\n", stderr: "" };
+    return { code: 0, stdout: "", stderr: "" };
+  };
+  await open({ path: "/h/a.md" }, "/h", exec);
+  assert.equal(calls.at(-1), "/h/.bin/editor");
+});
+
+test("open: a binary file without a line opens with the default app", async () => {
+  const calls = [];
+  const exec = async (cmd, args) => {
+    calls.push(cmd);
+    if (cmd === "test") return { code: args[0] === "-s" ? 0 : 1, stdout: "", stderr: "" };
+    if (cmd === "file") return { code: 0, stdout: "binary\n", stderr: "" };
+    return { code: 0, stdout: "", stderr: "" };
+  };
+  await open({ path: "/h/a.png" }, "/h", exec);
+  assert.equal(calls.at(-1), "open");
 });

@@ -125,7 +125,8 @@ export async function resolve(list, cwd, home, exec) {
 }
 
 /**
- * Opens hit with ~/.bin/editor at its line or for a folder (dired), else with the macOS default app.
+ * Opens hit with ~/.bin/editor at its line, for a folder (dired) or a text file, else (images, PDFs...)
+ * with the macOS default app.
  * @param {Candidate} hit
  * @param {string} home
  * @param {Exec} exec
@@ -135,5 +136,8 @@ export async function open(hit, home, exec) {
   const editor = `${home}/.bin/editor`;
   if (hit.line) return exec(editor, [hit.path, hit.line, ...(hit.col ? [hit.col] : [])]);
   if ((await exec("test", ["-d", hit.path])).code === 0) return exec(editor, [hit.path]);
+  const encoding = (await exec("file", ["--brief", "--mime-encoding", hit.path])).stdout.trim();
+  const empty = (await exec("test", ["-s", hit.path])).code !== 0;
+  if (encoding !== "binary" || empty) return exec(editor, [hit.path]);
   return exec("open", [hit.path]);
 }
