@@ -33,3 +33,66 @@ _copy_command_from_history() {
   command="$(fc -ln 1 | fzf --tac --no-sort --query "${*:-}")" || return
   __copy_command_with_pwd "${command}"
 }
+
+# Lists aliases, functions, builtins and executables as `name<TAB>type<TAB>detail<TAB>code` lines for fzf.
+# Loaded function definitions are written to files in the given directory, referenced by the `code` field.
+__fzf_command_candidates() {
+  local code_dir="$1"
+  local name type detail code
+  local index=0
+  whence -wm '*' | while IFS= read -r line; do
+    name="${line%: *}"
+    type="${line##*: }"
+    detail=''
+    code=''
+    case "${type}" in
+      alias)
+        detail="${aliases[${name}]}"
+        ;;
+      'global alias')
+        detail="${galiases[${name}]}"
+        ;;
+      function)
+        detail="${functions_source[${name}]}"
+        if [[ "${functions[${name}]}" != *'builtin autoload -X'* ]]; then
+          index=$((index + 1))
+          code="${code_dir}/${index}"
+          whence -f -- "${name}" > "${code}"
+        fi
+        ;;
+      command)
+        detail="${commands[${name}]}"
+        ;;
+    esac
+    printf '%s\t%s\t%s\t%s\n' "${name}" "${type}" "${detail}" "${code}"
+  done
+}
+
+# Picks an alias, function, builtin or executable with fzf and inserts it at the cursor.
+__fzf_command_widget() {
+  local word="${LBUFFER##* }"
+  local code_dir selected
+  code_dir="$(mktemp -d)"
+  # shellcheck disable=SC2016
+  selected="$(__fzf_command_candidates "${code_dir}" \
+    | sort --unique --field-separator=$'\t' --key=1,1 \
+    | fzf --height 70% --reverse --delimiter '\t' --tabstop 16 --nth 1 --with-nth 1..3 \
+      --query "${word}" \
+      --preview 'case {2} in
+          function) echo {3}; if [ -s {4} ]; then bat --color always --plain --language zsh {4}; else bat --color always --plain {3}; fi ;;
+          command) file --brief {3}; file --brief --mime {3} | grep -q text && bat --color always {3} ;;
+          *) echo {3} ;;
+        esac' \
+      --preview-window 'down:60%' \
+    | cut -f1)"
+  rm -rf -- "${code_dir}"
+  if [[ -n "${selected}" ]]; then
+    LBUFFER="${LBUFFER%"${word}"}${selected} "
+  fi
+  zle reset-prompt
+}
+
+if [[ -n "${ZSH_VERSION:-}" && $- == *i* ]]; then
+  zle -N __fzf_command_widget
+  bindkey '^[e' __fzf_command_widget
+fi
