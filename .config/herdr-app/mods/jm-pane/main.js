@@ -5,7 +5,7 @@
 
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { agents, focused, panes, props, run, theme, home, layout, nextCommand, shared, setShared } from "herdr";
+import { agents, focused, panes, props, run, theme, home, layout, nextCommand, notify, shared, setShared } from "herdr";
 
 // Match the first visible tab frame, including the active child of a stack.
 function paneFrame(node) {
@@ -95,6 +95,24 @@ function syncFrame() {
   run("layout.set", { layout: tree });
 }
 
+// keys.json binds "jm-pane.split-right" / "jm-pane.split-down"; the focused pane's header handles it.
+const SPLITS = { "split-right": "right", "split-down": "down" };
+
+/**
+ * Splits the pane, or only unzooms it when zoomed so the split doesn't land in hidden panes.
+ * @param {string} pane
+ * @param {"right" | "down"} direction
+ */
+function split(pane, direction) {
+  const p = panes().find((x) => x.pane === pane);
+  if (!p?.zoomed) {
+    run("pane.split", { direction, pane });
+    return;
+  }
+  run("pane.zoom", { pane });
+  notify({ title: "Pane unzoomed", body: `Not split: press again to split ${direction}.`, level: "info" });
+}
+
 function folder(cwd) {
   if (!cwd) return "";
   const h = home();
@@ -109,6 +127,7 @@ export default class Pane extends View {
         const c = await nextCommand();
         const pane = props()?.pane;
         if (pane && c === String(this.number(pane))) run("pane.focus", { pane });
+        if (pane && SPLITS[c] && this.me()?.focused) split(pane, SPLITS[c]);
         cx.notify();
       }
     });

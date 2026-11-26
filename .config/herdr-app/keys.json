@@ -71,6 +71,10 @@
     "alt-8": "jm-pane.8",
     "alt-9": "jm-pane.9"
   },
+  "layout:jm-main": {
+    "cmd-d": "jm-pane.split-right",
+    "cmd-shift-d": "jm-pane.split-down"
+  },
   "terminal": {
     "cmd-f": "terminal.search",
     "cmd-a": "terminal.select_all",
