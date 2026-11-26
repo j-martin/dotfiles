@@ -17,14 +17,14 @@ export function visible(s) {
 }
 
 /**
- * The words of one line: whole shell-ish tokens (paths, flags, URLs), then their
+ * The words of one line, last token first: whole shell-ish tokens (paths, flags, URLs), each followed by its
  * `/`, `=`, `:` and `@` separated parts, trimmed of surrounding punctuation.
  * @param {string} line
  * @returns {string[]}
  */
 function lineWords(line) {
   const out = [];
-  for (const raw of line.split(SEPARATORS)) {
+  for (const raw of line.split(SEPARATORS).reverse()) {
     const token = raw.replace(EDGE_PUNCTUATION, "");
     if (!token) {
       continue;
@@ -41,7 +41,8 @@ function lineWords(line) {
 }
 
 /**
- * Unique words of the given screens, nearest first: each screen bottom up, in order.
+ * Unique words of the given screens, newest first: each screen from its end back to its
+ * start (bottom line up, each line right to left), the screens in order.
  * @param {string[]} screens
  * @returns {string[]}
  */
@@ -80,6 +81,20 @@ export function prefixOf(beforeCursor) {
  */
 export function completions(list, prefix) {
   return list.filter((w) => w.length > prefix.length && w.startsWith(prefix));
+}
+
+/**
+ * How to turn prefix into word at the cursor: the characters to erase before it
+ * (none when word extends prefix, all of prefix otherwise) and the text to type.
+ * @param {string} word
+ * @param {string} prefix
+ * @returns {{ erase: number, text: string }}
+ */
+export function insertion(word, prefix) {
+  if (word.startsWith(prefix)) {
+    return { erase: 0, text: word.slice(prefix.length) };
+  }
+  return { erase: [...prefix].length, text: word };
 }
 
 /**

@@ -1,19 +1,23 @@
 // @ts-check
 // cmd-; (mod.open:jm-complete): like iTerm2's autocomplete. Offers the words on screen in
-// the focused tab's panes (the focused one first, nearest the bottom first) that complete
+// the focused tab's panes (the focused one first, newest output first) that complete
 // the word before the cursor; type to fuzzy filter, ↑/↓ and Enter to insert, Esc to leave.
 // The word before the cursor comes from selecting it (terminal.select at the cursor,
 // then to the line start) and copying; the completion is pasted. Both go through the
-// clipboard, which is put back afterwards (text only).
+// clipboard, which is put back afterwards (text only). A completion that doesn't extend
+// the prefix replaces it: the prefix is erased with backspaces first.
 
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
-import { closeOverlay, exec, focused, hc, notify, panes, props, run, theme } from "herdr";
-import { completions, fuzzy, prefixOf, words } from "./words.js";
+import { closeOverlay, exec, focused, hc, notify, panes, props, run, terminals, theme } from "herdr";
+import { completions, fuzzy, insertion, prefixOf, words } from "./words.js";
 
 const TITLE = "Complete";
 const MAX_ROWS = 12;
 const ROW_HEIGHT = 28;
+const WAIT_MS = 20;
+const WAIT_TRIES = 25;
+const SENTINEL = "jm-complete: waiting for copy";
 
 /**
  * The clipboard's text.
@@ -33,23 +37,63 @@ async function setClipboard(text) {
 }
 
 /**
+ * Polls check until it gives something truthy; selections and copies land asynchronously.
+ * @template T
+ * @param {any} cx
+ * @param {() => T | Promise<T>} check
+ * @returns {Promise<T | null>}
+ */
+async function waitFor(cx, check) {
+  for (let i = 0; i < WAIT_TRIES; i++) {
+    const value = await check();
+    if (value) {
+      return value;
+    }
+    await cx.sleep(WAIT_MS);
+  }
+  return null;
+}
+
+/**
+ * The terminal's current selection.
+ * @param {string} terminal
+ * @returns {{ start: { row: number, col: number }, end: { row: number, col: number } } | null}
+ */
+function selection(terminal) {
+  return terminals().find((t) => t.address === terminal)?.selection ?? null;
+}
+
+/**
  * The text between the start of the cursor's line and the cursor in the focused terminal.
  * Leaves the terminal without a selection and the clipboard with that text.
  * @param {string} terminal
+ * @param {any} cx
  * @returns {Promise<string>}
  */
-async function beforeCursor(terminal) {
+async function beforeCursor(terminal, cx) {
+  run("terminal.clear_selection", { terminal });
   run("terminal.select", { terminal, at: "cursor" });
-  const cursor = focused()?.selection?.start;
+  const cursor = (await waitFor(cx, () => {
+    const s = selection(terminal);
+    return s && s.start.row === s.end.row && s.start.col === s.end.col ? s : null;
+  }))?.start;
   if (!cursor || cursor.col === 0) {
     run("terminal.clear_selection", { terminal });
     return "";
   }
-  run("terminal.select", { terminal, at: { row: cursor.row, col: cursor.col - 1 } });
+  const last = { row: cursor.row, col: cursor.col - 1 };
+  run("terminal.select", { terminal, at: last });
+  await waitFor(cx, () => selection(terminal)?.start.col === last.col);
   run("terminal.adjust_selection", { terminal, direction: "line_start" });
+  await waitFor(cx, () => selection(terminal)?.end.col === 0);
+  await setClipboard(SENTINEL);
   run("terminal.copy");
+  const text = await waitFor(cx, async () => {
+    const copied = await clipboard();
+    return copied === SENTINEL ? null : copied;
+  });
   run("terminal.clear_selection", { terminal });
-  return (await clipboard()).replace(/\n+$/, "");
+  return (text ?? "").replace(/\n+$/, "");
 }
 
 /**
@@ -103,7 +147,7 @@ export default class Complete extends View {
         return this.close();
       }
       this.saved = await clipboard();
-      const before = await beforeCursor(f.terminal);
+      const before = await beforeCursor(f.terminal, cx);
       await setClipboard(this.saved);
       this.prefix = prefixOf(before);
       this.list = completions(words(await screens(f.terminal, f.tab)), this.prefix);
@@ -124,12 +168,12 @@ export default class Complete extends View {
    * @returns {string[]}
    */
   matches() {
-    const rest = (this.list ?? []).map((w) => w.slice(this.prefix.length));
+    const rest = (this.list ?? []).map((w) => insertion(w, this.prefix).text);
     return (this.list ?? []).filter((_w, i) => fuzzy(rest[i], this.filter));
   }
 
   /**
-   * Pastes what word adds to the prefix into the terminal, then closes.
+   * Puts word in place of the prefix in the terminal, then closes.
    * @param {string | undefined} word
    * @param {any} cx
    */
@@ -139,7 +183,11 @@ export default class Complete extends View {
     }
     cx.spawn(async () => {
       try {
-        await setClipboard(word.slice(this.prefix.length));
+        const { erase, text } = insertion(word, this.prefix);
+        if (erase > 0 && this.f?.terminal) {
+          await hc(["keys", this.f.terminal, ...Array(erase).fill("backspace")]);
+        }
+        await setClipboard(text);
         run("terminal.paste");
         await setClipboard(this.saved);
       } finally {
@@ -155,8 +203,9 @@ export default class Complete extends View {
     const first = Math.max(0, Math.min(this.at - MAX_ROWS + 1, list.length - MAX_ROWS));
     const shown = list.slice(first, first + MAX_ROWS);
 
-    const row = (/** @type {string} */ word, /** @type {number} */ i) =>
-      h_flex()
+    const row = (/** @type {string} */ word, /** @type {number} */ i) => {
+      const { erase, text } = insertion(word, this.prefix);
+      return h_flex()
         .id(`jc-${i}`)
         .mx(4)
         .px(10)
@@ -168,8 +217,9 @@ export default class Complete extends View {
         .when(i === this.at, (el) => el.bg(t.hover))
         .hover((s) => s.bg(t.hover))
         .on_click((_e, cx) => this.choose(word, cx))
-        .child(div().text_color(t.dim).child(this.prefix))
-        .child(div().flex_1().truncate().text_color(t.foreground).font_semibold().child(word.slice(this.prefix.length)));
+        .when(erase === 0, (el) => el.child(div().text_color(t.dim).child(this.prefix)))
+        .child(div().flex_1().truncate().text_color(t.foreground).font_semibold().child(text));
+    };
 
     return v_flex()
       .id("jm-complete")
