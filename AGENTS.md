@@ -8,6 +8,7 @@
 - Use backticks (``) any time referencing files, code, etc. Make sure to do that in commit messages.
 - Always prompt to confirm before posting a comment as me.
 - If posting comment for me. The first line should state that you are a bot and who you are.
+- When referencing docs, urls, etc. Always link them.
 
 # Development Guidelines
 
