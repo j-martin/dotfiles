@@ -28,6 +28,11 @@ local markdown = require 'utils/markdown'
 ---@field tab HerdrTab
 ---@field folder string Folder of the terminal relating to the path.
 
+---@class HerdrTarget
+---@field terminal string
+---@field pane string Its own pane, or its parent's for a sub-agent without one.
+---@field parent string|nil Set for a sub-agent without a pane, peeked over its parent's pane.
+
 ---@class HerdrNewAgent
 ---@field name string e.g. `Copilot`.
 ---@field argv string[] Command starting it.
@@ -42,6 +47,7 @@ local markdown = require 'utils/markdown'
 ---@field address string e.g. `t4`.
 ---@field agent string|nil Program detected by `hc ls`, e.g. `copilot` or `zsh`.
 ---@field cwd string|nil Folder it was started in.
+---@field parent string|nil Address of the agent that started this sub-agent.
 ---@field state string e.g. `live`.
 ---@field status string|nil e.g. `working` or `done`.
 ---@field turn integer|nil Turns the agent took, a new one once it is prompted again.
@@ -54,7 +60,8 @@ local markdown = require 'utils/markdown'
 ---@field pollSeconds number Interval of the focus polling while Herdr is frontmost.
 ---@field findAgent fun(layout: HerdrLayout|nil, focusedAt: table<string, integer>|nil): HerdrTerminal|nil
 ---@field findPane fun(layout: HerdrLayout|nil, pane: string|nil): HerdrTerminal|nil
----@field findWaiting fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
+---@field findWaiting fun(layout: HerdrLayout|nil, focusedPane: string|nil, subAgents: HcTerminal[]|nil, peeked: string|nil): HerdrTarget|nil
+---@field peeked HerdrTarget|nil Sub-agent `focusNext` peeked last, the current one while its parent's pane is focused.
 ---@field findDone fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
 ---@field nextPane fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
 ---@field focusNext fun()
@@ -192,15 +199,80 @@ local function cycle(layout, focusedPane, include)
   return waiting[focusedIndex % #waiting + 1]
 end
 
---- Returns the agent waiting for input (`blocked`) in any space that comes after the focused pane, wrapping around,
---- so repeated calls cycle through them, from the `herdr-app ls` output.
+---@param status string|nil
+---@return boolean
+local function needsYou(status)
+  return status == 'blocked' or status == 'error'
+end
+
+--- Returns the sub-agents without a pane of `parent` that need you, depth first, as targets peeked over its pane.
+---@param parent string
+---@param pane string
+---@param subAgents HcTerminal[]
+---@param panes table<string, boolean> Terminals that have a pane.
+---@param found HerdrTarget[]
+local function waitingSubAgents(parent, pane, subAgents, panes, found)
+  for _, sub in ipairs(subAgents) do
+    if sub.parent == parent and sub.state == 'live' and not panes[sub.address] then
+      if needsYou(sub.status) then
+        table.insert(found, { terminal = sub.address, pane = pane, parent = parent })
+      end
+      waitingSubAgents(sub.address, pane, subAgents, panes, found)
+    end
+  end
+end
+
+--- Returns the agent waiting for input (`blocked`) in any space that comes after the current one, wrapping around,
+--- so repeated calls cycle through them, from the `herdr-app ls` output. Sub-agents without a pane needing you (from
+--- `hc ls`) follow their parent, with its pane and their `parent`, to be peeked over it. The current one is
+--- `peeked` when it is a sub-agent of the focused pane, else the focused pane.
 ---@param layout HerdrLayout|nil
 ---@param focusedPane string|nil
----@return HerdrTerminal|nil
-function mod.findWaiting(layout, focusedPane)
-  return cycle(layout, focusedPane, function(terminal)
-    return terminal.status == 'blocked'
-  end)
+---@param subAgents HcTerminal[]|nil
+---@param peeked string|nil
+---@return HerdrTarget|nil
+function mod.findWaiting(layout, focusedPane, subAgents, peeked)
+  ---@type table<string, boolean>
+  local panes = {}
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        if terminal.pane then
+          panes[terminal.terminal] = true
+        end
+      end
+    end
+  end
+  ---@type HerdrTarget[]
+  local waiting = {}
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        if terminal.pane then
+          if terminal.status == 'blocked' then
+            table.insert(waiting, { terminal = terminal.terminal, pane = terminal.pane })
+          end
+          waitingSubAgents(terminal.terminal, terminal.pane, subAgents or {}, panes, waiting)
+        end
+      end
+    end
+  end
+  if #waiting == 0 then
+    return nil
+  end
+  ---@type integer
+  local currentIndex = 0
+  for index, target in ipairs(waiting) do
+    if target.pane == focusedPane then
+      if target.terminal == peeked then
+        currentIndex = index
+        break
+      elseif not target.parent and currentIndex == 0 then
+        currentIndex = index
+      end
+    end
+  end
+  return waiting[currentIndex % #waiting + 1]
 end
 
 --- Returns the agent that finished its turn and was not seen since (`done`, the blue dot) in any space that comes
@@ -488,8 +560,9 @@ function mod.init()
 end
 
 --- Switches to Herdr like other apps and, when an agent waits for input in any space, focuses its pane, the next
---- waiting one on each call. Without one, it focuses the agents of every space done and not seen since (blue), then,
---- while Herdr is frontmost, the next pane of the shown tab.
+--- waiting one on each call, peeking at sub-agents without a pane over their parent's. Without one, it focuses the
+--- agents of every space done and not seen since (blue), then, while Herdr is frontmost, the next pane of the shown
+--- tab.
 function mod.focusNext()
   local app = hs.application.get(mod.name)
   local layout = app and run('herdr-app ls')
@@ -497,20 +570,39 @@ function mod.focusNext()
   local decoded = status and hs.json.decode(status) --[[@as HerdrStatus|nil]]
   local focusedPane = decoded and decoded.focused_pane
   local parsed = layout and hs.json.decode(layout) --[[@as HerdrLayout|nil]]
-  local target = mod.findWaiting(parsed, focusedPane)
+  local listed = parsed and run('hc ls --json')
+  local subAgents = listed and hs.json.decode(listed)
+  local peeked = mod.peeked and mod.peeked.pane == focusedPane and mod.peeked.terminal or nil
+  ---@type HerdrTarget|HerdrTerminal|nil
+  local target = mod.findWaiting(parsed, focusedPane, subAgents and subAgents.terminals, peeked)
   local frontmost = app ~= nil and hs.application.frontmostApplication() == app
-  if parsed and (not target or target.pane == focusedPane) then
+  ---@param shown HerdrTarget|HerdrTerminal
+  ---@return boolean
+  local function current(shown)
+    if shown.pane ~= focusedPane then
+      return false
+    end
+    if shown.parent then
+      return shown.terminal == peeked
+    end
+    return peeked == nil
+  end
+  if parsed and (not target or current(target)) then
     target = mod.findDone(parsed, focusedPane) or target
   end
-  if frontmost and (not target or target.pane == focusedPane) then
+  if frontmost and (not target or current(target)) then
     target = mod.nextPane(parsed, focusedPane)
   end
-  if not app or not target or not target.pane or target.pane == focusedPane then
+  if not app or not target or not target.pane or current(target) then
     require('windows').launchOrCycleFocus(mod.name)()
     return
   end
   app:activate()
   run('herdr-app do pane.focus --pane ' .. target.pane)
+  mod.peeked = target.parent and target --[[@as HerdrTarget]] or nil
+  if mod.peeked then
+    run('herdr-app do terminal.peek --terminal ' .. mod.peeked.terminal)
+  end
 end
 
 --- Returns what the focused window shows: the working directory of terminals and Finder, the active Obsidian note,

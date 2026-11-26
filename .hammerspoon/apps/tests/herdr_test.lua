@@ -84,6 +84,44 @@ return {
     assert(herdr.findWaiting(layout, nil) == nil)
     assert(herdr.findWaiting(nil, nil) == nil)
   end,
+  ['findWaiting peeks at the sub-agents needing you after their parent'] = function()
+    local layout = {
+      spaces = {
+        { tabs = { { terminals = { { terminal = 't1', pane = 'p1', status = 'blocked' } } } } },
+        { tabs = { { terminals = { { terminal = 't5', pane = 'p5', status = 'blocked' } } } } },
+      },
+    }
+    local subAgents = {
+      { address = 't2', parent = 't1', state = 'live', status = 'error' },
+      { address = 't3', parent = 't1', state = 'live', status = 'working' },
+      { address = 't4', parent = 't3', state = 'live', status = 'blocked' },
+      { address = 't6', parent = 't1', state = 'finished', status = 'error' },
+    }
+    local first = assert(herdr.findWaiting(layout, 'p1', subAgents, nil))
+    assert(first.terminal == 't2' and first.pane == 'p1' and first.parent == 't1')
+    assert(herdr.findWaiting(layout, 'p1', subAgents, 't2').terminal == 't4')
+    assert(herdr.findWaiting(layout, 'p1', subAgents, 't4').terminal == 't5')
+    assert(herdr.findWaiting(layout, 'p5', subAgents, nil).terminal == 't1')
+  end,
+  ['findWaiting skips sub-agents with their own pane'] = function()
+    local layout = {
+      spaces = {
+        {
+          tabs = {
+            {
+              terminals = {
+                { terminal = 't1', pane = 'p1', status = 'working' },
+                { terminal = 't2', pane = 'p2', status = 'blocked' },
+              },
+            },
+          },
+        },
+      },
+    }
+    local subAgents = { { address = 't2', parent = 't1', state = 'live', status = 'error' } }
+    local found = assert(herdr.findWaiting(layout, 'p1', subAgents, nil))
+    assert(found.terminal == 't2' and found.pane == 'p2' and found.parent == nil)
+  end,
   ['findDone cycles through the done agents of every space'] = function()
     local layout = {
       spaces = {
