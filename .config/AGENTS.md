@@ -17,6 +17,10 @@ Living in this dir since that is `dot-agent` working dir.
 
 # Git
 
+- The dotfiles (`~`, including `~/.hammerspoon`, `~/.config`, `~/.bin`, ...) are NOT a regular git repo: plain `git` fails with `fatal: not a git repository`. They live in the bare repo `~/.files.git` with `~` as the work tree.
+  - Always run git commands for them as `git --work-tree="$HOME" --git-dir="$HOME/.files.git" <args>` (e.g. `status`, `diff`, `add`, `commit`, `log`).
+  - The `home` alias/function (`~/.config/shell/aliases/home`) does the same but is not loaded in non-interactive agent shells, so do not rely on it.
+  - Only use plain `git` inside directories that are their own repo (e.g. vendored submodules, `~/src/...`). When unsure, check with `git rev-parse --is-inside-work-tree` first.
 - Prefix commit with the part of the system or config. prefix = `<component>, <change-description>`
   - Example of prefixes: `hs`, `emacs`, `sh`, `agent`, `bin`, `setup`.
 - If creating or modifying files not tracked and editing the `~/.gitignore`, consider adding a rule for the whole directory if there is no private data in that directory.
