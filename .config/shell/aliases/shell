@@ -13,6 +13,7 @@ ali() {
 }
 
 alias c=z
+alias j=z
 yp() { rg --files "$PWD" | _fzf_query_all "$@" | _clipboard_copy; }
 
 # ZSH Specific
