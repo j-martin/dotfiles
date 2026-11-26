@@ -65,7 +65,7 @@ local markdown = require 'utils/markdown'
 ---@field findDone fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
 ---@field nextPane fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
 ---@field focusNext fun()
----@field orderAgents fun(terminals: HcTerminal[], last: string|nil, preferred: string|nil): HcTerminal[]
+---@field orderAgents fun(terminals: HcTerminal[], last: string|nil, preferred: string|nil, program: (fun(address: string): string|nil)|nil): HcTerminal[]
 ---@field rebase fun(prompt: string, reference: string, replacement: string): string
 ---@field withContext fun(prompt: string, context: AppContext|nil, selected: string|nil): string
 ---@field reference fun(path: string, line: integer|nil, endLine: integer|nil, cwd: string|nil): string
@@ -350,7 +350,7 @@ end
 
 ---@class HcTerminalDetails
 ---@field cwd string|nil
----@field foreground { cwd: string|nil }|nil
+---@field foreground { cwd: string|nil, argv: string[]|nil }|nil
 
 ---@param address string
 ---@return HcTerminalDetails|nil
@@ -626,16 +626,25 @@ local function source(window)
 end
 
 --- Orders the live `hc` agents: the one picked last, then `preferred` (the agent of the shown Herdr tab focused last),
---- then the others as listed. Terminals not running claude or copilot are left out.
+--- then the others as listed. Terminals not running claude or copilot are left out. `hc ls` only names the agent once
+--- it reported a status, else it names the foreground process, e.g. `2.1.332` for a Claude Code not prompted yet, so
+--- `program` gives the command the terminal's foreground process was started with, to recognize those.
 ---@param terminals HcTerminal[]
 ---@param last string|nil Address picked last.
 ---@param preferred string|nil
+---@param program (fun(address: string): string|nil)|nil
 ---@return HcTerminal[]
-function mod.orderAgents(terminals, last, preferred)
+function mod.orderAgents(terminals, last, preferred, program)
   ---@type HcTerminal[]
   local agents = {}
   for _, terminal in ipairs(terminals) do
-    if terminal.state == 'live' and isAgent({ terminal = terminal.address, app = terminal.agent }) then
+    if
+      terminal.state == 'live'
+      and (
+        isAgent({ terminal = terminal.address, app = terminal.agent })
+        or (program and isAgent({ terminal = terminal.address, app = program(terminal.address) }))
+      )
+    then
       table.insert(agents, terminal)
     end
   end
@@ -1101,8 +1110,19 @@ function mod.sendFileReference()
   local shown = mod.findAgent(parsed, mod.focusedAt)
   local listed = run('hc ls --json')
   local decoded = listed and hs.json.decode(listed)
-  local agents =
-    mod.orderAgents(decoded and decoded.terminals or {}, hs.settings.get(lastAgentKey), shown and shown.terminal)
+  ---@param address string
+  ---@return string|nil
+  local function program(address)
+    local details = terminalDetails(address)
+    local argv = details and details.foreground and details.foreground.argv
+    return argv and argv[1] and argv[1]:match('[^/]+$')
+  end
+  local agents = mod.orderAgents(
+    decoded and decoded.terminals or {},
+    hs.settings.get(lastAgentKey),
+    shown and shown.terminal,
+    program
+  )
 
   local root = path and mod.repoRoot(path)
   local cwds = path and terminalFolders(parsed) or {}

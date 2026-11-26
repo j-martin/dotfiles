@@ -190,6 +190,18 @@ return {
     assert(addresses(herdr.orderAgents(terminals, 't9', 't3')) == 't3,t1,t4')
     assert(addresses(herdr.orderAgents(terminals, nil, nil)) == 't1,t3,t4')
   end,
+  ['orderAgents keeps an agent hc ls names after its process, by the command it was started with'] = function()
+    local terminals = {
+      { address = 't1', agent = '2.1.332', state = 'live' },
+      { address = 't2', agent = 'zsh', state = 'live' },
+      { address = 't3', agent = 'claude-code', state = 'live' },
+    }
+    local programs = { t1 = 'claude', t2 = 'zsh' }
+    local agents = herdr.orderAgents(terminals, nil, nil, function(address)
+      return programs[address]
+    end)
+    assert(#agents == 2 and agents[1].address == 't1' and agents[2].address == 't3')
+  end,
   ['rebase swaps the leading reference and keeps the typed prompt'] = function()
     assert(herdr.rebase('@a.go#L2 fix it', '@a.go#L2', '@/src/a.go#L2') == '@/src/a.go#L2 fix it')
     assert(herdr.rebase('fix @a.go', '@a.go', '@/src/a.go') == 'fix @a.go')
