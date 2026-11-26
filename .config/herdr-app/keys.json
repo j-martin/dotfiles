@@ -23,6 +23,7 @@
     "cmd-shift-d": "pane.split:down",
     "cmd-shift-w": "mod.open:jm-close-tab",
     "cmd-shift-m": "mod.open:jm-move-tab",
+    "cmd-alt-m": "mod.open:jm-merge-spaces",
     "cmd-shift-enter": "pane.zoom",
     "cmd-alt-=": "mod.open:jm-pane-balance",
     "cmd-alt-left": "pane.go:left",
