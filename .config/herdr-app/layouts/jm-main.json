@@ -142,14 +142,15 @@
                       }
                     }
                   ],
-                  "active": "files"
+                  "active": "changes"
                 }
               ],
               "size": {
-                "px": 635
+                "px": 502
               },
               "min": 280,
-              "max": 900
+              "max": 900,
+              "hidden": true
             }
           ],
           "padding": 8,
