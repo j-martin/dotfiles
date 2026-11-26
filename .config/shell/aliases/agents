@@ -3,4 +3,4 @@
 alias a=_agent
 alias da=_agent_home
 alias ha=_agent
-alias claude='\claude --model opus --permission-mode acceptEdits'
+alias claude='\claude --model opus --permission-mode auto'
