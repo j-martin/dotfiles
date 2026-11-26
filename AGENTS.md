@@ -184,7 +184,18 @@ When multiple valid approaches exist, choose based on:
 - Prefer  `[[ ... ]]` over `[ ... ]`
 - If writting a script always wrap code in a function.
 - Always quote strings
+- Do not use bash if shorthands `[[ ... ]] && ...`, always us `if [[ ... ]]; then` in it's multiline form.
+- Constants should be on top of the files or at least before functions.
 
 ## General
 
 - Always look the file structure of the project to understand where the new code should live.
+
+## GitHub
+
+- If I say "stack PRs", that means link them with `gh stack` in the appropriate order.
+
+## Jira
+
+- Similar to markdown backtick (``), all technical (e.g. code related) should have code formatting.
+- When referencing stuff in GitHub, always use proper links, not just the repo + pr number.
