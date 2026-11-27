@@ -9,6 +9,10 @@
 - Always prompt to confirm before posting a comment as me.
 - If posting comment for me. The first line should state that you are a bot and who you are.
 - When referencing docs, urls, etc. Always link them.
+- Periodically rename your sessions with the following information
+  - $(basename $PWD)
+  - Jira ticket when known
+  - Current task
 
 # Development Guidelines
 
@@ -171,10 +175,18 @@ When multiple valid approaches exist, choose based on:
 - Prefer: import * as X from 'Y'; instead of import X from 'Y';
 - Use JsDocs style comments for functions/methods. For multiline, also use JsDoc when it make sense.
 
+# Git
+
+- When I tell you to commit, do not prompt me for any confirmation while you create the commit. Do not push automatically.
+
 ## Git Worktree
 
 - Unless told to use a worktree, use the current worktree.
 - Create git worktrees under `~/src/worktrees/<repo>-<branch-or-ticket>`
+
+## GitHub
+
+- If I say "create stack PRs", or stack this PR on top PR XYZ, that means link them with `gh stack add` in the appropriate order.
 
 # Shell (bash, zsh, etc.)
 
@@ -188,13 +200,9 @@ When multiple valid approaches exist, choose based on:
 - Do not use bash if shorthands `[[ ... ]] && ...`, always us `if [[ ... ]]; then` in it's multiline form.
 - Constants should be on top of the files or at least before functions.
 
-## General
+# General
 
 - Always look the file structure of the project to understand where the new code should live.
-
-## GitHub
-
-- If I say "stack PRs", that means link them with `gh stack` in the appropriate order.
 
 ## Jira
 
