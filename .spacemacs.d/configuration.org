@@ -1072,13 +1072,35 @@ helm-core calls it with the optional =no-properties= argument.
     (interactive)
     (jm/open-with-line-column "subl"))
 
+  (defun jm/herdr-matching-space (herdr folder)
+    "Return the id of the local Herdr space whose folder is FOLDER or its closest parent, or nil."
+    (let* ((folder (file-name-as-directory (file-truename folder)))
+           (spaces (append (gethash "spaces" (json-parse-string
+                                              (with-output-to-string
+                                                (call-process herdr nil standard-output nil "ls"))))
+                           nil))
+           (matches (seq-filter
+                     (lambda (space)
+                       (let ((space-folder (gethash "folder" space)))
+                         (and (stringp space-folder)
+                              (eq (gethash "machine" space) :null)
+                              (string-prefix-p (file-name-as-directory (file-truename space-folder)) folder))))
+                     spaces)))
+      (when matches
+        (gethash "id" (car (seq-sort-by (lambda (space) (length (gethash "folder" space))) #'> matches))))))
+
   (defun jm/open-herdr (&optional directory)
-    "Open a Herdr tab in DIRECTORY, defaulting to the current directory."
+    "Open a Herdr tab in DIRECTORY, defaulting to the current directory.
+The tab goes in the space for DIRECTORY or its closest parent, else in the selected space."
     (interactive)
-    (let ((herdr (or (executable-find "herdr-app") "/Applications/Herdr.app/Contents/MacOS/Herdr"))
-          (folder (directory-file-name (expand-file-name (or directory default-directory)))))
+    (let* ((herdr (or (executable-find "herdr-app") "/Applications/Herdr.app/Contents/MacOS/Herdr"))
+           (folder (directory-file-name (expand-file-name (or directory default-directory))))
+           (space (condition-case err
+                      (jm/herdr-matching-space herdr folder)
+                    (error (message "Herdr spaces lookup failed: %s" (error-message-string err)) nil))))
       (call-process "open" nil nil nil "-a" "Herdr")
-      (call-process herdr nil 0 nil "do" "tab.new" "--folder" folder)))
+      (apply #'call-process herdr nil 0 nil "do" "tab.new" "--folder" folder
+             (when space (list "--space" space)))))
 
   (defun jm/open-project-herdr ()
     "Open a Herdr tab in the git root of the current directory."

@@ -52,6 +52,7 @@ _agent_in_regular_repo() {
   ! _agent_home_submodules | grep --quiet --line-regexp --fixed-strings "${top#"$HOME"/}"
 }
 
+# Runs the agent tool with the args, in a new Herdr tab when inside Herdr.
 _agent_run() {
   local tool="$1"
   shift
@@ -64,7 +65,33 @@ _agent_run() {
     cmd=(copilot "$@" --model "$_AGENT_MODEL")
   fi
   _info "$(printf '%q ' "${cmd[@]}")"
+  if __agent_in_herdr; then
+    __agent_herdr_new_tab "${cmd[@]}"
+    return
+  fi
   command "${cmd[@]}"
+}
+
+__agent_in_herdr() {
+  [[ -n "${HC_TERMINAL_ID:-}" ]] && command -v herdr-app > /dev/null 2>&1
+}
+
+# Starts the command from the current dir in a new tab of the Herdr space of its repo (or of the dir outside a
+# repo), or in a new space without one.
+__agent_herdr_new_tab() {
+  local root space
+  root=$(command git rev-parse --show-toplevel 2> /dev/null) || root="$PWD"
+  space=$(herdr-app ls | jq --raw-output --arg folder "$root" \
+    'first(.spaces[] | select(.folder == $folder) | .id) // empty') || return 1
+  if [[ -n "$space" ]]; then
+    _info "Starting in a new tab of Herdr space ${space}"
+    herdr-app 'do' tab.new "$(jq --null-input --compact-output --arg space "$space" --arg folder "$PWD" \
+      '{space: $space, folder: $folder, argv: $ARGS.positional}' --args -- "$@")" > /dev/null
+  else
+    _info "Starting in a new Herdr space for ${PWD}"
+    herdr-app 'do' space.new "$(jq --null-input --compact-output --arg folder "$PWD" \
+      '{folder: $folder, argv: $ARGS.positional}' --args -- "$@")" > /dev/null
+  fi
 }
 
 # Claude prompts for every --add-dir not marked trusted in ~/.claude.json, so pre-trust them
