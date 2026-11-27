@@ -1,7 +1,9 @@
 // @ts-check
 // cmd-; (mod.open:jm-complete): like iTerm2's autocomplete. Offers the words on screen in
 // the focused tab's panes (the focused one first, newest output first) that complete
-// the word before the cursor; type to fuzzy filter, ↑/↓ and Enter to insert, Esc to leave.
+// the word before the cursor, and the files of the terminal's live cwd, or of the folder a
+// word like `../` or `.claude/sk` names. Deeper paths first, then the newest on screen.
+// Type to fuzzy filter, ↑/↓ and Enter to insert, Esc to leave.
 // The word before the cursor comes from selecting it (terminal.select at the cursor,
 // then to the line start) and copying; the completion is pasted. Both go through the
 // clipboard, which is put back afterwards (text only). A completion that doesn't extend
@@ -9,8 +11,8 @@
 
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
-import { closeOverlay, exec, focused, hc, notify, panes, props, run, terminals, theme } from "herdr";
-import { completions, fuzzy, insertion, prefixOf, words } from "./words.js";
+import { closeOverlay, exec, focused, hc, home, notify, panes, props, run, terminals, theme } from "herdr";
+import { candidates, folderOf, fuzzy, insertion, prefixOf, splitPath, words } from "./words.js";
 
 const TITLE = "Complete";
 const MAX_ROWS = 12;
@@ -18,13 +20,15 @@ const ROW_HEIGHT = 28;
 const WAIT_MS = 20;
 const WAIT_TRIES = 25;
 const SENTINEL = "jm-complete: waiting for copy";
+// Without a UTF-8 locale pbpaste and pbcopy turn non-ASCII text, e.g. the `❯` prompt, into `?`.
+const UTF8 = "LANG=en_US.UTF-8";
 
 /**
  * The clipboard's text.
  * @returns {Promise<string>}
  */
 async function clipboard() {
-  return (await exec("pbpaste")).stdout;
+  return (await exec("sh", ["-c", `${UTF8} pbpaste`])).stdout;
 }
 
 /**
@@ -33,7 +37,7 @@ async function clipboard() {
  * @returns {Promise<void>}
  */
 async function setClipboard(text) {
-  await exec("sh", ["-c", 'printf %s "$1" | pbcopy', "sh", text]);
+  await exec("sh", ["-c", `printf %s "$1" | ${UTF8} pbcopy`, "sh", text]);
 }
 
 /**
@@ -122,6 +126,46 @@ async function screens(terminal, tab) {
   return reads;
 }
 
+/**
+ * The live working directory of the terminal's foreground process, e.g. its shell's after a `cd`, else where it started.
+ * @param {string} terminal
+ * @param {string | null} fallback
+ * @returns {Promise<string | null>}
+ */
+async function liveCwd(terminal, fallback) {
+  const r = await hc(["get", terminal, "--json"]);
+  if (r.code !== 0) {
+    return fallback;
+  }
+  try {
+    const details = JSON.parse(r.stdout);
+    return details.foreground?.cwd || details.cwd || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * The entries of the folder the prefix's head names, else of the cwd, folders ending with `/`; none without a cwd.
+ * @param {string} prefix
+ * @param {string} terminal
+ * @param {string | null} cwd
+ * @returns {Promise<string[]>}
+ */
+async function entries(prefix, terminal, cwd) {
+  const live = await liveCwd(terminal, cwd);
+  if (!live) {
+    return [];
+  }
+  const folder = folderOf(splitPath(prefix).head, live, home());
+  try {
+    const r = await exec("ls", ["-1", "-A", "-p", folder]);
+    return r.code === 0 ? r.stdout.split("\n").filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
 export default class Complete extends View {
   init(_props, cx) {
     /** @type {string[] | null} */
@@ -150,9 +194,10 @@ export default class Complete extends View {
       const before = await beforeCursor(f.terminal, cx);
       await setClipboard(this.saved);
       this.prefix = prefixOf(before);
-      this.list = completions(words(await screens(f.terminal, f.tab)), this.prefix);
+      const [onScreen, files] = await Promise.all([screens(f.terminal, f.tab), entries(this.prefix, f.terminal, f.cwd)]);
+      this.list = candidates(words(onScreen), files, this.prefix);
       if (!this.list.length) {
-        notify({ title: TITLE, body: this.prefix ? `Nothing on screen starts with “${this.prefix}”.` : "No words on screen.", level: "info" });
+        notify({ title: TITLE, body: this.prefix ? `Nothing on screen or in its folder starts with “${this.prefix}”.` : "No words on screen.", level: "info" });
         return this.close();
       }
       cx.notify();

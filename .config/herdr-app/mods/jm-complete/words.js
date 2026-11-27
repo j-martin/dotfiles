@@ -2,7 +2,7 @@
 // Pure word logic for jm-complete; no Herdr imports, so node can test it.
 
 const SEPARATORS = /[\s"'`()<>\[\]{},;|&]+/;
-const EDGE_PUNCTUATION = /^[.:!?=*#$%^]+|[.:!?=*#$%^]+$/g;
+const EDGE_PUNCTUATION = /^[:!?=*#$%^]+|[.:!?=*#$%^]+$/g;
 const MIN_LENGTH = 2;
 
 /**
@@ -81,6 +81,89 @@ export function prefixOf(beforeCursor) {
  */
 export function completions(list, prefix) {
   return list.filter((w) => w.length > prefix.length && w.startsWith(prefix));
+}
+
+/**
+ * The prefix split at its last `/`: the folder part, slash included, and the partial name after it.
+ * @param {string} prefix
+ * @returns {{ head: string, tail: string }}
+ */
+export function splitPath(prefix) {
+  const at = prefix.lastIndexOf("/") + 1;
+  return { head: prefix.slice(0, at), tail: prefix.slice(at) };
+}
+
+/**
+ * The folder a path head names, `~/` from home and relative ones, or none, from cwd.
+ * @param {string} head
+ * @param {string} cwd
+ * @param {string} home
+ * @returns {string}
+ */
+export function folderOf(head, cwd, home) {
+  if (head.startsWith("/")) {
+    return head;
+  }
+  if (head.startsWith("~/")) {
+    return `${home}/${head.slice(2)}`;
+  }
+  return `${cwd.replace(/\/+$/, "")}/${head}`;
+}
+
+/**
+ * The folder entries (folders ending with `/`) completing the prefix's partial name, each after its head.
+ * Hidden entries only when the partial name starts with a dot.
+ * @param {string[]} entries
+ * @param {string} prefix
+ * @returns {string[]}
+ */
+export function pathCompletions(entries, prefix) {
+  const { head, tail } = splitPath(prefix);
+  return entries
+    .filter((e) => e.startsWith(tail) && (tail.startsWith(".") || !e.startsWith(".")))
+    .map((e) => head + e);
+}
+
+/**
+ * How many folders deep a path is, its trailing slash aside.
+ * @param {string} path
+ * @returns {number}
+ */
+function depth(path) {
+  return path.replace(/\/+$/, "").split("/").length;
+}
+
+/**
+ * Everything completing prefix, unique, deepest paths first. At the same depth: the screen words completing it, or
+ * completing its partial name after its folder part, newest first, then the folder entries not on screen. A path
+ * and the same path with a slash count once, as the folder entry when there is one.
+ * @param {string[]} screenWords Newest first.
+ * @param {string[]} entries
+ * @param {string} prefix
+ * @returns {string[]}
+ */
+export function candidates(screenWords, entries, prefix) {
+  const { head, tail } = splitPath(prefix);
+  const key = (/** @type {string} */ w) => w.replace(/\/+$/, "");
+  const files = pathCompletions(entries, prefix);
+  const fileByKey = new Map(files.map((f) => [key(f), f]));
+  const onScreen = screenWords.flatMap((w) => {
+    const found = completions([w], prefix);
+    if (head && tail) {
+      found.push(...completions([w], tail).map((t) => head + t));
+    }
+    return found.map((f) => fileByKey.get(key(f)) ?? f);
+  });
+  const seen = new Set();
+  return [...onScreen, ...files]
+    .filter((w) => {
+      if (w === prefix || seen.has(key(w))) {
+        return false;
+      }
+      seen.add(key(w));
+      return true;
+    })
+    .sort((a, b) => depth(b) - depth(a));
 }
 
 /**
