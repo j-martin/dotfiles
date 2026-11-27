@@ -3,7 +3,10 @@ local markdown = require 'utils/markdown'
 
 ---@class Snippet
 ---@field trigger string|nil Typed text that expands, e.g. ';shrug', nil for snippets only in the picker.
----@field text string Text inserted in place of the trigger, see `mod.render` for its placeholders.
+---@field text string|fun(values: table<string, string>): string Text inserted in place of the trigger, see `mod.render`
+--- for its placeholders. A function is given the answers of `prompts` by name, see `snippets/prompts.lua`.
+---@field prompts SnippetPrompt[]|nil Asked in pickers before inserting the snippet, their answers replace the
+--- `{{ name }}` placeholders of a text string, see `mod.fill` in `snippets/prompts.lua`.
 ---@field desc string|nil Label shown in the picker, the text on a single line when nil.
 ---@field prefix string|nil Overrides the snippet group's prefix, including with an empty string.
 ---@field suffix string|string[]|nil Overrides the snippet group's suffix, including with an empty string.
@@ -132,6 +135,7 @@ function mod.withSeparators(snippets, prefix, suffix)
       aliases = #triggers > 1 and { table.unpack(triggers, 2) } or nil,
       shown = #shown > 0 and shown or nil,
       text = snippet.text,
+      prompts = snippet.prompts,
       desc = snippet.desc,
       suffixes = addedBack,
     })
@@ -179,12 +183,27 @@ function mod.flatten(groups, prefix, suffix)
   return snippets
 end
 
+--- Returns the text of `snippet`, or its prompt names for a text function, e.g. '{repo} {number}'.
+---@param snippet Snippet
+---@return string
+function mod.preview(snippet)
+  if type(snippet.text) ~= 'function' then
+    return snippet.text --[[@as string]]
+  end
+  ---@type string[]
+  local names = {}
+  for _, prompt in ipairs(snippet.prompts or {}) do
+    table.insert(names, '{' .. prompt.name .. '}')
+  end
+  return #names > 0 and table.concat(names, ' ') or '{function}'
+end
+
 --- Returns the label of `snippet` in the picker, e.g. 'GitHub - Re-review', or 'Re-review' when `withoutGroup`.
 ---@param snippet Snippet
 ---@param withoutGroup boolean|nil
 ---@return string
 function mod.label(snippet, withoutGroup)
-  local name = snippet.desc or snippet.text:gsub('%s+', ' '):match('^%s*(.-)%s*$')
+  local name = snippet.desc or mod.preview(snippet):gsub('%s+', ' '):match('^%s*(.-)%s*$')
   if snippet.group and not withoutGroup then
     return snippet.group .. ' - ' .. name
   end
@@ -259,7 +278,7 @@ function mod.matchesQuery(snippet, query)
       mod.label(snippet),
       table.concat(mod.triggersOf(snippet), ' '),
       table.concat(snippet.keywords or {}, ' '),
-      snippet.text,
+      mod.preview(snippet),
     }, ' ')
     :lower()
   for word in query:lower():gmatch('%S+') do

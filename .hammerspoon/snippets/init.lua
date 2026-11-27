@@ -7,6 +7,7 @@ local emojis = require 'snippets/library/emojis'
 local jsonSnippets = require 'snippets/json_snippets'
 local matcher = require 'snippets/matcher'
 local privateConfig = require 'utils/private_config'
+local prompts = require 'snippets/prompts'
 local selection = require 'selection'
 local tsvSnippets = require 'snippets/tsv_snippets'
 local vocabulary = require 'snippets/vocabulary'
@@ -29,6 +30,9 @@ local groupChooser = nil
 -- Enabled only while the picker is shown.
 ---@type hs.hotkey|nil
 local copyHotkey = nil
+-- Snippets of the picker, its rows hold their index.
+---@type Snippet[]
+local shownSnippets = {}
 
 ---@type string
 local buffer = ''
@@ -101,6 +105,38 @@ function mod.insert(text)
   end)
 end
 
+--- Calls `onText` with the text of `snippet`, after asking its prompts, if any, and focusing `window` again.
+--- Nothing is called when a prompt is cancelled or the text function fails.
+---@param snippet Snippet
+---@param window hs.window|nil Focused again after the prompts.
+---@param onText fun(text: string)
+local function resolve(snippet, window, onText)
+  ---@param values table<string, string>
+  local function finish(values)
+    local text, err = prompts.fill(snippet, values)
+    if not text then
+      logger.e(err)
+      hs.alert.show('Snippets - ' .. err)
+      return
+    end
+    onText(text)
+  end
+  if not snippet.prompts or #snippet.prompts == 0 then
+    finish({})
+    return
+  end
+  prompts.ask(snippet.prompts, function(values)
+    if window then
+      window:focus()
+    end
+    if values then
+      hs.timer.doAfter(0.2, function()
+        finish(values)
+      end)
+    end
+  end)
+end
+
 --- Plays `config.snippetSound`, if set, to confirm an expansion.
 local function playSound()
   if not config.snippetSound then
@@ -115,21 +151,25 @@ local function playSound()
 end
 
 --- Deletes the typed trigger and inserts the snippet text, without the tap seeing its own keystrokes.
+--- With prompts, the trigger is only deleted once they are answered, and kept when one is cancelled.
 ---@param snippet Snippet
 ---@param trigger string The trigger or alias that was typed.
 local function expand(snippet, trigger)
+  local window = hs.window.focusedWindow()
   hs.timer.doAfter(0, function()
-    if tap then
-      tap:stop()
-    end
-    for _ = 1, utf8.len(trigger) or #trigger do
-      hs.eventtap.keyStroke({}, 'delete', 0)
-    end
-    mod.insert(snippet.text .. matcher.appendFor(snippet, trigger))
-    if tap then
-      tap:start()
-    end
-    playSound()
+    resolve(snippet, window, function(text)
+      if tap then
+        tap:stop()
+      end
+      for _ = 1, utf8.len(trigger) or #trigger do
+        hs.eventtap.keyStroke({}, 'delete', 0)
+      end
+      mod.insert(text .. matcher.appendFor(snippet, trigger))
+      if tap then
+        tap:start()
+      end
+      playSound()
+    end)
   end)
 end
 
@@ -183,13 +223,15 @@ local function showSnippets(snippets, placeholder, window, withoutGroup)
   if chooser then
     chooser:delete()
   end
+  shownSnippets = snippets
   chooser = hs.chooser.new(function(choice)
     if window then
       window:focus()
     end
-    if choice then
+    local snippet = choice and shownSnippets[choice.snippetIndex]
+    if snippet then
       hs.timer.doAfter(0.2, function()
-        mod.insert(choice.snippetText)
+        resolve(snippet, window, mod.insert)
       end)
     end
   end)
@@ -198,14 +240,14 @@ local function showSnippets(snippets, placeholder, window, withoutGroup)
   local function choices(query)
     ---@type table[]
     local result = {}
-    for _, snippet in ipairs(snippets) do
+    for index, snippet in ipairs(snippets) do
       if matcher.matchesQuery(snippet, query) then
         table.insert(result, {
           text = matcher.label(snippet, withoutGroup),
-          subText = table.concat(snippet.shown or matcher.triggersOf(snippet), ' ')
-            .. '  '
-            .. snippet.text:gsub('%s+', ' '),
-          snippetText = snippet.text,
+          subText = table.concat(snippet.shown or matcher.triggersOf(snippet), ' ') .. '  ' .. matcher
+            .preview(snippet)
+            :gsub('%s+', ' '),
+          snippetIndex = index,
         })
       end
     end
@@ -220,27 +262,33 @@ local function showSnippets(snippets, placeholder, window, withoutGroup)
     end
   end)
   chooser:choices(choices(''))
-  -- Copies the highlighted snippet instead of inserting it.
+  -- Copies the highlighted snippet instead of inserting it, after asking its prompts.
   copyHotkey = copyHotkey
     or hs.hotkey.new({ 'cmd' }, 'c', function()
       local row = chooser and chooser:selectedRowContents()
-      if not row or not row.snippetText then
+      local snippet = row and shownSnippets[row.snippetIndex]
+      if not snippet then
         return
       end
-      local text, _, trailing = render(row.snippetText)
-      local copied = text .. trailing
-      hs.pasteboard.setContents(copied)
       if chooser then
         chooser:hide()
       end
-      ---@type string
-      local preview = copied
-      ---@type integer|nil
-      local cut = utf8.offset(copied, 101)
-      if cut and cut <= #copied then
-        preview = copied:sub(1, cut - 1) .. '…'
-      end
-      hs.alert.show('Copied: ' .. preview)
+      -- Prompts are shown once the picker is closed.
+      hs.timer.doAfter(0, function()
+        resolve(snippet, nil, function(resolved)
+          local text, _, trailing = render(resolved)
+          local copied = text .. trailing
+          hs.pasteboard.setContents(copied)
+          ---@type string
+          local preview = copied
+          ---@type integer|nil
+          local cut = utf8.offset(copied, 101)
+          if cut and cut <= #copied then
+            preview = copied:sub(1, cut - 1) .. '…'
+          end
+          hs.alert.show('Copied: ' .. preview)
+        end)
+      end)
     end)
   chooser:showCallback(function()
     if copyHotkey then

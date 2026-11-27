@@ -64,6 +64,23 @@ return {
     assert(wrapped[1].text == 'Looks good' and wrapped[1].desc == 'LGTM', 'expected the text and description')
   end,
 
+  ['withSeparators keeps the prompts'] = function()
+    local prompts = { { name = 'number' } }
+    local wrapped = matcher.withSeparators({ { trigger = 'pr', text = 'PR', prompts = prompts } }, ';', ' ')
+    assert(wrapped[1].prompts == prompts, 'expected the prompts to be kept')
+  end,
+
+  ['preview shows the prompt names of a text function'] = function()
+    local snippet = {
+      text = function()
+        return ''
+      end,
+      prompts = { { name = 'repo' }, { name = 'number' } },
+    }
+    assert(matcher.preview(snippet) == '{repo} {number}', matcher.preview(snippet))
+    assert(matcher.matchesQuery(snippet, 'number'), 'expected the prompt names to be searched')
+  end,
+
   ['withSeparators keeps a whitespace suffix to add back after the text'] = function()
     local wrapped = matcher.withSeparators({ { trigger = 'lgtm', text = 'Looks good' } }, ';', ' ')
     local append = matcher.appendFor(wrapped[1], wrapped[1].trigger)

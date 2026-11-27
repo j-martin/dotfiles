@@ -2,6 +2,24 @@
 
 Each `<category>.lua` returns a `SnippetGroup` (see `snippets/matcher.lua`).
 
+## Prompted snippets
+
+In a `<category>.lua` (or the private config), the answers of `prompts` replace the `{{ name }}` placeholders of `text`, e.g. `'https://github.com/{{ repo }}/pull/{{ number }}'`, or `text` can be a function given the answers by name, see `snippets/prompts.lua`. Placeholders of no prompt are kept, e.g. `{{ .Values.x }}`, and so are all of them without `prompts`. Each prompt is a picker, in order, taking the typed text and/or predefined `choices` (strings or `{ text, subText, value }`, or a function given the previous answers returning them). `strict = true` only accepts the choices. Escape cancels and keeps the typed trigger. The returned text supports the placeholders, e.g. `{cursor}`. Example, `github.lua`:
+
+```lua
+{
+  trigger = 'pr',
+  desc = 'Pull request link',
+  prompts = {
+    { name = 'repo', label = 'Repository, owner/name' },
+    { name = 'format', label = 'Format', strict = true, choices = { 'Markdown', 'URL' } },
+  },
+  text = function(values)
+    return 'https://github.com/' .. values.repo
+  end,
+},
+```
+
 ## File snippets
 
 Long snippets are files in `<category>/`, next to `<category>.lua`, which must exist even with an empty `snippets` list. Any file type works, e.g. `code/hbash.sh`. Files starting with `.` are ignored.

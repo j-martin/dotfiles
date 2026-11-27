@@ -13,6 +13,22 @@ return {
       text = 'Have you considered using {cursor}?',
     },
     {
+      trigger = 'pr',
+      desc = 'Pull request link',
+      prompts = {
+        { name = 'repo', label = 'Repository, owner/name' },
+        { name = 'number', label = 'Pull request number' },
+        { name = 'format', label = 'Format', strict = true, choices = { 'Markdown', 'URL' } },
+      },
+      text = function(values)
+        local url = string.format('https://github.com/%s/pull/%s', values.repo, values.number)
+        if values.format == 'URL' then
+          return url
+        end
+        return string.format('[%s#%s](%s)', values.repo, values.number, url)
+      end,
+    },
+    {
       desc = 'Re-review',
       text = 'Can you review the changes?',
     },
