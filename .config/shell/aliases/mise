@@ -5,6 +5,7 @@ alias mug='mise use --global'
 alias mup='_mise_unlocked mise upgrade'
 alias mupg='_mise_unlocked mise upgrade --global'
 alias mr='mise run'
+alias mrm='_mise_which_delete'
 mub() { mise bootstrap packages use brew:"$1"; }
 mubc() { mise bootstrap packages use brew-cask:"$1"; }
 

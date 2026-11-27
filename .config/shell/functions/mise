@@ -117,3 +117,59 @@ _mise_upgrade() {
   _info "Upgrading self-updating brew casks: ${outdated[*]}"
   HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade --cask --greedy "$@" "${outdated[@]}"
 }
+
+# Directory where mise keeps its installed tool versions
+__mise_installs_dir() {
+  printf '%s\n' "${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/installs"
+}
+
+# Picks with fzf the executables named `name` that `which -a` finds in mise installs, then deletes them.
+# Shims are skipped since `mise reshim` recreates them, which runs after the deletion.
+_mise_which_delete() {
+  local name="${1:-}"
+  local installs_dir
+  local candidates=()
+  local selected=()
+  local executable
+  local answer
+
+  if [[ -z "$name" ]]; then
+    _error 'Usage: _mise_which_delete name'
+    return 1
+  fi
+
+  installs_dir="$(__mise_installs_dir)"
+  while IFS= read -r executable; do
+    if [[ "$executable" == "${installs_dir}/"* ]]; then
+      candidates+=("$executable")
+    fi
+  done < <(command which -a "$name" 2> /dev/null)
+
+  if [[ ${#candidates[@]} -eq 0 ]]; then
+    _warn "No '${name}' executable found in ${installs_dir}"
+    return 1
+  fi
+
+  while IFS= read -r executable; do
+    selected+=("$executable")
+  done < <(printf '%s\n' "${candidates[@]}" \
+    | fzf --multi --height 40% --reverse \
+      --header "Delete '${name}' (TAB to select many)" \
+      --preview 'ls -l {}; file --brief {}')
+
+  if [[ ${#selected[@]} -eq 0 ]]; then
+    return 1
+  fi
+
+  printf '%s\n' "${selected[@]}"
+  printf 'Delete the executables above? [y/N] '
+  read -r answer
+  if [[ "$answer" != 'y' && "$answer" != 'Y' ]]; then
+    _info 'Aborted'
+    return 1
+  fi
+
+  rm -f -- "${selected[@]}" || return
+  _info "Deleted ${#selected[@]} executable(s)"
+  mise reshim
+}
