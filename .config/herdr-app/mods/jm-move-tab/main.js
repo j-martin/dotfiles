@@ -232,7 +232,7 @@ export default class Move extends View {
   }
 
   /**
-   * The current step's choices, filtered: what to move, spaces then a new one, or tabs then a new one.
+   * The current step's choices, filtered: what to move, spaces then a new one, or a new tab then tabs.
    * @returns {Row[]}
    */
   rows() {
@@ -268,8 +268,8 @@ export default class Move extends View {
     }
     const space = spaces().find((s) => s.id === this.space.id) ?? this.space;
     return [
-      ...tabChoices(space, this.tab.id, this.filter).map((tab) => /** @type {Row} */ ({ kind: "tab", tab })),
       ...(offersNewTab(space, this.source, this.what) ? [/** @type {Row} */ ({ kind: "new-tab", space })] : []),
+      ...tabChoices(space, this.tab.id, this.filter).map((tab) => /** @type {Row} */ ({ kind: "tab", tab })),
     ];
   }
 
