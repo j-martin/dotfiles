@@ -402,24 +402,31 @@ end
 ---@field file string File name, e.g. 'new.tsv'.
 ---@field snippets Snippet[]
 
---- Returns the valid snippets of every `*.tsv` file in `directory`, sorted by file name, logging the invalid ones.
+--- Returns the names of the `*.tsv` files in `directory`, sorted, none when it does not exist.
 ---@param directory string
----@return TsvSnippetFile[]
-local function readTsvFiles(directory)
-  ---@type TsvSnippetFile[]
-  local result = {}
-  if not hs.fs.attributes(directory) then
-    return result
-  end
+---@return string[]
+local function listTsvFiles(directory)
   ---@type string[]
   local files = {}
+  if not hs.fs.attributes(directory) then
+    return files
+  end
   for file in hs.fs.dir(directory) do
     if file:match('^[^.].*%.tsv$') then
       table.insert(files, file)
     end
   end
   table.sort(files)
-  for _, file in ipairs(files) do
+  return files
+end
+
+--- Returns the valid snippets of every `*.tsv` file in `directory`, sorted by file name, logging the invalid ones.
+---@param directory string
+---@return TsvSnippetFile[]
+local function readTsvFiles(directory)
+  ---@type TsvSnippetFile[]
+  local result = {}
+  for _, file in ipairs(listTsvFiles(directory)) do
     local path = directory .. '/' .. file
     local handle, openError = io.open(path, 'r')
     if not handle then
@@ -550,17 +557,53 @@ local function loadTsvFiles()
   return groups
 end
 
+--- Appends `text` with `desc` and without trigger to the `file` of `config.snippetTsvPath`, then reloads the snippets.
+---@param file string e.g. 'new.tsv'.
+---@param text string
+---@param desc string|nil
+local function appendToTsvFile(file, text, desc)
+  local directory = config.snippetTsvPath
+  local path = directory .. '/' .. file
+  if not hs.fs.attributes(directory) then
+    local created, mkdirError = hs.fs.mkdir(directory)
+    if not created then
+      logger.ef('Failed to create %s: %s', directory, mkdirError)
+      hs.alert.show('Snippets - Failed to create ' .. directory)
+      return
+    end
+  end
+  ---@type string
+  local separator = ''
+  local existing = io.open(path, 'r')
+  if existing then
+    local content = existing:read('a')
+    existing:close()
+    if content ~= '' and content:sub(-1) ~= '\n' then
+      separator = '\n'
+    end
+  end
+  local handle, openError = io.open(path, 'a')
+  if not handle then
+    logger.ef('Failed to write %s: %s', path, openError)
+    hs.alert.show('Snippets - Failed to write ' .. path)
+    return
+  end
+  handle:write(separator .. tsvSnippets.encode(text, nil, desc))
+  handle:close()
+  mod.load()
+  hs.alert.show('Snippets - Added to ' .. file)
+end
+
 --- Asks to confirm, then appends the selected text, or the clipboard text when nothing is selected,
---- to `config.snippetTsvNewFile` without trigger, and reloads the snippets.
+--- without trigger to a TSV file of `config.snippetTsvPath`, and reloads the snippets.
 --- The text typed in the confirmation is the description, none when blank.
+--- With more than one TSV file, asks which one, `config.snippetTsvNewFile` selected first.
 function mod.addFromSelection()
   local text, source = selection.getSelectedTextOrClipboard()
   if not text:match('%S') then
     hs.alert.show('Snippets - Nothing selected and clipboard has no text')
     return
   end
-  local directory = config.snippetTsvPath
-  local path = directory .. '/' .. config.snippetTsvNewFile
   confirm.prompt(
     'Add the ' .. source .. ' as a snippet',
     text,
@@ -571,34 +614,22 @@ function mod.addFromSelection()
       if desc == '' then
         desc = nil
       end
-      if not hs.fs.attributes(directory) then
-        local created, mkdirError = hs.fs.mkdir(directory)
-        if not created then
-          logger.ef('Failed to create %s: %s', directory, mkdirError)
-          hs.alert.show('Snippets - Failed to create ' .. directory)
-          return
-        end
-      end
-      ---@type string
-      local separator = ''
-      local existing = io.open(path, 'r')
-      if existing then
-        local content = existing:read('a')
-        existing:close()
-        if content ~= '' and content:sub(-1) ~= '\n' then
-          separator = '\n'
-        end
-      end
-      local handle, openError = io.open(path, 'a')
-      if not handle then
-        logger.ef('Failed to write %s: %s', path, openError)
-        hs.alert.show('Snippets - Failed to write ' .. path)
+      local files = tsvSnippets.targetFiles(listTsvFiles(config.snippetTsvPath), config.snippetTsvNewFile)
+      if #files == 1 then
+        appendToTsvFile(files[1], text, desc)
         return
       end
-      handle:write(separator .. tsvSnippets.encode(text, nil, desc))
-      handle:close()
-      mod.load()
-      hs.alert.show('Snippets - Added to ' .. config.snippetTsvNewFile)
+      ---@type ConfirmOption[]
+      local options = {}
+      for _, file in ipairs(files) do
+        table.insert(options, { text = tsvSnippets.groupName(file), subText = file })
+      end
+      -- Shown once the description prompt is closed.
+      hs.timer.doAfter(0, function()
+        confirm.choose('Save the snippet to', options, function(index)
+          appendToTsvFile(files[index], text, desc)
+        end)
+      end)
     end
   )
 end

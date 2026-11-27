@@ -10,7 +10,7 @@
 ---@field snippetSound string|nil System sound played after expanding a snippet, e.g. 'Tink', nil for none.
 ---@field snippetJsonPath string Directory of generated `*.json` snippet files, each a snippet group.
 ---@field snippetTsvPath string Directory of private `*.tsv` snippet files, one `text<TAB>trigger<TAB>description` per line.
----@field snippetTsvNewFile string File in `snippetTsvPath` the snippets added from the selection or clipboard are appended to.
+---@field snippetTsvNewFile string File in `snippetTsvPath` the snippets added from the selection or clipboard are appended to, the first choice when there are other files.
 ---@field macParakeetVocabularyPath string Vocabulary generated from `snippets/library/emojis.lua`, see `snippets/vocabulary.lua`.
 ---@field obsidianDraftsVault string Obsidian vault of the message drafts, see `apps/obsidian.lua`.
 ---@field obsidianDraftsFolder string Folder of the message drafts, relative to the vault.
@@ -39,7 +39,7 @@ mod.vimApps = {
 -- Generated snippets kept out of the repository, e.g. by `~/.bin/hammerspoon-snippets-generator`.
 mod.snippetJsonPath = os.getenv('HOME') .. '/.local/share/hammerspoon/snippets'
 
--- Hand written snippets kept out of the repository, hyper + space, shift + s adds the clipboard to `new.tsv`.
+-- Hand written snippets kept out of the repository, hyper + space, shift + s adds the clipboard to `new.tsv` or another picked `*.tsv` file.
 mod.snippetTsvPath = os.getenv('HOME') .. '/.private/snippets'
 mod.snippetTsvNewFile = 'new.tsv'
 

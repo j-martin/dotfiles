@@ -66,4 +66,19 @@ return {
     local name = tsvSnippets.groupName('new.tsv')
     assert(name == 'New', string.format('unexpected name %q', name))
   end,
+
+  ['targetFiles puts the default file first'] = function()
+    local files = tsvSnippets.targetFiles({ 'a.tsv', 'new.tsv', 'z.tsv' }, 'new.tsv')
+    assert(table.concat(files, ',') == 'new.tsv,a.tsv,z.tsv', string.format('unexpected %q', table.concat(files, ',')))
+  end,
+
+  ['targetFiles adds the default file when missing'] = function()
+    local files = tsvSnippets.targetFiles({ 'a.tsv' }, 'new.tsv')
+    assert(table.concat(files, ',') == 'new.tsv,a.tsv', string.format('unexpected %q', table.concat(files, ',')))
+  end,
+
+  ['targetFiles sorts the other files'] = function()
+    local files = tsvSnippets.targetFiles({ 'z.tsv', 'b.tsv' }, 'new.tsv')
+    assert(table.concat(files, ',') == 'new.tsv,b.tsv,z.tsv', string.format('unexpected %q', table.concat(files, ',')))
+  end,
 }

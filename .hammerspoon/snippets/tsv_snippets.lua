@@ -79,6 +79,23 @@ function mod.groupName(file)
   return name
 end
 
+--- Returns the files a snippet can be added to: `default` first, even when not in `files`, then the others sorted.
+---@param files string[] Existing TSV file names, e.g. 'github-coworkers.tsv'.
+---@param default string The file added to by default, e.g. 'new.tsv'.
+---@return string[]
+function mod.targetFiles(files, default)
+  ---@type string[]
+  local others = {}
+  for _, file in ipairs(files) do
+    if file ~= default then
+      table.insert(others, file)
+    end
+  end
+  table.sort(others)
+  table.insert(others, 1, default)
+  return others
+end
+
 --- Returns the TSV line of `text` with an optional `trigger` and `desc`, ending with a newline.
 ---@param text string
 ---@param trigger string|nil
