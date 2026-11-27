@@ -139,6 +139,18 @@ return {
     local layout = { spaces = { { tabs = { { terminals = { { terminal = 't1', pane = 'p1', status = 'idle' } } } } } } }
     assert(herdr.findDone(layout, nil) == nil)
   end,
+  ['findWorking cycles through the working agents of every space'] = function()
+    local layout = {
+      spaces = {
+        { tabs = { { terminals = { { terminal = 't1', pane = 'p1', status = 'working' } } } } },
+        { tabs = { { terminals = { { terminal = 't2', pane = 'p2', status = 'done' } } } } },
+        { tabs = { { terminals = { { terminal = 't3', pane = 'p3', status = 'working' } } } } },
+      },
+    }
+    assert(herdr.findWorking(layout, 'p1').terminal == 't3')
+    assert(herdr.findWorking(layout, 'p3').terminal == 't1')
+    assert(herdr.findWorking(layout, 'p2').terminal == 't1')
+  end,
   ['nextPane cycles through the panes of the shown tab only'] = function()
     local layout = {
       spaces = {

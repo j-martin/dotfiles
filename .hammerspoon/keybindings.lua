@@ -66,7 +66,7 @@ local bindings = {
       {
         key = 'i',
         fn = apps.herdr.focusNext,
-        desc = 'Herdr - Focus, on the next agent waiting for input, else the next pane of the tab when frontmost',
+        desc = 'Herdr - Focus the next agent that needs you, else done, else working, else the next pane of the tab when frontmost',
       },
       {
         key = 'i',

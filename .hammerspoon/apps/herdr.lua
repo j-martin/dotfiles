@@ -286,6 +286,17 @@ function mod.findDone(layout, focusedPane)
   end)
 end
 
+--- Returns the agent still running its turn (`working`) in any space that comes after the focused pane, wrapping
+--- around, so repeated calls cycle through them, from the `herdr-app ls` output.
+---@param layout HerdrLayout|nil
+---@param focusedPane string|nil
+---@return HerdrTerminal|nil
+function mod.findWorking(layout, focusedPane)
+  return cycle(layout, focusedPane, function(terminal)
+    return terminal.status == 'working'
+  end)
+end
+
 --- Returns the terminal of the pane after the focused one in the shown tab, wrapping around, from the
 --- `herdr-app ls` output.
 ---@param layout HerdrLayout|nil
@@ -559,10 +570,13 @@ function mod.init()
   tapClicks(frontmost)
 end
 
---- Switches to Herdr like other apps and, when an agent waits for input in any space, focuses its pane, the next
---- waiting one on each call, peeking at sub-agents without a pane over their parent's. Without one, it focuses the
---- agents of every space done and not seen since (blue), then, while Herdr is frontmost, the next pane of the shown
---- tab.
+--- Switches to Herdr like other apps and focuses, in priority order, cycling within a level on each call and falling
+--- to the next one only when the current level has nothing else:
+--- 1. Needs you: agents of every space waiting for input (`blocked`), peeking at sub-agents without a pane that need
+---    you (`blocked` or `error`) over their parent's.
+--- 2. Done: agents of every space done and not seen since (`done`, blue).
+--- 3. Working: agents of every space still running their turn (`working`).
+--- 4. While Herdr is frontmost, the next pane of the shown tab.
 function mod.focusNext()
   local app = hs.application.get(mod.name)
   local layout = app and run('herdr-app ls')
@@ -589,6 +603,9 @@ function mod.focusNext()
   end
   if parsed and (not target or current(target)) then
     target = mod.findDone(parsed, focusedPane) or target
+  end
+  if parsed and (not target or current(target)) then
+    target = mod.findWorking(parsed, focusedPane) or target
   end
   if frontmost and (not target or current(target)) then
     target = mod.nextPane(parsed, focusedPane)
