@@ -18,6 +18,7 @@ local markdown = require 'utils/markdown'
 ---@class HerdrSpace
 ---@field id string|nil
 ---@field name string|nil
+---@field machine string|nil
 ---@field folder string|nil
 ---@field active boolean
 ---@field tabs HerdrTab[]
@@ -32,6 +33,10 @@ local markdown = require 'utils/markdown'
 ---@field terminal string
 ---@field pane string Its own pane, or its parent's for a sub-agent without one.
 ---@field parent string|nil Set for a sub-agent without a pane, peeked over its parent's pane.
+
+---@class HerdrMerge
+---@field into HerdrSpace
+---@field from HerdrSpace[] Spaces whose tabs move into `into`.
 
 ---@class HerdrNewAgent
 ---@field name string e.g. `Copilot`.
@@ -66,7 +71,8 @@ local markdown = require 'utils/markdown'
 ---@field findWaiting fun(layout: HerdrLayout|nil, focusedPane: string|nil, subAgents: HcTerminal[]|nil, peeked: string|nil): HerdrTarget|nil
 ---@field peeked HerdrTarget|nil Sub-agent `focusNext` peeked last, the current one while its parent's pane is focused.
 ---@field findDone fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
----@field nextPane fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
+---@field nextAgent fun(layout: HerdrLayout|nil, focusedPane: string|nil, createdAt: table<string, integer>): HerdrTerminal|nil
+---@field duplicateSpaces fun(layout: HerdrLayout|nil): HerdrMerge[]
 ---@field focusNext fun()
 ---@field orderAgents fun(terminals: HcTerminal[], last: string|nil, preferred: string|nil, program: (fun(address: string): string|nil)|nil): HcTerminal[]
 ---@field rebase fun(prompt: string, reference: string, replacement: string): string
@@ -319,30 +325,80 @@ function mod.findWorking(layout, focusedPane)
   end)
 end
 
---- Returns the terminal of the pane after the focused one in the shown tab, wrapping around, from the
---- `herdr-app ls` output.
+--- Returns the agent after the focused one from the youngest to the oldest in every space, wrapping around, else
+--- the youngest, from the `herdr-app ls` output.
 ---@param layout HerdrLayout|nil
 ---@param focusedPane string|nil
+---@param createdAt table<string, integer> When each terminal was created by address, missing ones count as oldest.
 ---@return HerdrTerminal|nil
-function mod.nextPane(layout, focusedPane)
-  local space = active(layout and layout.spaces) --[[@as HerdrSpace|nil]]
-  local tab = space and active(space.tabs) --[[@as HerdrTab|nil]]
+function mod.nextAgent(layout, focusedPane, createdAt)
   ---@type HerdrTerminal[]
-  local panes = {}
-  ---@type integer
-  local focusedIndex = 0
-  for _, terminal in ipairs(tab and tab.terminals or {}) do
-    if terminal.pane then
-      table.insert(panes, terminal)
-      if terminal.pane == focusedPane then
-        focusedIndex = #panes
+  local agents = {}
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        if terminal.pane and isAgent(terminal) then
+          table.insert(agents, terminal)
+        end
       end
     end
   end
-  if #panes == 0 then
+  if #agents == 0 then
     return nil
   end
-  return panes[focusedIndex % #panes + 1]
+  table.sort(agents, function(a, b)
+    local aAt, bAt = createdAt[a.terminal] or 0, createdAt[b.terminal] or 0
+    if aAt ~= bAt then
+      return aAt > bAt
+    end
+    return a.terminal < b.terminal
+  end)
+  ---@type integer
+  local focusedIndex = 0
+  for index, terminal in ipairs(agents) do
+    if terminal.pane == focusedPane then
+      focusedIndex = index
+    end
+  end
+  return agents[focusedIndex % #agents + 1]
+end
+
+--- Returns the spaces sharing a name on the same machine, e.g. two `.hammerspoon` Herdr named after where their first
+--- terminal is, to merge into the shown one of them, else the first, from the `herdr-app ls` output.
+---@param layout HerdrLayout|nil
+---@return HerdrMerge[]
+function mod.duplicateSpaces(layout)
+  ---@type table<string, HerdrSpace[]>
+  local groups = {}
+  ---@type string[]
+  local keys = {}
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    if space.name and space.name ~= '' then
+      local key = (space.machine or '') .. '\n' .. space.name
+      if not groups[key] then
+        groups[key] = {}
+        table.insert(keys, key)
+      end
+      table.insert(groups[key], space)
+    end
+  end
+  ---@type HerdrMerge[]
+  local merges = {}
+  for _, key in ipairs(keys) do
+    local spaces = groups[key]
+    if #spaces > 1 then
+      local into = active(spaces) or spaces[1] --[[@as HerdrSpace]]
+      ---@type HerdrSpace[]
+      local from = {}
+      for _, space in ipairs(spaces) do
+        if space ~= into then
+          table.insert(from, space)
+        end
+      end
+      table.insert(merges, { into = into, from = from })
+    end
+  end
+  return merges
 end
 
 --- Returns the `@` file reference for agents, relative to their folder when inside it, with `#L<line>` or
@@ -383,6 +439,7 @@ end
 
 ---@class HcTerminalDetails
 ---@field cwd string|nil
+---@field created_ms integer|nil
 ---@field foreground { cwd: string|nil, argv: string[]|nil }|nil
 
 ---@param address string
@@ -408,6 +465,25 @@ end
 ---@return string|nil
 local function terminalCwd(address)
   return detailsCwd(terminalDetails(address))
+end
+
+--- Returns when each agent terminal of the `herdr-app ls` output was created by address.
+---@param layout HerdrLayout|nil
+---@return table<string, integer>
+local function createdTimes(layout)
+  ---@type table<string, integer>
+  local created = {}
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        if terminal.pane and isAgent(terminal) then
+          local details = terminalDetails(terminal.terminal)
+          created[terminal.terminal] = details and details.created_ms or 0
+        end
+      end
+    end
+  end
+  return created
 end
 
 -- Every agent's session summary by terminal address, published by the `jm-pane` Herdr mod
@@ -592,15 +668,97 @@ function mod.init()
   tapClicks(frontmost)
 end
 
---- Switches to Herdr like other apps and focuses, in priority order, cycling within a level on each call and falling
+-- How long a parked terminal may take to leave its pane, `terminal.park` returns before it did
+local parkPolls = 20
+local parkPollMicroseconds = 100000
+
+---@param command string `herdr-app do` command.
+---@param args table
+---@return string|nil
+local function herdrDo(command, args)
+  return run('herdr-app do ' .. command .. ' ' .. require('utils/jxa').shellQuote(hs.json.encode(args)))
+end
+
+--- Waits until the terminal left its pane, else false.
+---@param address string
+---@return boolean
+local function waitParked(address)
+  for _ = 1, parkPolls do
+    local output = run('herdr-app ls')
+    local layout = output and hs.json.decode(output) --[[@as HerdrLayout|nil]]
+    if layout and not mod.findTerminal(layout, address) then
+      return true
+    end
+    hs.timer.usleep(parkPollMicroseconds)
+  end
+  return false
+end
+
+--- Moves the panes of the tab as a new tab of the shown space, its first pane, then the others split right, keeping
+--- its name. Herdr cannot move a tab between spaces, so each terminal leaves its pane and gets a new one, still running.
+---@param tab HerdrTab
+local function moveTab(tab)
+  local place = 'tab'
+  for _, terminal in ipairs(tab.terminals or {}) do
+    if terminal.pane and herdrDo('terminal.park', { terminal = terminal.terminal }) then
+      if not waitParked(terminal.terminal) then
+        logger.ef('%s did not leave its pane, it may be hidden: `herdr-app do terminal.keep`', terminal.terminal)
+      end
+      local kept = herdrDo('terminal.keep', { terminal = terminal.terminal, place = place })
+      local decoded = kept and hs.json.decode(kept)
+      if place == 'tab' and decoded and decoded.tab then
+        -- New tabs are named after the terminal, unnamed ones are listed by their number, which an empty name restores
+        local name = (tab.name and not tab.name:match('^%d+$')) and tab.name or ''
+        herdrDo('tab.rename', { id = decoded.tab, name = name })
+      end
+      place = 'right'
+    end
+  end
+end
+
+--- Moves the tabs of the spaces sharing a name into one of them, see `duplicateSpaces`, then focuses the terminal
+--- focused before again. A placeholder tab keeps each emptied space open while its tabs move, Herdr would close it and
+--- end the terminals still on their way, then it is closed with the placeholder.
+local function mergeDuplicateSpaces()
+  local output = run('herdr-app ls')
+  local layout = output and hs.json.decode(output) --[[@as HerdrLayout|nil]]
+  local merges = mod.duplicateSpaces(layout)
+  if #merges == 0 then
+    return
+  end
+  local status = run('herdr-app status')
+  local decoded = status and hs.json.decode(status) --[[@as HerdrStatus|nil]]
+  local focused = mod.findPane(layout, decoded and decoded.focused_pane)
+  for _, merge in ipairs(merges) do
+    logger.f('Merging %d space(s) named %s into %s', #merge.from, merge.into.name, merge.into.id)
+    herdrDo('space.select', { id = merge.into.id })
+    for _, space in ipairs(merge.from) do
+      if herdrDo('tab.new', { space = space.id, folder = space.folder, focus = false }) then
+        for _, tab in ipairs(space.tabs or {}) do
+          moveTab(tab)
+        end
+        herdrDo('space.close', { id = space.id, confirmed = true })
+      end
+    end
+  end
+  if focused then
+    herdrDo('pane.focus', { terminal = focused.terminal })
+  end
+end
+
+--- Merges the spaces sharing a name, see `duplicateSpaces`, then switches to Herdr like other apps and focuses, in
+--- priority order, cycling within a level on each call and falling
 --- to the next one only when the current level has nothing else:
 --- 1. Needs you: agents of every space waiting for input (`blocked`), peeking at sub-agents without a pane that need
 ---    you (`blocked` or `error`) over their parent's.
 --- 2. Done: agents of every space done and not seen since (`done`, blue).
 --- 3. Working: agents of every space still running their turn (`working`).
---- 4. While Herdr is frontmost, the next pane of the shown tab.
+--- 4. While Herdr is frontmost, the next agent of every space from the youngest to the oldest.
 function mod.focusNext()
   local app = hs.application.get(mod.name)
+  if app then
+    mergeDuplicateSpaces()
+  end
   local layout = app and run('herdr-app ls')
   local status = layout and run('herdr-app status')
   local decoded = status and hs.json.decode(status) --[[@as HerdrStatus|nil]]
@@ -630,7 +788,7 @@ function mod.focusNext()
     target = mod.findWorking(parsed, focusedPane) or target
   end
   if frontmost and (not target or current(target)) then
-    target = mod.nextPane(parsed, focusedPane)
+    target = mod.nextAgent(parsed, focusedPane, createdTimes(parsed))
   end
   if not app or not target or not target.pane or current(target) then
     require('windows').launchOrCycleFocus(mod.name)()

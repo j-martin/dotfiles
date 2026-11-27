@@ -66,7 +66,7 @@ local bindings = {
       {
         key = 'i',
         fn = apps.herdr.focusNext,
-        desc = 'Herdr - Focus the next agent that needs you, else done, else working, else the next pane of the tab when frontmost',
+        desc = 'Herdr - Merge spaces of the same name, focus the next agent that needs you, else done, else working, else the next agent from the youngest to the oldest when frontmost',
       },
       {
         key = 'i',

@@ -164,23 +164,78 @@ return {
     assert(herdr.findWorking(layout, 'p3').terminal == 't1')
     assert(herdr.findWorking(layout, 'p2').terminal == 't1')
   end,
-  ['nextPane cycles through the panes of the shown tab only'] = function()
+  ['nextAgent cycles through the agents of every space from the youngest to the oldest'] = function()
     local layout = {
       spaces = {
-        { active = false, tabs = { { active = true, terminals = { { terminal = 't1', pane = 'p1' } } } } },
+        { tabs = { { terminals = { { terminal = 't1', pane = 'p1', app = 'claude-code' } } } } },
         {
-          active = true,
           tabs = {
-            { active = false, terminals = { { terminal = 't2', pane = 'p2' } } },
-            { active = true, terminals = { { terminal = 't3', pane = 'p3' }, { terminal = 't4', pane = 'p4' } } },
+            { terminals = { { terminal = 't2', pane = 'p2' }, { terminal = 't3', pane = 'p3', app = 'copilot' } } },
+            { terminals = { { terminal = 't4', pane = 'p4', app = 'claude-code' } } },
           },
         },
       },
     }
-    assert(herdr.nextPane(layout, 'p3').terminal == 't4')
-    assert(herdr.nextPane(layout, 'p4').terminal == 't3')
-    assert(herdr.nextPane(layout, 'p1').terminal == 't3')
-    assert(herdr.nextPane(nil, 'p3') == nil)
+    local createdAt = { t1 = 20, t2 = 40, t3 = 10, t4 = 30 }
+    assert(herdr.nextAgent(layout, 'p4', createdAt).terminal == 't1')
+    assert(herdr.nextAgent(layout, 'p1', createdAt).terminal == 't3')
+    assert(herdr.nextAgent(layout, 'p3', createdAt).terminal == 't4')
+  end,
+  ['nextAgent starts at the youngest agent when the focused pane is not one'] = function()
+    local layout = {
+      spaces = {
+        {
+          tabs = {
+            {
+              terminals = {
+                { terminal = 't1', pane = 'p1', app = 'claude-code' },
+                { terminal = 't2', pane = 'p2' },
+                { terminal = 't3', pane = 'p3', app = 'copilot' },
+              },
+            },
+          },
+        },
+      },
+    }
+    assert(herdr.nextAgent(layout, 'p2', { t1 = 1, t3 = 2 }).terminal == 't3')
+    assert(herdr.nextAgent(nil, 'p2', {}) == nil)
+  end,
+  ['duplicateSpaces merges spaces of the same name and machine into the shown one, else the first'] = function()
+    ---@param id string
+    ---@param name string|nil
+    ---@param shown boolean|nil
+    ---@param machine string|nil
+    ---@return HerdrSpace
+    local function space(id, name, shown, machine)
+      return { id = id, name = name, active = shown == true, machine = machine, tabs = {} }
+    end
+    local layout = {
+      spaces = {
+        space('s1', 'app'),
+        space('s2', 'ops'),
+        space('s3', 'app', true),
+        space('s4', 'app'),
+        space('s5', 'ops'),
+        space('s6', 'ops', false, 'remote'),
+        space('s7', nil),
+        space('s8', nil),
+      },
+    }
+    ---@type string[]
+    local found = {}
+    for _, merge in ipairs(herdr.duplicateSpaces(layout)) do
+      ---@type string[]
+      local from = {}
+      for _, source in ipairs(merge.from) do
+        table.insert(from, source.id)
+      end
+      table.insert(found, table.concat(from, '+') .. '>' .. merge.into.id)
+    end
+    assert(table.concat(found, ',') == 's1+s4>s3,s5>s2', table.concat(found, ','))
+  end,
+  ['duplicateSpaces is empty without duplicates'] = function()
+    assert(#herdr.duplicateSpaces({ spaces = { { id = 's1', name = 'app', active = true, tabs = {} } } }) == 0)
+    assert(#herdr.duplicateSpaces(nil) == 0)
   end,
   ['reference stays absolute outside the agent folder'] = function()
     assert(herdr.reference('/src/application/a.go', nil, nil, '/src/app') == '@/src/application/a.go')
