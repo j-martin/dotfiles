@@ -34,6 +34,44 @@ _git_stack_add_pick_branch() {
   gh stack add "${branch}"
 }
 
+# Prints the merge methods (merge, squash, rebase) allowed on the current repository, one per line.
+_github_allowed_merge_methods() {
+  gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed \
+    --jq 'if .mergeCommitAllowed then "merge" else empty end,
+          if .squashMergeAllowed then "squash" else empty end,
+          if .rebaseMergeAllowed then "rebase" else empty end'
+}
+
+# Picks a merge method: `merge` when allowed, otherwise prompts among the allowed ones.
+_github_pick_merge_method() {
+  local methods
+  methods="$(_github_allowed_merge_methods)" || return 1
+  if [[ -z "${methods}" ]]; then
+    echo "No merge method allowed on this repository." >&2
+    return 1
+  fi
+  if grep --quiet --line-regexp 'merge' <<< "${methods}"; then
+    echo 'merge'
+    return 0
+  fi
+  __fzf --prompt 'Merge method> ' <<< "${methods}"
+}
+
+# Pushes and merges the current branch PR, using `gh stack merge` when the branch is part of a stack.
+_github_pr_merge() {
+  local method
+  method="$(_github_pick_merge_method)"
+  if [[ -z "${method}" ]]; then
+    return 1
+  fi
+
+  if gh stack view --json > /dev/null 2>&1; then
+    gh stack push && gh stack merge --merge-method "${method}"
+  else
+    git pull && git push && gh pr merge "$(_git_current_branch)" "--${method}"
+  fi
+}
+
 _github_post() {
   local endpoint="$1"
   local payload="$2"

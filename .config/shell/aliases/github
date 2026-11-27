@@ -15,7 +15,7 @@ alias ghpr='gpom && gpp && _github_pr'
 alias ghprr='gpom && gpp && _github_pr_with_reviewer'
 alias ghpro='ghprr && _safe_open $(pbpaste)'
 alias ghprmsg='_git_get_pr_message | _clipboard_copy'
-alias ghprm='git pull && git push && gh pr merge "$(_git_current_branch)" --rebase'
+alias ghprm='_github_pr_merge'
 alias ghprc='_clipboard_copy <<< "$(_github_pr_url)"'
 ghprs() { gh pr status --json "statusCheckRollup" | jq '.currentBranch.statusCheckRollup[] | "\(.state) \(.targetUrl)"' -r; }
 alias ghw='watch -n10 github-events'
