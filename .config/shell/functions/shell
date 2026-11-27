@@ -34,6 +34,100 @@ _copy_command_from_history() {
   __copy_command_with_pwd "${command}"
 }
 
+# Runs `which` on each name, then on the functions and aliases they reference, up to `--depth` levels (default 3).
+# The output is also copied to the clipboard.
+_which_recursive() {
+  local depth=3
+  if [[ "${1:-}" == '--depth' ]]; then
+    depth="${2:-}"
+    shift 2
+  fi
+  if [[ ! "${depth}" =~ ^[1-9][0-9]*$ || $# -eq 0 ]]; then
+    echo "Usage: _which_recursive [--depth N] name..." >&2
+    return 1
+  fi
+  local -A __which_recursive_seen=()
+  local name output
+  output="$(
+    for name in "$@"; do
+      __which_recursive_visit "${name}" 1 "${depth}"
+    done
+  )"
+  printf '%s\n' "${output}"
+  _clipboard_copy <<< "${output}" 2> /dev/null
+  _info 'Copied to clipboard'
+}
+
+# Prints the first word of each command (start of line, after `|`, `;`, `&&`, `||`, `$(`, `(` or backtick) read from stdin, once each.
+__which_recursive_commands() {
+  # shellcheck disable=SC2016
+  awk '
+    {
+      gsub(/\$\(|`|\|\||&&|[|;(]/, "\n")
+      segment_count = split($0, segments, "\n")
+      for (s = 1; s <= segment_count; s++) {
+        word_count = split(segments[s], words, " ")
+        for (w = 1; w <= word_count; w++) {
+          if (words[w] ~ /^(if|then|else|elif|do|while|until|!|time|command|builtin|exec|noglob|nocorrect|[{}()])$/ || words[w] ~ /^[[:alpha:]_][[:alnum:]_]*=/) {
+            continue
+          }
+          if (!seen[words[w]]++) {
+            print words[w]
+          }
+          break
+        }
+      }
+    }
+  '
+}
+
+# Prints `which` for a name and recurses into the functions and aliases it calls.
+# Relies on `__which_recursive_seen` from `_which_recursive` to show each name only once.
+__which_recursive_visit() {
+  local name="$1"
+  local level="$2"
+  local depth="$3"
+  local definition body line tabs token
+  if [[ -n "${__which_recursive_seen[${name}]:-}" ]]; then
+    return
+  fi
+  __which_recursive_seen[${name}]=1
+  if ((${#__which_recursive_seen[@]} > 1)); then
+    echo
+  fi
+  case "$(whence -w -- "${name}" 2> /dev/null)" in
+    *': function')
+      definition="$(which "${name}")"
+      body="${definition}"
+      ;;
+    *': alias')
+      definition="$(alias -L -- "${name}")"
+      body="${aliases[${name}]}"
+      ;;
+    *)
+      definition="# $(which "${name}" 2>&1)"
+      body=''
+      ;;
+  esac
+  while IFS= read -r line; do
+    tabs="${line%%[!$'\t']*}"
+    printf '%s%s\n' "${tabs//$'\t'/  }" "${line#"${tabs}"}"
+  done <<< "${definition}"
+  if ((level >= depth)); then
+    return
+  fi
+  while IFS= read -r token; do
+    if [[ "${token}" == "${name}" ]]; then
+      continue
+    fi
+    case "$(whence -w -- "${token}" 2> /dev/null)" in
+      *': function' | *': alias')
+        __which_recursive_visit "${token}" $((level + 1)) "${depth}"
+        ;;
+    esac
+  done < <(__which_recursive_commands <<< "${body}")
+}
+
 # Lists aliases, functions, builtins and executables as `name<TAB>type<TAB>detail<TAB>code` lines for fzf.
 # Loaded function definitions are written to files in the given directory, referenced by the `code` field.
 __fzf_command_candidates() {

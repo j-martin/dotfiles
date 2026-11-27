@@ -88,6 +88,7 @@ alias kb='keybase'
 alias pgcli='echo $PGHOST && pgcli'
 alias clc='_copy_last_command'
 alias clcf='_copy_command_from_history'
+alias whichr='_which_recursive'
 
 # Formatting
 alias shfmt='shfmt --indent 2 --binary-next-line --list --diff --case-indent --space-redirects --write'
