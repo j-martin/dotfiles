@@ -206,3 +206,11 @@ When multiple valid approaches exist, choose based on:
 
 - Similar to markdown backtick (``), all technical text (e.g. code related, paths, command line, etc.) should have code formatting.
 - When referencing stuff in GitHub, always use proper links, not just the repo + pr number.
+
+# Herdr
+
+- When running inside Herdr (`hc` is available), start background sub-agents as Herdr terminals instead of in-process sub-agents (e.g. Claude Code's `Agent` tool), so they show up under their parent in Herdr.
+  - Start: `hc run --bg --name <short-name> claude "<task>"` (one per sub-agent).
+  - Wait: `hc wait --children any` (next one with news) or `hc wait --children all`. Never poll with `sleep`.
+  - Read results: `hc read <name>`. Follow up: `hc send <name> "<text>"`.
+  - Use `--rm` for one-shot workers and `--outlive-parent` only when it must survive the parent.
