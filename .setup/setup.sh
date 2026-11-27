@@ -20,6 +20,15 @@ readonly LSREGISTER='/System/Library/Frameworks/CoreServices.framework/Framework
 readonly SSH_PASSWORD_CONF='/var/run/sshd-allow-password-temporarily.conf'
 readonly SSH_KEYS_ONLY_CONF='/etc/ssh/sshd_config.d/000-keys-only.conf'
 
+# ~/.claude/settings.json is untracked: it holds machine-specific hooks and private work context.
+readonly CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+readonly CLAUDE_ALLOWED_TOOLS=(
+  'Bash(hc wait:*)'
+  'Bash(hc read:*)'
+  'Bash(hc ls:*)'
+  'Bash(hc get:*)'
+)
+
 _macos_customizations() {
   _info 'Applying macOS customizations.'
   sudo pmset -a standbydelay 86400
@@ -248,6 +257,22 @@ EOF
   done
 }
 
+# Adds `CLAUDE_ALLOWED_TOOLS` to the Claude Code permission allow list, keeping existing entries.
+_claude_permissions() {
+  local settings="${CLAUDE_SETTINGS}"
+  _info "Adding Claude Code permissions to '${settings}'."
+  mkdir -p "$(dirname "${settings}")"
+  if [[ ! -s "${settings}" ]]; then
+    printf '{}\n' > "${settings}"
+  fi
+  local allowed
+  allowed="$(printf '%s\n' "${CLAUDE_ALLOWED_TOOLS[@]}" | jq --raw-input --slurp 'split("\n") | map(select(length > 0))')"
+  local updated
+  updated="$(jq --argjson allowed "${allowed}" \
+    '.permissions.allow = ((.permissions.allow // []) as $existing | $existing + ($allowed - $existing))' "${settings}")"
+  printf '%s\n' "${updated}" > "${settings}"
+}
+
 # Restricts sshd to ssh-key auth and removes any temporary password override.
 _ssh_keys_only() {
   _info "Installing '${SSH_KEYS_ONLY_CONF}'."
@@ -310,6 +335,7 @@ _main() {
   _macos_editor_app
   _macos_default_apps
   _ssh_keys_only
+  _claude_permissions
 
   _info 'Installing VS Code extensions.'
   xargs -n1 code --install-extension < "$HOME/.vscode/extensions/list"
