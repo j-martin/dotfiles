@@ -1,7 +1,7 @@
 // node --test mods/jm-move-tab/move.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { baseName, duplicateGroups, folderSpace, freshId, localId, offersNewTab, spaceChoices, tabChoices } from "./move.js";
+import { baseName, duplicateGroups, folderSpace, freshId, localId, offersNewTab, sortPlan, spaceChoices, tabChoices, within } from "./move.js";
 
 const tab = (id, name = id) => ({ id, name });
 const space = (id, name, tabs, machine = null) => ({ id, name, machine, active: false, tabs });
@@ -82,4 +82,67 @@ test("duplicateGroups: same name any case, per machine, into the shown one else 
   assert.deepEqual(groups.map((g) => [g.into.id, g.from.map((s) => s.id)]), [["c", ["a", "b"]]]);
   assert.deepEqual(duplicateGroups([a, lone]), []);
   assert.equal(duplicateGroups([a, b])[0].into.id, "a");
+});
+
+const pane = (terminal, tab, cwd) => ({ terminal, tab, cwd });
+const plan = (all, ps, roots = {}) =>
+  sortPlan(all, ps, roots).map((m) => [m.terminals, m.to.kind === "space" ? m.to.space.id : `new ${m.to.folder}`, m.whole]);
+
+test("within: same folder or below it, not a sibling prefix", () => {
+  assert.equal(within("/src/api", "/src/api"), true);
+  assert.equal(within("/src/api/", "/src/api/pkg"), true);
+  assert.equal(within("/src/api", "/src/apix"), false);
+  assert.equal(within("/", "/src"), true);
+});
+
+test("sortPlan: nothing moves when every pane is in its space", () => {
+  const api = space("a", "api", [tab("t1")]);
+  const web = space("b", "web", [tab("t2")]);
+  assert.deepEqual(plan([api, web], [pane("x", "t1", "/src/api"), pane("y", "t1", "/src/api/pkg"), pane("z", "t2", "/src/web")]), []);
+});
+
+test("sortPlan: a tab whose panes all belong elsewhere moves whole", () => {
+  const api = space("a", "api", [tab("t1"), tab("t2")]);
+  const web = space("b", "web", [tab("t3")]);
+  const ps = [pane("x", "t1", "/src/api"), pane("y", "t2", "/src/web"), pane("z", "t2", "/src/web/pkg"), pane("w", "t3", "/src/web")];
+  assert.deepEqual(plan([api, web], ps), [[["y", "z"], "b", true]]);
+});
+
+test("sortPlan: a lone wrong pane moves on its own", () => {
+  const api = space("a", "api", [tab("t1")]);
+  const web = space("b", "web", [tab("t2")]);
+  const ps = [pane("x", "t1", "/src/api"), pane("y", "t1", "/src/web/pkg"), pane("w", "t2", "/src/web")];
+  assert.deepEqual(plan([api, web], ps), [[["y"], "b", false]]);
+});
+
+test("sortPlan: the deepest space wins, a parent one is enough", () => {
+  const home = space("h", "~", [tab("t1")]);
+  const api = space("a", "api", [tab("t2")]);
+  const ps = [pane("x", "t1", "/u"), pane("y", "t1", "/u/notes"), pane("z", "t1", "/u/src/api/pkg"), pane("w", "t2", "/u/src/api")];
+  assert.deepEqual(plan([home, api], ps), [[["z"], "a", false]]);
+});
+
+test("sortPlan: no matching space means a new one at the repo root", () => {
+  const api = space("a", "api", [tab("t1"), tab("t2")]);
+  const ps = [pane("x", "t1", "/src/api"), pane("y", "t2", "/src/web/pkg")];
+  assert.deepEqual(plan([api], ps, { "/src/web/pkg": "/src/web" }), [[["y"], "new /src/web", true]]);
+});
+
+test("sortPlan: spaces sharing a folder keep their panes", () => {
+  const a = space("a", "api", [tab("t1")]);
+  const b = space("b", "api", [tab("t2")]);
+  assert.deepEqual(plan([a, b], [pane("x", "t1", "/src/api"), pane("y", "t2", "/src/api")]), []);
+});
+
+test("sortPlan: only spaces on the pane's machine count", () => {
+  const api = space("a", "api", [tab("t1"), tab("t2")]);
+  const remote = space("mac/b", "web", [tab("t3")], "mac");
+  const ps = [pane("x", "t1", "/src/api"), pane("y", "t2", "/src/web"), pane("z", "t3", "/src/web")];
+  assert.deepEqual(plan([api, remote], ps), [[["y"], "new /src/web", true]]);
+});
+
+test("sortPlan: panes without a folder stay", () => {
+  const api = space("a", "api", [tab("t1")]);
+  const web = space("b", "web", [tab("t2")]);
+  assert.deepEqual(plan([api, web], [pane("x", "t1", "/src/api"), pane("y", "t1", null), pane("w", "t2", "/src/web")]), []);
 });
