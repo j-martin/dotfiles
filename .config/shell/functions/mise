@@ -1,5 +1,84 @@
 #!/usr/bin/env bash
 
+_MISE_UNLOCK_MARKER='# mise-unlocked: run _mise_lock to restore'
+
+# Real paths of the mise config files active in the current directory
+__mise_config_files() {
+  mise config ls --json 2> /dev/null \
+    | jq --raw-output '.[].path' \
+    | while IFS= read -r file; do
+      realpath "$file"
+    done \
+    | sort --unique
+}
+
+# Rewrite `file` with the given sed expression, keeping symlinks and permissions
+__mise_sed_in_place() {
+  local expression="$1"
+  local file="$2"
+  local tmp
+
+  tmp="$(mktemp)" || return
+  if sed -E "$expression" "$file" > "$tmp"; then
+    cat "$tmp" > "$file"
+  fi
+  rm -f "$tmp"
+}
+
+# Comment out `locked = true` in active mise configs and print the files changed
+_mise_unlock() {
+  local file
+
+  while IFS= read -r file; do
+    if grep --quiet --extended-regexp '^[[:space:]]*locked[[:space:]]*=[[:space:]]*true' "$file"; then
+      __mise_sed_in_place "s|^([[:space:]]*)(locked[[:space:]]*=[[:space:]]*true.*)$|\\1# \\2 ${_MISE_UNLOCK_MARKER}|" "$file"
+      _info "Unlocked ${file}" >&2
+      printf '%s\n' "$file"
+    fi
+  done < <(__mise_config_files)
+}
+
+# Restore `locked = true` lines disabled by `_mise_unlock`.
+# Defaults to the active mise configs when no files are given.
+_mise_lock() {
+  local files=("$@")
+  local file
+
+  if [[ ${#files[@]} -eq 0 ]]; then
+    while IFS= read -r file; do
+      files+=("$file")
+    done < <(__mise_config_files)
+  fi
+
+  for file in "${files[@]}"; do
+    if grep --quiet --fixed-strings "$_MISE_UNLOCK_MARKER" "$file"; then
+      __mise_sed_in_place "s|^([[:space:]]*)# (.*) ${_MISE_UNLOCK_MARKER}$|\\1\\2|" "$file"
+      _info "Locked ${file}"
+    fi
+  done
+}
+
+# Run a command with `locked = true` disabled, then lock again (even on failure or Ctrl-C)
+_mise_unlocked() {
+  local files=()
+  local file
+  local exit_code
+
+  while IFS= read -r file; do
+    files+=("$file")
+  done < <(_mise_unlock)
+
+  trap ':' INT
+  "$@"
+  exit_code=$?
+  trap - INT
+
+  if [[ ${#files[@]} -gt 0 ]]; then
+    _mise_lock "${files[@]}"
+  fi
+  return "$exit_code"
+}
+
 # Installed `brew-cask:` packages declared in `[bootstrap.packages]`
 _mise_brew_casks() {
   mise bootstrap packages status --json 2> /dev/null \
