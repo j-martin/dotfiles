@@ -13,6 +13,7 @@
   - $(basename $PWD)
   - Jira ticket when known
   - Current task
+- Always look the file structure of the project to understand where the new code should live.
 
 # Development Guidelines
 
@@ -186,6 +187,7 @@ When multiple valid approaches exist, choose based on:
 
 ## GitHub
 
+- When opening a PR, in a github markdown warning block, on top when the PR is entirely vibe-coded/slop.
 - If I say "create stack PRs", or stack this PR on top PR XYZ, that means link them with `gh stack add` in the appropriate order.
 
 # Shell (bash, zsh, etc.)
@@ -200,11 +202,7 @@ When multiple valid approaches exist, choose based on:
 - Do not use bash if shorthands `[[ ... ]] && ...`, always us `if [[ ... ]]; then` in it's multiline form.
 - Constants should be on top of the files or at least before functions.
 
-# General
+# Jira
 
-- Always look the file structure of the project to understand where the new code should live.
-
-## Jira
-
-- Similar to markdown backtick (``), all technical (e.g. code related) should have code formatting.
+- Similar to markdown backtick (``), all technical text (e.g. code related, paths, command line, etc.) should have code formatting.
 - When referencing stuff in GitHub, always use proper links, not just the repo + pr number.
