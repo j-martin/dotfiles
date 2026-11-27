@@ -1,5 +1,5 @@
-// Opened as a dialog by cmd-shift-w
-// (mod.open:jm-close-tab): asks before closing the shown tab.
+// Opened as a dialog by mod.open:jm-close-tab (unbound; cmd-shift-w closes the pane without asking)
+// asks before closing the shown tab.
 // cmd-w closes a pane (or its space) in ../jm-close-pane.
 
 import { run, spaces } from "herdr";
