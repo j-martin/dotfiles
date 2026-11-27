@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 _AGENT_MODEL="claude-opus-5.5"
+_AGENT_HOME_IGNORED_DIRS=(
+  '.gnupg/'
+)
 
 _agent_home_entries() {
   (cd "$HOME" && _home_git ls-files --stage)
@@ -17,8 +20,25 @@ _agent_home_tracked_files() {
 
 # Parent dir of each nested tracked file (not the top-level dir, so e.g. ~/.ssh isn't fully exposed)
 _agent_home_dirs() {
-  # macOS sed has no long options, so use grep; the match keeps a trailing slash
-  _agent_home_tracked_files | grep --only-matching --extended-regexp '^.*/' | sort --unique
+  {
+    # macOS sed has no long options, so use grep; the match keeps a trailing slash
+    _agent_home_tracked_files | grep --only-matching --extended-regexp '^.*/'
+    _agent_home_submodules | awk '{ print $0 "/" }'
+  } | LC_ALL=C sort --unique | __agent_drop_nested_dirs | __agent_drop_ignored_dirs
+}
+
+__agent_drop_ignored_dirs() {
+  local ignored
+  local patterns=()
+  for ignored in "${_AGENT_HOME_IGNORED_DIRS[@]}"; do
+    patterns+=(--regexp "$ignored")
+  done
+  grep --invert-match --fixed-strings --line-regexp "${patterns[@]}"
+}
+
+# Expects C-sorted dirs with a trailing slash, so children directly follow their parent
+__agent_drop_nested_dirs() {
+  awk 'kept == "" || index($0, kept) != 1 { kept = $0; print }'
 }
 
 _agent_home_files() {
@@ -35,19 +55,22 @@ _agent_in_regular_repo() {
 _agent_run() {
   local tool="$1"
   shift
+  local cmd=()
   if [[ "$tool" == 'claude' ]]; then
     _info 'Starting Claude Code'
-    command claude "$@" --model "${_AGENT_MODEL//./-}" --permission-mode acceptEdits
+    cmd=(claude "$@" --model "${_AGENT_MODEL//./-}" --permission-mode acceptEdits)
   else
     _info 'Starting Copilot'
-    command copilot "$@" --model "$_AGENT_MODEL"
+    cmd=(copilot "$@" --model "$_AGENT_MODEL")
   fi
+  _info "$(printf '%q ' "${cmd[@]}")"
+  command "${cmd[@]}"
 }
 
 _agent_tool() {
   # force copilot until the claude folder trust regression is fixed.
-  # echo "${AGENT:-copilot}"
-  echo copilot
+  echo "${AGENT:-copilot}"
+  # echo copilot
 }
 
 # Start an agent on the dotfiles with every tracked home dir exposed, working
@@ -62,10 +85,7 @@ _agent_home() {
 
     while IFS= read -r dir; do
       args+=(--add-dir "${HOME}/${dir%/}")
-    done < <(
-      _agent_home_dirs
-      _agent_home_submodules
-    )
+    done < <(_agent_home_dirs)
 
     while IFS= read -r file; do
       if [[ "$tool" == 'claude' ]]; then
