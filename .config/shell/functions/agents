@@ -67,6 +67,23 @@ _agent_run() {
   command "${cmd[@]}"
 }
 
+# Claude prompts for every --add-dir not marked trusted in ~/.claude.json, so pre-trust them
+__agent_claude_trust_dirs() {
+  local config="${HOME}/.claude.json"
+  local tmp
+  if [[ ! -f "$config" ]]; then
+    return 0
+  fi
+  tmp=$(mktemp "${config}.XXXXXX") || return 1
+  if jq '.projects = (.projects // {}) | reduce $ARGS.positional[] as $dir (.; .projects[$dir].hasTrustDialogAccepted = true)' \
+    "$config" --args "$@" > "$tmp"; then
+    command mv -f "$tmp" "$config"
+  else
+    command rm -f "$tmp"
+    _warn 'Failed to pre-trust Claude directories'
+  fi
+}
+
 _agent_tool() {
   # force copilot until the claude folder trust regression is fixed.
   echo "${AGENT:-copilot}"
@@ -81,11 +98,17 @@ _agent_home() {
   tool=$(_agent_tool)
   (
     local args=()
+    local dirs=()
     local dir file
 
     while IFS= read -r dir; do
+      dirs+=("${HOME}/${dir%/}")
       args+=(--add-dir "${HOME}/${dir%/}")
     done < <(_agent_home_dirs)
+
+    if [[ "$tool" == 'claude' ]]; then
+      __agent_claude_trust_dirs "${dirs[@]}"
+    fi
 
     while IFS= read -r file; do
       if [[ "$tool" == 'claude' ]]; then
