@@ -60,6 +60,9 @@ local markdown = require 'utils/markdown'
 ---@field pollSeconds number Interval of the focus polling while Herdr is frontmost.
 ---@field findAgent fun(layout: HerdrLayout|nil, focusedAt: table<string, integer>|nil): HerdrTerminal|nil
 ---@field findPane fun(layout: HerdrLayout|nil, pane: string|nil): HerdrTerminal|nil
+---@field findTerminal fun(layout: HerdrLayout|nil, address: string): HerdrTerminal|nil
+---@field pickerPlacement fun(screen: { x: number, y: number, w: number, h: number }, herdr: { x: number, y: number, w: number, h: number }|nil, preferredWidth: number): { x: number, y: number }, number
+---@field previewSeconds number Interval `sendFileReference` checks the highlighted agent at, to show its pane.
 ---@field findWaiting fun(layout: HerdrLayout|nil, focusedPane: string|nil, subAgents: HcTerminal[]|nil, peeked: string|nil): HerdrTarget|nil
 ---@field peeked HerdrTarget|nil Sub-agent `focusNext` peeked last, the current one while its parent's pane is focused.
 ---@field findDone fun(layout: HerdrLayout|nil, focusedPane: string|nil): HerdrTerminal|nil
@@ -102,6 +105,8 @@ mod.linkWaitSeconds = 0.5
 mod.focusedAt = {}
 
 mod.pollSeconds = 1
+
+mod.previewSeconds = 0.15
 
 -- hs.settings key of the agent picked last by `sendFileReference`, kept across reloads
 local lastAgentKey = 'herdr.lastAgent'
@@ -162,6 +167,23 @@ function mod.findPane(layout, pane)
     for _, tab in ipairs(space.tabs or {}) do
       for _, terminal in ipairs(tab.terminals or {}) do
         if terminal.pane == pane then
+          return terminal
+        end
+      end
+    end
+  end
+  return nil
+end
+
+--- Returns the terminal at the address, e.g. `t4`, from the `herdr-app ls` output.
+---@param layout HerdrLayout|nil
+---@param address string
+---@return HerdrTerminal|nil
+function mod.findTerminal(layout, address)
+  for _, space in ipairs(layout and layout.spaces or {}) do
+    for _, tab in ipairs(space.tabs or {}) do
+      for _, terminal in ipairs(tab.terminals or {}) do
+        if terminal.terminal == address then
           return terminal
         end
       end
@@ -727,11 +749,13 @@ end
 ---@type hs.chooser|nil
 local chooser = nil
 
----@type hs.chooser|nil
-local picker = nil
-
--- hs.settings key of how `sendFileReference` sent its last prompt, `paste` or `submit`
-local lastModeKey = 'herdr.lastMode'
+-- Size and spot of the `sendFileReference` pickers, kept beside the Herdr window
+local pickerRatio = 0.3
+local maxPickerWidth = 800
+local minPickerRatio = 0.2
+local pickerTopRatio = 0.2
+local pickerMargin = 10
+local pickerRows = 6
 
 --- True when the path is the folder or inside it.
 ---@param path string|nil
@@ -835,27 +859,43 @@ function mod.findSpace(layout, path, root, cwds)
   return found, foundFolder
 end
 
---- Shows a picker of the choices once the one calling it closed, its query an editable text that does not filter
---- them, then calls back with the picked one, nil when dismissed, and the text.
----@param choices table[]
----@param placeholder string
----@param query string
----@param callback fun(choice: table|nil, query: string)
-local function pick(choices, placeholder, query, callback)
-  hs.timer.doAfter(0, function()
-    if picker then
-      picker:delete()
-    end
-    picker = hs.chooser.new(function(choice)
-      callback(choice, picker and picker:query() or '')
-    end)
-    picker:bgDark(true)
-    picker:placeholderText(placeholder)
-    picker:queryChangedCallback(function() end)
-    picker:choices(choices)
-    picker:query(query)
-    picker:show()
-  end)
+--- Returns the top-left point and width, in percent of the screen width, of a picker beside the Herdr window: centered
+--- in its widest free side, narrowed to fit it down to `minPickerRatio` of the screen, else centered on the screen.
+---@param screen { x: number, y: number, w: number, h: number }
+---@param herdr { x: number, y: number, w: number, h: number }|nil Herdr window frame, nil when not on the screen.
+---@param preferredWidth number In points, narrowed to fit the free side.
+---@return { x: number, y: number }
+---@return number
+function mod.pickerPlacement(screen, herdr, preferredWidth)
+  local y = screen.y + screen.h * pickerTopRatio
+  local width = preferredWidth
+  if not herdr then
+    return { x = screen.x + (screen.w - width) / 2, y = y }, width / screen.w * 100
+  end
+  local start = herdr.x + herdr.w
+  local gap = screen.x + screen.w - start
+  local left = herdr.x - screen.x
+  if left > gap then
+    start, gap = screen.x, left
+  end
+  width = math.max(math.min(width, gap - 2 * pickerMargin), math.min(width, screen.w * minPickerRatio))
+  local x = start + (gap - width) / 2
+  x = math.max(screen.x + pickerMargin, math.min(x, screen.x + screen.w - width - pickerMargin))
+  return { x = x, y = y }, width / screen.w * 100
+end
+
+--- Shows the chooser smaller than the default and beside the Herdr window, out of the way of its panes.
+---@param shown hs.chooser
+local function showBeside(shown)
+  local screen = hs.screen.mainScreen()
+  local app = hs.application.get(mod.name)
+  local window = app and app:mainWindow()
+  local herdr = window and window:screen() == screen and window:frame() or nil
+  local point, width =
+    mod.pickerPlacement(screen:frame(), herdr, math.min(screen:frame().w * pickerRatio, maxPickerWidth))
+  shown:width(width)
+  shown:rows(pickerRows)
+  shown:show(point)
 end
 
 --- Returns the command starting the agent with the prompt as its first message, without it when empty.
@@ -876,7 +916,7 @@ end
 ---@param prompt string
 local function paste(agent, prompt)
   if not run('herdr-app do pane.focus --terminal ' .. agent.address) then
-    hs.alert.show('Herdr: ' .. agent.address .. ' is not in the Herdr window, submit it instead')
+    hs.alert.show('Herdr: ' .. agent.address .. ' is not in the Herdr window')
     return
   end
   local previous = hs.pasteboard.getContents()
@@ -894,24 +934,6 @@ local function paste(agent, prompt)
   if not pasted then
     hs.alert.show('Herdr: could not paste into ' .. agent.address .. ', see logs')
   end
-end
-
---- Sends the prompt to the agent with Enter, and shows its pane in Herdr when it is there.
----@param agent HcTerminal
----@param prompt string
-local function submit(agent, prompt)
-  run('herdr-app do pane.focus --terminal ' .. agent.address)
-  process.start('hc', { 'send', agent.address, prompt }, nil, 60, {
-    quiet = true,
-    callback = function(exitCode, stdOut, stdErr)
-      if exitCode == 0 then
-        hs.alert.show('Herdr ' .. agent.address .. ': ' .. prompt)
-      else
-        logger.ef('hc send %s failed: %s %s', agent.address, stdOut, stdErr)
-        hs.alert.show('Herdr: could not send to ' .. agent.address .. ', see logs')
-      end
-    end,
-  })
 end
 
 --- Returns the panes of all spaces and tabs about the path, from the `herdr-app ls` output: the agents, then the
@@ -1002,6 +1024,38 @@ local function focusPane(pane)
     app:activate()
   end
   run('herdr-app do pane.focus --pane ' .. pane)
+end
+
+---@type hs.timer|nil
+local previewTimer = nil
+
+--- Focuses the pane of the row the picker highlights each time the highlight moves, in the background: Herdr stays
+--- behind the picker and the focused window.
+---@param agentChooser hs.chooser
+local function previewPanes(agentChooser)
+  if previewTimer then
+    previewTimer:stop()
+  end
+  local highlighted = agentChooser:selectedRow()
+  previewTimer = hs.timer.doEvery(mod.previewSeconds, function()
+    local row = agentChooser:selectedRow()
+    if row == highlighted then
+      return
+    end
+    highlighted = row
+    local contents = agentChooser:selectedRowContents()
+    local pane = contents and contents.pane
+    if not pane then
+      return
+    end
+    process.start('herdr-app', { 'do', 'pane.focus', '--pane', pane }, nil, 5, {
+      callback = function(exitCode, stdOut, stdErr)
+        if exitCode ~= 0 then
+          logger.ef('herdr-app do pane.focus --pane %s failed: %s %s', pane, stdOut, stdErr)
+        end
+      end,
+    })
+  end)
 end
 
 --- Shows the Herdr pane about what the focused window shows, e.g. the GoLand file: in its repo, else holding it, by
@@ -1099,9 +1153,11 @@ end
 --- Other apps, e.g. Brave, add what their window shows, like its URL, and the selection as a quote after the prompt.
 --- Lists the agents about the same repo, else holding the path, then a row starting a new agent with the prompt in
 --- that repo and its space, then the other agents, each in order of `orderAgents`. Without a path, every agent comes
---- first and the new one goes in the shown space. A second picker, the prompt still editable, pastes it into the
---- agent without Enter or submits it, the way picked last first; a new agent can only be submitted to.
+--- first and the new one goes in the shown space. Moving the highlight to an agent focuses its pane in Herdr, in the
+--- background. Picking an agent pastes the prompt into it without Enter, to finish it in Herdr; picking the new one
+--- starts it with the prompt. Escape goes back to the app focused before.
 function mod.sendFileReference()
+  local frontmost = hs.application.frontmostApplication()
   local window = hs.window.focusedWindow()
   local file = source(window)
   local path = file and file.path
@@ -1161,10 +1217,12 @@ function mod.sendFileReference()
     references[agent.address] = (file and path) and mod.reference(path, file.line, file.endLine, cwd) or ''
     local details =
       string.format('%s %s  %s  %s  %s', agent.agent, agent.address, agent.status or '', agent.where or '', cwd or '')
+    local shownIn = mod.findTerminal(parsed, agent.address)
     table.insert((not path or mod.relates(cwd, path, root)) and related or others, {
       text = description ~= '' and description or string.format('%s %s', agent.agent, agent.address),
       subText = details .. attached,
       address = agent.address,
+      pane = shownIn and shownIn.pane,
     })
   end
   local where = space and string.format('a new tab of %s', space.name or space.folder or '') or 'a new space'
@@ -1187,64 +1245,31 @@ function mod.sendFileReference()
     return path and mod.rebase(prompt, reference, replacement) or mod.withContext(prompt, context, selected)
   end
 
-  --- Picks pasting the prompt without Enter or submitting it, the way picked last first, the prompt still editable.
-  --- Without `pasteable`, only submitting is offered.
-  ---@param name string Agent it goes to.
-  ---@param prompt string As typed in the first picker.
-  ---@param replacement string `@` reference relative to the agent folder.
-  ---@param pasteable boolean
-  ---@param deliver fun(prompt: string, submitted: boolean)
-  local function send(name, prompt, replacement, pasteable, deliver)
-    local modes = {
-      { text = 'Paste', subText = name .. ', without Enter to finish it in Herdr', mode = 'paste' },
-      { text = 'Submit ⏎', subText = name .. ', with Enter', mode = 'submit' },
-    }
-    if not pasteable then
-      table.remove(modes, 1)
-    elseif hs.settings.get(lastModeKey) == 'submit' then
-      modes[1], modes[2] = modes[2], modes[1]
-    end
-    pick(modes, 'Prompt, ⏎ sends it to ' .. name, prompt, function(choice, edited)
-      if window and (not choice or choice.mode == 'submit') then
-        window:focus()
-      end
-      if not choice then
-        return
-      end
-      if pasteable then
-        hs.settings.set(lastModeKey, choice.mode)
-      end
-      deliver(finish(edited, replacement), choice.mode == 'submit')
-    end)
-  end
-
   if chooser then
     chooser:delete()
   end
   chooser = hs.chooser.new(function(choice)
     local prompt = chooser and chooser:query() or ''
     if not choice then
-      if window then
-        window:focus()
-      end
+      -- The chooser hands focus back only once this returns, and previewed panes may still be focusing Herdr.
+      hs.timer.doAfter(0, function()
+        if frontmost then
+          frontmost:activate()
+        end
+        if window then
+          window:focus()
+        end
+      end)
       return
     end
     if choice.new then
-      send('New ' .. mod.newAgent.name .. ' agent', prompt, newReference, false, function(text)
-        startAgent(mod.newAgent, space and space.id, newFolder, text)
-      end)
+      startAgent(mod.newAgent, space and space.id, newFolder, finish(prompt, newReference))
       return
     end
     for _, agent in ipairs(agents) do
       if agent.address == choice.address then
-        send(choice.text, prompt, references[agent.address], true, function(text, submitted)
-          hs.settings.set(lastAgentKey, agent.address)
-          if submitted then
-            submit(agent, text)
-          else
-            paste(agent, text)
-          end
-        end)
+        hs.settings.set(lastAgentKey, agent.address)
+        paste(agent, finish(prompt, references[agent.address]))
         return
       end
     end
@@ -1255,7 +1280,13 @@ function mod.sendFileReference()
   chooser:queryChangedCallback(function() end)
   chooser:choices(choices)
   chooser:query(path and (reference .. ' ') or '')
-  chooser:show()
+  chooser:hideCallback(function()
+    if previewTimer then
+      previewTimer:stop()
+    end
+  end)
+  showBeside(chooser)
+  previewPanes(chooser)
 end
 
 return mod

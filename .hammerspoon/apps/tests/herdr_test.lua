@@ -62,6 +62,19 @@ return {
     assert(herdr.findPane(layout, 'p3') == nil)
     assert(herdr.findPane(layout, nil) == nil)
   end,
+  ['findTerminal finds the terminal by its address in any tab'] = function()
+    local layout = {
+      spaces = {
+        { tabs = { { terminals = { { terminal = 't1', pane = 'p1' } } } } },
+        { tabs = { { terminals = {
+          { terminal = 't2', pane = 'p2' },
+        } } } },
+      },
+    }
+    assert(herdr.findTerminal(layout, 't2').pane == 'p2')
+    assert(herdr.findTerminal(layout, 't3') == nil)
+    assert(herdr.findTerminal(nil, 't1') == nil)
+  end,
   ['findWaiting cycles through the blocked agents of every space after the focused pane'] = function()
     local layout = {
       spaces = {
@@ -325,5 +338,23 @@ return {
     assert(table.concat(herdr.agentArgv(claude, 'fix @a.go'), '|') == 'claude|--verbose|fix @a.go')
     assert(table.concat(herdr.agentArgv(claude, ' \n'), '|') == 'claude|--verbose')
     assert(#claude.argv == 2)
+  end,
+  ['pickerPlacement centers the picker in the widest free side of the Herdr window'] = function()
+    local screen = { x = 0, y = 0, w = 1000, h = 800 }
+    local point, width = herdr.pickerPlacement(screen, { x = 0, y = 0, w = 500, h = 800 }, 300)
+    assert(point.x == 600 and width == 30)
+    point = herdr.pickerPlacement(screen, { x = 400, y = 0, w = 600, h = 800 }, 300)
+    assert(point.x == 50)
+  end,
+  ['pickerPlacement narrows the picker to the free side, keeping a minimum width'] = function()
+    local screen = { x = 0, y = 0, w = 1000, h = 800 }
+    local point, width = herdr.pickerPlacement(screen, { x = 0, y = 0, w = 760, h = 800 }, 300)
+    assert(point.x == 770 and width == 22)
+    point, width = herdr.pickerPlacement(screen, { x = 0, y = 0, w = 1000, h = 800 }, 300)
+    assert(point.x == 790 and width == 20)
+  end,
+  ['pickerPlacement centers the picker on the screen without Herdr'] = function()
+    local point, width = herdr.pickerPlacement({ x = 100, y = 0, w = 1000, h = 800 }, nil, 300)
+    assert(point.x == 450 and point.y == 160 and width == 30)
   end,
 }

@@ -213,7 +213,11 @@
 ---@field searchSubText fun(self, enabled: boolean): hs.chooser
 ---@field choices fun(self, choices: table[]): hs.chooser
 ---@field queryChangedCallback fun(self, fn: fun(query: string)): hs.chooser
----@field show fun(self): hs.chooser
+---@field show fun(self, topLeft: { x: number, y: number }|nil): hs.chooser
+---@field width fun(self, percent: number): hs.chooser
+---@field rows fun(self, rows: integer): hs.chooser
+---@field selectedRow fun(self): integer
+---@field selectedRowContents fun(self): table|nil
 ---@field delete fun(self): nil
 
 ---@class hs.json

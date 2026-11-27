@@ -72,7 +72,7 @@ local bindings = {
         key = 'i',
         shift = true,
         fn = apps.herdr.sendFileReference,
-        desc = 'Herdr - Prompt an agent with @file#line, @folder/ or the quoted selection and context, picking the agent, or a new one in its repo and space, then paste or submit',
+        desc = 'Herdr - Prompt an agent with @file#line, @folder/ or the quoted selection and context, picking the agent to paste it in, or a new one in its repo and space to start with it',
       },
       -- { key = 'i', name = 'iTerm2' },
       -- { key = 'i', fn = apps.iterm.omni, shift = true },
