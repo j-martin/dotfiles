@@ -19,6 +19,7 @@ local config = require 'config'
 ---@field context fun(): table<string, any>|nil
 ---@field openActiveTabInSafari fun()
 ---@field openActiveTabInChrome fun()
+---@field copyActiveTabAsMarkdownLink fun()
 ---@field chromeOnlyTitles string[]
 ---@field chromeOnlyUrlPrefixes string[]
 ---@field meetUrlPrefixes string[]
@@ -189,6 +190,11 @@ end
 --- Opens the URL of the active tab in Google Chrome.
 function mod.openActiveTabInChrome()
   chromium.openActiveTab(mod.name, googleChrome.openUrl)
+end
+
+--- Copies the active tab to the clipboard as a Markdown link titled after the page title.
+function mod.copyActiveTabAsMarkdownLink()
+  chromium.copyActiveTabAsMarkdownLink(mod.name)
 end
 
 ---@class BraveTabMatcher

@@ -149,6 +149,12 @@ local bindings = {
       { modifiers = cmdCtrl, key = 'return', fn = apps.brave.clickSignIn, desc = 'Press the Sign in button' },
       { modifiers = cmdCtrl, key = 'o', fn = apps.brave.openActiveTabInSafari, desc = 'Open tab in Safari' },
       { modifiers = cmdCtrl, key = 'g', fn = apps.brave.openActiveTabInChrome, desc = 'Open tab in Google Chrome' },
+      {
+        modifiers = cmdCtrl,
+        key = 'c',
+        fn = apps.brave.copyActiveTabAsMarkdownLink,
+        desc = 'Copy tab as Markdown link',
+      },
     },
   },
   {

@@ -1,5 +1,6 @@
 -- Message drafts in Obsidian, named after what the focused window shows, with a link to it when it has a URL.
 local logger = hs.logger.new('obsidian', 'info')
+local markdown = require 'utils/markdown'
 
 ---@class ObsidianApp
 ---@field name string
@@ -42,11 +43,7 @@ function mod.content(context)
   if not context or not context.url then
     return ''
   end
-  ---@type string
-  local title = context.title:gsub('%s+', ' '):gsub('([%[%]])', '\\%1')
-  ---@type string
-  local url = context.url:gsub('%s', '%%20'):gsub('%)', '%%29')
-  return '[' .. title .. '](' .. url .. ')\\n\\n'
+  return markdown.link(context.title, context.url) .. '\\n\\n'
 end
 
 --- Creates and opens a draft in `config.obsidianDraftsFolder`, named after the focused window.

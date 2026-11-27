@@ -1,10 +1,12 @@
 local logger = hs.logger.new('chromium', 'info')
 local jxa = require 'utils/jxa'
+local markdown = require 'utils/markdown'
 
 --- Shared helpers for Chromium based browsers, e.g. Brave and Google Chrome.
 ---@class ChromiumModule
 ---@field context fun(appName: string): table<string, string>|nil
 ---@field openActiveTab fun(appName: string, open: fun(url: string))
+---@field copyActiveTabAsMarkdownLink fun(appName: string)
 local mod = {}
 
 --- Returns the title and URL of the active tab of `appName`.
@@ -28,6 +30,19 @@ function mod.openActiveTab(appName, open)
     return
   end
   open(tab.url)
+end
+
+--- Copies the active tab of `appName` to the clipboard as a Markdown link titled after the page title.
+---@param appName string
+function mod.copyActiveTabAsMarkdownLink(appName)
+  local tab = mod.context(appName)
+  if not tab then
+    logger.ef('Could not get the active %s tab.', appName)
+    return
+  end
+  local link = markdown.link(tab.title, tab.url)
+  hs.pasteboard.setContents(link)
+  hs.alert.show('Copied ' .. link)
 end
 
 return mod
