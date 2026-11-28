@@ -227,6 +227,40 @@ _git_switch_worktree() {
   fi
 }
 
+__git_branch_worktree() {
+  local branch="$1"
+  git worktree list --porcelain \
+    | awk -v ref="refs/heads/${branch}" '
+      /^worktree /{sub(/^worktree /, ""); path=$0}
+      $0 == "branch " ref {print path; exit}'
+}
+
+# Checks out a branch, or when it is already checked out in another worktree, prompts to switch to that worktree or remove it and check out the branch here.
+_git_checkout_branch_or_worktree() {
+  local branch="$1"
+  if [[ -z "${branch}" ]]; then
+    return 1
+  fi
+  git worktree prune
+  local worktree
+  worktree="$(__git_branch_worktree "${branch}")"
+  if [[ -z "${worktree}" ]]; then
+    git checkout "${branch}"
+    return
+  fi
+  local switch_entry="Switch to worktree '${worktree}'"
+  local remove_entry="Remove worktree '${worktree}' and checkout here"
+  local selected
+  selected="$(printf '%s\n%s\n' "${switch_entry}" "${remove_entry}" \
+    | fzf --height 20% --reverse --header "'${branch}' is checked out in another worktree")"
+  if [[ "${selected}" == "${switch_entry}" ]]; then
+    cd "${worktree}" || _error "Failed to switch to '${worktree}'"
+  elif [[ "${selected}" == "${remove_entry}" ]]; then
+    git worktree remove "${worktree}" || return 1
+    git checkout "${branch}"
+  fi
+}
+
 _git_commit_individual_files() {
   git diff --name-only \
     | xargs -I{} git commit -m '{}' '{}'
