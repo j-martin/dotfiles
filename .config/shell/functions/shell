@@ -97,7 +97,7 @@ __which_recursive_visit() {
   fi
   case "$(whence -w -- "${name}" 2> /dev/null)" in
     *': function')
-      definition="$(which "${name}")"
+      definition="$(builtin which -- "${name}")"
       body="${definition}"
       ;;
     *': alias')
@@ -105,7 +105,7 @@ __which_recursive_visit() {
       body="${aliases[${name}]}"
       ;;
     *)
-      definition="# $(which "${name}" 2>&1)"
+      definition="# $(builtin which -- "${name}" 2>&1)"
       body=''
       ;;
   esac
