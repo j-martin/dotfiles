@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# `git enhance-commit-message`: asks Claude for a clearer message for `HEAD`, based on its diff, then amends the
+# commit with it after a review in the editor. Keeps the current message when the edit is aborted, so it can run
+# from `git rebase --exec` (see `_agent_enhance_commit_messages`).
+# GIT_DIR/GIT_WORK_TREE are inherited, so this also works for the dotfiles repo.
+
+set -o errexit
+set -o pipefail
+
+_MODEL="${_AGENT_MODEL:-claude-opus-5.5}"
+# shellcheck disable=SC2016
+_PROMPT='Rewrite the message of the commit below so it is clear and explains why the change was made.
+Keep the subject prefix and style, a subject under 72 characters, a body wrapped at 72 characters, backticks
+around code, files and commands, and every trailer (e.g. `Co-Authored-By`). Do not invent facts that are
+not in the diff or the current message. Output only the new commit message, with no code fence.'
+
+_main() {
+  local subject message
+  subject="$(git log --max-count=1 --format='%h %s' HEAD)"
+  echo "Asking Claude for a better message for ${subject}"
+  if ! message="$(git show --stat --patch HEAD \
+    | claude -p "${_PROMPT}" --model "${_MODEL//./-}" --output-format text)"; then
+    echo "Claude failed to rewrite the message of ${subject}, keeping it." >&2
+    exit 1
+  fi
+  if [[ -z "${message}" ]]; then
+    echo "Claude returned an empty message for ${subject}, keeping it." >&2
+    exit 1
+  fi
+  if ! git commit --amend --edit --message "${message}"; then
+    echo "Edit aborted, keeping the message of ${subject}." >&2
+  fi
+}
+
+_main "$@"

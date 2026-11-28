@@ -90,6 +90,21 @@ __agent_herdr_new_tab() {
   fi
 }
 
+# Runs `git enhance-commit-message` on each commit since `origin/HEAD`, oldest first, to rewrite their messages
+# with Claude after a review in the editor.
+_agent_enhance_commit_messages() {
+  local base
+  if ! base="$(git merge-base HEAD origin/HEAD)"; then
+    _error 'Cannot find where the branch starts from origin/HEAD'
+    return 1
+  fi
+  if [[ -z "$(git rev-list "${base}..HEAD")" ]]; then
+    _info 'No commits since origin/HEAD'
+    return 0
+  fi
+  _AGENT_MODEL="${_AGENT_MODEL}" git rebase --autostash --exec 'git enhance-commit-message' "${base}"
+}
+
 # Claude prompts for every --add-dir not marked trusted in ~/.claude.json, so pre-trust them
 __agent_claude_trust_dirs() {
   local config="${HOME}/.claude.json"

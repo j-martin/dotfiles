@@ -29,6 +29,7 @@ git-reflog-grep() {
 alias gco=_git_checkout
 alias goc=gco
 alias gdel=_git_delete_commit
+alias gcae='_agent_enhance_commit_messages'
 alias gcane='git commit --amend --no-edit -n'
 alias gfo='git fetch origin --tags --force'
 alias gdpb='git diff | pbcopy'
