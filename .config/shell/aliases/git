@@ -123,4 +123,8 @@ gvbump() { git commit -m "bump to version $(awk '{print $3}' version.sbt)" versi
 ge() {
   (cd "$(git rev-parse --show-toplevel)" && git ls-files | e "$@")
 }
+# Pick a file changed in the current branch (committed or not) with fzf and open it in the editor.
+gec() {
+  (cd "$(git rev-parse --show-toplevel)" && _git_changed_files | e "$@")
+}
 alias gm="emacsclient --no-wait --eval '(jm/magit-status-or-dotfiles)' && osascript -e 'tell application \"Emacs\" to activate'"

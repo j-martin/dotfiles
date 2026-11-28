@@ -42,6 +42,23 @@ _git_pick_branch_no_origin() {
     | sed 's/origin\///g'
 }
 
+# Lists the files changed in the current branch: committed since `origin/HEAD`, staged, unstaged and untracked.
+# Paths are relative to the repository root and deleted files are skipped.
+_git_changed_files() {
+  local base
+  base="$(git merge-base HEAD origin/HEAD 2> /dev/null || echo HEAD)"
+  {
+    git diff --name-only "${base}"
+    git ls-files --others --exclude-standard
+  } \
+    | sort --unique \
+    | while IFS= read -r file; do
+      if [[ -e "${file}" ]]; then
+        echo "${file}"
+      fi
+    done
+}
+
 _git_pick_unstaged_files() {
   {
     echo '.'

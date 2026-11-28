@@ -25,3 +25,7 @@ alias hsrm=_home_submodule_remove
 he() {
   (cd "$HOME" && home ls-files | e "$@")
 }
+# Pick a dotfile changed but not pushed (committed or not) with fzf and open it in the editor.
+hec() {
+  (cd "$HOME" && GIT_DIR="$HOME/.files.git" GIT_WORK_TREE="$HOME" _git_changed_files | e "$@")
+}
