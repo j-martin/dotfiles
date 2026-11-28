@@ -21,3 +21,26 @@ if [[ -n "${ZSH_VERSION:-}" && -n "${HC_TERMINAL_ID:-}" ]]; then
   zle -N __herdr_clear_screen_and_scrollback
   bindkey '^L' __herdr_clear_screen_and_scrollback
 fi
+
+# Succeeds when running in a terminal of the Herdr app.
+_herdr_in_app() {
+  [[ -n "${HC_TERMINAL_ID:-}" ]] && command -v herdr-app > /dev/null 2>&1
+}
+
+# Prints the id and name, tab separated, of the Herdr space opened on the folder, or else on one of its subdirs.
+_herdr_space_for_folder() {
+  local folder="$1"
+  herdr-app ls | jq --raw-output --arg folder "${folder}" '
+    (first(.spaces[] | select(.folder == $folder))
+      // first(.spaces[] | select(.folder // "" | startswith($folder + "/"))))
+    | [.id, .name] | @tsv'
+}
+
+# Succeeds when the terminal is in one of the tabs of the Herdr space.
+_herdr_space_has_terminal() {
+  local space_id="$1"
+  local terminal="$2"
+  herdr-app ls \
+    | jq --raw-output --arg id "${space_id}" '.spaces[] | select(.id == $id) | .tabs[].terminals[].terminal' \
+    | grep --quiet --line-regexp --fixed-strings "${terminal}"
+}

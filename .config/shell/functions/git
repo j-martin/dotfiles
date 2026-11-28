@@ -235,7 +235,8 @@ __git_branch_worktree() {
       $0 == "branch " ref {print path; exit}'
 }
 
-# Checks out a branch, or when it is already checked out in another worktree, prompts to switch to that worktree or remove it and check out the branch here.
+# Checks out a branch, or when it is already checked out in another worktree, prompts to switch to that worktree (or
+# its Herdr space) or remove it and check out the branch here.
 _git_checkout_branch_or_worktree() {
   local branch="$1"
   if [[ -z "${branch}" ]]; then
@@ -248,14 +249,47 @@ _git_checkout_branch_or_worktree() {
     git checkout "${branch}"
     return
   fi
+  local in_herdr=false
+  local space=""
+  if _herdr_in_app; then
+    in_herdr=true
+    space="$(_herdr_space_for_folder "${worktree}")"
+  fi
+  local space_id="${space%%$'\t'*}"
+  local space_name="${space#*$'\t'}"
+  local space_entry=""
+  if [[ -n "${space_id}" ]]; then
+    space_entry="Switch to Herdr space '${space_name}'"
+  elif [[ "${in_herdr}" == true ]]; then
+    space_entry="Open worktree '${worktree}' in a new Herdr space"
+  fi
   local switch_entry="Switch to worktree '${worktree}'"
   local remove_entry="Remove worktree '${worktree}' and checkout here"
+  local close_space=false
+  if [[ -n "${space_id}" ]] && ! _herdr_space_has_terminal "${space_id}" "${HC_TERMINAL_ID}"; then
+    close_space=true
+    remove_entry="Close Herdr space '${space_name}', remove worktree '${worktree}' and checkout here"
+  fi
+  local entries=()
+  if [[ -n "${space_entry}" ]]; then
+    entries+=("${space_entry}")
+  fi
+  entries+=("${switch_entry}" "${remove_entry}")
   local selected
-  selected="$(printf '%s\n%s\n' "${switch_entry}" "${remove_entry}" \
+  selected="$(printf '%s\n' "${entries[@]}" \
     | fzf --height 20% --reverse --header "'${branch}' is checked out in another worktree")"
-  if [[ "${selected}" == "${switch_entry}" ]]; then
+  if [[ -z "${selected}" ]]; then
+    return
+  elif [[ "${selected}" == "${space_entry}" && -n "${space_id}" ]]; then
+    herdr-app 'do' space.select "$(jq --null-input --compact-output --arg id "${space_id}" '{id: $id}')" > /dev/null
+  elif [[ "${selected}" == "${space_entry}" ]]; then
+    herdr-app 'do' space.new "$(jq --null-input --compact-output --arg folder "${worktree}" '{folder: $folder}')" > /dev/null
+  elif [[ "${selected}" == "${switch_entry}" ]]; then
     cd "${worktree}" || _error "Failed to switch to '${worktree}'"
   elif [[ "${selected}" == "${remove_entry}" ]]; then
+    if [[ "${close_space}" == true ]]; then
+      herdr-app 'do' space.close "$(jq --null-input --compact-output --arg id "${space_id}" '{id: $id, confirmed: true}')" > /dev/null || return 1
+    fi
     git worktree remove "${worktree}" || return 1
     git checkout "${branch}"
   fi
@@ -390,6 +424,10 @@ _git_checkout() {
   local branch="$1"
   if [[ "${branch}" == 'https://github.com'* ]]; then
     _git_checkout_pr_from_url "${branch}" "${@:2}"
+    return
+  fi
+  if [[ "$#" -eq 1 ]] && git show-ref --verify --quiet "refs/heads/${branch}"; then
+    _git_checkout_branch_or_worktree "${branch}"
     return
   fi
   git checkout "$@"

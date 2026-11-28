@@ -424,7 +424,7 @@ _git_checkout_pr_from_url() {
   local url="$1"
   _git_clone "${url}"
   git fetch origin
-  git checkout "$(gh pr view --json headRefName --jq .headRefName "${url}")"
+  _git_checkout_branch_or_worktree "$(gh pr view --json headRefName --jq .headRefName "${url}")"
 }
 
 _github_list_all_org_repo_secrets() {

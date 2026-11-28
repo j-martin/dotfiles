@@ -65,15 +65,11 @@ _agent_run() {
     cmd=(copilot "$@" --model "$_AGENT_MODEL")
   fi
   _info "$(printf '%q ' "${cmd[@]}")"
-  if __agent_in_herdr; then
+  if _herdr_in_app; then
     __agent_herdr_new_tab "${cmd[@]}"
     return
   fi
   command "${cmd[@]}"
-}
-
-__agent_in_herdr() {
-  [[ -n "${HC_TERMINAL_ID:-}" ]] && command -v herdr-app > /dev/null 2>&1
 }
 
 # Starts the command from the current dir in a new tab of the Herdr space of its repo (or of the dir outside a
@@ -81,8 +77,8 @@ __agent_in_herdr() {
 __agent_herdr_new_tab() {
   local root space
   root=$(command git rev-parse --show-toplevel 2> /dev/null) || root="$PWD"
-  space=$(herdr-app ls | jq --raw-output --arg folder "$root" \
-    'first(.spaces[] | select(.folder == $folder) | .id) // empty') || return 1
+  space=$(_herdr_space_for_folder "$root") || return 1
+  space="${space%%$'\t'*}"
   if [[ -n "$space" ]]; then
     _info "Starting in a new tab of Herdr space ${space}"
     herdr-app 'do' tab.new "$(jq --null-input --compact-output --arg space "$space" --arg folder "$PWD" \
