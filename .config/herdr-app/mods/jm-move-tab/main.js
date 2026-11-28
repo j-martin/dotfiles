@@ -162,13 +162,13 @@ const mergeDuplicates = async (cx) => {
 };
 
 /**
- * Closes the spaces left with no terminal, then shows the space that was shown, else where the
- * focused terminal went.
+ * Closes the spaces left with no terminal, then focuses the pane that was focused where it is now
+ * (its tab and space shown), else the tab and space that were shown.
  * @param {any[]} sources the spaces terminals left
  * @param {any} shown
- * @param {string | null | undefined} terminal the focused terminal
+ * @param {{ tab: string, pane: string | null, terminal: string | null } | null | undefined} was what was focused
  */
-const tidyUp = (sources, shown, terminal) => {
+const tidyUp = (sources, shown, was) => {
   for (const space of sources) {
     const now = spaces().find((s) => s.id === space.id);
     const tabs = new Set(now?.tabs.map((t) => t.id));
@@ -176,10 +176,18 @@ const tidyUp = (sources, shown, terminal) => {
       run("space.close", { id: now.id });
     }
   }
-  const tab = panes().find((p) => terminal && p.terminal === terminal)?.tab;
-  const back = spaces().find((s) => s.id === shown?.id) ?? spaces().find((s) => s.tabs.some((t) => t.id === tab));
-  if (back) {
-    run("space.select", { id: back.id });
+  const pane = panes().find((p) => (was?.terminal ? p.terminal === was.terminal : p.pane === was?.pane));
+  const tab = pane?.tab ?? was?.tab;
+  const back = spaces().find((s) => s.tabs.some((t) => t.id === tab)) ?? spaces().find((s) => s.id === shown?.id);
+  if (!back) {
+    return;
+  }
+  run("space.select", { id: back.id });
+  if (back.tabs.some((t) => t.id === tab)) {
+    run("tab.select", { id: tab });
+  }
+  if (pane) {
+    run("pane.focus", { pane: pane.pane });
   }
 };
 
@@ -192,7 +200,7 @@ const tidyUp = (sources, shown, terminal) => {
 const sortSpaces = async (cx) => {
   const all = spaces();
   const shown = all.find((s) => s.active);
-  const terminal = focused()?.terminal;
+  const was = focused();
   const ps = panes();
   const machineOf = new Map(all.flatMap((s) => s.tabs.map((t) => [t.id, s.machine ?? null])));
   /** @type {Record<string, string>} */
@@ -215,7 +223,7 @@ const sortSpaces = async (cx) => {
       made.set(key, spaces().find((s) => s.tabs.some((t) => t.id === tab)));
     }
   }
-  tidyUp([...new Set(plan.map((m) => m.from))], shown, terminal);
+  tidyUp([...new Set(plan.map((m) => m.from))], shown, was);
   return { moves: plan.length, made: made.size };
 };
 
