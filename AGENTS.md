@@ -189,6 +189,7 @@ When multiple valid approaches exist, choose based on:
 
 - When opening a PR, in a github markdown warning block, on top when the PR is entirely vibe-coded/slop.
 - If I say "create stack PRs", or stack this PR on top PR XYZ, that means link them with `gh stack add` in the appropriate order.
+- After opening the PR rename the agent or claude session to `<jira-ticket-if-known> - <repo>/<pr-number> - short description`
 
 # Shell (bash, zsh, etc.)
 
